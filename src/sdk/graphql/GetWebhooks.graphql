@@ -34,54 +34,6 @@ query GetWebhooks(
             eq
           }
         }
-        ... on DecodedLogWebhookCondition {
-          decodingId {
-            eq
-          }
-          eventName {
-            eq
-          }
-          address {
-            eq
-          }
-          event
-        }
-        ... on DecodedCallWebhookCondition {
-          decodingId {
-            eq
-          }
-          methodName {
-            eq
-          }
-          address {
-            eq
-          }
-          from {
-            eq
-          }
-          to {
-            eq
-          }
-          methodId {
-            eq
-          }
-          output
-          inputJSON: input
-        }
-        ... on RawCallTraceWebhookCondition {
-          traceType {
-            eq
-          }
-          result {
-            code {
-              contains
-              notContains
-            }
-          }
-          networkId {
-            oneOf
-          }
-        }
         ... on TokenPairEventWebhookCondition {
           tokenAddress {
             eq

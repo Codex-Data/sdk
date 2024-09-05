@@ -56,6 +56,12 @@ export type AddNftPoolEventsOutput = {
   poolAddress: Scalars['String']['output'];
 };
 
+export type AddTokenEventsOutput = {
+  __typename?: 'AddTokenEventsOutput';
+  events: Array<Event>;
+  id: Scalars['String']['output'];
+};
+
 export type AddTokenLifecycleEventsOutput = {
   __typename?: 'AddTokenLifecycleEventsOutput';
   events: Array<TokenLifecycleEvent>;
@@ -345,38 +351,6 @@ export type CreateApiTokensInput = {
   requestLimit?: InputMaybe<Scalars['String']['input']>;
 };
 
-export type CreateDecodedCallWebhookArgs = {
-  alertRecurrence: AlertRecurrence;
-  bucketId?: InputMaybe<Scalars['String']['input']>;
-  bucketSortkey?: InputMaybe<Scalars['String']['input']>;
-  callbackUrl: Scalars['String']['input'];
-  conditions: DecodedCallWebhookConditionInput;
-  groupId?: InputMaybe<Scalars['String']['input']>;
-  name: Scalars['String']['input'];
-  retrySettings?: InputMaybe<RetrySettingsInput>;
-  securityToken: Scalars['String']['input'];
-};
-
-export type CreateDecodedCallWebhooksInput = {
-  webhooks: Array<CreateDecodedCallWebhookArgs>;
-};
-
-export type CreateDecodedLogWebhookArgs = {
-  alertRecurrence: AlertRecurrence;
-  bucketId?: InputMaybe<Scalars['String']['input']>;
-  bucketSortkey?: InputMaybe<Scalars['String']['input']>;
-  callbackUrl: Scalars['String']['input'];
-  conditions: DecodedLogWebhookConditionInput;
-  groupId?: InputMaybe<Scalars['String']['input']>;
-  name: Scalars['String']['input'];
-  retrySettings?: InputMaybe<RetrySettingsInput>;
-  securityToken: Scalars['String']['input'];
-};
-
-export type CreateDecodedLogWebhooksInput = {
-  webhooks: Array<CreateDecodedLogWebhookArgs>;
-};
-
 export type CreateNftEventWebhookArgs = {
   alertRecurrence: AlertRecurrence;
   bucketId?: InputMaybe<Scalars['String']['input']>;
@@ -407,22 +381,6 @@ export type CreatePriceWebhookArgs = {
 
 export type CreatePriceWebhooksInput = {
   webhooks: Array<CreatePriceWebhookArgs>;
-};
-
-export type CreateRawCallTraceWebhookArgs = {
-  alertRecurrence: AlertRecurrence;
-  bucketId?: InputMaybe<Scalars['String']['input']>;
-  bucketSortkey?: InputMaybe<Scalars['String']['input']>;
-  callbackUrl: Scalars['String']['input'];
-  conditions: RawCallTraceWebhookConditionInput;
-  groupId?: InputMaybe<Scalars['String']['input']>;
-  name: Scalars['String']['input'];
-  retrySettings?: InputMaybe<RetrySettingsInput>;
-  securityToken: Scalars['String']['input'];
-};
-
-export type CreateRawCallTraceWebhooksInput = {
-  webhooks: Array<CreateRawCallTraceWebhookArgs>;
 };
 
 export type CreateRawTransactionWebhookArgs = {
@@ -458,22 +416,16 @@ export type CreateTokenPairEventWebhooksInput = {
 };
 
 export type CreateWebhooksInput = {
-  decodedCallWebhooksInput?: InputMaybe<CreateDecodedCallWebhooksInput>;
-  decodedLogWebhooksInput?: InputMaybe<CreateDecodedLogWebhooksInput>;
   nftEventWebhooksInput?: InputMaybe<CreateNftEventWebhooksInput>;
   priceWebhooksInput?: InputMaybe<CreatePriceWebhooksInput>;
-  rawCallTraceWebhooksInput?: InputMaybe<CreateRawCallTraceWebhooksInput>;
   rawTransactionWebhooksInput?: InputMaybe<CreateRawTransactionWebhooksInput>;
   tokenPairEventWebhooksInput?: InputMaybe<CreateTokenPairEventWebhooksInput>;
 };
 
 export type CreateWebhooksOutput = {
   __typename?: 'CreateWebhooksOutput';
-  decodedCallWebhooks: Array<Maybe<Webhook>>;
-  decodedLogWebhooks: Array<Maybe<Webhook>>;
   nftEventWebhooks: Array<Maybe<Webhook>>;
   priceWebhooks: Array<Maybe<Webhook>>;
-  rawCallTraceWebhooks: Array<Maybe<Webhook>>;
   rawTransactionWebhooks: Array<Maybe<Webhook>>;
   tokenPairEventWebhooks: Array<Maybe<Webhook>>;
 };
@@ -493,44 +445,6 @@ export type CurrencyBarData = {
   token: IndividualBarData;
   /** Bar chart data in USD. */
   usd: IndividualBarData;
-};
-
-export type DecodedCallWebhookCondition = {
-  __typename?: 'DecodedCallWebhookCondition';
-  address?: Maybe<StringEqualsCondition>;
-  decodingId: StringEqualsCondition;
-  from?: Maybe<StringEqualsCondition>;
-  input?: Maybe<Scalars['JSON']['output']>;
-  methodId?: Maybe<StringEqualsCondition>;
-  methodName?: Maybe<StringEqualsCondition>;
-  output?: Maybe<Scalars['JSON']['output']>;
-  to?: Maybe<StringEqualsCondition>;
-};
-
-export type DecodedCallWebhookConditionInput = {
-  address?: InputMaybe<StringEqualsConditionInput>;
-  decodingId: StringEqualsConditionInput;
-  from?: InputMaybe<StringEqualsConditionInput>;
-  input?: InputMaybe<Scalars['JSON']['input']>;
-  methodId?: InputMaybe<StringEqualsConditionInput>;
-  methodName?: InputMaybe<StringEqualsConditionInput>;
-  output?: InputMaybe<Scalars['JSON']['input']>;
-  to?: InputMaybe<StringEqualsConditionInput>;
-};
-
-export type DecodedLogWebhookCondition = {
-  __typename?: 'DecodedLogWebhookCondition';
-  address?: Maybe<StringEqualsCondition>;
-  decodingId: StringEqualsCondition;
-  event?: Maybe<Scalars['JSON']['output']>;
-  eventName?: Maybe<StringEqualsCondition>;
-};
-
-export type DecodedLogWebhookConditionInput = {
-  address?: InputMaybe<StringEqualsConditionInput>;
-  decodingId: StringEqualsConditionInput;
-  event?: InputMaybe<Scalars['JSON']['input']>;
-  eventName?: InputMaybe<StringEqualsConditionInput>;
 };
 
 export type DeleteWebhooksInput = {
@@ -996,7 +910,7 @@ export enum EventType {
 
 /** Input type of `EventsQuery`. */
 export type EventsQueryInput = {
-  /** The pair contract address to filter by. */
+  /** The pair contract address to filter by. If you pass a token address in here, it will instead find the top pair for that token and use that. */
   address: Scalars['String']['input'];
   /** The amount of `quoteToken` involved in the swap. */
   amountNonLiquidityToken?: InputMaybe<NumberFilter>;
@@ -1302,7 +1216,7 @@ export type GetPriceInput = {
   maxDeviations?: InputMaybe<Scalars['Float']['input']>;
   /** The network ID the token is deployed on. */
   networkId: Scalars['Int']['input'];
-  /** The unix timestamp for the price. Lookup is limited to the last three months. */
+  /** The unix timestamp for the price. */
   timestamp?: InputMaybe<Scalars['Int']['input']>;
 };
 
@@ -1613,6 +1527,7 @@ export type LiquidityLockConnection = {
 /** Protocols that can lock liquidity */
 export enum LiquidityLockProtocol {
   BasecampV1 = 'BASECAMP_V1',
+  Bitbond = 'BITBOND',
   Burn = 'BURN',
   UncxV2 = 'UNCX_V2',
   UncxV3 = 'UNCX_V3'
@@ -4353,6 +4268,11 @@ export type OnBarsUpdatedResponse = {
   timestamp: Scalars['Int']['output'];
 };
 
+export type OnTokenEventsCreatedInput = {
+  networkId: Scalars['Int']['input'];
+  tokenAddress: Scalars['String']['input'];
+};
+
 export type OneOfNumberCondition = {
   __typename?: 'OneOfNumberCondition';
   oneOf: Array<Scalars['Int']['output']>;
@@ -6332,41 +6252,6 @@ export enum RankingDirection {
   Desc = 'DESC'
 }
 
-export enum RawCallTraceType {
-  Create = 'create'
-}
-
-export type RawCallTraceTypeConditionInput = {
-  eq: RawCallTraceType;
-};
-
-export type RawCallTraceTypeCondtion = {
-  __typename?: 'RawCallTraceTypeCondtion';
-  eq: RawCallTraceType;
-};
-
-export type RawCallTraceWebhookCondition = {
-  __typename?: 'RawCallTraceWebhookCondition';
-  networkId?: Maybe<OneOfNumberCondition>;
-  result?: Maybe<RawCallTraceWebhookConditionResult>;
-  traceType: RawCallTraceTypeCondtion;
-};
-
-export type RawCallTraceWebhookConditionInput = {
-  networkId?: InputMaybe<OneOfNumberConditionInput>;
-  result?: InputMaybe<RawCallTraceWebhookConditionResultInput>;
-  traceType: RawCallTraceTypeConditionInput;
-};
-
-export type RawCallTraceWebhookConditionResult = {
-  __typename?: 'RawCallTraceWebhookConditionResult';
-  code?: Maybe<StringContainsCondition>;
-};
-
-export type RawCallTraceWebhookConditionResultInput = {
-  code?: InputMaybe<StringContainsConditionInput>;
-};
-
 export type RawNftAssetData = {
   __typename?: 'RawNftAssetData';
   /** An optional image field that may or may not be present on the requested NFT asset smart contract. */
@@ -6801,6 +6686,8 @@ export type Subscription = {
   /** Live-streamed price updates for a token. */
   onPriceUpdated?: Maybe<Price>;
   onSimulateTokenContract: SimulateTokenContractResult;
+  /** Live streamed events for a given token across all it's pools */
+  onTokenEventsCreated: AddTokenEventsOutput;
   /** Live-streamed token lifecycle events (mints and burns) */
   onTokenLifecycleEventsCreated: AddTokenLifecycleEventsOutput;
 };
@@ -6883,6 +6770,11 @@ export type SubscriptionOnSimulateTokenContractArgs = {
   contractAddress?: InputMaybe<Scalars['String']['input']>;
   networkId: Scalars['Int']['input'];
   simulationId?: InputMaybe<Scalars['String']['input']>;
+};
+
+
+export type SubscriptionOnTokenEventsCreatedArgs = {
+  input: OnTokenEventsCreatedInput;
 };
 
 
@@ -7742,7 +7634,7 @@ export type Webhook = {
   webhookType: WebhookType;
 };
 
-export type WebhookCondition = DecodedCallWebhookCondition | DecodedLogWebhookCondition | NftEventWebhookCondition | PriceEventWebhookCondition | RawCallTraceWebhookCondition | RawTransactionWebhookCondition | TokenPairEventWebhookCondition;
+export type WebhookCondition = NftEventWebhookCondition | PriceEventWebhookCondition | RawTransactionWebhookCondition | TokenPairEventWebhookCondition;
 
 export enum WebhookNftEventFillSource {
   Blur = 'BLUR',
@@ -7771,7 +7663,6 @@ export enum WebhookNftEventType {
 export enum WebhookType {
   NftEvent = 'NFT_EVENT',
   PriceEvent = 'PRICE_EVENT',
-  RawCallTrace = 'RAW_CALL_TRACE',
   RawTransaction = 'RAW_TRANSACTION',
   TokenPairEvent = 'TOKEN_PAIR_EVENT'
 }

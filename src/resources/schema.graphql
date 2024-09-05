@@ -58,6 +58,11 @@ type AddNftPoolEventsOutput {
   events: [NftPoolEvent]!
 }
 
+type AddTokenEventsOutput {
+  id: String!
+  events: [Event!]!
+}
+
 type AddTokenLifecycleEventsOutput {
   id: String!
   events: [TokenLifecycleEvent!]!
@@ -417,38 +422,6 @@ input CreateApiTokensInput {
   expiresIn: Int
 }
 
-input CreateDecodedCallWebhookArgs {
-  name: String!
-  callbackUrl: String!
-  securityToken: String!
-  alertRecurrence: AlertRecurrence!
-  groupId: String
-  conditions: DecodedCallWebhookConditionInput!
-  retrySettings: RetrySettingsInput
-  bucketId: String
-  bucketSortkey: String
-}
-
-input CreateDecodedCallWebhooksInput {
-  webhooks: [CreateDecodedCallWebhookArgs!]!
-}
-
-input CreateDecodedLogWebhookArgs {
-  name: String!
-  callbackUrl: String!
-  securityToken: String!
-  alertRecurrence: AlertRecurrence!
-  groupId: String
-  conditions: DecodedLogWebhookConditionInput!
-  retrySettings: RetrySettingsInput
-  bucketId: String
-  bucketSortkey: String
-}
-
-input CreateDecodedLogWebhooksInput {
-  webhooks: [CreateDecodedLogWebhookArgs!]!
-}
-
 input CreateNftEventWebhookArgs {
   name: String!
   callbackUrl: String!
@@ -479,22 +452,6 @@ input CreatePriceWebhookArgs {
 
 input CreatePriceWebhooksInput {
   webhooks: [CreatePriceWebhookArgs!]!
-}
-
-input CreateRawCallTraceWebhookArgs {
-  name: String!
-  callbackUrl: String!
-  securityToken: String!
-  alertRecurrence: AlertRecurrence!
-  groupId: String
-  conditions: RawCallTraceWebhookConditionInput!
-  retrySettings: RetrySettingsInput
-  bucketId: String
-  bucketSortkey: String
-}
-
-input CreateRawCallTraceWebhooksInput {
-  webhooks: [CreateRawCallTraceWebhookArgs!]!
 }
 
 input CreateRawTransactionWebhookArgs {
@@ -531,9 +488,6 @@ input CreateTokenPairEventWebhooksInput {
 
 input CreateWebhooksInput {
   priceWebhooksInput: CreatePriceWebhooksInput
-  decodedLogWebhooksInput: CreateDecodedLogWebhooksInput
-  decodedCallWebhooksInput: CreateDecodedCallWebhooksInput
-  rawCallTraceWebhooksInput: CreateRawCallTraceWebhooksInput
   tokenPairEventWebhooksInput: CreateTokenPairEventWebhooksInput
   nftEventWebhooksInput: CreateNftEventWebhooksInput
   rawTransactionWebhooksInput: CreateRawTransactionWebhooksInput
@@ -541,9 +495,6 @@ input CreateWebhooksInput {
 
 type CreateWebhooksOutput {
   priceWebhooks: [Webhook]!
-  decodedLogWebhooks: [Webhook]!
-  decodedCallWebhooks: [Webhook]!
-  rawCallTraceWebhooks: [Webhook]!
   tokenPairEventWebhooks: [Webhook]!
   nftEventWebhooks: [Webhook]!
   rawTransactionWebhooks: [Webhook]!
@@ -565,42 +516,6 @@ type CurrencyBarData {
 
   """Bar chart data in the network's base token."""
   token: IndividualBarData!
-}
-
-type DecodedCallWebhookCondition {
-  decodingId: StringEqualsCondition!
-  methodName: StringEqualsCondition
-  address: StringEqualsCondition
-  from: StringEqualsCondition
-  to: StringEqualsCondition
-  methodId: StringEqualsCondition
-  input: JSON
-  output: JSON
-}
-
-input DecodedCallWebhookConditionInput {
-  decodingId: StringEqualsConditionInput!
-  methodName: StringEqualsConditionInput
-  address: StringEqualsConditionInput
-  from: StringEqualsConditionInput
-  to: StringEqualsConditionInput
-  methodId: StringEqualsConditionInput
-  input: JSON
-  output: JSON
-}
-
-type DecodedLogWebhookCondition {
-  decodingId: StringEqualsCondition!
-  eventName: StringEqualsCondition
-  address: StringEqualsCondition
-  event: JSON
-}
-
-input DecodedLogWebhookConditionInput {
-  decodingId: StringEqualsConditionInput!
-  eventName: StringEqualsConditionInput
-  address: StringEqualsConditionInput
-  event: JSON
 }
 
 input DeleteWebhooksInput {
@@ -1164,7 +1079,9 @@ input EventQueryTimestampInput {
 
 """Input type of `EventsQuery`."""
 input EventsQueryInput {
-  """The pair contract address to filter by."""
+  """
+  The pair contract address to filter by. If you pass a token address in here, it will instead find the top pair for that token and use that.
+  """
   address: String!
 
   """The token of interest. Can be `token0` or `token1`."""
@@ -1552,9 +1469,7 @@ input GetPriceInput {
   """The network ID the token is deployed on."""
   networkId: Int!
 
-  """
-  The unix timestamp for the price. Lookup is limited to the last three months.
-  """
+  """The unix timestamp for the price."""
   timestamp: Int
 
   """
@@ -2000,6 +1915,7 @@ enum LiquidityLockProtocol {
   UNCX_V2
   UNCX_V3
   BURN
+  BITBOND
 }
 
 """Metadata about a pair's liquidity. Includes locked liquidity data."""
@@ -5667,6 +5583,11 @@ input OneOfNumberConditionInput {
   oneOf: [Int!]!
 }
 
+input OnTokenEventsCreatedInput {
+  tokenAddress: String!
+  networkId: Int!
+}
+
 enum OrderState {
   CREATED
   PENDING
@@ -8367,38 +8288,6 @@ enum RankingDirection {
   DESC
 }
 
-enum RawCallTraceType {
-  create
-}
-
-input RawCallTraceTypeConditionInput {
-  eq: RawCallTraceType!
-}
-
-type RawCallTraceTypeCondtion {
-  eq: RawCallTraceType!
-}
-
-type RawCallTraceWebhookCondition {
-  traceType: RawCallTraceTypeCondtion!
-  result: RawCallTraceWebhookConditionResult
-  networkId: OneOfNumberCondition
-}
-
-input RawCallTraceWebhookConditionInput {
-  traceType: RawCallTraceTypeConditionInput!
-  result: RawCallTraceWebhookConditionResultInput
-  networkId: OneOfNumberConditionInput
-}
-
-type RawCallTraceWebhookConditionResult {
-  code: StringContainsCondition
-}
-
-input RawCallTraceWebhookConditionResultInput {
-  code: StringContainsConditionInput
-}
-
 type RawNftAssetData {
   """
   An optional image field that may or may not be present on the requested NFT asset smart contract.
@@ -8990,6 +8879,9 @@ type Subscription {
     id: String
   ): EventLabel
   onSimulateTokenContract(contractAddress: String, networkId: Int!, simulationId: String): SimulateTokenContractResult!
+
+  """Live streamed events for a given token across all it's pools"""
+  onTokenEventsCreated(input: OnTokenEventsCreatedInput!): AddTokenEventsOutput!
 
   """Live-streamed token lifecycle events (mints and burns)"""
   onTokenLifecycleEventsCreated(
@@ -10167,7 +10059,7 @@ type Webhook {
   bucketSortkey: String
 }
 
-union WebhookCondition = PriceEventWebhookCondition | DecodedLogWebhookCondition | DecodedCallWebhookCondition | RawCallTraceWebhookCondition | TokenPairEventWebhookCondition | NftEventWebhookCondition | RawTransactionWebhookCondition
+union WebhookCondition = PriceEventWebhookCondition | TokenPairEventWebhookCondition | NftEventWebhookCondition | RawTransactionWebhookCondition
 
 enum WebhookNftEventFillSource {
   GEM
@@ -10195,7 +10087,6 @@ enum WebhookNftEventType {
 
 enum WebhookType {
   PRICE_EVENT
-  RAW_CALL_TRACE
   NFT_EVENT
   TOKEN_PAIR_EVENT
   RAW_TRANSACTION
