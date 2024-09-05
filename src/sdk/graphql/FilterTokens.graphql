@@ -5,6 +5,7 @@ query FilterTokens(
   $rankings: [TokenRanking]
   $limit: Int
   $offset: Int
+  $statsType: TokenPairStatisticsType
 ) {
   filterTokens(
     filters: $filters
@@ -13,6 +14,7 @@ query FilterTokens(
     rankings: $rankings
     limit: $limit
     offset: $offset
+    statsType: $statsType
   ) {
     count
     page

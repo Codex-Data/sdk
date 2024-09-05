@@ -6,6 +6,7 @@ query FilterPairs(
   $limit: Int
   $offset: Int
   $matchTokens: PairFilterMatchTokens
+  $statsType: TokenPairStatisticsType
 ) {
   filterPairs(
     filters: $filters
@@ -15,6 +16,7 @@ query FilterPairs(
     limit: $limit
     offset: $offset
     matchTokens: $matchTokens
+    statsType: $statsType
   ) {
     count
     offset
