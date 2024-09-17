@@ -525,6 +525,18 @@
             "deprecationReason": null
           },
           {
+            "name": "firstHeldTimestamp",
+            "description": "The time that this address first held a token",
+            "args": [],
+            "type": {
+              "kind": "SCALAR",
+              "name": "Int",
+              "ofType": null
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
             "name": "shiftedBalance",
             "description": "The balance held by the wallet, adjusted by the number of decimals in the token.",
             "args": [],
@@ -2188,6 +2200,18 @@
             "deprecationReason": null
           },
           {
+            "name": "publishingType",
+            "description": null,
+            "type": {
+              "kind": "ENUM",
+              "name": "PublishingType",
+              "ofType": null
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
             "name": "retrySettings",
             "description": null,
             "type": {
@@ -2356,6 +2380,18 @@
                 "name": "String",
                 "ofType": null
               }
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "publishingType",
+            "description": null,
+            "type": {
+              "kind": "ENUM",
+              "name": "PublishingType",
+              "ofType": null
             },
             "defaultValue": null,
             "isDeprecated": false,
@@ -2536,6 +2572,18 @@
             "deprecationReason": null
           },
           {
+            "name": "publishingType",
+            "description": null,
+            "type": {
+              "kind": "ENUM",
+              "name": "PublishingType",
+              "ofType": null
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
             "name": "retrySettings",
             "description": null,
             "type": {
@@ -2704,6 +2752,18 @@
                 "name": "String",
                 "ofType": null
               }
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "publishingType",
+            "description": null,
+            "type": {
+              "kind": "ENUM",
+              "name": "PublishingType",
+              "ofType": null
             },
             "defaultValue": null,
             "isDeprecated": false,
@@ -7612,6 +7672,18 @@
             "deprecationReason": null
           },
           {
+            "name": "sort",
+            "description": "The attribute to sort the list on",
+            "type": {
+              "kind": "INPUT_OBJECT",
+              "name": "HoldersInputSort",
+              "ofType": null
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
             "name": "tokenId",
             "description": "The ID of the token (`tokenAddress:networkId`).",
             "type": {
@@ -7622,6 +7694,41 @@
                 "name": "String",
                 "ofType": null
               }
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          }
+        ],
+        "interfaces": null,
+        "enumValues": null,
+        "possibleTypes": null
+      },
+      {
+        "kind": "INPUT_OBJECT",
+        "name": "HoldersInputSort",
+        "description": null,
+        "fields": null,
+        "inputFields": [
+          {
+            "name": "attribute",
+            "description": "The attribute to sort the list on",
+            "type": {
+              "kind": "ENUM",
+              "name": "HoldersSortAttribute",
+              "ofType": null
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "direction",
+            "description": "The direction to apply to the ranking attribute.",
+            "type": {
+              "kind": "ENUM",
+              "name": "RankingDirection",
+              "ofType": null
             },
             "defaultValue": null,
             "isDeprecated": false,
@@ -7709,6 +7816,29 @@
         "inputFields": null,
         "interfaces": [],
         "enumValues": null,
+        "possibleTypes": null
+      },
+      {
+        "kind": "ENUM",
+        "name": "HoldersSortAttribute",
+        "description": null,
+        "fields": null,
+        "inputFields": null,
+        "interfaces": null,
+        "enumValues": [
+          {
+            "name": "BALANCE",
+            "description": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "DATE",
+            "description": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          }
+        ],
         "possibleTypes": null
       },
       {
@@ -33241,6 +33371,29 @@
         "possibleTypes": null
       },
       {
+        "kind": "ENUM",
+        "name": "PublishingType",
+        "description": null,
+        "fields": null,
+        "inputFields": null,
+        "interfaces": null,
+        "enumValues": [
+          {
+            "name": "BATCH",
+            "description": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "SINGLE",
+            "description": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          }
+        ],
+        "possibleTypes": null
+      },
+      {
         "kind": "OBJECT",
         "name": "Query",
         "description": null,
@@ -43300,7 +43453,7 @@
           },
           {
             "name": "marketCap",
-            "description": "The market cap of circulating supply.",
+            "description": "The fully diluted market cap. For circulating market cap multiply `token { info { circulatingSupply } }` by `priceUSD`.",
             "args": [],
             "type": {
               "kind": "SCALAR",
@@ -46926,6 +47079,18 @@
                 "name": "String",
                 "ofType": null
               }
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "publishingType",
+            "description": null,
+            "args": [],
+            "type": {
+              "kind": "ENUM",
+              "name": "PublishingType",
+              "ofType": null
             },
             "isDeprecated": false,
             "deprecationReason": null

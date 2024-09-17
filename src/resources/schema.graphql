@@ -109,6 +109,9 @@ type Balance {
   The balance held by the wallet, adjusted by the number of decimals in the token.
   """
   shiftedBalance: Float!
+
+  """The time that this address first held a token"""
+  firstHeldTimestamp: Int
 }
 
 input BalancesInput {
@@ -432,6 +435,7 @@ input CreateNftEventWebhookArgs {
   retrySettings: RetrySettingsInput
   bucketId: String
   bucketSortkey: String
+  publishingType: PublishingType
 }
 
 input CreateNftEventWebhooksInput {
@@ -448,6 +452,7 @@ input CreatePriceWebhookArgs {
   retrySettings: RetrySettingsInput
   bucketId: String
   bucketSortkey: String
+  publishingType: PublishingType
 }
 
 input CreatePriceWebhooksInput {
@@ -464,6 +469,7 @@ input CreateRawTransactionWebhookArgs {
   retrySettings: RetrySettingsInput
   bucketId: String
   bucketSortkey: String
+  publishingType: PublishingType
 }
 
 input CreateRawTransactionWebhooksInput {
@@ -480,6 +486,7 @@ input CreateTokenPairEventWebhookArgs {
   retrySettings: RetrySettingsInput
   bucketId: String
   bucketSortkey: String
+  publishingType: PublishingType
 }
 
 input CreateTokenPairEventWebhooksInput {
@@ -1520,6 +1527,17 @@ input HoldersInput {
 
   """A cursor for use in pagination."""
   cursor: String
+
+  """The attribute to sort the list on"""
+  sort: HoldersInputSort
+}
+
+input HoldersInputSort {
+  """The attribute to sort the list on"""
+  attribute: HoldersSortAttribute
+
+  """The direction to apply to the ranking attribute."""
+  direction: RankingDirection
 }
 
 type HoldersResponse {
@@ -1536,6 +1554,11 @@ type HoldersResponse {
   Status of holder. Disabled if on unsupported network or there is insufficient holder data.
   """
   status: HoldersStatus!
+}
+
+enum HoldersSortAttribute {
+  BALANCE
+  DATE
 }
 
 enum HoldersStatus {
@@ -7283,6 +7306,11 @@ type PrimePoolWithdrawData {
   userCachedAmount: String!
 }
 
+enum PublishingType {
+  BATCH
+  SINGLE
+}
+
 type Query {
   """Get all active short-lived api tokens for this api key"""
   apiTokens: [ApiToken!]!
@@ -9296,7 +9324,9 @@ type TokenFilterResult {
   """The lowest price in USD in the past 4 hours."""
   low4: String
 
-  """The market cap of circulating supply."""
+  """
+  The fully diluted market cap. For circulating market cap multiply `token { info { circulatingSupply } }` by `priceUSD`.
+  """
   marketCap: String
 
   """Metadata for the token's top pair."""
@@ -10057,6 +10087,7 @@ type Webhook {
   retrySettings: RetrySettings
   bucketId: String
   bucketSortkey: String
+  publishingType: PublishingType
 }
 
 union WebhookCondition = PriceEventWebhookCondition | TokenPairEventWebhookCondition | NftEventWebhookCondition | RawTransactionWebhookCondition

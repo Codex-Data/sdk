@@ -92,6 +92,8 @@ export type Balance = {
   __typename?: 'Balance';
   /** The balance held by the wallet. */
   balance: Scalars['String']['output'];
+  /** The time that this address first held a token */
+  firstHeldTimestamp?: Maybe<Scalars['Int']['output']>;
   /** The balance held by the wallet, adjusted by the number of decimals in the token. */
   shiftedBalance: Scalars['Float']['output'];
   /** The ID of the token (`tokenAddress:networkId`). */
@@ -359,6 +361,7 @@ export type CreateNftEventWebhookArgs = {
   conditions: NftEventWebhookConditionInput;
   groupId?: InputMaybe<Scalars['String']['input']>;
   name: Scalars['String']['input'];
+  publishingType?: InputMaybe<PublishingType>;
   retrySettings?: InputMaybe<RetrySettingsInput>;
   securityToken: Scalars['String']['input'];
 };
@@ -375,6 +378,7 @@ export type CreatePriceWebhookArgs = {
   conditions: PriceEventWebhookConditionInput;
   groupId?: InputMaybe<Scalars['String']['input']>;
   name: Scalars['String']['input'];
+  publishingType?: InputMaybe<PublishingType>;
   retrySettings?: InputMaybe<RetrySettingsInput>;
   securityToken: Scalars['String']['input'];
 };
@@ -391,6 +395,7 @@ export type CreateRawTransactionWebhookArgs = {
   conditions: RawTransactionWebhookConditionInput;
   groupId?: InputMaybe<Scalars['String']['input']>;
   name: Scalars['String']['input'];
+  publishingType?: InputMaybe<PublishingType>;
   retrySettings?: InputMaybe<RetrySettingsInput>;
   securityToken: Scalars['String']['input'];
 };
@@ -407,6 +412,7 @@ export type CreateTokenPairEventWebhookArgs = {
   conditions: TokenPairEventWebhookConditionInput;
   groupId?: InputMaybe<Scalars['String']['input']>;
   name: Scalars['String']['input'];
+  publishingType?: InputMaybe<PublishingType>;
   retrySettings?: InputMaybe<RetrySettingsInput>;
   securityToken: Scalars['String']['input'];
 };
@@ -1260,8 +1266,17 @@ export enum GraphQlNftPoolVariant {
 export type HoldersInput = {
   /** A cursor for use in pagination. */
   cursor?: InputMaybe<Scalars['String']['input']>;
+  /** The attribute to sort the list on */
+  sort?: InputMaybe<HoldersInputSort>;
   /** The ID of the token (`tokenAddress:networkId`). */
   tokenId: Scalars['String']['input'];
+};
+
+export type HoldersInputSort = {
+  /** The attribute to sort the list on */
+  attribute?: InputMaybe<HoldersSortAttribute>;
+  /** The direction to apply to the ranking attribute. */
+  direction?: InputMaybe<RankingDirection>;
 };
 
 export type HoldersResponse = {
@@ -1275,6 +1290,11 @@ export type HoldersResponse = {
   /** Status of holder. Disabled if on unsupported network or there is insufficient holder data. */
   status: HoldersStatus;
 };
+
+export enum HoldersSortAttribute {
+  Balance = 'BALANCE',
+  Date = 'DATE'
+}
 
 export enum HoldersStatus {
   Disabled = 'DISABLED',
@@ -5566,6 +5586,11 @@ export type PrimePoolWithdrawData = {
   userPrimeRewardDebt: Scalars['String']['output'];
 };
 
+export enum PublishingType {
+  Batch = 'BATCH',
+  Single = 'SINGLE'
+}
+
 export type Query = {
   __typename?: 'Query';
   /** Get the active short-lived api token for this api key by the short-lived token */
@@ -7038,7 +7063,7 @@ export type TokenFilterResult = {
   low12?: Maybe<Scalars['String']['output']>;
   /** The lowest price in USD in the past 24 hours. */
   low24?: Maybe<Scalars['String']['output']>;
-  /** The market cap of circulating supply. */
+  /** The fully diluted market cap. For circulating market cap multiply `token { info { circulatingSupply } }` by `priceUSD`. */
   marketCap?: Maybe<Scalars['String']['output']>;
   /** Metadata for the token's top pair. */
   pair?: Maybe<Pair>;
@@ -7629,6 +7654,7 @@ export type Webhook = {
   groupId?: Maybe<Scalars['String']['output']>;
   id: Scalars['String']['output'];
   name: Scalars['String']['output'];
+  publishingType?: Maybe<PublishingType>;
   retrySettings?: Maybe<RetrySettings>;
   status: Scalars['String']['output'];
   webhookType: WebhookType;
