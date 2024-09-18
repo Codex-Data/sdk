@@ -1,5 +1,10 @@
 query PairEvents($cursor: String, $limit: Int, $direction: RankingDirection, $query: EventsQueryInput!) {
-  pairEvents: getTokenEvents(query: $query) {
+  pairEvents: getTokenEvents(
+    query: $query,
+    cursor: $cursor,
+    limit: $limit,
+    direction: $direction
+  ) {
     cursor
     items {
       address
