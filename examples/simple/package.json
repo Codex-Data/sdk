@@ -7,6 +7,6 @@
   "license": "ISC",
   "description": "",
   "dependencies": {
-    "@codex-data/sdk": "0.6.0"
+    "@codex-data/sdk": "0.6.1"
   }
 }

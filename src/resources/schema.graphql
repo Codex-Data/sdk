@@ -68,6 +68,26 @@ type AddTokenLifecycleEventsOutput {
   events: [TokenLifecycleEvent!]!
 }
 
+"""Response returned by `onUnconfirmedEventsCreated`."""
+type AddUnconfirmedEventsOutput {
+  """The contract address of the pair."""
+  address: String!
+
+  """The network ID that the token is deployed on."""
+  networkId: Int!
+
+  """
+  The ID of the event (`address`:`networkId`). For example, `0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2:1`.
+  """
+  id: String!
+
+  """The token of interest within the pair. Can be `token0` or `token1`."""
+  quoteToken: QuoteToken
+
+  """A list of transactions for the token."""
+  events: [UnconfirmedEvent]!
+}
+
 enum AlertRecurrence {
   INDEFINITE
   ONCE
@@ -1388,6 +1408,7 @@ type GasEstimate {
   gasLimitEstimate: String
   error: String
   approveTxHash: String
+  totalFee: String
 }
 
 type GasFee {
@@ -1446,6 +1467,20 @@ input GetGasEstimateInput {
   userId: Int
   walletId: Int
   customGas: String
+  sendWithPrivateRpc: Boolean
+}
+
+"""Response returned by `getNetworkStats`."""
+type GetNetworkStatsResponse {
+  volume24: Float!
+  volume12: Float!
+  volume4: Float!
+  volume1: Float!
+  liquidity: Float!
+  transactions24: Int!
+  transactions12: Int!
+  transactions4: Int!
+  transactions1: Int!
 }
 
 """Response returned by `getNftPoolCollectionsByExchange`."""
@@ -7358,6 +7393,9 @@ type Query {
     """The event types to filter by."""
     eventTypes: [NftPoolEventType!]
 
+    """The time range to filter by."""
+    timestamp: EventQueryTimestampInput
+
     """The cursor to use for pagination."""
     cursor: String
 
@@ -7793,6 +7831,9 @@ type Query {
     """
     tokens: [String]
 
+    """A list of token IDs to exclude from results (`address:networkId`)"""
+    excludeTokens: [String]
+
     """A list of ranking attributes to apply."""
     rankings: [TokenRanking]
 
@@ -7981,6 +8022,13 @@ type Query {
     """
     currencyCode: String
   ): SymbolResponse
+  getNetworkStats(
+    """The network Id to filter by"""
+    networkId: Int!
+
+    """The Exchange address to filter by (optional)"""
+    exchangeAddress: String
+  ): GetNetworkStatsResponse
 
   """Returns transactions for a pair."""
   getTokenEvents(
@@ -9983,6 +10031,97 @@ type TokenWithMetadata {
 
   """The unix timestamp for the token's last transaction."""
   lastTransaction: Int
+}
+
+"""An unconfirmed token transaction."""
+type UnconfirmedEvent {
+  """The contract address of the token's top pair."""
+  address: String!
+
+  """The hash of the block where the transaction occurred."""
+  blockHash: String!
+
+  """The block number for the transaction."""
+  blockNumber: Int!
+
+  """
+  The type of transaction event. Can be `Burn`, `Mint`, `Swap`, `Sync`, `Collect`, or `CollectProtocol`.
+  """
+  eventType: EventType!
+
+  """
+  The ID of the event (`address:networkId`). For example, `0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2:1`.
+  """
+  id: String!
+
+  """The index of the log in the block."""
+  logIndex: Int!
+
+  """The wallet address that performed the transaction."""
+  maker: String
+
+  """The network ID that the token is deployed on."""
+  networkId: Int!
+
+  """
+  The token of interest within the token's top pair. Can be `token0` or `token1`.
+  """
+  quoteToken: QuoteToken
+
+  """The unix timestamp for when the transaction occurred."""
+  timestamp: Int!
+
+  """The unique hash for the transaction."""
+  transactionHash: String!
+
+  """The index of the transaction within the block."""
+  transactionIndex: Int!
+
+  """
+  A optional unique identifier of where the event is within the transaction.
+  """
+  supplementalIndex: Int
+
+  """
+  A more specific breakdown of `eventType`. Splits `Swap` into `Buy` or `Sell`.
+  """
+  eventDisplayType: EventDisplayType
+
+  """The event-specific data for the transaction."""
+  data: UnconfirmedEventData
+}
+
+union UnconfirmedEventData = UnconfirmedSwapEventData | UnconfirmedLiquidityChangeEventData
+
+type UnconfirmedLiquidityChangeEventData {
+  """The amount of `token0` added or removed from the pair."""
+  amount0: String
+
+  """The amount of `token1` added or removed from the pair."""
+  amount1: String
+
+  """
+  The amount of `token0` added or removed from the pair, adjusted by the number of decimals in the token. For example, if `amount0` is in WEI, `amount0Shifted` will be in ETH.
+  """
+  amount0Shifted: String
+
+  """
+  The amount of `token1` added or removed from the pair, adjusted by the number of decimals in the token. For example, USDC `amount1Shifted` will be by 6 decimals.
+  """
+  amount1Shifted: String
+
+  """The type of token event, `Mint` or 'Burn'."""
+  type: EventType!
+}
+
+type UnconfirmedSwapEventData {
+  """
+  The amount of `quoteToken` involved in the swap. For example, if `quoteToken` is USDC for a USDC/WETH pair, `amountNonLiquidityToken` would be the amount of USDC involved in the swap.
+  """
+  amountNonLiquidityToken: String
+
+  """The type of token event, `Swap`."""
+  type: EventType!
 }
 
 type UniV3Tick {

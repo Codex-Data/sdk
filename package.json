@@ -1,13 +1,13 @@
 {
   "name": "@codex-data/sdk",
-  "version": "0.6.2",
+  "version": "1.0.0",
   "engines": {
     "node": ">=17.5.0"
   },
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "scripts": {
-    "build": "bun run fetch:schema && bun run codegen && bun run tsc",
+    "build": "bun run fetch:schema && bun run src/scripts/generateGraphql.ts && bun run src/scripts/buildSdk.ts && bun run codegen && bun run lint ./src/sdk --fix && bun run eslint --no-ignore ./src/resources/**/*.graphql --fix && bun run tsc",
     "fetch:schema": "curl -s https://graph.codex.io/schema/latest.graphql --output src/resources/schema.graphql",
     "codegen": "graphql-codegen --config codegen.ts",
     "prepack": "cp src/resources/* dist/resources/",
@@ -32,12 +32,19 @@
   "homepage": "https://docs.codex.io",
   "description": "The Codex SDK for JavaScript/Typescript. It provides generated types and convenient ways to access the graphql api.",
   "dependencies": {
+    "@graphql-tools/wrap": "^10.0.5",
     "@types/jest": "^29.5.4",
+    "@types/lodash": "^4.17.7",
     "@types/node": "^20.5.7",
-    "graphql": "^16.8.0",
+    "gql-query-builder": "^3.8.0",
+    "graphql": "^16.9.0",
+    "graphql-ast-types": "^1.0.2",
     "graphql-request": "^6.1.0",
     "graphql-ws": "^5.14.0",
     "isomorphic-ws": "^5.0.0",
+    "lodash": "^4.17.21",
+    "mkdirp": "^3.0.1",
+    "tsx": "^4.19.1",
     "typescript": "^5.2.2"
   },
   "devDependencies": {
@@ -45,6 +52,7 @@
     "@graphql-codegen/client-preset": "^4.1.0",
     "@graphql-codegen/introspection": "4.0.0",
     "@graphql-codegen/typescript": "4.0.1",
+    "@graphql-eslint/eslint-plugin": "^3.20.1",
     "@typescript-eslint/eslint-plugin": "^6.7.3",
     "@typescript-eslint/parser": "^6.7.3",
     "eslint": "^8.50.0",

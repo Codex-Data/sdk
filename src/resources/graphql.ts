@@ -68,6 +68,21 @@ export type AddTokenLifecycleEventsOutput = {
   id: Scalars['String']['output'];
 };
 
+/** Response returned by `onUnconfirmedEventsCreated`. */
+export type AddUnconfirmedEventsOutput = {
+  __typename?: 'AddUnconfirmedEventsOutput';
+  /** The contract address of the pair. */
+  address: Scalars['String']['output'];
+  /** A list of transactions for the token. */
+  events: Array<Maybe<UnconfirmedEvent>>;
+  /** The ID of the event (`address`:`networkId`). For example, `0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2:1`. */
+  id: Scalars['String']['output'];
+  /** The network ID that the token is deployed on. */
+  networkId: Scalars['Int']['output'];
+  /** The token of interest within the pair. Can be `token0` or `token1`. */
+  quoteToken?: Maybe<QuoteToken>;
+};
+
 export enum AlertRecurrence {
   Indefinite = 'INDEFINITE',
   Once = 'ONCE'
@@ -1141,6 +1156,7 @@ export type GasEstimate = {
   approveTxHash?: Maybe<Scalars['String']['output']>;
   error?: Maybe<Scalars['String']['output']>;
   gasLimitEstimate?: Maybe<Scalars['String']['output']>;
+  totalFee?: Maybe<Scalars['String']['output']>;
 };
 
 export type GasFee = {
@@ -1189,8 +1205,23 @@ export type GetGasEstimateInput = {
   networkId: Scalars['Int']['input'];
   outputTokenAddress: Scalars['String']['input'];
   poolAddress?: InputMaybe<Scalars['String']['input']>;
+  sendWithPrivateRpc?: InputMaybe<Scalars['Boolean']['input']>;
   userId?: InputMaybe<Scalars['Int']['input']>;
   walletId?: InputMaybe<Scalars['Int']['input']>;
+};
+
+/** Response returned by `getNetworkStats`. */
+export type GetNetworkStatsResponse = {
+  __typename?: 'GetNetworkStatsResponse';
+  liquidity: Scalars['Float']['output'];
+  transactions1: Scalars['Int']['output'];
+  transactions4: Scalars['Int']['output'];
+  transactions12: Scalars['Int']['output'];
+  transactions24: Scalars['Int']['output'];
+  volume1: Scalars['Float']['output'];
+  volume4: Scalars['Float']['output'];
+  volume12: Scalars['Float']['output'];
+  volume24: Scalars['Float']['output'];
 };
 
 /** Response returned by `getNftPoolCollectionsByExchange`. */
@@ -5637,6 +5668,7 @@ export type Query = {
   /** Returns new tokens listed over the last three days. */
   getLatestPairs?: Maybe<LatestPairConnection>;
   getLatestTokens?: Maybe<LatestTokenConnection>;
+  getNetworkStats?: Maybe<GetNetworkStatsResponse>;
   /** Returns the status of a list of networks supported on Defined. */
   getNetworkStatus?: Maybe<Array<MetadataResponse>>;
   /** Returns a list of all networks supported on Defined. */
@@ -5808,6 +5840,7 @@ export type QueryFilterPairsArgs = {
 
 
 export type QueryFilterTokensArgs = {
+  excludeTokens?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
   filters?: InputMaybe<TokenFilters>;
   limit?: InputMaybe<Scalars['Int']['input']>;
   offset?: InputMaybe<Scalars['Int']['input']>;
@@ -5902,6 +5935,12 @@ export type QueryGetLatestTokensArgs = {
 };
 
 
+export type QueryGetNetworkStatsArgs = {
+  exchangeAddress?: InputMaybe<Scalars['String']['input']>;
+  networkId: Scalars['Int']['input'];
+};
+
+
 export type QueryGetNetworkStatusArgs = {
   networkIds: Array<Scalars['Int']['input']>;
 };
@@ -5971,6 +6010,7 @@ export type QueryGetNftPoolEventsArgs = {
   limit?: InputMaybe<Scalars['Int']['input']>;
   networkId: Scalars['Int']['input'];
   poolAddress?: InputMaybe<Scalars['String']['input']>;
+  timestamp?: InputMaybe<EventQueryTimestampInput>;
 };
 
 
@@ -7561,6 +7601,65 @@ export type TokenWithMetadata = {
   uniqueSells24?: Maybe<Scalars['Int']['output']>;
   /** The volume over the time frame requested in USD. */
   volume: Scalars['String']['output'];
+};
+
+/** An unconfirmed token transaction. */
+export type UnconfirmedEvent = {
+  __typename?: 'UnconfirmedEvent';
+  /** The contract address of the token's top pair. */
+  address: Scalars['String']['output'];
+  /** The hash of the block where the transaction occurred. */
+  blockHash: Scalars['String']['output'];
+  /** The block number for the transaction. */
+  blockNumber: Scalars['Int']['output'];
+  /** The event-specific data for the transaction. */
+  data?: Maybe<UnconfirmedEventData>;
+  /** A more specific breakdown of `eventType`. Splits `Swap` into `Buy` or `Sell`. */
+  eventDisplayType?: Maybe<EventDisplayType>;
+  /** The type of transaction event. Can be `Burn`, `Mint`, `Swap`, `Sync`, `Collect`, or `CollectProtocol`. */
+  eventType: EventType;
+  /** The ID of the event (`address:networkId`). For example, `0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2:1`. */
+  id: Scalars['String']['output'];
+  /** The index of the log in the block. */
+  logIndex: Scalars['Int']['output'];
+  /** The wallet address that performed the transaction. */
+  maker?: Maybe<Scalars['String']['output']>;
+  /** The network ID that the token is deployed on. */
+  networkId: Scalars['Int']['output'];
+  /** The token of interest within the token's top pair. Can be `token0` or `token1`. */
+  quoteToken?: Maybe<QuoteToken>;
+  /** A optional unique identifier of where the event is within the transaction. */
+  supplementalIndex?: Maybe<Scalars['Int']['output']>;
+  /** The unix timestamp for when the transaction occurred. */
+  timestamp: Scalars['Int']['output'];
+  /** The unique hash for the transaction. */
+  transactionHash: Scalars['String']['output'];
+  /** The index of the transaction within the block. */
+  transactionIndex: Scalars['Int']['output'];
+};
+
+export type UnconfirmedEventData = UnconfirmedLiquidityChangeEventData | UnconfirmedSwapEventData;
+
+export type UnconfirmedLiquidityChangeEventData = {
+  __typename?: 'UnconfirmedLiquidityChangeEventData';
+  /** The amount of `token0` added or removed from the pair. */
+  amount0?: Maybe<Scalars['String']['output']>;
+  /** The amount of `token0` added or removed from the pair, adjusted by the number of decimals in the token. For example, if `amount0` is in WEI, `amount0Shifted` will be in ETH. */
+  amount0Shifted?: Maybe<Scalars['String']['output']>;
+  /** The amount of `token1` added or removed from the pair. */
+  amount1?: Maybe<Scalars['String']['output']>;
+  /** The amount of `token1` added or removed from the pair, adjusted by the number of decimals in the token. For example, USDC `amount1Shifted` will be by 6 decimals. */
+  amount1Shifted?: Maybe<Scalars['String']['output']>;
+  /** The type of token event, `Mint` or 'Burn'. */
+  type: EventType;
+};
+
+export type UnconfirmedSwapEventData = {
+  __typename?: 'UnconfirmedSwapEventData';
+  /** The amount of `quoteToken` involved in the swap. For example, if `quoteToken` is USDC for a USDC/WETH pair, `amountNonLiquidityToken` would be the amount of USDC involved in the swap. */
+  amountNonLiquidityToken?: Maybe<Scalars['String']['output']>;
+  /** The type of token event, `Swap`. */
+  type: EventType;
 };
 
 export type UniV3Tick = {
