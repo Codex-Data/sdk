@@ -42,6 +42,7 @@ export class Codex {
     });
     this.wsClient = createClient({
       webSocketImpl: WebSocket,
+      keepAlive: 10_000,
       url: this.apiRealtimeUrl,
       connectionParams: {
         Authorization: this.apiKey,
