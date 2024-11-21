@@ -42,7 +42,7 @@ export class Codex {
     });
     this.wsClient = createClient({
       webSocketImpl: WebSocket,
-      keepAlive: 10_000,
+      keepAlive: 10_000, // ping server every 10 seconds
       url: this.apiRealtimeUrl,
       connectionParams: {
         Authorization: this.apiKey,

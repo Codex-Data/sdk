@@ -1,9 +1,0 @@
-subscription OnPriceUpdated($address: String, $networkId: Int) {
-  onPriceUpdated(address: $address, networkId: $networkId) {
-    address
-    confidence
-    networkId
-    priceUsd
-    timestamp
-  }
-}

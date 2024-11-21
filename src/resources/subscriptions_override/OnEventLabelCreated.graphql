@@ -1,0 +1,22 @@
+subscription OnEventLabelCreated($id: String) {
+  onEventLabelCreated(id: $id) {
+    data {
+      ... on FrontRunLabelData {
+        index
+        token0DrainedAmount
+        token1DrainedAmount
+      }
+      ... on SandwichedLabelData {
+        token0DrainedAmountSandwich: token0DrainedAmount
+        token1DrainedAmountSandwich: token1DrainedAmount
+      }
+    }
+    id
+    label
+    logIndex
+    networkId
+    timestamp
+    transactionHash
+    transactionIndex
+  }
+}

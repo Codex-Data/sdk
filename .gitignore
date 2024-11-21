@@ -1,6 +1,10 @@
 .DS_Store
 node_modules
 coverage
+.env
 .next
 dist
 yarn-error.log
+src/resources/generated_queries*
+src/resources/generated_subscriptions*
+src/resources/generated_mutations*

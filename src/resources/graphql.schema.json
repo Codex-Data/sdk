@@ -14,6 +14,7 @@
         "kind": "OBJECT",
         "name": "AddEventsOutput",
         "description": "Response returned by `onEventsCreated`.",
+        "isOneOf": null,
         "fields": [
           {
             "name": "address",
@@ -105,6 +106,7 @@
         "kind": "OBJECT",
         "name": "AddNftEventsOutput",
         "description": "Response returned by `onNftEventsCreated`.",
+        "isOneOf": null,
         "fields": [
           {
             "name": "address",
@@ -184,6 +186,7 @@
         "kind": "OBJECT",
         "name": "AddNftPoolEventsOutput",
         "description": null,
+        "isOneOf": null,
         "fields": [
           {
             "name": "collectionAddress",
@@ -295,6 +298,7 @@
         "kind": "OBJECT",
         "name": "AddTokenEventsOutput",
         "description": null,
+        "isOneOf": null,
         "fields": [
           {
             "name": "events",
@@ -346,6 +350,7 @@
         "kind": "OBJECT",
         "name": "AddTokenLifecycleEventsOutput",
         "description": null,
+        "isOneOf": null,
         "fields": [
           {
             "name": "events",
@@ -394,9 +399,130 @@
         "possibleTypes": null
       },
       {
+        "kind": "OBJECT",
+        "name": "AddTrackedWalletEventsOutput",
+        "description": null,
+        "isOneOf": null,
+        "fields": [
+          {
+            "name": "userId",
+            "description": null,
+            "args": [],
+            "type": {
+              "kind": "NON_NULL",
+              "name": null,
+              "ofType": {
+                "kind": "SCALAR",
+                "name": "String",
+                "ofType": null
+              }
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          }
+        ],
+        "inputFields": null,
+        "interfaces": [],
+        "enumValues": null,
+        "possibleTypes": null
+      },
+      {
+        "kind": "OBJECT",
+        "name": "AddUnconfirmedEventsOutput",
+        "description": "Response returned by `onUnconfirmedEventsCreated`.",
+        "isOneOf": null,
+        "fields": [
+          {
+            "name": "address",
+            "description": "The contract address of the pair.",
+            "args": [],
+            "type": {
+              "kind": "NON_NULL",
+              "name": null,
+              "ofType": {
+                "kind": "SCALAR",
+                "name": "String",
+                "ofType": null
+              }
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "events",
+            "description": "A list of transactions for the token.",
+            "args": [],
+            "type": {
+              "kind": "NON_NULL",
+              "name": null,
+              "ofType": {
+                "kind": "LIST",
+                "name": null,
+                "ofType": {
+                  "kind": "OBJECT",
+                  "name": "UnconfirmedEvent",
+                  "ofType": null
+                }
+              }
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "id",
+            "description": "The ID of the event (`address`:`networkId`). For example, `0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2:1`.",
+            "args": [],
+            "type": {
+              "kind": "NON_NULL",
+              "name": null,
+              "ofType": {
+                "kind": "SCALAR",
+                "name": "String",
+                "ofType": null
+              }
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "networkId",
+            "description": "The network ID that the token is deployed on.",
+            "args": [],
+            "type": {
+              "kind": "NON_NULL",
+              "name": null,
+              "ofType": {
+                "kind": "SCALAR",
+                "name": "Int",
+                "ofType": null
+              }
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "quoteToken",
+            "description": "The token of interest within the pair. Can be `token0` or `token1`.",
+            "args": [],
+            "type": {
+              "kind": "ENUM",
+              "name": "QuoteToken",
+              "ofType": null
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          }
+        ],
+        "inputFields": null,
+        "interfaces": [],
+        "enumValues": null,
+        "possibleTypes": null
+      },
+      {
         "kind": "ENUM",
         "name": "AlertRecurrence",
         "description": null,
+        "isOneOf": null,
         "fields": null,
         "inputFields": null,
         "interfaces": null,
@@ -420,6 +546,7 @@
         "kind": "OBJECT",
         "name": "ApiToken",
         "description": null,
+        "isOneOf": null,
         "fields": [
           {
             "name": "expiresTimeString",
@@ -507,6 +634,7 @@
         "kind": "OBJECT",
         "name": "Balance",
         "description": "Wallet balance of a token.",
+        "isOneOf": null,
         "fields": [
           {
             "name": "balance",
@@ -594,6 +722,7 @@
         "kind": "INPUT_OBJECT",
         "name": "BalancesInput",
         "description": null,
+        "isOneOf": false,
         "fields": null,
         "inputFields": [
           {
@@ -645,6 +774,7 @@
         "kind": "OBJECT",
         "name": "BalancesResponse",
         "description": null,
+        "isOneOf": null,
         "fields": [
           {
             "name": "cursor",
@@ -692,6 +822,7 @@
         "kind": "OBJECT",
         "name": "BarsResponse",
         "description": "Bar chart data to track price changes over time.",
+        "isOneOf": null,
         "fields": [
           {
             "name": "buyVolume",
@@ -1055,6 +1186,7 @@
         "kind": "ENUM",
         "name": "BondingCurveType",
         "description": "The mathematical formula that defines how the prices of NFTs change after each buy or sell within a pool.",
+        "isOneOf": null,
         "fields": null,
         "inputFields": null,
         "interfaces": null,
@@ -1090,6 +1222,7 @@
         "kind": "SCALAR",
         "name": "Boolean",
         "description": "The `Boolean` scalar type represents `true` or `false`.",
+        "isOneOf": null,
         "fields": null,
         "inputFields": null,
         "interfaces": null,
@@ -1100,6 +1233,7 @@
         "kind": "OBJECT",
         "name": "BurnEventData",
         "description": "Event data for a token burn event.",
+        "isOneOf": null,
         "fields": [
           {
             "name": "amount0",
@@ -1199,6 +1333,7 @@
         "kind": "INPUT_OBJECT",
         "name": "ChartImageOptions",
         "description": "Input options for the chart image.",
+        "isOneOf": false,
         "fields": null,
         "inputFields": [
           {
@@ -1246,6 +1381,7 @@
         "kind": "INPUT_OBJECT",
         "name": "ChartInput",
         "description": "Input type of `chartUrls`.",
+        "isOneOf": false,
         "fields": null,
         "inputFields": [
           {
@@ -1269,6 +1405,7 @@
         "kind": "ENUM",
         "name": "ChartTheme",
         "description": "The color theme of the chart.",
+        "isOneOf": null,
         "fields": null,
         "inputFields": null,
         "interfaces": null,
@@ -1292,6 +1429,7 @@
         "kind": "OBJECT",
         "name": "ChartUrl",
         "description": "The chart url.",
+        "isOneOf": null,
         "fields": [
           {
             "name": "url",
@@ -1319,6 +1457,7 @@
         "kind": "OBJECT",
         "name": "ChartUrlsResponse",
         "description": "The response type for a chart url query.",
+        "isOneOf": null,
         "fields": [
           {
             "name": "pair",
@@ -1346,6 +1485,7 @@
         "kind": "OBJECT",
         "name": "CommunityNote",
         "description": "Community gathered proposals for an asset.",
+        "isOneOf": null,
         "fields": [
           {
             "name": "address",
@@ -1549,6 +1689,7 @@
         "kind": "ENUM",
         "name": "CommunityNoteType",
         "description": "Type of the community gathered note.",
+        "isOneOf": null,
         "fields": null,
         "inputFields": null,
         "interfaces": null,
@@ -1578,6 +1719,7 @@
         "kind": "INPUT_OBJECT",
         "name": "CommunityNotesFilter",
         "description": "Filters for community notes.",
+        "isOneOf": false,
         "fields": null,
         "inputFields": [
           {
@@ -1641,6 +1783,7 @@
         "kind": "INPUT_OBJECT",
         "name": "CommunityNotesInput",
         "description": "Input type of `getCommunityNotes`.",
+        "isOneOf": false,
         "fields": null,
         "inputFields": [
           {
@@ -1688,6 +1831,7 @@
         "kind": "OBJECT",
         "name": "CommunityNotesResponse",
         "description": "Community notes data",
+        "isOneOf": null,
         "fields": [
           {
             "name": "count",
@@ -1751,6 +1895,7 @@
         "kind": "OBJECT",
         "name": "ComparisonOperator",
         "description": null,
+        "isOneOf": null,
         "fields": [
           {
             "name": "eq",
@@ -1822,6 +1967,7 @@
         "kind": "INPUT_OBJECT",
         "name": "ComparisonOperatorInput",
         "description": null,
+        "isOneOf": false,
         "fields": null,
         "inputFields": [
           {
@@ -1893,6 +2039,7 @@
         "kind": "OBJECT",
         "name": "ContractLabel",
         "description": "Metadata for a contract label.",
+        "isOneOf": null,
         "fields": [
           {
             "name": "createdAt",
@@ -1952,6 +2099,7 @@
         "kind": "ENUM",
         "name": "ContractLabelSubType",
         "description": "The contract label sub-type.",
+        "isOneOf": null,
         "fields": null,
         "inputFields": null,
         "interfaces": null,
@@ -1987,6 +2135,7 @@
         "kind": "ENUM",
         "name": "ContractLabelType",
         "description": "The contract label type.",
+        "isOneOf": null,
         "fields": null,
         "inputFields": null,
         "interfaces": null,
@@ -2010,6 +2159,7 @@
         "kind": "ENUM",
         "name": "ContractType",
         "description": null,
+        "isOneOf": null,
         "fields": null,
         "inputFields": null,
         "interfaces": null,
@@ -2033,6 +2183,7 @@
         "kind": "ENUM",
         "name": "CostBasisMethod",
         "description": null,
+        "isOneOf": null,
         "fields": null,
         "inputFields": null,
         "interfaces": null,
@@ -2050,6 +2201,7 @@
         "kind": "INPUT_OBJECT",
         "name": "CreateApiTokensInput",
         "description": null,
+        "isOneOf": false,
         "fields": null,
         "inputFields": [
           {
@@ -2066,7 +2218,7 @@
           },
           {
             "name": "expiresIn",
-            "description": "Number of milliseconds until the token expires, defaults to 1 hour (3600000)",
+            "description": "Number of seconds until the token expires, defaults to 1 hour (3600)",
             "type": {
               "kind": "SCALAR",
               "name": "Int",
@@ -2097,6 +2249,7 @@
         "kind": "INPUT_OBJECT",
         "name": "CreateNftEventWebhookArgs",
         "description": null,
+        "isOneOf": false,
         "fields": null,
         "inputFields": [
           {
@@ -2166,6 +2319,18 @@
                 "name": "NftEventWebhookConditionInput",
                 "ofType": null
               }
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "deduplicate",
+            "description": null,
+            "type": {
+              "kind": "SCALAR",
+              "name": "Boolean",
+              "ofType": null
             },
             "defaultValue": null,
             "isDeprecated": false,
@@ -2248,6 +2413,7 @@
         "kind": "INPUT_OBJECT",
         "name": "CreateNftEventWebhooksInput",
         "description": null,
+        "isOneOf": false,
         "fields": null,
         "inputFields": [
           {
@@ -2283,6 +2449,7 @@
         "kind": "INPUT_OBJECT",
         "name": "CreatePriceWebhookArgs",
         "description": null,
+        "isOneOf": false,
         "fields": null,
         "inputFields": [
           {
@@ -2352,6 +2519,18 @@
                 "name": "PriceEventWebhookConditionInput",
                 "ofType": null
               }
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "deduplicate",
+            "description": null,
+            "type": {
+              "kind": "SCALAR",
+              "name": "Boolean",
+              "ofType": null
             },
             "defaultValue": null,
             "isDeprecated": false,
@@ -2434,6 +2613,7 @@
         "kind": "INPUT_OBJECT",
         "name": "CreatePriceWebhooksInput",
         "description": null,
+        "isOneOf": false,
         "fields": null,
         "inputFields": [
           {
@@ -2469,6 +2649,7 @@
         "kind": "INPUT_OBJECT",
         "name": "CreateRawTransactionWebhookArgs",
         "description": null,
+        "isOneOf": false,
         "fields": null,
         "inputFields": [
           {
@@ -2538,6 +2719,18 @@
                 "name": "RawTransactionWebhookConditionInput",
                 "ofType": null
               }
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "deduplicate",
+            "description": null,
+            "type": {
+              "kind": "SCALAR",
+              "name": "Boolean",
+              "ofType": null
             },
             "defaultValue": null,
             "isDeprecated": false,
@@ -2620,6 +2813,7 @@
         "kind": "INPUT_OBJECT",
         "name": "CreateRawTransactionWebhooksInput",
         "description": null,
+        "isOneOf": false,
         "fields": null,
         "inputFields": [
           {
@@ -2655,6 +2849,7 @@
         "kind": "INPUT_OBJECT",
         "name": "CreateTokenPairEventWebhookArgs",
         "description": null,
+        "isOneOf": false,
         "fields": null,
         "inputFields": [
           {
@@ -2724,6 +2919,18 @@
                 "name": "TokenPairEventWebhookConditionInput",
                 "ofType": null
               }
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "deduplicate",
+            "description": null,
+            "type": {
+              "kind": "SCALAR",
+              "name": "Boolean",
+              "ofType": null
             },
             "defaultValue": null,
             "isDeprecated": false,
@@ -2806,6 +3013,7 @@
         "kind": "INPUT_OBJECT",
         "name": "CreateTokenPairEventWebhooksInput",
         "description": null,
+        "isOneOf": false,
         "fields": null,
         "inputFields": [
           {
@@ -2841,6 +3049,7 @@
         "kind": "INPUT_OBJECT",
         "name": "CreateWebhooksInput",
         "description": null,
+        "isOneOf": false,
         "fields": null,
         "inputFields": [
           {
@@ -2900,6 +3109,7 @@
         "kind": "OBJECT",
         "name": "CreateWebhooksOutput",
         "description": null,
+        "isOneOf": null,
         "fields": [
           {
             "name": "nftEventWebhooks",
@@ -2991,6 +3201,7 @@
         "kind": "ENUM",
         "name": "CreationContext",
         "description": null,
+        "isOneOf": null,
         "fields": null,
         "inputFields": null,
         "interfaces": null,
@@ -3020,6 +3231,7 @@
         "kind": "OBJECT",
         "name": "CurrencyBarData",
         "description": "Price data for a bar at a specific resolution.",
+        "isOneOf": null,
         "fields": [
           {
             "name": "t",
@@ -3079,6 +3291,7 @@
         "kind": "INPUT_OBJECT",
         "name": "DeleteWebhooksInput",
         "description": null,
+        "isOneOf": false,
         "fields": null,
         "inputFields": [
           {
@@ -3114,6 +3327,7 @@
         "kind": "OBJECT",
         "name": "DeleteWebhooksOutput",
         "description": null,
+        "isOneOf": null,
         "fields": [
           {
             "name": "deletedIds",
@@ -3141,6 +3355,7 @@
         "kind": "OBJECT",
         "name": "DetailedNftStats",
         "description": "Detailed stats for an NFT collection.",
+        "isOneOf": null,
         "fields": [
           {
             "name": "collectionAddress",
@@ -3268,6 +3483,7 @@
         "kind": "OBJECT",
         "name": "DetailedNftStatsBucketTimestamp",
         "description": "The start/end timestamp for a given bucket within the window.",
+        "isOneOf": null,
         "fields": [
           {
             "name": "end",
@@ -3311,6 +3527,7 @@
         "kind": "ENUM",
         "name": "DetailedNftStatsDuration",
         "description": "The duration used to request detailed NFT stats.",
+        "isOneOf": null,
         "fields": null,
         "inputFields": null,
         "interfaces": null,
@@ -3358,6 +3575,7 @@
         "kind": "OBJECT",
         "name": "DetailedNftStatsNumberMetrics",
         "description": "Number metrics for detailed NFT stats.",
+        "isOneOf": null,
         "fields": [
           {
             "name": "buckets",
@@ -3425,6 +3643,7 @@
         "kind": "OBJECT",
         "name": "DetailedNftStatsStringMetrics",
         "description": "String metrics for detailed NFT stats.",
+        "isOneOf": null,
         "fields": [
           {
             "name": "buckets",
@@ -3492,6 +3711,7 @@
         "kind": "OBJECT",
         "name": "DetailedPairStats",
         "description": "Detailed stats for a token within a pair.",
+        "isOneOf": null,
         "fields": [
           {
             "name": "bucketCount",
@@ -3707,6 +3927,7 @@
         "kind": "OBJECT",
         "name": "DetailedPairStatsBucketTimestamp",
         "description": "The start/end timestamp for a given bucket within the window.",
+        "isOneOf": null,
         "fields": [
           {
             "name": "end",
@@ -3750,6 +3971,7 @@
         "kind": "ENUM",
         "name": "DetailedPairStatsDuration",
         "description": "The duration used to request detailed pair stats.",
+        "isOneOf": null,
         "fields": null,
         "inputFields": null,
         "interfaces": null,
@@ -3809,6 +4031,7 @@
         "kind": "OBJECT",
         "name": "DetailedPairStatsNumberMetrics",
         "description": "Number metrics for detailed pair stats.",
+        "isOneOf": null,
         "fields": [
           {
             "name": "buckets",
@@ -3876,6 +4099,7 @@
         "kind": "OBJECT",
         "name": "DetailedPairStatsStringMetrics",
         "description": "String metrics for detailed pair stats.",
+        "isOneOf": null,
         "fields": [
           {
             "name": "buckets",
@@ -3943,6 +4167,7 @@
         "kind": "OBJECT",
         "name": "DetailedStats",
         "description": "Detailed stats for a token within a pair.",
+        "isOneOf": null,
         "fields": [
           {
             "name": "bucketCount",
@@ -4086,6 +4311,7 @@
         "kind": "OBJECT",
         "name": "DetailedStatsBucketTimestamp",
         "description": "The start/end timestamp for a given bucket within the window.",
+        "isOneOf": null,
         "fields": [
           {
             "name": "end",
@@ -4129,6 +4355,7 @@
         "kind": "OBJECT",
         "name": "DetailedStatsNumberMetrics",
         "description": "Number metrics for detailed stats.",
+        "isOneOf": null,
         "fields": [
           {
             "name": "buckets",
@@ -4208,6 +4435,7 @@
         "kind": "OBJECT",
         "name": "DetailedStatsStringMetrics",
         "description": "String metrics for detailed stats.",
+        "isOneOf": null,
         "fields": [
           {
             "name": "buckets",
@@ -4287,6 +4515,7 @@
         "kind": "ENUM",
         "name": "DetailedStatsWindowSize",
         "description": "The window size used to request detailed stats.",
+        "isOneOf": null,
         "fields": null,
         "inputFields": null,
         "interfaces": null,
@@ -4328,6 +4557,7 @@
         "kind": "UNION",
         "name": "EnhancedContract",
         "description": "Metadata for a contract.",
+        "isOneOf": null,
         "fields": null,
         "inputFields": null,
         "interfaces": null,
@@ -4349,6 +4579,7 @@
         "kind": "OBJECT",
         "name": "EnhancedNftContract",
         "description": "Metadata for an NFT collection.",
+        "isOneOf": null,
         "fields": [
           {
             "name": "address",
@@ -4512,6 +4743,7 @@
         "kind": "OBJECT",
         "name": "EnhancedToken",
         "description": "Metadata for a token.",
+        "isOneOf": null,
         "fields": [
           {
             "name": "address",
@@ -4811,6 +5043,7 @@
         "kind": "OBJECT",
         "name": "Event",
         "description": "A token transaction.",
+        "isOneOf": null,
         "fields": [
           {
             "name": "address",
@@ -5138,6 +5371,7 @@
         "kind": "OBJECT",
         "name": "EventConnection",
         "description": "Response returned by `getTokenEvents`.",
+        "isOneOf": null,
         "fields": [
           {
             "name": "cursor",
@@ -5177,6 +5411,7 @@
         "kind": "UNION",
         "name": "EventData",
         "description": "Event-specific data for a token transaction.",
+        "isOneOf": null,
         "fields": null,
         "inputFields": null,
         "interfaces": null,
@@ -5208,6 +5443,7 @@
         "kind": "ENUM",
         "name": "EventDisplayType",
         "description": "A more specific breakdown of `EventType`. Splits `Swap` into `Buy` and `Sell`.",
+        "isOneOf": null,
         "fields": null,
         "inputFields": null,
         "interfaces": null,
@@ -5261,6 +5497,7 @@
         "kind": "OBJECT",
         "name": "EventLabel",
         "description": "Metadata for an event label.",
+        "isOneOf": null,
         "fields": [
           {
             "name": "data",
@@ -5400,6 +5637,7 @@
         "kind": "OBJECT",
         "name": "EventLabelConnection",
         "description": "Response returned by `getEventLabels`.",
+        "isOneOf": null,
         "fields": [
           {
             "name": "cursor",
@@ -5439,6 +5677,7 @@
         "kind": "UNION",
         "name": "EventLabelData",
         "description": "Specific data for an event label.",
+        "isOneOf": null,
         "fields": null,
         "inputFields": null,
         "interfaces": null,
@@ -5460,6 +5699,7 @@
         "kind": "ENUM",
         "name": "EventLabelType",
         "description": "The event label type.",
+        "isOneOf": null,
         "fields": null,
         "inputFields": null,
         "interfaces": null,
@@ -5483,6 +5723,7 @@
         "kind": "INPUT_OBJECT",
         "name": "EventQueryTimestampInput",
         "description": "Input type of `EventQueryTimestamp`.",
+        "isOneOf": false,
         "fields": null,
         "inputFields": [
           {
@@ -5526,6 +5767,7 @@
         "kind": "ENUM",
         "name": "EventType",
         "description": "The event type for a token transaction.",
+        "isOneOf": null,
         "fields": null,
         "inputFields": null,
         "interfaces": null,
@@ -5579,6 +5821,7 @@
         "kind": "INPUT_OBJECT",
         "name": "EventsQueryInput",
         "description": "Input type of `EventsQuery`.",
+        "isOneOf": false,
         "fields": null,
         "inputFields": [
           {
@@ -5746,6 +5989,7 @@
         "kind": "OBJECT",
         "name": "Exchange",
         "description": "Metadata for a decentralized exchange.",
+        "isOneOf": null,
         "fields": [
           {
             "name": "address",
@@ -5865,6 +6109,7 @@
         "kind": "OBJECT",
         "name": "ExchangeFilterConnection",
         "description": "Response returned by `filterExchanges`.",
+        "isOneOf": null,
         "fields": [
           {
             "name": "count",
@@ -5916,6 +6161,7 @@
         "kind": "OBJECT",
         "name": "ExchangeFilterResult",
         "description": "An exchange matching a set of filter parameters.",
+        "isOneOf": null,
         "fields": [
           {
             "name": "dailyActiveUsers",
@@ -6107,6 +6353,7 @@
         "kind": "INPUT_OBJECT",
         "name": "ExchangeFilters",
         "description": "Input type of `ExchangeFilters`.",
+        "isOneOf": false,
         "fields": null,
         "inputFields": [
           {
@@ -6318,6 +6565,7 @@
         "kind": "INPUT_OBJECT",
         "name": "ExchangeRanking",
         "description": "Input type of `ExchangeRanking`.",
+        "isOneOf": false,
         "fields": null,
         "inputFields": [
           {
@@ -6353,6 +6601,7 @@
         "kind": "ENUM",
         "name": "ExchangeRankingAttribute",
         "description": "The attribute used to rank exchanges.",
+        "isOneOf": null,
         "fields": null,
         "inputFields": null,
         "interfaces": null,
@@ -6448,6 +6697,7 @@
         "kind": "OBJECT",
         "name": "ExplorerTokenData",
         "description": "Third party token data sourced from off chain.",
+        "isOneOf": null,
         "fields": [
           {
             "name": "blueCheckmark",
@@ -6535,6 +6785,7 @@
         "kind": "OBJECT",
         "name": "Feature",
         "description": null,
+        "isOneOf": null,
         "fields": [
           {
             "name": "enabled",
@@ -6578,6 +6829,7 @@
         "kind": "INPUT_OBJECT",
         "name": "FillsourceStatsFilter",
         "description": "Filter for fillsource based NFT stats.",
+        "isOneOf": false,
         "fields": null,
         "inputFields": [
           {
@@ -6641,6 +6893,7 @@
         "kind": "OBJECT",
         "name": "FilterExchange",
         "description": "Metadata for an exchange.",
+        "isOneOf": null,
         "fields": [
           {
             "name": "address",
@@ -6748,6 +7001,7 @@
         "kind": "SCALAR",
         "name": "Float",
         "description": "The `Float` scalar type represents signed double-precision fractional values as specified by [IEEE 754](https://en.wikipedia.org/wiki/IEEE_floating_point).",
+        "isOneOf": null,
         "fields": null,
         "inputFields": null,
         "interfaces": null,
@@ -6758,6 +7012,7 @@
         "kind": "OBJECT",
         "name": "FrontRunLabelData",
         "description": "Metadata for a front-run label.",
+        "isOneOf": null,
         "fields": [
           {
             "name": "index",
@@ -6813,9 +7068,10 @@
         "kind": "OBJECT",
         "name": "GasEstimate",
         "description": null,
+        "isOneOf": null,
         "fields": [
           {
-            "name": "approveTxHash",
+            "name": "error",
             "description": null,
             "args": [],
             "type": {
@@ -6827,7 +7083,7 @@
             "deprecationReason": null
           },
           {
-            "name": "error",
+            "name": "errorReason",
             "description": null,
             "args": [],
             "type": {
@@ -6849,6 +7105,30 @@
             },
             "isDeprecated": false,
             "deprecationReason": null
+          },
+          {
+            "name": "gasPrice",
+            "description": null,
+            "args": [],
+            "type": {
+              "kind": "SCALAR",
+              "name": "String",
+              "ofType": null
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "totalFee",
+            "description": null,
+            "args": [],
+            "type": {
+              "kind": "SCALAR",
+              "name": "String",
+              "ofType": null
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
           }
         ],
         "inputFields": null,
@@ -6860,6 +7140,7 @@
         "kind": "OBJECT",
         "name": "GasFee",
         "description": null,
+        "isOneOf": null,
         "fields": [
           {
             "name": "confirmationTime",
@@ -6903,6 +7184,7 @@
         "kind": "OBJECT",
         "name": "GasFees",
         "description": null,
+        "isOneOf": null,
         "fields": [
           {
             "name": "high",
@@ -6950,6 +7232,7 @@
         "kind": "ENUM",
         "name": "GasPrice",
         "description": null,
+        "isOneOf": null,
         "fields": null,
         "inputFields": null,
         "interfaces": null,
@@ -6979,6 +7262,7 @@
         "kind": "INPUT_OBJECT",
         "name": "GetDetailedPairsStatsInput",
         "description": "Input type of `getDetailedPairsStats`.",
+        "isOneOf": false,
         "fields": null,
         "inputFields": [
           {
@@ -7086,6 +7370,7 @@
         "kind": "INPUT_OBJECT",
         "name": "GetGasEstimateInput",
         "description": null,
+        "isOneOf": false,
         "fields": null,
         "inputFields": [
           {
@@ -7201,6 +7486,30 @@
             "deprecationReason": null
           },
           {
+            "name": "sendWithPrivateRpc",
+            "description": null,
+            "type": {
+              "kind": "SCALAR",
+              "name": "Boolean",
+              "ofType": null
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "slippage",
+            "description": null,
+            "type": {
+              "kind": "SCALAR",
+              "name": "Float",
+              "ofType": null
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
             "name": "userId",
             "description": null,
             "type": {
@@ -7231,8 +7540,165 @@
       },
       {
         "kind": "OBJECT",
+        "name": "GetNetworkStatsResponse",
+        "description": "Response returned by `getNetworkStats`.",
+        "isOneOf": null,
+        "fields": [
+          {
+            "name": "liquidity",
+            "description": null,
+            "args": [],
+            "type": {
+              "kind": "NON_NULL",
+              "name": null,
+              "ofType": {
+                "kind": "SCALAR",
+                "name": "Float",
+                "ofType": null
+              }
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "transactions1",
+            "description": null,
+            "args": [],
+            "type": {
+              "kind": "NON_NULL",
+              "name": null,
+              "ofType": {
+                "kind": "SCALAR",
+                "name": "Int",
+                "ofType": null
+              }
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "transactions4",
+            "description": null,
+            "args": [],
+            "type": {
+              "kind": "NON_NULL",
+              "name": null,
+              "ofType": {
+                "kind": "SCALAR",
+                "name": "Int",
+                "ofType": null
+              }
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "transactions12",
+            "description": null,
+            "args": [],
+            "type": {
+              "kind": "NON_NULL",
+              "name": null,
+              "ofType": {
+                "kind": "SCALAR",
+                "name": "Int",
+                "ofType": null
+              }
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "transactions24",
+            "description": null,
+            "args": [],
+            "type": {
+              "kind": "NON_NULL",
+              "name": null,
+              "ofType": {
+                "kind": "SCALAR",
+                "name": "Int",
+                "ofType": null
+              }
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "volume1",
+            "description": null,
+            "args": [],
+            "type": {
+              "kind": "NON_NULL",
+              "name": null,
+              "ofType": {
+                "kind": "SCALAR",
+                "name": "Float",
+                "ofType": null
+              }
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "volume4",
+            "description": null,
+            "args": [],
+            "type": {
+              "kind": "NON_NULL",
+              "name": null,
+              "ofType": {
+                "kind": "SCALAR",
+                "name": "Float",
+                "ofType": null
+              }
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "volume12",
+            "description": null,
+            "args": [],
+            "type": {
+              "kind": "NON_NULL",
+              "name": null,
+              "ofType": {
+                "kind": "SCALAR",
+                "name": "Float",
+                "ofType": null
+              }
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "volume24",
+            "description": null,
+            "args": [],
+            "type": {
+              "kind": "NON_NULL",
+              "name": null,
+              "ofType": {
+                "kind": "SCALAR",
+                "name": "Float",
+                "ofType": null
+              }
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          }
+        ],
+        "inputFields": null,
+        "interfaces": [],
+        "enumValues": null,
+        "possibleTypes": null
+      },
+      {
+        "kind": "OBJECT",
         "name": "GetNftPoolCollectionsResponse",
         "description": "Response returned by `getNftPoolCollectionsByExchange`.",
+        "isOneOf": null,
         "fields": [
           {
             "name": "cursor",
@@ -7272,6 +7738,7 @@
         "kind": "OBJECT",
         "name": "GetNftPoolsResponse",
         "description": "Response returned by `getNftPoolsByCollectionAndExchange` and `getNftPoolsByOwner`.",
+        "isOneOf": null,
         "fields": [
           {
             "name": "cursor",
@@ -7315,6 +7782,7 @@
         "kind": "INPUT_OBJECT",
         "name": "GetPriceInput",
         "description": "Input type of `getTokenPrices`.",
+        "isOneOf": false,
         "fields": null,
         "inputFields": [
           {
@@ -7382,6 +7850,7 @@
         "kind": "INPUT_OBJECT",
         "name": "GetQuoteInput",
         "description": null,
+        "isOneOf": false,
         "fields": null,
         "inputFields": [
           {
@@ -7485,6 +7954,18 @@
             "deprecationReason": null
           },
           {
+            "name": "slippage",
+            "description": null,
+            "type": {
+              "kind": "SCALAR",
+              "name": "Float",
+              "ofType": null
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
             "name": "userId",
             "description": null,
             "type": {
@@ -7505,6 +7986,7 @@
         "kind": "OBJECT",
         "name": "GetSimulateTokenContractResultsConnection",
         "description": null,
+        "isOneOf": null,
         "fields": [
           {
             "name": "cursor",
@@ -7552,6 +8034,7 @@
         "kind": "INPUT_OBJECT",
         "name": "GetTokensInfoInput",
         "description": "Input type of `getTokensInfo`.",
+        "isOneOf": false,
         "fields": null,
         "inputFields": [
           {
@@ -7595,6 +8078,7 @@
         "kind": "OBJECT",
         "name": "GetWebhooksResponse",
         "description": null,
+        "isOneOf": null,
         "fields": [
           {
             "name": "cursor",
@@ -7634,6 +8118,7 @@
         "kind": "ENUM",
         "name": "GraphQlNftPoolVariant",
         "description": "The pool variant.",
+        "isOneOf": null,
         "fields": null,
         "inputFields": null,
         "interfaces": null,
@@ -7657,6 +8142,7 @@
         "kind": "INPUT_OBJECT",
         "name": "HoldersInput",
         "description": null,
+        "isOneOf": false,
         "fields": null,
         "inputFields": [
           {
@@ -7708,6 +8194,7 @@
         "kind": "INPUT_OBJECT",
         "name": "HoldersInputSort",
         "description": null,
+        "isOneOf": false,
         "fields": null,
         "inputFields": [
           {
@@ -7743,6 +8230,7 @@
         "kind": "OBJECT",
         "name": "HoldersResponse",
         "description": null,
+        "isOneOf": null,
         "fields": [
           {
             "name": "count",
@@ -7822,6 +8310,7 @@
         "kind": "ENUM",
         "name": "HoldersSortAttribute",
         "description": null,
+        "isOneOf": null,
         "fields": null,
         "inputFields": null,
         "interfaces": null,
@@ -7845,6 +8334,7 @@
         "kind": "ENUM",
         "name": "HoldersStatus",
         "description": null,
+        "isOneOf": null,
         "fields": null,
         "inputFields": null,
         "interfaces": null,
@@ -7868,6 +8358,7 @@
         "kind": "OBJECT",
         "name": "IndividualBarData",
         "description": "Bar chart data.",
+        "isOneOf": null,
         "fields": [
           {
             "name": "buyVolume",
@@ -8147,6 +8638,7 @@
         "kind": "SCALAR",
         "name": "Int",
         "description": "The `Int` scalar type represents non-fractional signed whole numeric values. Int can represent values between -(2^31) and 2^31 - 1.",
+        "isOneOf": null,
         "fields": null,
         "inputFields": null,
         "interfaces": null,
@@ -8157,6 +8649,7 @@
         "kind": "OBJECT",
         "name": "IntEqualsCondition",
         "description": null,
+        "isOneOf": null,
         "fields": [
           {
             "name": "eq",
@@ -8184,6 +8677,7 @@
         "kind": "INPUT_OBJECT",
         "name": "IntEqualsConditionInput",
         "description": null,
+        "isOneOf": false,
         "fields": null,
         "inputFields": [
           {
@@ -8211,6 +8705,7 @@
         "kind": "SCALAR",
         "name": "JSON",
         "description": null,
+        "isOneOf": null,
         "fields": null,
         "inputFields": null,
         "interfaces": null,
@@ -8221,6 +8716,7 @@
         "kind": "OBJECT",
         "name": "LabelsForEvent",
         "description": "Event labels. Can be `sandwich` or `washtrade`.",
+        "isOneOf": null,
         "fields": [
           {
             "name": "sandwich",
@@ -8256,6 +8752,7 @@
         "kind": "OBJECT",
         "name": "LatestPair",
         "description": "Metadata for a newly listed pair.",
+        "isOneOf": null,
         "fields": [
           {
             "name": "address",
@@ -8511,6 +9008,7 @@
         "kind": "OBJECT",
         "name": "LatestPairConnection",
         "description": "Response returned by `getLatestPairs`.",
+        "isOneOf": null,
         "fields": [
           {
             "name": "cursor",
@@ -8558,6 +9056,7 @@
         "kind": "OBJECT",
         "name": "LatestPairToken",
         "description": "Metadata for a token within a newly listed pair.",
+        "isOneOf": null,
         "fields": [
           {
             "name": "address",
@@ -8729,6 +9228,7 @@
         "kind": "OBJECT",
         "name": "LatestToken",
         "description": "Metadata for a newly created token.",
+        "isOneOf": null,
         "fields": [
           {
             "name": "blockHash",
@@ -9004,6 +9504,7 @@
         "kind": "OBJECT",
         "name": "LatestTokenConnection",
         "description": "Response returned by `getLatestTokens`.",
+        "isOneOf": null,
         "fields": [
           {
             "name": "items",
@@ -9039,6 +9540,7 @@
         "kind": "OBJECT",
         "name": "LatestTokenSimResults",
         "description": null,
+        "isOneOf": null,
         "fields": [
           {
             "name": "buyGasUsed",
@@ -9194,6 +9696,7 @@
         "kind": "OBJECT",
         "name": "LiquidityData",
         "description": null,
+        "isOneOf": null,
         "fields": [
           {
             "name": "active",
@@ -9237,6 +9740,7 @@
         "kind": "OBJECT",
         "name": "LiquidityLock",
         "description": "A record of locked liquidity",
+        "isOneOf": null,
         "fields": [
           {
             "name": "createdAt",
@@ -9432,6 +9936,7 @@
         "kind": "OBJECT",
         "name": "LiquidityLockConnection",
         "description": null,
+        "isOneOf": null,
         "fields": [
           {
             "name": "cursor",
@@ -9479,6 +9984,7 @@
         "kind": "ENUM",
         "name": "LiquidityLockProtocol",
         "description": "Protocols that can lock liquidity",
+        "isOneOf": null,
         "fields": null,
         "inputFields": null,
         "interfaces": null,
@@ -9520,6 +10026,7 @@
         "kind": "OBJECT",
         "name": "LiquidityMetadata",
         "description": "Metadata about a pair's liquidity. Includes locked liquidity data.",
+        "isOneOf": null,
         "fields": [
           {
             "name": "liquidity",
@@ -9563,6 +10070,7 @@
         "kind": "OBJECT",
         "name": "LiquidityNftData",
         "description": "Liquidity NFT position data",
+        "isOneOf": null,
         "fields": [
           {
             "name": "nftPositionManagerAddress",
@@ -9606,6 +10114,7 @@
         "kind": "ENUM",
         "name": "LiquidityProtocol",
         "description": "Protocols that create trading pairs",
+        "isOneOf": null,
         "fields": null,
         "inputFields": null,
         "interfaces": null,
@@ -9635,6 +10144,7 @@
         "kind": "OBJECT",
         "name": "ListPairsForTokenResponse",
         "description": "Response returned by `listPairsWithMetadataForToken`.",
+        "isOneOf": null,
         "fields": [
           {
             "name": "results",
@@ -9670,6 +10180,7 @@
         "kind": "OBJECT",
         "name": "ListPairsForTokenValue",
         "description": "Metadata for a pair containing a given token.",
+        "isOneOf": null,
         "fields": [
           {
             "name": "backingToken",
@@ -9789,6 +10300,7 @@
         "kind": "OBJECT",
         "name": "LockBreakdown",
         "description": "Breakdown of how much and where liquidity is locked.",
+        "isOneOf": null,
         "fields": [
           {
             "name": "active",
@@ -9848,6 +10360,7 @@
         "kind": "OBJECT",
         "name": "LockedLiquidityData",
         "description": "Data about locked liquidity.",
+        "isOneOf": null,
         "fields": [
           {
             "name": "active",
@@ -9909,8 +10422,105 @@
       },
       {
         "kind": "OBJECT",
+        "name": "MakerEventConnection",
+        "description": "Response returned by `getTokenEventsForMaker`.",
+        "isOneOf": null,
+        "fields": [
+          {
+            "name": "cursor",
+            "description": "A cursor for use in pagination.",
+            "args": [],
+            "type": {
+              "kind": "SCALAR",
+              "name": "String",
+              "ofType": null
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "items",
+            "description": "A list of transactions for a token's top pair.",
+            "args": [],
+            "type": {
+              "kind": "LIST",
+              "name": null,
+              "ofType": {
+                "kind": "OBJECT",
+                "name": "Event",
+                "ofType": null
+              }
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          }
+        ],
+        "inputFields": null,
+        "interfaces": [],
+        "enumValues": null,
+        "possibleTypes": null
+      },
+      {
+        "kind": "INPUT_OBJECT",
+        "name": "MakerEventsQueryInput",
+        "description": null,
+        "isOneOf": false,
+        "fields": null,
+        "inputFields": [
+          {
+            "name": "maker",
+            "description": "The specific wallet address to filter by.",
+            "type": {
+              "kind": "NON_NULL",
+              "name": null,
+              "ofType": {
+                "kind": "SCALAR",
+                "name": "String",
+                "ofType": null
+              }
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "networkId",
+            "description": "The network ID to filter by.",
+            "type": {
+              "kind": "NON_NULL",
+              "name": null,
+              "ofType": {
+                "kind": "SCALAR",
+                "name": "Int",
+                "ofType": null
+              }
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "quoteToken",
+            "description": "The token of interest. Can be `token0` or `token1`.",
+            "type": {
+              "kind": "ENUM",
+              "name": "QuoteToken",
+              "ofType": null
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          }
+        ],
+        "interfaces": null,
+        "enumValues": null,
+        "possibleTypes": null
+      },
+      {
+        "kind": "OBJECT",
         "name": "MetadataResponse",
         "description": "The status for a network supported on Defined.",
+        "isOneOf": null,
         "fields": [
           {
             "name": "lastProcessedBlock",
@@ -9975,9 +10585,114 @@
         "possibleTypes": null
       },
       {
+        "kind": "INPUT_OBJECT",
+        "name": "MigrateTrackedWalletsInput",
+        "description": null,
+        "isOneOf": false,
+        "fields": null,
+        "inputFields": [
+          {
+            "name": "fromUserId",
+            "description": null,
+            "type": {
+              "kind": "NON_NULL",
+              "name": null,
+              "ofType": {
+                "kind": "SCALAR",
+                "name": "String",
+                "ofType": null
+              }
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "toUserId",
+            "description": null,
+            "type": {
+              "kind": "NON_NULL",
+              "name": null,
+              "ofType": {
+                "kind": "SCALAR",
+                "name": "String",
+                "ofType": null
+              }
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          }
+        ],
+        "interfaces": null,
+        "enumValues": null,
+        "possibleTypes": null
+      },
+      {
+        "kind": "OBJECT",
+        "name": "MigrateTrackedWalletsOutput",
+        "description": null,
+        "isOneOf": null,
+        "fields": [
+          {
+            "name": "fromUserId",
+            "description": null,
+            "args": [],
+            "type": {
+              "kind": "NON_NULL",
+              "name": null,
+              "ofType": {
+                "kind": "SCALAR",
+                "name": "String",
+                "ofType": null
+              }
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "status",
+            "description": null,
+            "args": [],
+            "type": {
+              "kind": "NON_NULL",
+              "name": null,
+              "ofType": {
+                "kind": "SCALAR",
+                "name": "String",
+                "ofType": null
+              }
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "toUserId",
+            "description": null,
+            "args": [],
+            "type": {
+              "kind": "NON_NULL",
+              "name": null,
+              "ofType": {
+                "kind": "SCALAR",
+                "name": "String",
+                "ofType": null
+              }
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          }
+        ],
+        "inputFields": null,
+        "interfaces": [],
+        "enumValues": null,
+        "possibleTypes": null
+      },
+      {
         "kind": "OBJECT",
         "name": "MintEventData",
         "description": "Event data for a token mint event.",
+        "isOneOf": null,
         "fields": [
           {
             "name": "amount0",
@@ -10077,6 +10792,7 @@
         "kind": "OBJECT",
         "name": "Mutation",
         "description": null,
+        "isOneOf": null,
         "fields": [
           {
             "name": "createApiTokens",
@@ -10224,6 +10940,7 @@
         "kind": "OBJECT",
         "name": "Network",
         "description": "A network supported on Defined.",
+        "isOneOf": null,
         "fields": [
           {
             "name": "id",
@@ -10279,6 +10996,7 @@
         "kind": "OBJECT",
         "name": "NewPoolEventData",
         "description": "Event data for creating a new NFT pool.",
+        "isOneOf": null,
         "fields": [
           {
             "name": "assetRecipientAddress",
@@ -10594,6 +11312,7 @@
         "kind": "OBJECT",
         "name": "NewPoolEventDataV2",
         "description": "Event data for creating a new NFT pool.",
+        "isOneOf": null,
         "fields": [
           {
             "name": "assetRecipientAddress",
@@ -10997,6 +11716,7 @@
         "kind": "OBJECT",
         "name": "NftAsset",
         "description": "An NFT asset.",
+        "isOneOf": null,
         "fields": [
           {
             "name": "address",
@@ -11176,6 +11896,7 @@
         "kind": "OBJECT",
         "name": "NftAssetAttribute",
         "description": "Attributes for an NFT asset.",
+        "isOneOf": null,
         "fields": [
           {
             "name": "class",
@@ -11287,6 +12008,7 @@
         "kind": "ENUM",
         "name": "NftAssetAttributeDisplayType",
         "description": "The display type for the NFT asset attribute.",
+        "isOneOf": null,
         "fields": null,
         "inputFields": null,
         "interfaces": null,
@@ -11334,6 +12056,7 @@
         "kind": "ENUM",
         "name": "NftAssetAttributeType",
         "description": "The type for the NFT asset attribute `value` field.",
+        "isOneOf": null,
         "fields": null,
         "inputFields": null,
         "interfaces": null,
@@ -11363,6 +12086,7 @@
         "kind": "OBJECT",
         "name": "NftAssetError",
         "description": null,
+        "isOneOf": null,
         "fields": [
           {
             "name": "address",
@@ -11470,6 +12194,7 @@
         "kind": "ENUM",
         "name": "NftAssetErrorStatus",
         "description": null,
+        "isOneOf": null,
         "fields": null,
         "inputFields": null,
         "interfaces": null,
@@ -11493,6 +12218,7 @@
         "kind": "OBJECT",
         "name": "NftAssetMedia",
         "description": "NFT asset media.",
+        "isOneOf": null,
         "fields": [
           {
             "name": "image",
@@ -11564,6 +12290,7 @@
         "kind": "OBJECT",
         "name": "NftAssetsConnection",
         "description": "Response returned by `getNftAssets`.",
+        "isOneOf": null,
         "fields": [
           {
             "name": "cursor",
@@ -11619,6 +12346,7 @@
         "kind": "OBJECT",
         "name": "NftBalance",
         "description": "Wallet balance of an Nft Collection.",
+        "isOneOf": null,
         "fields": [
           {
             "name": "balance",
@@ -11678,6 +12406,7 @@
         "kind": "OBJECT",
         "name": "NftCollectionCurrencyStats",
         "description": "Price stats for an NFT collection over a time frame. Either in USD or the network's base token.",
+        "isOneOf": null,
         "fields": [
           {
             "name": "average",
@@ -11793,6 +12522,7 @@
         "kind": "OBJECT",
         "name": "NftCollectionFillsourceNumberStat",
         "description": "Stat and change for a string based fillsource amount.",
+        "isOneOf": null,
         "fields": [
           {
             "name": "amount",
@@ -11848,6 +12578,7 @@
         "kind": "OBJECT",
         "name": "NftCollectionFillsourceStringStat",
         "description": "Stat and change for a string based fillsource amount.",
+        "isOneOf": null,
         "fields": [
           {
             "name": "amount",
@@ -11903,6 +12634,7 @@
         "kind": "OBJECT",
         "name": "NftCollectionFilterConnection",
         "description": "Response returned by `filterNftCollections`.",
+        "isOneOf": null,
         "fields": [
           {
             "name": "count",
@@ -11954,6 +12686,7 @@
         "kind": "OBJECT",
         "name": "NftCollectionFilterResult",
         "description": "An NFT collection matching a set of filter parameters.",
+        "isOneOf": null,
         "fields": [
           {
             "name": "address",
@@ -12145,6 +12878,7 @@
         "kind": "INPUT_OBJECT",
         "name": "NftCollectionFilters",
         "description": "Input filters for `filterNftCollections`.",
+        "isOneOf": false,
         "fields": null,
         "inputFields": [
           {
@@ -12260,6 +12994,7 @@
         "kind": "OBJECT",
         "name": "NftCollectionMetadataResponse",
         "description": "Response returned by `getNftCollectionMetadata`.",
+        "isOneOf": null,
         "fields": [
           {
             "name": "contract",
@@ -12331,6 +13066,7 @@
         "kind": "OBJECT",
         "name": "NftCollectionNonCurrencyStats",
         "description": "Numerical stats for an NFT collection over a time frame.",
+        "isOneOf": null,
         "fields": [
           {
             "name": "mints",
@@ -12438,6 +13174,7 @@
         "kind": "OBJECT",
         "name": "NftCollectionPriceStats",
         "description": "Price stats for an NFT collection over a time frame. Either in USD or the network's base token.",
+        "isOneOf": null,
         "fields": [
           {
             "name": "average",
@@ -12593,6 +13330,7 @@
         "kind": "INPUT_OBJECT",
         "name": "NftCollectionRanking",
         "description": "Input type of `NftCollectionRanking`.",
+        "isOneOf": false,
         "fields": null,
         "inputFields": [
           {
@@ -12628,6 +13366,7 @@
         "kind": "ENUM",
         "name": "NftCollectionRankingAttribute",
         "description": "The attribute used to rank NFT collections.",
+        "isOneOf": null,
         "fields": null,
         "inputFields": null,
         "interfaces": null,
@@ -15963,6 +16702,7 @@
         "kind": "OBJECT",
         "name": "NftCollectionWindowStats",
         "description": "Stats for an NFT collection for a time frame.",
+        "isOneOf": null,
         "fields": [
           {
             "name": "networkBaseTokenPriceStats",
@@ -16054,6 +16794,7 @@
         "kind": "ENUM",
         "name": "NftCollectionsLeaderboardDuration",
         "description": "The duration used to rank NFTs.",
+        "isOneOf": null,
         "fields": null,
         "inputFields": null,
         "interfaces": null,
@@ -16107,6 +16848,7 @@
         "kind": "ENUM",
         "name": "NftCollectionsLeaderboardMetric",
         "description": "The attribute used to rank NFT collections.",
+        "isOneOf": null,
         "fields": null,
         "inputFields": null,
         "interfaces": null,
@@ -16202,6 +16944,7 @@
         "kind": "OBJECT",
         "name": "NftContract",
         "description": "Metadata for an NFT collection.",
+        "isOneOf": null,
         "fields": [
           {
             "name": "address",
@@ -16337,6 +17080,7 @@
         "kind": "ENUM",
         "name": "NftContractErcType",
         "description": "Token standards.",
+        "isOneOf": null,
         "fields": null,
         "inputFields": null,
         "interfaces": null,
@@ -16384,6 +17128,7 @@
         "kind": "INPUT_OBJECT",
         "name": "NftContractInput",
         "description": "Input type of `getNftContracts`.",
+        "isOneOf": false,
         "fields": null,
         "inputFields": [
           {
@@ -16427,6 +17172,7 @@
         "kind": "OBJECT",
         "name": "NftEvent",
         "description": "An NFT collection transaction.",
+        "isOneOf": null,
         "fields": [
           {
             "name": "aggregatorAddress",
@@ -16982,6 +17728,7 @@
         "kind": "OBJECT",
         "name": "NftEventFillSourceCondition",
         "description": null,
+        "isOneOf": null,
         "fields": [
           {
             "name": "oneOf",
@@ -17017,6 +17764,7 @@
         "kind": "INPUT_OBJECT",
         "name": "NftEventFillSourceConditionInput",
         "description": null,
+        "isOneOf": false,
         "fields": null,
         "inputFields": [
           {
@@ -17052,6 +17800,7 @@
         "kind": "OBJECT",
         "name": "NftEventNftTradeItem",
         "description": "Details for an NFT offered or received as part of an nft trade.",
+        "isOneOf": null,
         "fields": [
           {
             "name": "address",
@@ -17145,6 +17894,7 @@
         "kind": "ENUM",
         "name": "NftEventOrderDirection",
         "description": "The direction of the nft sale event.",
+        "isOneOf": null,
         "fields": null,
         "inputFields": null,
         "interfaces": null,
@@ -17174,6 +17924,7 @@
         "kind": "OBJECT",
         "name": "NftEventTokenTradeItem",
         "description": "Details for a token(s) offered or received as part of an nft trade.",
+        "isOneOf": null,
         "fields": [
           {
             "name": "address",
@@ -17351,6 +18102,7 @@
         "kind": "UNION",
         "name": "NftEventTradeItem",
         "description": "An item that was either offered or received as part of an NFT trade.",
+        "isOneOf": null,
         "fields": null,
         "inputFields": null,
         "interfaces": null,
@@ -17372,6 +18124,7 @@
         "kind": "INTERFACE",
         "name": "NftEventTradeItemBase",
         "description": "Fields that are common in all items offered or received as part of an nft trade.",
+        "isOneOf": null,
         "fields": [
           {
             "name": "address",
@@ -17450,6 +18203,7 @@
         "kind": "ENUM",
         "name": "NftEventTradeItemType",
         "description": "The type of item involved in the trade.",
+        "isOneOf": null,
         "fields": null,
         "inputFields": null,
         "interfaces": null,
@@ -17473,6 +18227,7 @@
         "kind": "OBJECT",
         "name": "NftEventTypeCondition",
         "description": null,
+        "isOneOf": null,
         "fields": [
           {
             "name": "eq",
@@ -17500,6 +18255,7 @@
         "kind": "INPUT_OBJECT",
         "name": "NftEventTypeConditionInput",
         "description": null,
+        "isOneOf": false,
         "fields": null,
         "inputFields": [
           {
@@ -17527,6 +18283,7 @@
         "kind": "OBJECT",
         "name": "NftEventWebhookCondition",
         "description": null,
+        "isOneOf": null,
         "fields": [
           {
             "name": "contractAddress",
@@ -17658,6 +18415,7 @@
         "kind": "INPUT_OBJECT",
         "name": "NftEventWebhookConditionInput",
         "description": null,
+        "isOneOf": false,
         "fields": null,
         "inputFields": [
           {
@@ -17765,6 +18523,7 @@
         "kind": "OBJECT",
         "name": "NftEventsConnection",
         "description": "Response returned by `getNftEvents`.",
+        "isOneOf": null,
         "fields": [
           {
             "name": "cursor",
@@ -17804,6 +18563,7 @@
         "kind": "ENUM",
         "name": "NftExchange",
         "description": "NFT marketplaces.",
+        "isOneOf": null,
         "fields": null,
         "inputFields": null,
         "interfaces": null,
@@ -17953,6 +18713,7 @@
         "kind": "OBJECT",
         "name": "NftFillsourceStatsNumberMetrics",
         "description": "Number metrics for NFT fillsource stats.",
+        "isOneOf": null,
         "fields": [
           {
             "name": "change",
@@ -18012,6 +18773,7 @@
         "kind": "OBJECT",
         "name": "NftFillsourceStatsStringMetrics",
         "description": "String metrics for NFT stats.",
+        "isOneOf": null,
         "fields": [
           {
             "name": "change",
@@ -18071,6 +18833,7 @@
         "kind": "INPUT_OBJECT",
         "name": "NftHoldersInput",
         "description": null,
+        "isOneOf": false,
         "fields": null,
         "inputFields": [
           {
@@ -18126,6 +18889,7 @@
         "kind": "OBJECT",
         "name": "NftHoldersResponse",
         "description": null,
+        "isOneOf": null,
         "fields": [
           {
             "name": "count",
@@ -18205,6 +18969,7 @@
         "kind": "OBJECT",
         "name": "NftPoolAssetRecipientUpdateEventData",
         "description": "Event data for updating the asset recipient of a pool.",
+        "isOneOf": null,
         "fields": [
           {
             "name": "newAssetRecipient",
@@ -18248,6 +19013,7 @@
         "kind": "OBJECT",
         "name": "NftPoolCollectionFilterConnection",
         "description": "Response returned by `filterNftPoolCollections`.",
+        "isOneOf": null,
         "fields": [
           {
             "name": "count",
@@ -18299,6 +19065,7 @@
         "kind": "OBJECT",
         "name": "NftPoolCollectionFilterResult",
         "description": "An NFT pool collection.",
+        "isOneOf": null,
         "fields": [
           {
             "name": "balanceNBT",
@@ -19022,6 +19789,7 @@
         "kind": "INPUT_OBJECT",
         "name": "NftPoolCollectionFilters",
         "description": "Input type of `NftPoolCollectionFilters`.",
+        "isOneOf": false,
         "fields": null,
         "inputFields": [
           {
@@ -19585,6 +20353,7 @@
         "kind": "INPUT_OBJECT",
         "name": "NftPoolCollectionRanking",
         "description": "Input type of `NftPoolCollectionRanking`.",
+        "isOneOf": false,
         "fields": null,
         "inputFields": [
           {
@@ -19620,6 +20389,7 @@
         "kind": "ENUM",
         "name": "NftPoolCollectionRankingAttribute",
         "description": "The attribute used to rank NFT collections.",
+        "isOneOf": null,
         "fields": null,
         "inputFields": null,
         "interfaces": null,
@@ -19883,6 +20653,7 @@
         "kind": "OBJECT",
         "name": "NftPoolCollectionResponse",
         "description": "An NFT collection in an NFT pool.",
+        "isOneOf": null,
         "fields": [
           {
             "name": "balanceNBT",
@@ -20218,6 +20989,7 @@
         "kind": "ENUM",
         "name": "NftPoolContractVersion",
         "description": "The NFT pool contract version.",
+        "isOneOf": null,
         "fields": null,
         "inputFields": null,
         "interfaces": null,
@@ -20241,6 +21013,7 @@
         "kind": "OBJECT",
         "name": "NftPoolDeltaUpdateEventData",
         "description": "Event data for updating the delta of a pool.",
+        "isOneOf": null,
         "fields": [
           {
             "name": "newDelta",
@@ -20284,6 +21057,7 @@
         "kind": "OBJECT",
         "name": "NftPoolEvent",
         "description": "An NFT pool transaction.",
+        "isOneOf": null,
         "fields": [
           {
             "name": "blockHash",
@@ -20567,6 +21341,7 @@
         "kind": "UNION",
         "name": "NftPoolEventData",
         "description": "Event-specific data for an NFT pool transaction.",
+        "isOneOf": null,
         "fields": null,
         "inputFields": null,
         "interfaces": null,
@@ -20678,6 +21453,7 @@
         "kind": "OBJECT",
         "name": "NftPoolEventNftTransfer",
         "description": "Metadata for an NFT transfer.",
+        "isOneOf": null,
         "fields": [
           {
             "name": "amountT",
@@ -20721,6 +21497,7 @@
         "kind": "OBJECT",
         "name": "NftPoolEventNftTransferV2",
         "description": "Metadata for an NFT transfer.",
+        "isOneOf": null,
         "fields": [
           {
             "name": "amountT",
@@ -20796,6 +21573,7 @@
         "kind": "ENUM",
         "name": "NftPoolEventType",
         "description": "The type of an NFT pool event.",
+        "isOneOf": null,
         "fields": null,
         "inputFields": null,
         "interfaces": null,
@@ -20927,6 +21705,7 @@
         "kind": "OBJECT",
         "name": "NftPoolEventsResponse",
         "description": "Response returned by `getNftPoolEvents`.",
+        "isOneOf": null,
         "fields": [
           {
             "name": "cursor",
@@ -20966,6 +21745,7 @@
         "kind": "OBJECT",
         "name": "NftPoolFeeUpdateEventData",
         "description": "Event data for updating the fee of a pool.",
+        "isOneOf": null,
         "fields": [
           {
             "name": "nbtRatio",
@@ -21041,6 +21821,7 @@
         "kind": "OBJECT",
         "name": "NftPoolFilterConnection",
         "description": "Response returned by `filterNftPools`.",
+        "isOneOf": null,
         "fields": [
           {
             "name": "count",
@@ -21092,6 +21873,7 @@
         "kind": "OBJECT",
         "name": "NftPoolFilterResult",
         "description": "An NFT pool matching a set of filter parameters.",
+        "isOneOf": null,
         "fields": [
           {
             "name": "acceptedNftTokenIds",
@@ -22099,6 +22881,7 @@
         "kind": "INPUT_OBJECT",
         "name": "NftPoolFilters",
         "description": "Input type of `NftPoolFilters`.",
+        "isOneOf": false,
         "fields": null,
         "inputFields": [
           {
@@ -22586,6 +23369,7 @@
         "kind": "OBJECT",
         "name": "NftPoolNftDepositEventData",
         "description": "Event data for depositing an NFT into a pool.",
+        "isOneOf": null,
         "fields": [
           {
             "name": "nftTokenBalance",
@@ -22669,6 +23453,7 @@
         "kind": "OBJECT",
         "name": "NftPoolNftDepositEventDataV2",
         "description": "Event data for depositing an NFT into a pool.",
+        "isOneOf": null,
         "fields": [
           {
             "name": "nftAssets",
@@ -22776,6 +23561,7 @@
         "kind": "OBJECT",
         "name": "NftPoolNftWithdrawalEventData",
         "description": "Event data for withdrawing an NFT from a pool.",
+        "isOneOf": null,
         "fields": [
           {
             "name": "nftTokenBalance",
@@ -22859,6 +23645,7 @@
         "kind": "OBJECT",
         "name": "NftPoolNftWithdrawalEventDataV2",
         "description": "Event data for withdrawing an NFT from a pool.",
+        "isOneOf": null,
         "fields": [
           {
             "name": "nftAssets",
@@ -22966,6 +23753,7 @@
         "kind": "INPUT_OBJECT",
         "name": "NftPoolNumberFilter",
         "description": "Input type of `NftPoolNumberFilter`.",
+        "isOneOf": false,
         "fields": null,
         "inputFields": [
           {
@@ -23025,6 +23813,7 @@
         "kind": "OBJECT",
         "name": "NftPoolOwnershipTransferredEventDataV2",
         "description": null,
+        "isOneOf": null,
         "fields": [
           {
             "name": "newOwner",
@@ -23068,6 +23857,7 @@
         "kind": "INPUT_OBJECT",
         "name": "NftPoolRanking",
         "description": "Input type of `NftPoolRanking`.",
+        "isOneOf": false,
         "fields": null,
         "inputFields": [
           {
@@ -23103,6 +23893,7 @@
         "kind": "ENUM",
         "name": "NftPoolRankingAttribute",
         "description": "The attribute used to rank NFT pools.",
+        "isOneOf": null,
         "fields": null,
         "inputFields": null,
         "interfaces": null,
@@ -23312,6 +24103,7 @@
         "kind": "OBJECT",
         "name": "NftPoolResponse",
         "description": "An NFT pool.",
+        "isOneOf": null,
         "fields": [
           {
             "name": "acceptedNftTokenIds",
@@ -23887,6 +24679,7 @@
         "kind": "OBJECT",
         "name": "NftPoolRoyalty",
         "description": "The royalty for a SUDOSWAP_V2 pool.",
+        "isOneOf": null,
         "fields": [
           {
             "name": "percent",
@@ -23922,6 +24715,7 @@
         "kind": "OBJECT",
         "name": "NftPoolSpotPriceUpdateEventData",
         "description": "Event data for updating the spot price of a pool.",
+        "isOneOf": null,
         "fields": [
           {
             "name": "nbtRatio",
@@ -24029,6 +24823,7 @@
         "kind": "OBJECT",
         "name": "NftPoolSpotPriceUpdateEventDataV2",
         "description": "Event data for updating the spot price of a pool.",
+        "isOneOf": null,
         "fields": [
           {
             "name": "nbtRatio",
@@ -24136,6 +24931,7 @@
         "kind": "OBJECT",
         "name": "NftPoolStatsResponse",
         "description": "Stats for an NFT pool.",
+        "isOneOf": null,
         "fields": [
           {
             "name": "closeBalanceNBT",
@@ -24431,6 +25227,7 @@
         "kind": "OBJECT",
         "name": "NftPoolTokenDepositEventData",
         "description": "Event data for depositing a token into a pool.",
+        "isOneOf": null,
         "fields": [
           {
             "name": "amountT",
@@ -24538,6 +25335,7 @@
         "kind": "OBJECT",
         "name": "NftPoolTokenDepositEventDataV2",
         "description": "Event data for depositing a token into a pool.",
+        "isOneOf": null,
         "fields": [
           {
             "name": "amountT",
@@ -24629,6 +25427,7 @@
         "kind": "OBJECT",
         "name": "NftPoolTokenWithdrawalEventData",
         "description": "Event data for withdrawing a token from a pool.",
+        "isOneOf": null,
         "fields": [
           {
             "name": "amountT",
@@ -24736,6 +25535,7 @@
         "kind": "OBJECT",
         "name": "NftPoolTokenWithdrawalEventDataV2",
         "description": "Event data for withdrawing a token from a pool.",
+        "isOneOf": null,
         "fields": [
           {
             "name": "amountT",
@@ -24827,6 +25627,7 @@
         "kind": "ENUM",
         "name": "NftPoolType",
         "description": "The pool type selected by the pool creator.",
+        "isOneOf": null,
         "fields": null,
         "inputFields": null,
         "interfaces": null,
@@ -24856,6 +25657,7 @@
         "kind": "OBJECT",
         "name": "NftSearchResponse",
         "description": "Response returned by `searchNfts`.",
+        "isOneOf": null,
         "fields": [
           {
             "name": "hasMore",
@@ -24899,6 +25701,7 @@
         "kind": "OBJECT",
         "name": "NftSearchResponseCollection",
         "description": "An NFT collection matching a given query string.",
+        "isOneOf": null,
         "fields": [
           {
             "name": "address",
@@ -25122,6 +25925,7 @@
         "kind": "ENUM",
         "name": "NftSearchable",
         "description": "The level of NFTs to search.",
+        "isOneOf": null,
         "fields": null,
         "inputFields": null,
         "interfaces": null,
@@ -25145,6 +25949,7 @@
         "kind": "OBJECT",
         "name": "NftStatsNumberMetrics",
         "description": "Number metrics for NFT stats.",
+        "isOneOf": null,
         "fields": [
           {
             "name": "change",
@@ -25192,6 +25997,7 @@
         "kind": "OBJECT",
         "name": "NftStatsStringMetrics",
         "description": "String metrics for NFT stats.",
+        "isOneOf": null,
         "fields": [
           {
             "name": "change",
@@ -25239,6 +26045,7 @@
         "kind": "INPUT_OBJECT",
         "name": "NftStatsWindowFilter",
         "description": "NFT stats for a given time frame.",
+        "isOneOf": false,
         "fields": null,
         "inputFields": [
           {
@@ -25286,6 +26093,7 @@
         "kind": "OBJECT",
         "name": "NftStatsWindowWithChange",
         "description": "NFT stats over a time frame.",
+        "isOneOf": null,
         "fields": [
           {
             "name": "endTime",
@@ -25357,6 +26165,7 @@
         "kind": "INPUT_OBJECT",
         "name": "NumberFilter",
         "description": "Input type of `NumberFilter`.",
+        "isOneOf": false,
         "fields": null,
         "inputFields": [
           {
@@ -25416,6 +26225,203 @@
         "kind": "OBJECT",
         "name": "OnBarsUpdatedResponse",
         "description": "Response returned by `onBarsUpdated`.",
+        "isOneOf": null,
+        "fields": [
+          {
+            "name": "aggregates",
+            "description": "Price data broken down by resolution.",
+            "args": [],
+            "type": {
+              "kind": "NON_NULL",
+              "name": null,
+              "ofType": {
+                "kind": "OBJECT",
+                "name": "ResolutionBarData",
+                "ofType": null
+              }
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "eventSortKey",
+            "description": "The sortKey for the bar (`blockNumber`#`transactionIndex`#`logIndex`, zero padded).\nFor example, `0000000016414564#00000224#00000413`.",
+            "args": [],
+            "type": {
+              "kind": "NON_NULL",
+              "name": null,
+              "ofType": {
+                "kind": "SCALAR",
+                "name": "String",
+                "ofType": null
+              }
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "networkId",
+            "description": "The network ID the pair is deployed on.",
+            "args": [],
+            "type": {
+              "kind": "NON_NULL",
+              "name": null,
+              "ofType": {
+                "kind": "SCALAR",
+                "name": "Int",
+                "ofType": null
+              }
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "pairAddress",
+            "description": "The contract address for the pair.",
+            "args": [],
+            "type": {
+              "kind": "NON_NULL",
+              "name": null,
+              "ofType": {
+                "kind": "SCALAR",
+                "name": "String",
+                "ofType": null
+              }
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "pairId",
+            "description": "The ID for the pair (`pairAddress`:`networkId`).",
+            "args": [],
+            "type": {
+              "kind": "NON_NULL",
+              "name": null,
+              "ofType": {
+                "kind": "SCALAR",
+                "name": "String",
+                "ofType": null
+              }
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "quoteToken",
+            "description": "The quote token within the pair.",
+            "args": [],
+            "type": {
+              "kind": "ENUM",
+              "name": "QuoteToken",
+              "ofType": null
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "quoteTokenAddress",
+            "description": "The address of the token being quoted",
+            "args": [],
+            "type": {
+              "kind": "NON_NULL",
+              "name": null,
+              "ofType": {
+                "kind": "SCALAR",
+                "name": "String",
+                "ofType": null
+              }
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "statsType",
+            "description": "The type of statistics used. Can be `Filtered` or `Unfiltered`.",
+            "args": [],
+            "type": {
+              "kind": "NON_NULL",
+              "name": null,
+              "ofType": {
+                "kind": "ENUM",
+                "name": "TokenPairStatisticsType",
+                "ofType": null
+              }
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "timestamp",
+            "description": "The unix timestamp for the new bar.",
+            "args": [],
+            "type": {
+              "kind": "NON_NULL",
+              "name": null,
+              "ofType": {
+                "kind": "SCALAR",
+                "name": "Int",
+                "ofType": null
+              }
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          }
+        ],
+        "inputFields": null,
+        "interfaces": [],
+        "enumValues": null,
+        "possibleTypes": null
+      },
+      {
+        "kind": "INPUT_OBJECT",
+        "name": "OnPricesUpdatedInput",
+        "description": null,
+        "isOneOf": false,
+        "fields": null,
+        "inputFields": [
+          {
+            "name": "address",
+            "description": null,
+            "type": {
+              "kind": "NON_NULL",
+              "name": null,
+              "ofType": {
+                "kind": "SCALAR",
+                "name": "String",
+                "ofType": null
+              }
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "networkId",
+            "description": null,
+            "type": {
+              "kind": "NON_NULL",
+              "name": null,
+              "ofType": {
+                "kind": "SCALAR",
+                "name": "Int",
+                "ofType": null
+              }
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          }
+        ],
+        "interfaces": null,
+        "enumValues": null,
+        "possibleTypes": null
+      },
+      {
+        "kind": "OBJECT",
+        "name": "OnTokenBarsUpdatedResponse",
+        "description": "Response returned by `onBarsUpdated`.",
+        "isOneOf": null,
         "fields": [
           {
             "name": "aggregates",
@@ -25540,6 +26546,38 @@
             },
             "isDeprecated": false,
             "deprecationReason": null
+          },
+          {
+            "name": "tokenAddress",
+            "description": "The address of the token being quoted",
+            "args": [],
+            "type": {
+              "kind": "NON_NULL",
+              "name": null,
+              "ofType": {
+                "kind": "SCALAR",
+                "name": "String",
+                "ofType": null
+              }
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "tokenId",
+            "description": "The address of the token being quoted",
+            "args": [],
+            "type": {
+              "kind": "NON_NULL",
+              "name": null,
+              "ofType": {
+                "kind": "SCALAR",
+                "name": "String",
+                "ofType": null
+              }
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
           }
         ],
         "inputFields": null,
@@ -25551,6 +26589,7 @@
         "kind": "INPUT_OBJECT",
         "name": "OnTokenEventsCreatedInput",
         "description": null,
+        "isOneOf": false,
         "fields": null,
         "inputFields": [
           {
@@ -25594,6 +26633,7 @@
         "kind": "OBJECT",
         "name": "OneOfNumberCondition",
         "description": null,
+        "isOneOf": null,
         "fields": [
           {
             "name": "oneOf",
@@ -25629,6 +26669,7 @@
         "kind": "INPUT_OBJECT",
         "name": "OneOfNumberConditionInput",
         "description": null,
+        "isOneOf": false,
         "fields": null,
         "inputFields": [
           {
@@ -25664,6 +26705,7 @@
         "kind": "ENUM",
         "name": "OrderState",
         "description": null,
+        "isOneOf": null,
         "fields": null,
         "inputFields": null,
         "interfaces": null,
@@ -25705,6 +26747,7 @@
         "kind": "ENUM",
         "name": "OrderType",
         "description": null,
+        "isOneOf": null,
         "fields": null,
         "inputFields": null,
         "interfaces": null,
@@ -25728,6 +26771,7 @@
         "kind": "OBJECT",
         "name": "Pair",
         "description": "Metadata for a token pair.",
+        "isOneOf": null,
         "fields": [
           {
             "name": "address",
@@ -25907,6 +26951,7 @@
         "kind": "INPUT_OBJECT",
         "name": "PairChartInput",
         "description": "Input type of `PairChartInput`.",
+        "isOneOf": false,
         "fields": null,
         "inputFields": [
           {
@@ -25946,6 +26991,7 @@
         "kind": "INPUT_OBJECT",
         "name": "PairChartSettings",
         "description": "Input options for the chart.",
+        "isOneOf": false,
         "fields": null,
         "inputFields": [
           {
@@ -26049,6 +27095,7 @@
         "kind": "OBJECT",
         "name": "PairFilterConnection",
         "description": "Response returned by `filterPairs`.",
+        "isOneOf": null,
         "fields": [
           {
             "name": "count",
@@ -26100,6 +27147,7 @@
         "kind": "INPUT_OBJECT",
         "name": "PairFilterMatchTokens",
         "description": "Input type of `PairFilterMatchTokens`.",
+        "isOneOf": false,
         "fields": null,
         "inputFields": [
           {
@@ -26135,6 +27183,7 @@
         "kind": "OBJECT",
         "name": "PairFilterResult",
         "description": "A pair matching a set of filter parameters.",
+        "isOneOf": null,
         "fields": [
           {
             "name": "buyCount1",
@@ -26729,6 +27778,54 @@
             "deprecationReason": null
           },
           {
+            "name": "volumeChange1",
+            "description": "The percent volume change in the past hour. Decimal format.",
+            "args": [],
+            "type": {
+              "kind": "SCALAR",
+              "name": "String",
+              "ofType": null
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "volumeChange4",
+            "description": "The percent volume change in the past 4 hours. Decimal format.",
+            "args": [],
+            "type": {
+              "kind": "SCALAR",
+              "name": "String",
+              "ofType": null
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "volumeChange12",
+            "description": "The percent volume change in the past 12 hours. Decimal format.",
+            "args": [],
+            "type": {
+              "kind": "SCALAR",
+              "name": "String",
+              "ofType": null
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "volumeChange24",
+            "description": "The percent volume change in the past 24 hours. Decimal format.",
+            "args": [],
+            "type": {
+              "kind": "SCALAR",
+              "name": "String",
+              "ofType": null
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
             "name": "volumeUSD1",
             "description": "The trade volume in USD in the past hour.",
             "args": [],
@@ -26786,6 +27883,7 @@
         "kind": "INPUT_OBJECT",
         "name": "PairFilters",
         "description": "Input type of `PairFilters`.",
+        "isOneOf": false,
         "fields": null,
         "inputFields": [
           {
@@ -27353,6 +28451,54 @@
             "deprecationReason": null
           },
           {
+            "name": "volumeChange1",
+            "description": "The percent volume change in the past hour. Decimal format.",
+            "type": {
+              "kind": "INPUT_OBJECT",
+              "name": "NumberFilter",
+              "ofType": null
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "volumeChange4",
+            "description": "The percent volume change in the past 4 hours. Decimal format.",
+            "type": {
+              "kind": "INPUT_OBJECT",
+              "name": "NumberFilter",
+              "ofType": null
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "volumeChange12",
+            "description": "The percent volume change in the past 12 hours. Decimal format.",
+            "type": {
+              "kind": "INPUT_OBJECT",
+              "name": "NumberFilter",
+              "ofType": null
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "volumeChange24",
+            "description": "The percent volume change in the past 24 hours. Decimal format.",
+            "type": {
+              "kind": "INPUT_OBJECT",
+              "name": "NumberFilter",
+              "ofType": null
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
             "name": "volumeUSD1",
             "description": "The trade volume in USD in the past hour.",
             "type": {
@@ -27409,6 +28555,7 @@
         "kind": "OBJECT",
         "name": "PairMetadata",
         "description": null,
+        "isOneOf": null,
         "fields": [
           {
             "name": "exchangeId",
@@ -27868,6 +29015,7 @@
         "kind": "OBJECT",
         "name": "PairMetadataToken",
         "description": null,
+        "isOneOf": null,
         "fields": [
           {
             "name": "address",
@@ -28003,6 +29151,7 @@
         "kind": "INPUT_OBJECT",
         "name": "PairRanking",
         "description": "Input type of `PairRanking`.",
+        "isOneOf": false,
         "fields": null,
         "inputFields": [
           {
@@ -28038,6 +29187,7 @@
         "kind": "ENUM",
         "name": "PairRankingAttribute",
         "description": "The attribute used to rank tokens.",
+        "isOneOf": null,
         "fields": null,
         "inputFields": null,
         "interfaces": null,
@@ -28325,6 +29475,30 @@
             "deprecationReason": null
           },
           {
+            "name": "volumeChange1",
+            "description": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "volumeChange4",
+            "description": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "volumeChange12",
+            "description": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "volumeChange24",
+            "description": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
             "name": "volumeUSD1",
             "description": null,
             "isDeprecated": false,
@@ -28355,6 +29529,7 @@
         "kind": "OBJECT",
         "name": "ParallelAsset",
         "description": "A Parallel asset.",
+        "isOneOf": null,
         "fields": [
           {
             "name": "address",
@@ -28534,6 +29709,7 @@
         "kind": "OBJECT",
         "name": "ParallelAssetFilterConnection",
         "description": "Response returned by `filterNftParallelAssets`.",
+        "isOneOf": null,
         "fields": [
           {
             "name": "count",
@@ -28585,6 +29761,7 @@
         "kind": "OBJECT",
         "name": "ParallelAssetFilterResult",
         "description": "A Parallel asset matching a set of filter parameters.",
+        "isOneOf": null,
         "fields": [
           {
             "name": "address",
@@ -28796,6 +29973,7 @@
         "kind": "INPUT_OBJECT",
         "name": "ParallelAssetFilters",
         "description": "Input type of `ParallelAssetFilters`.",
+        "isOneOf": false,
         "fields": null,
         "inputFields": [
           {
@@ -28879,6 +30057,7 @@
         "kind": "OBJECT",
         "name": "ParallelAssetGameData",
         "description": "Game data for a Parallel asset.",
+        "isOneOf": null,
         "fields": [
           {
             "name": "attack",
@@ -28998,6 +30177,7 @@
         "kind": "ENUM",
         "name": "ParallelAssetMatcherCardType",
         "description": "The Parallel asset card type.",
+        "isOneOf": null,
         "fields": null,
         "inputFields": null,
         "interfaces": null,
@@ -29039,6 +30219,7 @@
         "kind": "ENUM",
         "name": "ParallelAssetMatcherClass",
         "description": "The Parallel asset class.",
+        "isOneOf": null,
         "fields": null,
         "inputFields": null,
         "interfaces": null,
@@ -29092,6 +30273,7 @@
         "kind": "ENUM",
         "name": "ParallelAssetMatcherParallel",
         "description": "The Parallel stream of evolution.",
+        "isOneOf": null,
         "fields": null,
         "inputFields": null,
         "interfaces": null,
@@ -29145,6 +30327,7 @@
         "kind": "ENUM",
         "name": "ParallelAssetMatcherRarity",
         "description": "The Parallel asset rarity.",
+        "isOneOf": null,
         "fields": null,
         "inputFields": null,
         "interfaces": null,
@@ -29186,6 +30369,7 @@
         "kind": "ENUM",
         "name": "ParallelAssetMatcherSubtype",
         "description": "The Parallel asset subtype.",
+        "isOneOf": null,
         "fields": null,
         "inputFields": null,
         "interfaces": null,
@@ -29215,6 +30399,7 @@
         "kind": "INPUT_OBJECT",
         "name": "ParallelAssetMatchers",
         "description": "Input type of `ParallelAssetMatchers`.",
+        "isOneOf": false,
         "fields": null,
         "inputFields": [
           {
@@ -29354,6 +30539,7 @@
         "kind": "OBJECT",
         "name": "ParallelAssetMetadata",
         "description": null,
+        "isOneOf": null,
         "fields": [
           {
             "name": "artist",
@@ -29449,6 +30635,7 @@
         "kind": "INPUT_OBJECT",
         "name": "ParallelAssetRanking",
         "description": "Input type of `ParallelAssetRanking`.",
+        "isOneOf": false,
         "fields": null,
         "inputFields": [
           {
@@ -29484,6 +30671,7 @@
         "kind": "ENUM",
         "name": "ParallelAssetRankingAttribute",
         "description": "Attribute used to rank Parallel assets.",
+        "isOneOf": null,
         "fields": null,
         "inputFields": null,
         "interfaces": null,
@@ -29531,6 +30719,7 @@
         "kind": "OBJECT",
         "name": "ParallelAssetsConnection",
         "description": "Response returned by `getParallelAssets`.",
+        "isOneOf": null,
         "fields": [
           {
             "name": "cursor",
@@ -29570,6 +30759,7 @@
         "kind": "OBJECT",
         "name": "ParallelCardChange",
         "description": "Tracked changes made to a Parallel card.",
+        "isOneOf": null,
         "fields": [
           {
             "name": "diff",
@@ -29629,6 +30819,7 @@
         "kind": "OBJECT",
         "name": "ParallelCardChangeDiff",
         "description": "Parallel card metadata before and after a card change.",
+        "isOneOf": null,
         "fields": [
           {
             "name": "new",
@@ -29672,6 +30863,7 @@
         "kind": "OBJECT",
         "name": "ParallelCardChangeFields",
         "description": "Metadata for a Parallel card.",
+        "isOneOf": null,
         "fields": [
           {
             "name": "artist",
@@ -29875,6 +31067,7 @@
         "kind": "INPUT_OBJECT",
         "name": "ParallelCardChangeQueryTimestampInput",
         "description": "Input type of `ParallelCardChangeQueryTimestamp.",
+        "isOneOf": false,
         "fields": null,
         "inputFields": [
           {
@@ -29910,6 +31103,7 @@
         "kind": "OBJECT",
         "name": "ParallelCardChangesConnection",
         "description": "Response returned by `getParallelCardChanges`.",
+        "isOneOf": null,
         "fields": [
           {
             "name": "cursor",
@@ -29949,6 +31143,7 @@
         "kind": "ENUM",
         "name": "Plan",
         "description": null,
+        "isOneOf": null,
         "fields": null,
         "inputFields": null,
         "interfaces": null,
@@ -29984,6 +31179,7 @@
         "kind": "OBJECT",
         "name": "PoolBalanceChangedEventData",
         "description": "Event data for a BalancerV2 Pool Balance Changed event.",
+        "isOneOf": null,
         "fields": [
           {
             "name": "amount0",
@@ -30143,6 +31339,7 @@
         "kind": "ENUM",
         "name": "PoolNftType",
         "description": "The type of NFT in the pool.",
+        "isOneOf": null,
         "fields": null,
         "inputFields": null,
         "interfaces": null,
@@ -30178,6 +31375,7 @@
         "kind": "OBJECT",
         "name": "PooledTokenValues",
         "description": null,
+        "isOneOf": null,
         "fields": [
           {
             "name": "token0",
@@ -30213,6 +31411,7 @@
         "kind": "OBJECT",
         "name": "Price",
         "description": "Real-time or historical prices for a token.",
+        "isOneOf": null,
         "fields": [
           {
             "name": "address",
@@ -30300,6 +31499,7 @@
         "kind": "OBJECT",
         "name": "PriceEventWebhookCondition",
         "description": null,
+        "isOneOf": null,
         "fields": [
           {
             "name": "networkId",
@@ -30359,6 +31559,7 @@
         "kind": "INPUT_OBJECT",
         "name": "PriceEventWebhookConditionInput",
         "description": null,
+        "isOneOf": false,
         "fields": null,
         "inputFields": [
           {
@@ -30418,6 +31619,7 @@
         "kind": "OBJECT",
         "name": "PrimeHolders",
         "description": "Response returned by `primeHolders`.",
+        "isOneOf": null,
         "fields": [
           {
             "name": "count",
@@ -30481,6 +31683,7 @@
         "kind": "OBJECT",
         "name": "PrimePool",
         "description": "An Echelon Prime Pool.",
+        "isOneOf": null,
         "fields": [
           {
             "name": "calcData",
@@ -30652,6 +31855,7 @@
         "kind": "OBJECT",
         "name": "PrimePoolAsset",
         "description": "A cached Prime pool asset.",
+        "isOneOf": null,
         "fields": [
           {
             "name": "amount",
@@ -30831,6 +32035,7 @@
         "kind": "OBJECT",
         "name": "PrimePoolAssetConnection",
         "description": "Response returned by `getPrimePoolAssets`.",
+        "isOneOf": null,
         "fields": [
           {
             "name": "cursor",
@@ -30870,6 +32075,7 @@
         "kind": "OBJECT",
         "name": "PrimePoolCacheData",
         "description": "Event-specific data for a Prime pool Cache transaction.",
+        "isOneOf": null,
         "fields": [
           {
             "name": "eventAmount",
@@ -30993,6 +32199,7 @@
         "kind": "OBJECT",
         "name": "PrimePoolCachingPausedData",
         "description": "Event-specific data for a Prime pool CachingPaused transaction.",
+        "isOneOf": null,
         "fields": [
           {
             "name": "cachingPaused",
@@ -31036,6 +32243,7 @@
         "kind": "OBJECT",
         "name": "PrimePoolCalcData",
         "description": null,
+        "isOneOf": null,
         "fields": [
           {
             "name": "poolAccumulatedEth",
@@ -31215,6 +32423,7 @@
         "kind": "OBJECT",
         "name": "PrimePoolChainData",
         "description": "Values obtained directly from the chain.",
+        "isOneOf": null,
         "fields": [
           {
             "name": "cachingPaused",
@@ -31394,6 +32603,7 @@
         "kind": "OBJECT",
         "name": "PrimePoolClaimEthData",
         "description": "Event-specific data for a Prime pool ClaimEth transaction.",
+        "isOneOf": null,
         "fields": [
           {
             "name": "currency",
@@ -31497,6 +32707,7 @@
         "kind": "OBJECT",
         "name": "PrimePoolClaimPrimeData",
         "description": "Event-specific data for a Prime pool ClaimPrime transaction.",
+        "isOneOf": null,
         "fields": [
           {
             "name": "currency",
@@ -31588,6 +32799,7 @@
         "kind": "OBJECT",
         "name": "PrimePoolConnection",
         "description": "Response returned by `getPrimePools`.",
+        "isOneOf": null,
         "fields": [
           {
             "name": "cursor",
@@ -31627,6 +32839,7 @@
         "kind": "ENUM",
         "name": "PrimePoolCurrency",
         "description": "Currency types for Prime pool events.",
+        "isOneOf": null,
         "fields": null,
         "inputFields": null,
         "interfaces": null,
@@ -31650,6 +32863,7 @@
         "kind": "OBJECT",
         "name": "PrimePoolEmergencyWithdrawData",
         "description": "Event-specific data for a Prime pool EmergencyWithdraw transaction.",
+        "isOneOf": null,
         "fields": [
           {
             "name": "eventAmount",
@@ -31773,6 +32987,7 @@
         "kind": "OBJECT",
         "name": "PrimePoolEndTimestampUpdatedEthData",
         "description": "Event-specific data for a Prime pool EndTimestampUpdatedEth transaction.",
+        "isOneOf": null,
         "fields": [
           {
             "name": "currency",
@@ -31864,6 +33079,7 @@
         "kind": "OBJECT",
         "name": "PrimePoolEndTimestampUpdatedPrimeData",
         "description": "Event-specific data for a Prime pool EndTimestampUpdatedPrime transaction.",
+        "isOneOf": null,
         "fields": [
           {
             "name": "currency",
@@ -31955,6 +33171,7 @@
         "kind": "OBJECT",
         "name": "PrimePoolEthRewardsAddedData",
         "description": "Event-specific data for a Prime pool LogUpdatePool transaction.",
+        "isOneOf": null,
         "fields": [
           {
             "name": "amount",
@@ -32014,6 +33231,7 @@
         "kind": "OBJECT",
         "name": "PrimePoolEthRewardsSetData",
         "description": "Event-specific data for a Prime pool EthRewardsSet transaction.",
+        "isOneOf": null,
         "fields": [
           {
             "name": "amount",
@@ -32073,6 +33291,7 @@
         "kind": "OBJECT",
         "name": "PrimePoolEvent",
         "description": "A Prime pool event.",
+        "isOneOf": null,
         "fields": [
           {
             "name": "blockHash",
@@ -32340,6 +33559,7 @@
         "kind": "OBJECT",
         "name": "PrimePoolEventConnection",
         "description": "Response returned by `getPrimePoolEvents`.",
+        "isOneOf": null,
         "fields": [
           {
             "name": "cursor",
@@ -32379,6 +33599,7 @@
         "kind": "UNION",
         "name": "PrimePoolEventData",
         "description": "Event-specific data for a Prime pool transaction.",
+        "isOneOf": null,
         "fields": null,
         "inputFields": null,
         "interfaces": null,
@@ -32475,6 +33696,7 @@
         "kind": "ENUM",
         "name": "PrimePoolEventType",
         "description": "A Prime pool event type.",
+        "isOneOf": null,
         "fields": null,
         "inputFields": null,
         "interfaces": null,
@@ -32582,6 +33804,7 @@
         "kind": "INPUT_OBJECT",
         "name": "PrimePoolInput",
         "description": "Input Type of `PrimePoolQuery`",
+        "isOneOf": false,
         "fields": null,
         "inputFields": [
           {
@@ -32641,6 +33864,7 @@
         "kind": "OBJECT",
         "name": "PrimePoolLogPoolAdditionData",
         "description": "Event-specific data for a Prime pool LogPoolAddition (new Prime pool) transaction.",
+        "isOneOf": null,
         "fields": [
           {
             "name": "tokenIds",
@@ -32692,6 +33916,7 @@
         "kind": "OBJECT",
         "name": "PrimePoolLogPoolSetAllocPointData",
         "description": "Event-specific data for a Prime pool LogPoolSetAllocPoint transaction.",
+        "isOneOf": null,
         "fields": [
           {
             "name": "allocPoint",
@@ -32767,6 +33992,7 @@
         "kind": "OBJECT",
         "name": "PrimePoolLogSetPerSecondData",
         "description": "Event-specific data for a Prime pool LogSetPerSecond transaction.",
+        "isOneOf": null,
         "fields": [
           {
             "name": "amount",
@@ -32882,6 +34108,7 @@
         "kind": "OBJECT",
         "name": "PrimePoolLogUpdatePoolData",
         "description": "Event-specific data for a Prime pool LogUpdatePool transaction.",
+        "isOneOf": null,
         "fields": [
           {
             "name": "accPerShare",
@@ -33013,6 +34240,7 @@
         "kind": "OBJECT",
         "name": "PrimePoolRewardDecreaseData",
         "description": "Event-specific data for a Prime pool RewardDecrease transaction.",
+        "isOneOf": null,
         "fields": [
           {
             "name": "currency",
@@ -33088,6 +34316,7 @@
         "kind": "OBJECT",
         "name": "PrimePoolRewardIncreaseData",
         "description": "Event-specific data for a Prime pool RewardIncrease transaction.",
+        "isOneOf": null,
         "fields": [
           {
             "name": "currency",
@@ -33163,6 +34392,7 @@
         "kind": "OBJECT",
         "name": "PrimePoolTimeCachePeriodUpdateData",
         "description": "Event-specific data for a Prime pool TimeCachePeriodUpdate transaction.",
+        "isOneOf": null,
         "fields": [
           {
             "name": "currency",
@@ -33222,6 +34452,7 @@
         "kind": "ENUM",
         "name": "PrimePoolType",
         "description": "The type of Prime pool caching contract.",
+        "isOneOf": null,
         "fields": null,
         "inputFields": null,
         "interfaces": null,
@@ -33251,6 +34482,7 @@
         "kind": "OBJECT",
         "name": "PrimePoolWithdrawData",
         "description": "Event-specific data for a Prime pool Withdraw transaction.",
+        "isOneOf": null,
         "fields": [
           {
             "name": "eventAmount",
@@ -33374,6 +34606,7 @@
         "kind": "ENUM",
         "name": "PublishingType",
         "description": null,
+        "isOneOf": null,
         "fields": null,
         "inputFields": null,
         "interfaces": null,
@@ -33397,6 +34630,7 @@
         "kind": "OBJECT",
         "name": "Query",
         "description": null,
+        "isOneOf": null,
         "fields": [
           {
             "name": "apiToken",
@@ -34051,6 +35285,22 @@
             "name": "filterTokens",
             "description": "Returns a list of tokens based on a variety of filters.",
             "args": [
+              {
+                "name": "excludeTokens",
+                "description": "A list of token IDs to exclude from results (`address:networkId`)",
+                "type": {
+                  "kind": "LIST",
+                  "name": null,
+                  "ofType": {
+                    "kind": "SCALAR",
+                    "name": "String",
+                    "ofType": null
+                  }
+                },
+                "defaultValue": null,
+                "isDeprecated": false,
+                "deprecationReason": null
+              },
               {
                 "name": "filters",
                 "description": "A set of filters to apply.",
@@ -34919,6 +36169,47 @@
             "deprecationReason": null
           },
           {
+            "name": "getNetworkStats",
+            "description": "Returns metadata for a given network.",
+            "args": [
+              {
+                "name": "exchangeAddress",
+                "description": "The exchange address to filter by (optional).",
+                "type": {
+                  "kind": "SCALAR",
+                  "name": "String",
+                  "ofType": null
+                },
+                "defaultValue": null,
+                "isDeprecated": false,
+                "deprecationReason": null
+              },
+              {
+                "name": "networkId",
+                "description": "The network Id to filter by.",
+                "type": {
+                  "kind": "NON_NULL",
+                  "name": null,
+                  "ofType": {
+                    "kind": "SCALAR",
+                    "name": "Int",
+                    "ofType": null
+                  }
+                },
+                "defaultValue": null,
+                "isDeprecated": false,
+                "deprecationReason": null
+              }
+            ],
+            "type": {
+              "kind": "OBJECT",
+              "name": "GetNetworkStatsResponse",
+              "ofType": null
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
             "name": "getNetworkStatus",
             "description": "Returns the status of a list of networks supported on Defined.",
             "args": [
@@ -35560,6 +36851,18 @@
                 "type": {
                   "kind": "SCALAR",
                   "name": "String",
+                  "ofType": null
+                },
+                "defaultValue": null,
+                "isDeprecated": false,
+                "deprecationReason": null
+              },
+              {
+                "name": "timestamp",
+                "description": "The time range to filter by.",
+                "type": {
+                  "kind": "INPUT_OBJECT",
+                  "name": "EventQueryTimestampInput",
                   "ofType": null
                 },
                 "defaultValue": null,
@@ -36441,6 +37744,71 @@
             "type": {
               "kind": "OBJECT",
               "name": "EventConnection",
+              "ofType": null
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "getTokenEventsForMaker",
+            "description": null,
+            "args": [
+              {
+                "name": "cursor",
+                "description": null,
+                "type": {
+                  "kind": "SCALAR",
+                  "name": "String",
+                  "ofType": null
+                },
+                "defaultValue": null,
+                "isDeprecated": false,
+                "deprecationReason": null
+              },
+              {
+                "name": "direction",
+                "description": null,
+                "type": {
+                  "kind": "ENUM",
+                  "name": "RankingDirection",
+                  "ofType": null
+                },
+                "defaultValue": null,
+                "isDeprecated": false,
+                "deprecationReason": null
+              },
+              {
+                "name": "limit",
+                "description": null,
+                "type": {
+                  "kind": "SCALAR",
+                  "name": "Int",
+                  "ofType": null
+                },
+                "defaultValue": null,
+                "isDeprecated": false,
+                "deprecationReason": null
+              },
+              {
+                "name": "query",
+                "description": null,
+                "type": {
+                  "kind": "NON_NULL",
+                  "name": null,
+                  "ofType": {
+                    "kind": "INPUT_OBJECT",
+                    "name": "MakerEventsQueryInput",
+                    "ofType": null
+                  }
+                },
+                "defaultValue": null,
+                "isDeprecated": false,
+                "deprecationReason": null
+              }
+            ],
+            "type": {
+              "kind": "OBJECT",
+              "name": "MakerEventConnection",
               "ofType": null
             },
             "isDeprecated": false,
@@ -37692,6 +39060,7 @@
         "kind": "OBJECT",
         "name": "Quote",
         "description": null,
+        "isOneOf": null,
         "fields": [
           {
             "name": "exchange",
@@ -37705,6 +39074,18 @@
                 "name": "QuoteExchange",
                 "ofType": null
               }
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "outputAmountMin",
+            "description": null,
+            "args": [],
+            "type": {
+              "kind": "SCALAR",
+              "name": "String",
+              "ofType": null
             },
             "isDeprecated": false,
             "deprecationReason": null
@@ -37807,6 +39188,7 @@
         "kind": "ENUM",
         "name": "QuoteCurrency",
         "description": null,
+        "isOneOf": null,
         "fields": null,
         "inputFields": null,
         "interfaces": null,
@@ -37830,6 +39212,7 @@
         "kind": "OBJECT",
         "name": "QuoteExchange",
         "description": null,
+        "isOneOf": null,
         "fields": [
           {
             "name": "factory",
@@ -37961,6 +39344,7 @@
         "kind": "ENUM",
         "name": "QuoteToken",
         "description": "The quote token within the pair.",
+        "isOneOf": null,
         "fields": null,
         "inputFields": null,
         "interfaces": null,
@@ -37984,6 +39368,7 @@
         "kind": "ENUM",
         "name": "QuoteType",
         "description": null,
+        "isOneOf": null,
         "fields": null,
         "inputFields": null,
         "interfaces": null,
@@ -38004,124 +39389,10 @@
         "possibleTypes": null
       },
       {
-        "kind": "OBJECT",
-        "name": "QuoteV2",
-        "description": null,
-        "fields": [
-          {
-            "name": "exchange",
-            "description": null,
-            "args": [],
-            "type": {
-              "kind": "NON_NULL",
-              "name": null,
-              "ofType": {
-                "kind": "OBJECT",
-                "name": "QuoteExchange",
-                "ofType": null
-              }
-            },
-            "isDeprecated": false,
-            "deprecationReason": null
-          },
-          {
-            "name": "poolFee",
-            "description": null,
-            "args": [],
-            "type": {
-              "kind": "SCALAR",
-              "name": "String",
-              "ofType": null
-            },
-            "isDeprecated": false,
-            "deprecationReason": null
-          },
-          {
-            "name": "poolFeeBps",
-            "description": null,
-            "args": [],
-            "type": {
-              "kind": "SCALAR",
-              "name": "Float",
-              "ofType": null
-            },
-            "isDeprecated": false,
-            "deprecationReason": null
-          },
-          {
-            "name": "quoteType",
-            "description": null,
-            "args": [],
-            "type": {
-              "kind": "NON_NULL",
-              "name": null,
-              "ofType": {
-                "kind": "ENUM",
-                "name": "QuoteType",
-                "ofType": null
-              }
-            },
-            "isDeprecated": false,
-            "deprecationReason": null
-          },
-          {
-            "name": "quotedAmount",
-            "description": null,
-            "args": [],
-            "type": {
-              "kind": "NON_NULL",
-              "name": null,
-              "ofType": {
-                "kind": "SCALAR",
-                "name": "String",
-                "ofType": null
-              }
-            },
-            "isDeprecated": false,
-            "deprecationReason": null
-          },
-          {
-            "name": "tradeFee",
-            "description": null,
-            "args": [],
-            "type": {
-              "kind": "NON_NULL",
-              "name": null,
-              "ofType": {
-                "kind": "SCALAR",
-                "name": "String",
-                "ofType": null
-              }
-            },
-            "isDeprecated": false,
-            "deprecationReason": null
-          },
-          {
-            "name": "tradeFeeBps",
-            "description": null,
-            "args": [],
-            "type": {
-              "kind": "NON_NULL",
-              "name": null,
-              "ofType": {
-                "kind": "SCALAR",
-                "name": "Float",
-                "ofType": null
-              }
-            },
-            "isDeprecated": false,
-            "deprecationReason": null
-          }
-        ],
-        "inputFields": null,
-        "interfaces": [],
-        "enumValues": null,
-        "possibleTypes": null
-      },
-      {
         "kind": "ENUM",
         "name": "RankingDirection",
         "description": "The order of ranking.",
+        "isOneOf": null,
         "fields": null,
         "inputFields": null,
         "interfaces": null,
@@ -38145,6 +39416,7 @@
         "kind": "OBJECT",
         "name": "RawNftAssetData",
         "description": null,
+        "isOneOf": null,
         "fields": [
           {
             "name": "animationUrl",
@@ -38204,6 +39476,7 @@
         "kind": "OBJECT",
         "name": "RawTransactionWebhookCondition",
         "description": null,
+        "isOneOf": null,
         "fields": [
           {
             "name": "from",
@@ -38299,6 +39572,7 @@
         "kind": "INPUT_OBJECT",
         "name": "RawTransactionWebhookConditionInput",
         "description": null,
+        "isOneOf": false,
         "fields": null,
         "inputFields": [
           {
@@ -38391,9 +39665,292 @@
         "possibleTypes": null
       },
       {
+        "kind": "UNION",
+        "name": "ReferralEventData",
+        "description": null,
+        "isOneOf": null,
+        "fields": null,
+        "inputFields": null,
+        "interfaces": null,
+        "enumValues": null,
+        "possibleTypes": [
+          {
+            "kind": "OBJECT",
+            "name": "ReferralsEventPayoutData",
+            "ofType": null
+          },
+          {
+            "kind": "OBJECT",
+            "name": "ReferralsEventRewardData",
+            "ofType": null
+          }
+        ]
+      },
+      {
+        "kind": "OBJECT",
+        "name": "ReferralsEventPayoutData",
+        "description": null,
+        "isOneOf": null,
+        "fields": [
+          {
+            "name": "payouts",
+            "description": null,
+            "args": [],
+            "type": {
+              "kind": "NON_NULL",
+              "name": null,
+              "ofType": {
+                "kind": "LIST",
+                "name": null,
+                "ofType": {
+                  "kind": "NON_NULL",
+                  "name": null,
+                  "ofType": {
+                    "kind": "OBJECT",
+                    "name": "ReferralsPayoutData",
+                    "ofType": null
+                  }
+                }
+              }
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          }
+        ],
+        "inputFields": null,
+        "interfaces": [],
+        "enumValues": null,
+        "possibleTypes": null
+      },
+      {
+        "kind": "OBJECT",
+        "name": "ReferralsEventRewardData",
+        "description": null,
+        "isOneOf": null,
+        "fields": [
+          {
+            "name": "inputTokenAddress",
+            "description": null,
+            "args": [],
+            "type": {
+              "kind": "NON_NULL",
+              "name": null,
+              "ofType": {
+                "kind": "SCALAR",
+                "name": "String",
+                "ofType": null
+              }
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "networkId",
+            "description": null,
+            "args": [],
+            "type": {
+              "kind": "NON_NULL",
+              "name": null,
+              "ofType": {
+                "kind": "SCALAR",
+                "name": "Int",
+                "ofType": null
+              }
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "outputTokenAddress",
+            "description": null,
+            "args": [],
+            "type": {
+              "kind": "NON_NULL",
+              "name": null,
+              "ofType": {
+                "kind": "SCALAR",
+                "name": "String",
+                "ofType": null
+              }
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "payoutPercent",
+            "description": null,
+            "args": [],
+            "type": {
+              "kind": "NON_NULL",
+              "name": null,
+              "ofType": {
+                "kind": "SCALAR",
+                "name": "Float",
+                "ofType": null
+              }
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "referralUserId",
+            "description": null,
+            "args": [],
+            "type": {
+              "kind": "NON_NULL",
+              "name": null,
+              "ofType": {
+                "kind": "SCALAR",
+                "name": "String",
+                "ofType": null
+              }
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "rewardTokenAddress",
+            "description": null,
+            "args": [],
+            "type": {
+              "kind": "SCALAR",
+              "name": "String",
+              "ofType": null
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "rewardTokenAmount",
+            "description": null,
+            "args": [],
+            "type": {
+              "kind": "SCALAR",
+              "name": "String",
+              "ofType": null
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "transactionFee",
+            "description": null,
+            "args": [],
+            "type": {
+              "kind": "NON_NULL",
+              "name": null,
+              "ofType": {
+                "kind": "SCALAR",
+                "name": "String",
+                "ofType": null
+              }
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "transactionId",
+            "description": null,
+            "args": [],
+            "type": {
+              "kind": "NON_NULL",
+              "name": null,
+              "ofType": {
+                "kind": "SCALAR",
+                "name": "String",
+                "ofType": null
+              }
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "transactionTokenAddress",
+            "description": null,
+            "args": [],
+            "type": {
+              "kind": "NON_NULL",
+              "name": null,
+              "ofType": {
+                "kind": "SCALAR",
+                "name": "String",
+                "ofType": null
+              }
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "transactionTokenAmount",
+            "description": null,
+            "args": [],
+            "type": {
+              "kind": "NON_NULL",
+              "name": null,
+              "ofType": {
+                "kind": "SCALAR",
+                "name": "String",
+                "ofType": null
+              }
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          }
+        ],
+        "inputFields": null,
+        "interfaces": [],
+        "enumValues": null,
+        "possibleTypes": null
+      },
+      {
+        "kind": "OBJECT",
+        "name": "ReferralsPayoutData",
+        "description": null,
+        "isOneOf": null,
+        "fields": [
+          {
+            "name": "tokenAddressNetworkIdPaid",
+            "description": null,
+            "args": [],
+            "type": {
+              "kind": "NON_NULL",
+              "name": null,
+              "ofType": {
+                "kind": "SCALAR",
+                "name": "String",
+                "ofType": null
+              }
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "tokenAmountPaid",
+            "description": null,
+            "args": [],
+            "type": {
+              "kind": "NON_NULL",
+              "name": null,
+              "ofType": {
+                "kind": "SCALAR",
+                "name": "String",
+                "ofType": null
+              }
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          }
+        ],
+        "inputFields": null,
+        "interfaces": [],
+        "enumValues": null,
+        "possibleTypes": null
+      },
+      {
         "kind": "OBJECT",
         "name": "ResolutionBarData",
         "description": "Price data for each supported resolution.",
+        "isOneOf": null,
         "fields": [
           {
             "name": "r1",
@@ -38504,6 +40061,18 @@
             "deprecationReason": null
           },
           {
+            "name": "r30S",
+            "description": "30 second resolution.",
+            "args": [],
+            "type": {
+              "kind": "OBJECT",
+              "name": "CurrencyBarData",
+              "ofType": null
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
             "name": "r60",
             "description": "60 minute resolution.",
             "args": [],
@@ -38549,6 +40118,7 @@
         "kind": "OBJECT",
         "name": "RetrySettings",
         "description": null,
+        "isOneOf": null,
         "fields": [
           {
             "name": "maxRetries",
@@ -38608,6 +40178,7 @@
         "kind": "INPUT_OBJECT",
         "name": "RetrySettingsInput",
         "description": null,
+        "isOneOf": false,
         "fields": null,
         "inputFields": [
           {
@@ -38667,6 +40238,7 @@
         "kind": "OBJECT",
         "name": "SandwichLabelForEvent",
         "description": "Metadata for a sandwich label.",
+        "isOneOf": null,
         "fields": [
           {
             "name": "label",
@@ -38742,6 +40314,7 @@
         "kind": "ENUM",
         "name": "SandwichLabelForEventType",
         "description": "Sandwich event label types.",
+        "isOneOf": null,
         "fields": null,
         "inputFields": null,
         "interfaces": null,
@@ -38771,6 +40344,7 @@
         "kind": "OBJECT",
         "name": "SandwichedLabelData",
         "description": "Metadata for a sandwich label.",
+        "isOneOf": null,
         "fields": [
           {
             "name": "token0DrainedAmount",
@@ -38806,6 +40380,7 @@
         "kind": "INPUT_OBJECT",
         "name": "SessionMetadata",
         "description": null,
+        "isOneOf": false,
         "fields": null,
         "inputFields": [
           {
@@ -38829,6 +40404,7 @@
         "kind": "OBJECT",
         "name": "SimulateContractBalanceErrorsType",
         "description": null,
+        "isOneOf": null,
         "fields": [
           {
             "name": "tokenContractEthBalanceError",
@@ -38864,6 +40440,7 @@
         "kind": "OBJECT",
         "name": "SimulateContractBalanceType",
         "description": null,
+        "isOneOf": null,
         "fields": [
           {
             "name": "tokenContractEthBalance",
@@ -38899,6 +40476,7 @@
         "kind": "INPUT_OBJECT",
         "name": "SimulateCreateTransactionInput",
         "description": null,
+        "isOneOf": false,
         "fields": null,
         "inputFields": [
           {
@@ -38974,6 +40552,7 @@
         "kind": "OBJECT",
         "name": "SimulateCreatorErrorsType",
         "description": null,
+        "isOneOf": null,
         "fields": [
           {
             "name": "creatorEthBalanceError",
@@ -39009,6 +40588,7 @@
         "kind": "OBJECT",
         "name": "SimulateCreatorType",
         "description": null,
+        "isOneOf": null,
         "fields": [
           {
             "name": "creatorAddress",
@@ -39056,6 +40636,7 @@
         "kind": "OBJECT",
         "name": "SimulateDeployErrorsType",
         "description": null,
+        "isOneOf": null,
         "fields": [
           {
             "name": "deployError",
@@ -39091,6 +40672,7 @@
         "kind": "INPUT_OBJECT",
         "name": "SimulateDeployInput",
         "description": null,
+        "isOneOf": false,
         "fields": null,
         "inputFields": [
           {
@@ -39166,6 +40748,7 @@
         "kind": "OBJECT",
         "name": "SimulateDeployType",
         "description": null,
+        "isOneOf": null,
         "fields": [
           {
             "name": "deploySuccess",
@@ -39201,6 +40784,7 @@
         "kind": "OBJECT",
         "name": "SimulateLiquidityErrorsType",
         "description": null,
+        "isOneOf": null,
         "fields": [
           {
             "name": "addLiquidityError",
@@ -39260,6 +40844,7 @@
         "kind": "OBJECT",
         "name": "SimulateLiquidityType",
         "description": null,
+        "isOneOf": null,
         "fields": [
           {
             "name": "addLiquiditySuccess",
@@ -39379,6 +40964,7 @@
         "kind": "INPUT_OBJECT",
         "name": "SimulateLiveContractInput",
         "description": null,
+        "isOneOf": false,
         "fields": null,
         "inputFields": [
           {
@@ -39434,6 +41020,7 @@
         "kind": "OBJECT",
         "name": "SimulateOwnerErrorsType",
         "description": null,
+        "isOneOf": null,
         "fields": [
           {
             "name": "ownerAddressError",
@@ -39481,6 +41068,7 @@
         "kind": "OBJECT",
         "name": "SimulateOwnerType",
         "description": null,
+        "isOneOf": null,
         "fields": [
           {
             "name": "ownerAddress",
@@ -39528,6 +41116,7 @@
         "kind": "OBJECT",
         "name": "SimulateSwapErrorsType",
         "description": null,
+        "isOneOf": null,
         "fields": [
           {
             "name": "buyError",
@@ -39587,6 +41176,7 @@
         "kind": "OBJECT",
         "name": "SimulateSwapType",
         "description": null,
+        "isOneOf": null,
         "fields": [
           {
             "name": "buyGasUsed",
@@ -39694,6 +41284,7 @@
         "kind": "ENUM",
         "name": "SimulateTokenContractBuySellErrorEnum",
         "description": null,
+        "isOneOf": null,
         "fields": null,
         "inputFields": null,
         "interfaces": null,
@@ -39729,6 +41320,7 @@
         "kind": "OBJECT",
         "name": "SimulateTokenContractErrors",
         "description": null,
+        "isOneOf": null,
         "fields": [
           {
             "name": "contractBalanceErrors",
@@ -39880,6 +41472,7 @@
         "kind": "INPUT_OBJECT",
         "name": "SimulateTokenContractInput",
         "description": null,
+        "isOneOf": false,
         "fields": null,
         "inputFields": [
           {
@@ -39927,6 +41520,7 @@
         "kind": "OBJECT",
         "name": "SimulateTokenContractResponse",
         "description": null,
+        "isOneOf": null,
         "fields": [
           {
             "name": "error",
@@ -39978,6 +41572,7 @@
         "kind": "OBJECT",
         "name": "SimulateTokenContractResult",
         "description": null,
+        "isOneOf": null,
         "fields": [
           {
             "name": "analysisType",
@@ -40293,6 +41888,7 @@
         "kind": "ENUM",
         "name": "SimulateTokenContractResultStatusEnum",
         "description": null,
+        "isOneOf": null,
         "fields": null,
         "inputFields": null,
         "interfaces": null,
@@ -40322,6 +41918,7 @@
         "kind": "OBJECT",
         "name": "SimulateTokenErrorsType",
         "description": null,
+        "isOneOf": null,
         "fields": [
           {
             "name": "canRenounceOwnershipError",
@@ -40405,6 +42002,7 @@
         "kind": "OBJECT",
         "name": "SimulateTokenType",
         "description": null,
+        "isOneOf": null,
         "fields": [
           {
             "name": "canRenounceOwnership",
@@ -40516,6 +42114,7 @@
         "kind": "OBJECT",
         "name": "SimulateTransferErrorsType",
         "description": null,
+        "isOneOf": null,
         "fields": [
           {
             "name": "tokenContractApprovalError",
@@ -40563,6 +42162,7 @@
         "kind": "OBJECT",
         "name": "SimulateTransferType",
         "description": null,
+        "isOneOf": null,
         "fields": [
           {
             "name": "tokenContractApprovalSuccess",
@@ -40610,6 +42210,7 @@
         "kind": "OBJECT",
         "name": "SocialLinks",
         "description": "Community gathered social links of tokens/NFTs.",
+        "isOneOf": null,
         "fields": [
           {
             "name": "bitcointalk",
@@ -40849,6 +42450,7 @@
         "kind": "ENUM",
         "name": "SparklineAttribute",
         "description": null,
+        "isOneOf": null,
         "fields": null,
         "inputFields": null,
         "interfaces": null,
@@ -40866,6 +42468,7 @@
         "kind": "OBJECT",
         "name": "SparklineValue",
         "description": null,
+        "isOneOf": null,
         "fields": [
           {
             "name": "timestamp",
@@ -40909,6 +42512,7 @@
         "kind": "INPUT_OBJECT",
         "name": "StatsFilter",
         "description": "Filter for NFT stats.",
+        "isOneOf": false,
         "fields": null,
         "inputFields": [
           {
@@ -40956,6 +42560,7 @@
         "kind": "SCALAR",
         "name": "String",
         "description": "The `String` scalar type represents textual data, represented as UTF-8 character sequences. The String type is most often used by GraphQL to represent free-form human-readable text.",
+        "isOneOf": null,
         "fields": null,
         "inputFields": null,
         "interfaces": null,
@@ -40966,6 +42571,7 @@
         "kind": "OBJECT",
         "name": "StringContainsCondition",
         "description": null,
+        "isOneOf": null,
         "fields": [
           {
             "name": "contains",
@@ -41017,6 +42623,7 @@
         "kind": "INPUT_OBJECT",
         "name": "StringContainsConditionInput",
         "description": null,
+        "isOneOf": false,
         "fields": null,
         "inputFields": [
           {
@@ -41068,6 +42675,7 @@
         "kind": "OBJECT",
         "name": "StringEqualsCondition",
         "description": null,
+        "isOneOf": null,
         "fields": [
           {
             "name": "eq",
@@ -41095,6 +42703,7 @@
         "kind": "INPUT_OBJECT",
         "name": "StringEqualsConditionInput",
         "description": null,
+        "isOneOf": false,
         "fields": null,
         "inputFields": [
           {
@@ -41122,6 +42731,7 @@
         "kind": "INPUT_OBJECT",
         "name": "StringFilter",
         "description": "Input type of `StringFilter`.",
+        "isOneOf": false,
         "fields": null,
         "inputFields": [
           {
@@ -41181,6 +42791,7 @@
         "kind": "OBJECT",
         "name": "Subscription",
         "description": null,
+        "isOneOf": null,
         "fields": [
           {
             "name": "onBarsUpdated",
@@ -41674,6 +43285,47 @@
             "deprecationReason": null
           },
           {
+            "name": "onPricesUpdated",
+            "description": "Live-streamed price updates for multiple tokens.",
+            "args": [
+              {
+                "name": "input",
+                "description": null,
+                "type": {
+                  "kind": "NON_NULL",
+                  "name": null,
+                  "ofType": {
+                    "kind": "LIST",
+                    "name": null,
+                    "ofType": {
+                      "kind": "NON_NULL",
+                      "name": null,
+                      "ofType": {
+                        "kind": "INPUT_OBJECT",
+                        "name": "OnPricesUpdatedInput",
+                        "ofType": null
+                      }
+                    }
+                  }
+                },
+                "defaultValue": null,
+                "isDeprecated": false,
+                "deprecationReason": null
+              }
+            ],
+            "type": {
+              "kind": "NON_NULL",
+              "name": null,
+              "ofType": {
+                "kind": "OBJECT",
+                "name": "Price",
+                "ofType": null
+              }
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
             "name": "onSimulateTokenContract",
             "description": null,
             "args": [
@@ -41726,6 +43378,43 @@
                 "name": "SimulateTokenContractResult",
                 "ofType": null
               }
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "onTokenBarsUpdated",
+            "description": "Live-streamed bar chart data to track price changes over time for a token.",
+            "args": [
+              {
+                "name": "statsType",
+                "description": "docs: hide",
+                "type": {
+                  "kind": "ENUM",
+                  "name": "TokenPairStatisticsType",
+                  "ofType": null
+                },
+                "defaultValue": null,
+                "isDeprecated": false,
+                "deprecationReason": null
+              },
+              {
+                "name": "tokenId",
+                "description": "The ID of the pair (`address`:`networkId`).",
+                "type": {
+                  "kind": "SCALAR",
+                  "name": "String",
+                  "ofType": null
+                },
+                "defaultValue": null,
+                "isDeprecated": false,
+                "deprecationReason": null
+              }
+            ],
+            "type": {
+              "kind": "OBJECT",
+              "name": "OnTokenBarsUpdatedResponse",
+              "ofType": null
             },
             "isDeprecated": false,
             "deprecationReason": null
@@ -41803,6 +43492,55 @@
             },
             "isDeprecated": false,
             "deprecationReason": null
+          },
+          {
+            "name": "onUnconfirmedEventsCreated",
+            "description": "Live-streamed unconfirmed transactions for a token. (Solana only)",
+            "args": [
+              {
+                "name": "address",
+                "description": "The pair contract address.",
+                "type": {
+                  "kind": "SCALAR",
+                  "name": "String",
+                  "ofType": null
+                },
+                "defaultValue": null,
+                "isDeprecated": false,
+                "deprecationReason": null
+              },
+              {
+                "name": "id",
+                "description": "The ID of the pair (`address`:`networkId`).",
+                "type": {
+                  "kind": "SCALAR",
+                  "name": "String",
+                  "ofType": null
+                },
+                "defaultValue": null,
+                "isDeprecated": false,
+                "deprecationReason": null
+              },
+              {
+                "name": "quoteToken",
+                "description": "The token of interest within the pair. Can be `token0` or `token1`.",
+                "type": {
+                  "kind": "ENUM",
+                  "name": "QuoteToken",
+                  "ofType": null
+                },
+                "defaultValue": null,
+                "isDeprecated": false,
+                "deprecationReason": null
+              }
+            ],
+            "type": {
+              "kind": "OBJECT",
+              "name": "AddUnconfirmedEventsOutput",
+              "ofType": null
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
           }
         ],
         "inputFields": null,
@@ -41814,6 +43552,7 @@
         "kind": "OBJECT",
         "name": "SwapEventData",
         "description": "Event data for a token swap event.",
+        "isOneOf": null,
         "fields": [
           {
             "name": "amount0",
@@ -41985,6 +43724,7 @@
         "kind": "OBJECT",
         "name": "SwapNftInPoolEventData",
         "description": "Event data for swapping an NFT into a pool.",
+        "isOneOf": null,
         "fields": [
           {
             "name": "amountT",
@@ -42220,6 +43960,7 @@
         "kind": "OBJECT",
         "name": "SwapNftInPoolEventDataV2",
         "description": "Event data for swapping an NFT into a pool.",
+        "isOneOf": null,
         "fields": [
           {
             "name": "amountT",
@@ -42455,6 +44196,7 @@
         "kind": "OBJECT",
         "name": "SwapNftOutPoolEventData",
         "description": "Event data for swapping an NFT out of a pool.",
+        "isOneOf": null,
         "fields": [
           {
             "name": "amountT",
@@ -42690,6 +44432,7 @@
         "kind": "OBJECT",
         "name": "SwapNftOutPoolEventDataV2",
         "description": "Event data for swapping an NFT out of a pool.",
+        "isOneOf": null,
         "fields": [
           {
             "name": "amountT",
@@ -42925,6 +44668,7 @@
         "kind": "OBJECT",
         "name": "SymbolResponse",
         "description": "Response returned by `getSymbol`.",
+        "isOneOf": null,
         "fields": [
           {
             "name": "currency_code",
@@ -43056,6 +44800,7 @@
         "kind": "OBJECT",
         "name": "TokenBurnEventData",
         "description": "Token burn event data.",
+        "isOneOf": null,
         "fields": [
           {
             "name": "amount",
@@ -43107,6 +44852,7 @@
         "kind": "OBJECT",
         "name": "TokenFilterConnection",
         "description": "Response returned by `filterTokens`.",
+        "isOneOf": null,
         "fields": [
           {
             "name": "count",
@@ -43158,6 +44904,7 @@
         "kind": "OBJECT",
         "name": "TokenFilterResult",
         "description": "A token matching a set of filter parameters.",
+        "isOneOf": null,
         "fields": [
           {
             "name": "age",
@@ -43798,6 +45545,54 @@
             },
             "isDeprecated": false,
             "deprecationReason": null
+          },
+          {
+            "name": "volumeChange1",
+            "description": "The percent volume change in the past hour. Decimal format.",
+            "args": [],
+            "type": {
+              "kind": "SCALAR",
+              "name": "String",
+              "ofType": null
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "volumeChange4",
+            "description": "The percent volume change in the past 4 hours. Decimal format.",
+            "args": [],
+            "type": {
+              "kind": "SCALAR",
+              "name": "String",
+              "ofType": null
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "volumeChange12",
+            "description": "The percent volume change in the past 12 hours. Decimal format.",
+            "args": [],
+            "type": {
+              "kind": "SCALAR",
+              "name": "String",
+              "ofType": null
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "volumeChange24",
+            "description": "The percent volume change in the past 24 hours. Decimal format.",
+            "args": [],
+            "type": {
+              "kind": "SCALAR",
+              "name": "String",
+              "ofType": null
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
           }
         ],
         "inputFields": null,
@@ -43809,6 +45604,7 @@
         "kind": "INPUT_OBJECT",
         "name": "TokenFilters",
         "description": "Input type of `TokenFilters`.",
+        "isOneOf": false,
         "fields": null,
         "inputFields": [
           {
@@ -44482,6 +46278,54 @@
             "defaultValue": null,
             "isDeprecated": false,
             "deprecationReason": null
+          },
+          {
+            "name": "volumeChange1",
+            "description": "The percent volume change in the past hour. Decimal format.",
+            "type": {
+              "kind": "INPUT_OBJECT",
+              "name": "NumberFilter",
+              "ofType": null
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "volumeChange4",
+            "description": "The percent volume change in the past 4 hours. Decimal format.",
+            "type": {
+              "kind": "INPUT_OBJECT",
+              "name": "NumberFilter",
+              "ofType": null
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "volumeChange12",
+            "description": "The percent volume change in the past 12 hours. Decimal format.",
+            "type": {
+              "kind": "INPUT_OBJECT",
+              "name": "NumberFilter",
+              "ofType": null
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "volumeChange24",
+            "description": "The percent volume change in the past 24 hours. Decimal format.",
+            "type": {
+              "kind": "INPUT_OBJECT",
+              "name": "NumberFilter",
+              "ofType": null
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
           }
         ],
         "interfaces": null,
@@ -44492,6 +46336,7 @@
         "kind": "OBJECT",
         "name": "TokenInfo",
         "description": "Metadata for a token.",
+        "isOneOf": null,
         "fields": [
           {
             "name": "address",
@@ -44557,6 +46402,18 @@
                 "name": "String",
                 "ofType": null
               }
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "imageBannerUrl",
+            "description": "The token banner URL.",
+            "args": [],
+            "type": {
+              "kind": "SCALAR",
+              "name": "String",
+              "ofType": null
             },
             "isDeprecated": false,
             "deprecationReason": null
@@ -44675,6 +46532,7 @@
         "kind": "INPUT_OBJECT",
         "name": "TokenInput",
         "description": "Input type of `token` and `tokens`.",
+        "isOneOf": false,
         "fields": null,
         "inputFields": [
           {
@@ -44718,6 +46576,7 @@
         "kind": "OBJECT",
         "name": "TokenLifecycleEvent",
         "description": "Events that occur during a token's lifecycle. Only Mint and Burn events right now.",
+        "isOneOf": null,
         "fields": [
           {
             "name": "blockHash",
@@ -44917,6 +46776,7 @@
         "kind": "OBJECT",
         "name": "TokenLifecycleEventConnection",
         "description": "Response returned by `TokenLifecycleEvents`.",
+        "isOneOf": null,
         "fields": [
           {
             "name": "cursor",
@@ -44960,6 +46820,7 @@
         "kind": "UNION",
         "name": "TokenLifecycleEventData",
         "description": "Event data for a token's lifecycle.",
+        "isOneOf": null,
         "fields": null,
         "inputFields": null,
         "interfaces": null,
@@ -44981,6 +46842,7 @@
         "kind": "ENUM",
         "name": "TokenLifecycleEventType",
         "description": "Event types for a token. Mint or Burn.",
+        "isOneOf": null,
         "fields": null,
         "inputFields": null,
         "interfaces": null,
@@ -45004,6 +46866,7 @@
         "kind": "INPUT_OBJECT",
         "name": "TokenLifecycleEventsQueryInput",
         "description": "Input type of `TokenLifecycleEvents` query.",
+        "isOneOf": false,
         "fields": null,
         "inputFields": [
           {
@@ -45047,6 +46910,7 @@
         "kind": "OBJECT",
         "name": "TokenMintEventData",
         "description": "Token mint event data.",
+        "isOneOf": null,
         "fields": [
           {
             "name": "amount",
@@ -45098,6 +46962,7 @@
         "kind": "ENUM",
         "name": "TokenOfInterest",
         "description": "The token of interest within a pair. Can be `token0` or `token1`.",
+        "isOneOf": null,
         "fields": null,
         "inputFields": null,
         "interfaces": null,
@@ -45121,6 +46986,7 @@
         "kind": "ENUM",
         "name": "TokenPairEventType",
         "description": null,
+        "isOneOf": null,
         "fields": null,
         "inputFields": null,
         "interfaces": null,
@@ -45180,6 +47046,7 @@
         "kind": "OBJECT",
         "name": "TokenPairEventTypeCondition",
         "description": null,
+        "isOneOf": null,
         "fields": [
           {
             "name": "oneOf",
@@ -45215,6 +47082,7 @@
         "kind": "INPUT_OBJECT",
         "name": "TokenPairEventTypeConditionInput",
         "description": null,
+        "isOneOf": false,
         "fields": null,
         "inputFields": [
           {
@@ -45250,6 +47118,7 @@
         "kind": "OBJECT",
         "name": "TokenPairEventWebhookCondition",
         "description": null,
+        "isOneOf": null,
         "fields": [
           {
             "name": "eventType",
@@ -45345,6 +47214,7 @@
         "kind": "INPUT_OBJECT",
         "name": "TokenPairEventWebhookConditionInput",
         "description": null,
+        "isOneOf": false,
         "fields": null,
         "inputFields": [
           {
@@ -45440,6 +47310,7 @@
         "kind": "ENUM",
         "name": "TokenPairStatisticsType",
         "description": "The type of statistics returned. Can be `FILTERED` or `UNFILTERED`",
+        "isOneOf": null,
         "fields": null,
         "inputFields": null,
         "interfaces": null,
@@ -45463,6 +47334,7 @@
         "kind": "INPUT_OBJECT",
         "name": "TokenRanking",
         "description": "Input type of `TokenRanking`.",
+        "isOneOf": false,
         "fields": null,
         "inputFields": [
           {
@@ -45498,6 +47370,7 @@
         "kind": "ENUM",
         "name": "TokenRankingAttribute",
         "description": "The attribute used to rank tokens.",
+        "isOneOf": null,
         "fields": null,
         "inputFields": null,
         "interfaces": null,
@@ -45813,6 +47686,30 @@
             "description": null,
             "isDeprecated": false,
             "deprecationReason": null
+          },
+          {
+            "name": "volumeChange1",
+            "description": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "volumeChange4",
+            "description": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "volumeChange12",
+            "description": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "volumeChange24",
+            "description": null,
+            "isDeprecated": false,
+            "deprecationReason": null
           }
         ],
         "possibleTypes": null
@@ -45821,6 +47718,7 @@
         "kind": "OBJECT",
         "name": "TokenSearchResponse",
         "description": "Response returned by `searchTokens`.",
+        "isOneOf": null,
         "fields": [
           {
             "name": "hasMore",
@@ -45876,6 +47774,7 @@
         "kind": "OBJECT",
         "name": "TokenSparkline",
         "description": null,
+        "isOneOf": null,
         "fields": [
           {
             "name": "attribute",
@@ -45939,6 +47838,7 @@
         "kind": "INPUT_OBJECT",
         "name": "TokenSparklineInput",
         "description": null,
+        "isOneOf": false,
         "fields": null,
         "inputFields": [
           {
@@ -45974,6 +47874,7 @@
         "kind": "OBJECT",
         "name": "TokenWithMetadata",
         "description": "A token with metadata.",
+        "isOneOf": null,
         "fields": [
           {
             "name": "address",
@@ -46051,6 +47952,18 @@
                 "name": "String",
                 "ofType": null
               }
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "imageBannerUrl",
+            "description": "The token banner URL.",
+            "args": [],
+            "type": {
+              "kind": "SCALAR",
+              "name": "String",
+              "ofType": null
             },
             "isDeprecated": false,
             "deprecationReason": null
@@ -46483,8 +48396,427 @@
       },
       {
         "kind": "OBJECT",
+        "name": "UnconfirmedEvent",
+        "description": "An unconfirmed token transaction.",
+        "isOneOf": null,
+        "fields": [
+          {
+            "name": "address",
+            "description": "The contract address of the token's top pair.",
+            "args": [],
+            "type": {
+              "kind": "NON_NULL",
+              "name": null,
+              "ofType": {
+                "kind": "SCALAR",
+                "name": "String",
+                "ofType": null
+              }
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "blockHash",
+            "description": "The hash of the block where the transaction occurred.",
+            "args": [],
+            "type": {
+              "kind": "NON_NULL",
+              "name": null,
+              "ofType": {
+                "kind": "SCALAR",
+                "name": "String",
+                "ofType": null
+              }
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "blockNumber",
+            "description": "The block number for the transaction.",
+            "args": [],
+            "type": {
+              "kind": "NON_NULL",
+              "name": null,
+              "ofType": {
+                "kind": "SCALAR",
+                "name": "Int",
+                "ofType": null
+              }
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "data",
+            "description": "The event-specific data for the transaction.",
+            "args": [],
+            "type": {
+              "kind": "UNION",
+              "name": "UnconfirmedEventData",
+              "ofType": null
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "eventDisplayType",
+            "description": "A more specific breakdown of `eventType`. Splits `Swap` into `Buy` or `Sell`.",
+            "args": [],
+            "type": {
+              "kind": "ENUM",
+              "name": "EventDisplayType",
+              "ofType": null
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "eventType",
+            "description": "The type of transaction event. Can be `Burn`, `Mint`, `Swap`, `Sync`, `Collect`, or `CollectProtocol`.",
+            "args": [],
+            "type": {
+              "kind": "NON_NULL",
+              "name": null,
+              "ofType": {
+                "kind": "ENUM",
+                "name": "EventType",
+                "ofType": null
+              }
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "id",
+            "description": "The ID of the event (`address:networkId`). For example, `0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2:1`.",
+            "args": [],
+            "type": {
+              "kind": "NON_NULL",
+              "name": null,
+              "ofType": {
+                "kind": "SCALAR",
+                "name": "String",
+                "ofType": null
+              }
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "logIndex",
+            "description": "The index of the log in the block.",
+            "args": [],
+            "type": {
+              "kind": "NON_NULL",
+              "name": null,
+              "ofType": {
+                "kind": "SCALAR",
+                "name": "Int",
+                "ofType": null
+              }
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "maker",
+            "description": "The wallet address that performed the transaction.",
+            "args": [],
+            "type": {
+              "kind": "SCALAR",
+              "name": "String",
+              "ofType": null
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "networkId",
+            "description": "The network ID that the token is deployed on.",
+            "args": [],
+            "type": {
+              "kind": "NON_NULL",
+              "name": null,
+              "ofType": {
+                "kind": "SCALAR",
+                "name": "Int",
+                "ofType": null
+              }
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "quoteToken",
+            "description": "The token of interest within the token's top pair. Can be `token0` or `token1`.",
+            "args": [],
+            "type": {
+              "kind": "ENUM",
+              "name": "QuoteToken",
+              "ofType": null
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "supplementalIndex",
+            "description": "A optional unique identifier of where the event is within the transaction.",
+            "args": [],
+            "type": {
+              "kind": "SCALAR",
+              "name": "Int",
+              "ofType": null
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "timestamp",
+            "description": "The unix timestamp for when the transaction occurred.",
+            "args": [],
+            "type": {
+              "kind": "NON_NULL",
+              "name": null,
+              "ofType": {
+                "kind": "SCALAR",
+                "name": "Int",
+                "ofType": null
+              }
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "transactionHash",
+            "description": "The unique hash for the transaction.",
+            "args": [],
+            "type": {
+              "kind": "NON_NULL",
+              "name": null,
+              "ofType": {
+                "kind": "SCALAR",
+                "name": "String",
+                "ofType": null
+              }
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "transactionIndex",
+            "description": "The index of the transaction within the block.",
+            "args": [],
+            "type": {
+              "kind": "NON_NULL",
+              "name": null,
+              "ofType": {
+                "kind": "SCALAR",
+                "name": "Int",
+                "ofType": null
+              }
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          }
+        ],
+        "inputFields": null,
+        "interfaces": [],
+        "enumValues": null,
+        "possibleTypes": null
+      },
+      {
+        "kind": "UNION",
+        "name": "UnconfirmedEventData",
+        "description": null,
+        "isOneOf": null,
+        "fields": null,
+        "inputFields": null,
+        "interfaces": null,
+        "enumValues": null,
+        "possibleTypes": [
+          {
+            "kind": "OBJECT",
+            "name": "UnconfirmedLiquidityChangeEventData",
+            "ofType": null
+          },
+          {
+            "kind": "OBJECT",
+            "name": "UnconfirmedSwapEventData",
+            "ofType": null
+          }
+        ]
+      },
+      {
+        "kind": "OBJECT",
+        "name": "UnconfirmedLiquidityChangeEventData",
+        "description": null,
+        "isOneOf": null,
+        "fields": [
+          {
+            "name": "amount0",
+            "description": "The amount of `token0` added or removed from the pair.",
+            "args": [],
+            "type": {
+              "kind": "SCALAR",
+              "name": "String",
+              "ofType": null
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "amount0Shifted",
+            "description": "The amount of `token0` added or removed from the pair, adjusted by the number of decimals in the token. For example, if `amount0` is in WEI, `amount0Shifted` will be in ETH.",
+            "args": [],
+            "type": {
+              "kind": "SCALAR",
+              "name": "String",
+              "ofType": null
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "amount1",
+            "description": "The amount of `token1` added or removed from the pair.",
+            "args": [],
+            "type": {
+              "kind": "SCALAR",
+              "name": "String",
+              "ofType": null
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "amount1Shifted",
+            "description": "The amount of `token1` added or removed from the pair, adjusted by the number of decimals in the token. For example, USDC `amount1Shifted` will be by 6 decimals.",
+            "args": [],
+            "type": {
+              "kind": "SCALAR",
+              "name": "String",
+              "ofType": null
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "type",
+            "description": "The type of token event, `Mint` or 'Burn'.",
+            "args": [],
+            "type": {
+              "kind": "NON_NULL",
+              "name": null,
+              "ofType": {
+                "kind": "ENUM",
+                "name": "EventType",
+                "ofType": null
+              }
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          }
+        ],
+        "inputFields": null,
+        "interfaces": [],
+        "enumValues": null,
+        "possibleTypes": null
+      },
+      {
+        "kind": "OBJECT",
+        "name": "UnconfirmedSwapEventData",
+        "description": null,
+        "isOneOf": null,
+        "fields": [
+          {
+            "name": "amountNonLiquidityToken",
+            "description": "The amount of `quoteToken` involved in the swap. For example, if `quoteToken` is USDC for a USDC/WETH pair, `amountNonLiquidityToken` would be the amount of USDC involved in the swap.",
+            "args": [],
+            "type": {
+              "kind": "SCALAR",
+              "name": "String",
+              "ofType": null
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "priceBaseToken",
+            "description": "The price per `quoteToken` at the time of the swap in the network's base token. For example, if `quoteToken` is USDC for a USDC/WETH pair on ETH network, `priceBaseToken` would the price of USDC in ETH.",
+            "args": [],
+            "type": {
+              "kind": "SCALAR",
+              "name": "String",
+              "ofType": null
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "priceBaseTokenTotal",
+            "description": "The total amount of `quoteToken` involved in the swap in the network's base token (`amountNonLiquidityToken` x `priceBaseToken`).",
+            "args": [],
+            "type": {
+              "kind": "SCALAR",
+              "name": "String",
+              "ofType": null
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "priceUsd",
+            "description": "The price per `quoteToken` at the time of the swap in USD. For example, if `quoteToken` is USDC for a USDC/WETH pair on ETH network, `priceBaseToken` would the price of USDC in USD ($1.00).",
+            "args": [],
+            "type": {
+              "kind": "SCALAR",
+              "name": "String",
+              "ofType": null
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "priceUsdTotal",
+            "description": "The total amount of `quoteToken` involved in the swap in USD (`amountNonLiquidityToken` x `priceUsd`).",
+            "args": [],
+            "type": {
+              "kind": "SCALAR",
+              "name": "String",
+              "ofType": null
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "type",
+            "description": "The type of token event, `Swap`.",
+            "args": [],
+            "type": {
+              "kind": "NON_NULL",
+              "name": null,
+              "ofType": {
+                "kind": "ENUM",
+                "name": "EventType",
+                "ofType": null
+              }
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          }
+        ],
+        "inputFields": null,
+        "interfaces": [],
+        "enumValues": null,
+        "possibleTypes": null
+      },
+      {
+        "kind": "OBJECT",
         "name": "UniV3Tick",
         "description": null,
+        "isOneOf": null,
         "fields": [
           {
             "name": "liquidityNet",
@@ -46544,6 +48876,7 @@
         "kind": "OBJECT",
         "name": "UniV3TickConnection",
         "description": "Response returned by `getUniV3Ticks`.",
+        "isOneOf": null,
         "fields": [
           {
             "name": "count",
@@ -46595,6 +48928,7 @@
         "kind": "SCALAR",
         "name": "Void",
         "description": null,
+        "isOneOf": null,
         "fields": null,
         "inputFields": null,
         "interfaces": null,
@@ -46605,6 +48939,7 @@
         "kind": "OBJECT",
         "name": "WalletNftCollection",
         "description": null,
+        "isOneOf": null,
         "fields": [
           {
             "name": "collectionId",
@@ -46664,6 +48999,7 @@
         "kind": "OBJECT",
         "name": "WalletNftCollectionAsset",
         "description": null,
+        "isOneOf": null,
         "fields": [
           {
             "name": "quantity",
@@ -46707,6 +49043,7 @@
         "kind": "INPUT_OBJECT",
         "name": "WalletNftCollectionAssetsInput",
         "description": null,
+        "isOneOf": false,
         "fields": null,
         "inputFields": [
           {
@@ -46762,6 +49099,7 @@
         "kind": "OBJECT",
         "name": "WalletNftCollectionAssetsResponse",
         "description": null,
+        "isOneOf": null,
         "fields": [
           {
             "name": "collectionId",
@@ -46837,6 +49175,7 @@
         "kind": "INPUT_OBJECT",
         "name": "WalletNftCollectionsInput",
         "description": null,
+        "isOneOf": false,
         "fields": null,
         "inputFields": [
           {
@@ -46876,6 +49215,7 @@
         "kind": "OBJECT",
         "name": "WalletNftCollectionsResponse",
         "description": null,
+        "isOneOf": null,
         "fields": [
           {
             "name": "cursor",
@@ -46923,6 +49263,7 @@
         "kind": "OBJECT",
         "name": "WashtradeLabelForEvent",
         "description": "Metadata for a washtrade label.",
+        "isOneOf": null,
         "fields": [
           {
             "name": "label",
@@ -46950,6 +49291,7 @@
         "kind": "OBJECT",
         "name": "Webhook",
         "description": null,
+        "isOneOf": null,
         "fields": [
           {
             "name": "alertRecurrence",
@@ -47149,6 +49491,7 @@
         "kind": "UNION",
         "name": "WebhookCondition",
         "description": null,
+        "isOneOf": null,
         "fields": null,
         "inputFields": null,
         "interfaces": null,
@@ -47180,6 +49523,7 @@
         "kind": "ENUM",
         "name": "WebhookNftEventFillSource",
         "description": null,
+        "isOneOf": null,
         "fields": null,
         "inputFields": null,
         "interfaces": null,
@@ -47281,6 +49625,7 @@
         "kind": "ENUM",
         "name": "WebhookNftEventType",
         "description": null,
+        "isOneOf": null,
         "fields": null,
         "inputFields": null,
         "interfaces": null,
@@ -47310,6 +49655,7 @@
         "kind": "ENUM",
         "name": "WebhookType",
         "description": null,
+        "isOneOf": null,
         "fields": null,
         "inputFields": null,
         "interfaces": null,
@@ -47345,6 +49691,7 @@
         "kind": "OBJECT",
         "name": "WindowedDetailedCurrencyPairStats",
         "description": "Price stats for a pair over a time frame.",
+        "isOneOf": null,
         "fields": [
           {
             "name": "buyVolume",
@@ -47452,6 +49799,7 @@
         "kind": "OBJECT",
         "name": "WindowedDetailedNftCurrencyStats",
         "description": "Price stats for an NFT collection over a time frame. Either in USD or the network's base token.",
+        "isOneOf": null,
         "fields": [
           {
             "name": "average",
@@ -47535,6 +49883,7 @@
         "kind": "OBJECT",
         "name": "WindowedDetailedNftNonCurrencyStats",
         "description": "Numerical stats for an NFT collection over a time frame.",
+        "isOneOf": null,
         "fields": [
           {
             "name": "mints",
@@ -47642,6 +49991,7 @@
         "kind": "OBJECT",
         "name": "WindowedDetailedNftStats",
         "description": "Detailed NFT stats over a time frame.",
+        "isOneOf": null,
         "fields": [
           {
             "name": "duration",
@@ -47769,6 +50119,7 @@
         "kind": "OBJECT",
         "name": "WindowedDetailedNonCurrencyPairStats",
         "description": "Numerical stats for a pair over a time frame.",
+        "isOneOf": null,
         "fields": [
           {
             "name": "buyers",
@@ -47852,6 +50203,7 @@
         "kind": "OBJECT",
         "name": "WindowedDetailedPairStats",
         "description": "Detailed pair stats over a time frame.",
+        "isOneOf": null,
         "fields": [
           {
             "name": "duration",
@@ -47963,6 +50315,7 @@
         "kind": "OBJECT",
         "name": "WindowedDetailedStats",
         "description": "Detailed stats over a window.",
+        "isOneOf": null,
         "fields": [
           {
             "name": "buckets",
@@ -48174,6 +50527,7 @@
         "kind": "OBJECT",
         "name": "__Directive",
         "description": "A Directive provides a way to describe alternate runtime execution and type validation behavior in a GraphQL document.\n\nIn some cases, you need to provide options to alter GraphQL's execution behavior in ways field arguments will not suffice, such as conditionally including or skipping a field. Directives provide this by describing additional information to the executor.",
+        "isOneOf": null,
         "fields": [
           {
             "name": "name",
@@ -48290,6 +50644,7 @@
         "kind": "ENUM",
         "name": "__DirectiveLocation",
         "description": "A Directive can be adjacent to many parts of the GraphQL language, a __DirectiveLocation describes one such possible adjacencies.",
+        "isOneOf": null,
         "fields": null,
         "inputFields": null,
         "interfaces": null,
@@ -48415,6 +50770,7 @@
         "kind": "OBJECT",
         "name": "__EnumValue",
         "description": "One possible value for a given Enum. Enum values are unique values, not a placeholder for a string or numeric value. However an Enum value is returned in a JSON response as a string.",
+        "isOneOf": null,
         "fields": [
           {
             "name": "name",
@@ -48482,6 +50838,7 @@
         "kind": "OBJECT",
         "name": "__Field",
         "description": "Object and Interface types are described by a list of Fields, each of which has a name, potentially a list of arguments, and a return type.",
+        "isOneOf": null,
         "fields": [
           {
             "name": "name",
@@ -48602,6 +50959,7 @@
         "kind": "OBJECT",
         "name": "__InputValue",
         "description": "Arguments provided to Fields or Directives and the input fields of an InputObject are represented as Input Values which describe their type and optionally a default value.",
+        "isOneOf": null,
         "fields": [
           {
             "name": "name",
@@ -48697,6 +51055,7 @@
         "kind": "OBJECT",
         "name": "__Schema",
         "description": "A GraphQL Schema defines the capabilities of a GraphQL server. It exposes all available types and directives on the server, as well as the entry points for query, mutation, and subscription operations.",
+        "isOneOf": null,
         "fields": [
           {
             "name": "description",
@@ -48808,6 +51167,7 @@
         "kind": "OBJECT",
         "name": "__Type",
         "description": "The fundamental unit of any GraphQL Schema is the type. There are many kinds of types in GraphQL as represented by the `__TypeKind` enum.\n\nDepending on the kind of a type, certain fields describe information about that type. Scalar types provide no information beyond a name, description and optional `specifiedByURL`, while Enum types provide their values. Object and Interface types provide the fields they describe. Abstract types, Union and Interface, provide the Object types possible at runtime. List and NonNull types compose other types.",
+        "isOneOf": null,
         "fields": [
           {
             "name": "kind",
@@ -49011,6 +51371,18 @@
             },
             "isDeprecated": false,
             "deprecationReason": null
+          },
+          {
+            "name": "isOneOf",
+            "description": null,
+            "args": [],
+            "type": {
+              "kind": "SCALAR",
+              "name": "Boolean",
+              "ofType": null
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
           }
         ],
         "inputFields": null,
@@ -49022,6 +51394,7 @@
         "kind": "ENUM",
         "name": "__TypeKind",
         "description": "An enum describing what kind of type a given `__Type` is.",
+        "isOneOf": null,
         "fields": null,
         "inputFields": null,
         "interfaces": null,
@@ -49081,6 +51454,7 @@
         "kind": "SCALAR",
         "name": "join__FieldSet",
         "description": null,
+        "isOneOf": null,
         "fields": null,
         "inputFields": null,
         "interfaces": null,
@@ -49091,6 +51465,7 @@
         "kind": "ENUM",
         "name": "join__Graph",
         "description": null,
+        "isOneOf": null,
         "fields": null,
         "inputFields": null,
         "interfaces": null,
@@ -49138,6 +51513,7 @@
         "kind": "SCALAR",
         "name": "link__Import",
         "description": null,
+        "isOneOf": null,
         "fields": null,
         "inputFields": null,
         "interfaces": null,
@@ -49148,6 +51524,7 @@
         "kind": "ENUM",
         "name": "link__Purpose",
         "description": null,
+        "isOneOf": null,
         "fields": null,
         "inputFields": null,
         "interfaces": null,
@@ -49171,6 +51548,7 @@
         "kind": "INPUT_OBJECT",
         "name": "statsCurrency",
         "description": "Currency stats.",
+        "isOneOf": false,
         "fields": null,
         "inputFields": [
           {
@@ -49286,6 +51664,7 @@
         "kind": "INPUT_OBJECT",
         "name": "statsNonCurrency",
         "description": "Numerical stats for an NFT collection over a time frame.",
+        "isOneOf": false,
         "fields": null,
         "inputFields": [
           {
@@ -49862,6 +52241,15 @@
             "deprecationReason": null
           }
         ]
+      },
+      {
+        "name": "oneOf",
+        "description": "Indicates exactly one field must be supplied and this field must not be `null`.",
+        "isRepeatable": false,
+        "locations": [
+          "INPUT_OBJECT"
+        ],
+        "args": []
       },
       {
         "name": "skip",
