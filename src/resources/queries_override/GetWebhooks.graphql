@@ -1,0 +1,134 @@
+query GetWebhooks(
+  $bucketId: String
+  $bucketSortkey: String
+  $cursor: String
+  $limit: Int
+  $webhookId: String
+) {
+  getWebhooks(
+    bucketId: $bucketId
+    bucketSortkey: $bucketSortkey
+    cursor: $cursor
+    limit: $limit
+    webhookId: $webhookId
+  ) {
+    cursor
+    items {
+      alertRecurrence
+      bucketId
+      bucketSortkey
+      callbackUrl
+      conditions {
+        ... on NftEventWebhookCondition {
+          contractAddress {
+            eq
+          }
+          eventType {
+            eq
+          }
+          exchangeAddress {
+            eq
+          }
+          fillSource {
+            oneOf
+          }
+          ignoreTransfers
+          individualBaseTokenPrice {
+            eq
+            gt
+            gte
+            lt
+            lte
+          }
+          maker {
+            eq
+          }
+          networkId {
+            oneOf
+          }
+          tokenAddress {
+            eq
+          }
+          tokenId {
+            eq
+          }
+        }
+        ... on PriceEventWebhookCondition {
+          priceNetworkId: networkId {
+            eq
+          }
+          priceUsd {
+            eq
+            gt
+            gte
+            lt
+            lte
+          }
+          priceTokenAddress: tokenAddress {
+            eq
+          }
+        }
+        ... on RawTransactionWebhookCondition {
+          from {
+            eq
+          }
+          ignoreNftEvents
+          ignoreTokenPairEvents
+          input {
+            contains
+            notContains
+          }
+          networkId {
+            oneOf
+          }
+          to {
+            eq
+          }
+          toOrFrom {
+            eq
+          }
+        }
+        ... on TokenPairEventWebhookCondition {
+          eventType {
+            oneOf
+          }
+          exchangeAddress {
+            eq
+          }
+          maker {
+            eq
+          }
+          networkId {
+            oneOf
+          }
+          pairAddress {
+            eq
+          }
+          swapValue {
+            eq
+            gt
+            gte
+            lt
+            lte
+          }
+          tokenAddress {
+            eq
+          }
+        }
+      }
+      created
+      groupId
+      id
+      name
+      publishingType
+      retrySettings {
+        maxRetries
+        maxRetryDelay
+        maxTimeElapsed
+        minRetryDelay
+      }
+      status
+      webhookType
+    }
+  }
+}

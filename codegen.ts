@@ -6,7 +6,8 @@ const config: CodegenConfig = {
   generates: {
     "src/sdk/generated/": {
       preset: "client",
-      documents: "src/sdk/**/*",
+      documents:
+        "src/resources/(generated_queries|generated_mutations|generated_subscriptions)/**/*",
     },
     "src/resources/graphql.ts": {
       plugins: ["typescript"],

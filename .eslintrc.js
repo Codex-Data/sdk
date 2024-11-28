@@ -7,6 +7,19 @@ module.exports = {
     "prettier",
   ],
   plugins: ["@typescript-eslint", "simple-import-sort", "prettier"],
+  overrides: [
+    {
+      files: ["*.graphql"],
+      parser: "@graphql-eslint/eslint-plugin",
+      plugins: ["@graphql-eslint"],
+      parserOptions: {
+        schema: "src/resources/schema.graphql",
+      },
+      rules: {
+        "@graphql-eslint/known-type-names": "error",
+      },
+    },
+  ],
   rules: {
     semi: ["error", "always"],
     "@typescript-eslint/explicit-function-return-type": "off",

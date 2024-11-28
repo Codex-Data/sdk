@@ -1,5 +1,0 @@
-mutation DeleteWebhooks($input: DeleteWebhooksInput!) {
-  deleteWebhooks(input: $input) {
-    deletedIds
-  }
-}

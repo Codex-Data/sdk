@@ -1,0 +1,35 @@
+query GetEventLabels(
+  $cursor: String
+  $direction: RankingDirection
+  $id: String!
+  $limit: Int
+) {
+  getEventLabels(
+    cursor: $cursor
+    direction: $direction
+    id: $id
+    limit: $limit
+  ) {
+    cursor
+    items {
+      data {
+        ... on FrontRunLabelData {
+          index
+          token0DrainedAmountFrontRun: token0DrainedAmount
+          token1DrainedAmountFrontRun: token1DrainedAmount
+        }
+        ... on SandwichedLabelData {
+          token0DrainedAmount
+          token1DrainedAmount
+        }
+      }
+      id
+      label
+      logIndex
+      networkId
+      timestamp
+      transactionHash
+      transactionIndex
+    }
+  }
+}

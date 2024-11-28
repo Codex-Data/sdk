@@ -14,14 +14,14 @@ sdk
     console.log("Networks: ", res.getNetworks);
   });
 sdk.queries
-  .price({
+  .getTokenPrices({
     inputs: [
       { address: "0xbb4cdb9cbd36b01bd1cbaebf2de08d9173bc095c", networkId: 56 },
     ],
   })
   .then(console.log);
 sdk.queries
-  .pairEvents({
+  .getTokenEvents({
     query: {
       address: "0xd99c7f6c65857ac913a8f880a4cb84032ab2fc5b",
       networkId: 56,
@@ -29,7 +29,7 @@ sdk.queries
   })
   .then(console.log);
 sdk.queries
-  .sparklines({
+  .tokenSparklines({
     input: { ids: ["0xbb4cdb9cbd36b01bd1cbaebf2de08d9173bc095c:56"] },
   })
   .then(console.log);
@@ -42,10 +42,10 @@ sdk.queries
   })
   .then(console.log);
 sdk.queries
-  .symbol({ symbol: "0xd99c7f6c65857ac913a8f880a4cb84032ab2fc5b:56" })
+  .getSymbol({ symbol: "0xd99c7f6c65857ac913a8f880a4cb84032ab2fc5b:56" })
   .then(console.log);
-sdk.queries.networks().then(console.log);
-sdk.queries.networkStatus({ networkIds: [1, 56, 137] }).then(console.log);
+sdk.queries.getNetworks({}).then(console.log);
+sdk.queries.getNetworkStatus({ networkIds: [1, 56, 137] }).then(console.log);
 sdk.queries
   .filterTokens({
     tokens: [
@@ -67,7 +67,7 @@ sdk.queries
   .then(console.log);
 
 sdk.queries
-  .detailedPairStats({
+  .getDetailedPairStats({
     networkId: 1,
     pairAddress: "0x34b1e73807cfac2bf77eae6d8630797dd8f924bf",
   })

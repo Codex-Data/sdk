@@ -10,7 +10,7 @@
   "license": "ISC",
   "description": "",
   "dependencies": {
-    "@codex-data/sdk": "../../",
+    "@codex-data/sdk": "0.6.2",
     "@graphql-codegen/typescript-document-nodes": "^4.0.1",
     "graphql": "^16.8.0",
     "typescript": "^5.2.2"

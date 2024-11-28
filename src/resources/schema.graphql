@@ -68,6 +68,30 @@ type AddTokenLifecycleEventsOutput {
   events: [TokenLifecycleEvent!]!
 }
 
+type AddTrackedWalletEventsOutput {
+  userId: String!
+}
+
+"""Response returned by `onUnconfirmedEventsCreated`."""
+type AddUnconfirmedEventsOutput {
+  """The contract address of the pair."""
+  address: String!
+
+  """The network ID that the token is deployed on."""
+  networkId: Int!
+
+  """
+  The ID of the event (`address`:`networkId`). For example, `0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2:1`.
+  """
+  id: String!
+
+  """The token of interest within the pair. Can be `token0` or `token1`."""
+  quoteToken: QuoteToken
+
+  """A list of transactions for the token."""
+  events: [UnconfirmedEvent]!
+}
+
 enum AlertRecurrence {
   INDEFINITE
   ONCE
@@ -419,9 +443,7 @@ input CreateApiTokensInput {
   """
   requestLimit: String
 
-  """
-  Number of milliseconds until the token expires, defaults to 1 hour (3600000)
-  """
+  """Number of seconds until the token expires, defaults to 1 hour (3600)"""
   expiresIn: Int
 }
 
@@ -436,6 +458,7 @@ input CreateNftEventWebhookArgs {
   bucketId: String
   bucketSortkey: String
   publishingType: PublishingType
+  deduplicate: Boolean
 }
 
 input CreateNftEventWebhooksInput {
@@ -453,6 +476,7 @@ input CreatePriceWebhookArgs {
   bucketId: String
   bucketSortkey: String
   publishingType: PublishingType
+  deduplicate: Boolean
 }
 
 input CreatePriceWebhooksInput {
@@ -470,6 +494,7 @@ input CreateRawTransactionWebhookArgs {
   bucketId: String
   bucketSortkey: String
   publishingType: PublishingType
+  deduplicate: Boolean
 }
 
 input CreateRawTransactionWebhooksInput {
@@ -487,6 +512,7 @@ input CreateTokenPairEventWebhookArgs {
   bucketId: String
   bucketSortkey: String
   publishingType: PublishingType
+  deduplicate: Boolean
 }
 
 input CreateTokenPairEventWebhooksInput {
@@ -1386,8 +1412,10 @@ type FrontRunLabelData {
 
 type GasEstimate {
   gasLimitEstimate: String
+  gasPrice: String
   error: String
-  approveTxHash: String
+  errorReason: String
+  totalFee: String
 }
 
 type GasFee {
@@ -1446,6 +1474,21 @@ input GetGasEstimateInput {
   userId: Int
   walletId: Int
   customGas: String
+  sendWithPrivateRpc: Boolean
+  slippage: Float
+}
+
+"""Response returned by `getNetworkStats`."""
+type GetNetworkStatsResponse {
+  volume24: Float!
+  volume12: Float!
+  volume4: Float!
+  volume1: Float!
+  liquidity: Float!
+  transactions24: Int!
+  transactions12: Int!
+  transactions4: Int!
+  transactions1: Int!
 }
 
 """Response returned by `getNftPoolCollectionsByExchange`."""
@@ -1479,6 +1522,9 @@ input GetPriceInput {
   """The unix timestamp for the price."""
   timestamp: Int
 
+  """The address of the pool, when omitted the top pool is used."""
+  poolAddress: String
+
   """
   The maximum number of deviations from the token's Liquidity-Weighted Mean Price. This is used to mitigate low liquidity pairs producing prices that are not representative of reality. Default is `1`.
   """
@@ -1494,6 +1540,7 @@ input GetQuoteInput {
   exchangeAddress: String
   userId: Int
   customGas: String
+  slippage: Float
 }
 
 type GetSimulateTokenContractResultsConnection {
@@ -2020,6 +2067,26 @@ type LockedLiquidityData {
   lockBreakdown: [LockBreakdown]!
 }
 
+"""Response returned by `getTokenEventsForMaker`."""
+type MakerEventConnection {
+  """A list of transactions for a token's top pair."""
+  items: [Event]
+
+  """A cursor for use in pagination."""
+  cursor: String
+}
+
+input MakerEventsQueryInput {
+  """The specific wallet address to filter by."""
+  maker: String!
+
+  """The network ID to filter by."""
+  networkId: Int!
+
+  """The token of interest. Can be `token0` or `token1`."""
+  quoteToken: QuoteToken
+}
+
 """The status for a network supported on Defined."""
 type MetadataResponse {
   """The last processed block on the network."""
@@ -2033,6 +2100,17 @@ type MetadataResponse {
 
   """The name of the network."""
   networkName: String!
+}
+
+input MigrateTrackedWalletsInput {
+  fromUserId: String!
+  toUserId: String!
+}
+
+type MigrateTrackedWalletsOutput {
+  fromUserId: String!
+  toUserId: String!
+  status: String!
 }
 
 """Event data for a token mint event."""
@@ -5596,6 +5674,9 @@ type OnBarsUpdatedResponse {
 
   """The quote token within the pair."""
   quoteToken: QuoteToken
+
+  """The address of the token being quoted"""
+  quoteTokenAddress: String!
 }
 
 type OneOfNumberCondition {
@@ -5604,6 +5685,47 @@ type OneOfNumberCondition {
 
 input OneOfNumberConditionInput {
   oneOf: [Int!]!
+}
+
+input OnPricesUpdatedInput {
+  address: String!
+  networkId: Int!
+}
+
+"""Response returned by `onBarsUpdated`."""
+type OnTokenBarsUpdatedResponse {
+  """The contract address for the pair."""
+  pairAddress: String!
+
+  """The network ID the pair is deployed on."""
+  networkId: Int!
+
+  """The ID for the pair (`pairAddress`:`networkId`)."""
+  pairId: String!
+
+  """The unix timestamp for the new bar."""
+  timestamp: Int!
+
+  """The type of statistics used. Can be `Filtered` or `Unfiltered`."""
+  statsType: TokenPairStatisticsType!
+
+  """
+  The sortKey for the bar (`blockNumber`#`transactionIndex`#`logIndex`, zero padded).
+  For example, `0000000016414564#00000224#00000413`.
+  """
+  eventSortKey: String!
+
+  """Price data broken down by resolution."""
+  aggregates: ResolutionBarData!
+
+  """The quote token within the pair."""
+  quoteToken: QuoteToken
+
+  """The address of the token being quoted"""
+  tokenAddress: String!
+
+  """The address of the token being quoted"""
+  tokenId: String!
 }
 
 input OnTokenEventsCreatedInput {
@@ -5806,6 +5928,18 @@ type PairFilterResult {
   """The percent price change in the past 24 hours. Decimal format."""
   priceChange24: String
 
+  """The percent volume change in the past hour. Decimal format."""
+  volumeChange1: String
+
+  """The percent volume change in the past 4 hours. Decimal format."""
+  volumeChange4: String
+
+  """The percent volume change in the past 12 hours. Decimal format."""
+  volumeChange12: String
+
+  """The percent volume change in the past 24 hours. Decimal format."""
+  volumeChange24: String
+
   """The number of sells in the past hour."""
   sellCount1: Int
 
@@ -5955,6 +6089,18 @@ input PairFilters {
 
   """The percent price change in the past 4 hours. Decimal format."""
   priceChange4: NumberFilter
+
+  """The percent volume change in the past hour. Decimal format."""
+  volumeChange1: NumberFilter
+
+  """The percent volume change in the past 4 hours. Decimal format."""
+  volumeChange4: NumberFilter
+
+  """The percent volume change in the past 12 hours. Decimal format."""
+  volumeChange12: NumberFilter
+
+  """The percent volume change in the past 24 hours. Decimal format."""
+  volumeChange24: NumberFilter
 
   """The number of sells in the past hour."""
   sellCount1: NumberFilter
@@ -6120,6 +6266,10 @@ enum PairRankingAttribute {
   priceChange4
   priceChange12
   priceChange24
+  volumeChange1
+  volumeChange4
+  volumeChange12
+  volumeChange24
   sellCount1
   sellCount4
   sellCount12
@@ -6621,6 +6771,9 @@ type Price {
 
   """The unix timestamp for the price."""
   timestamp: Int!
+
+  """The pool that emitted the swap generating this price"""
+  poolAddress: String!
 
   """Ratio of how confident we are in the price"""
   confidence: Float
@@ -7358,6 +7511,9 @@ type Query {
     """The event types to filter by."""
     eventTypes: [NftPoolEventType!]
 
+    """The time range to filter by."""
+    timestamp: EventQueryTimestampInput
+
     """The cursor to use for pagination."""
     cursor: String
 
@@ -7793,6 +7949,9 @@ type Query {
     """
     tokens: [String]
 
+    """A list of token IDs to exclude from results (`address:networkId`)"""
+    excludeTokens: [String]
+
     """A list of ranking attributes to apply."""
     rankings: [TokenRanking]
 
@@ -7982,6 +8141,15 @@ type Query {
     currencyCode: String
   ): SymbolResponse
 
+  """Returns metadata for a given network."""
+  getNetworkStats(
+    """The network Id to filter by."""
+    networkId: Int!
+
+    """The exchange address to filter by (optional)."""
+    exchangeAddress: String
+  ): GetNetworkStatsResponse
+
   """Returns transactions for a pair."""
   getTokenEvents(
     """The maximum number of transactions to return."""
@@ -7998,6 +8166,7 @@ type Query {
     """
     direction: RankingDirection
   ): EventConnection
+  getTokenEventsForMaker(limit: Int, query: MakerEventsQueryInput!, cursor: String, direction: RankingDirection): MakerEventConnection
 
   """
   Returns real-time or historical prices for a list of tokens, fetched in batches.
@@ -8267,6 +8436,7 @@ type Quote {
   poolFee: String
   poolFeeBps: Float
   quotedAmount: String!
+  outputAmountMin: String
   quoteType: QuoteType!
   tradeFee: String!
   tradeFeeBps: Float!
@@ -8298,16 +8468,6 @@ enum QuoteToken {
 enum QuoteType {
   INPUT
   OUTPUT
-}
-
-type QuoteV2 {
-  poolFee: String
-  poolFeeBps: Float
-  quotedAmount: String!
-  quoteType: QuoteType!
-  tradeFee: String!
-  tradeFeeBps: Float!
-  exchange: QuoteExchange!
 }
 
 """The order of ranking."""
@@ -8358,6 +8518,31 @@ input RawTransactionWebhookConditionInput {
   ignoreNftEvents: Boolean
 }
 
+union ReferralEventData = ReferralsEventRewardData | ReferralsEventPayoutData
+
+type ReferralsEventPayoutData {
+  payouts: [ReferralsPayoutData!]!
+}
+
+type ReferralsEventRewardData {
+  networkId: Int!
+  inputTokenAddress: String!
+  outputTokenAddress: String!
+  transactionId: String!
+  transactionTokenAmount: String!
+  transactionTokenAddress: String!
+  transactionFee: String!
+  referralUserId: String!
+  payoutPercent: Float!
+  rewardTokenAmount: String
+  rewardTokenAddress: String
+}
+
+type ReferralsPayoutData {
+  tokenAmountPaid: String!
+  tokenAddressNetworkIdPaid: String!
+}
+
 """Price data for each supported resolution."""
 type ResolutionBarData {
   """1 second resolution."""
@@ -8368,6 +8553,9 @@ type ResolutionBarData {
 
   """15 second resolution."""
   r15S: CurrencyBarData
+
+  """30 second resolution."""
+  r30S: CurrencyBarData
 
   """1 minute resolution."""
   r1: CurrencyBarData
@@ -8837,6 +9025,17 @@ type Subscription {
     statsType: TokenPairStatisticsType
   ): OnBarsUpdatedResponse
 
+  """
+  Live-streamed bar chart data to track price changes over time for a token.
+  """
+  onTokenBarsUpdated(
+    """The ID of the pair (`address`:`networkId`)."""
+    tokenId: String
+
+    """docs: hide"""
+    statsType: TokenPairStatisticsType
+  ): OnTokenBarsUpdatedResponse
+
   """Live-streamed transactions for a token."""
   onEventsCreated(
     """The pair contract address."""
@@ -8849,6 +9048,18 @@ type Subscription {
     quoteToken: QuoteToken
   ): AddEventsOutput
 
+  """Live-streamed unconfirmed transactions for a token. (Solana only)"""
+  onUnconfirmedEventsCreated(
+    """The pair contract address."""
+    address: String
+
+    """The ID of the pair (`address`:`networkId`)."""
+    id: String
+
+    """The token of interest within the pair. Can be `token0` or `token1`."""
+    quoteToken: QuoteToken
+  ): AddUnconfirmedEventsOutput
+
   """Live-streamed price updates for a token."""
   onPriceUpdated(
     """The token contract address."""
@@ -8857,6 +9068,9 @@ type Subscription {
     """The network ID the token is deployed on."""
     networkId: Int
   ): Price
+
+  """Live-streamed price updates for multiple tokens."""
+  onPricesUpdated(input: [OnPricesUpdatedInput!]!): Price!
 
   """Live-streamed stat updates for a given token within a pair."""
   onPairMetadataUpdated(
@@ -9290,6 +9504,18 @@ type TokenFilterResult {
   """The percent price change in the past 4 hours. Decimal format."""
   change4: String
 
+  """The percent volume change in the past hour. Decimal format."""
+  volumeChange1: String
+
+  """The percent volume change in the past 4 hours. Decimal format."""
+  volumeChange4: String
+
+  """The percent volume change in the past 12 hours. Decimal format."""
+  volumeChange12: String
+
+  """The percent volume change in the past 24 hours. Decimal format."""
+  volumeChange24: String
+
   """The exchanges the token is listed on."""
   exchanges: [Exchange]
   fdv: String @deprecated(reason: "FDV isn't supported - use marketCap instead")
@@ -9449,6 +9675,18 @@ input TokenFilters {
 
   """The percent price change in the past 4 hours. Decimal format."""
   change4: NumberFilter
+
+  """The percent volume change in the past hour. Decimal format."""
+  volumeChange1: NumberFilter
+
+  """The percent volume change in the past 4 hours. Decimal format."""
+  volumeChange4: NumberFilter
+
+  """The percent volume change in the past 12 hours. Decimal format."""
+  volumeChange12: NumberFilter
+
+  """The percent volume change in the past 24 hours. Decimal format."""
+  volumeChange24: NumberFilter
 
   """
   The list of exchange contract IDs to filter by. Applied in conjunction with `network` filter using an OR condition. When used together, the query returns results that match either the specified exchanges or the specified network.
@@ -9625,6 +9863,9 @@ type TokenInfo {
   """The large token logo URL."""
   imageLargeUrl: String
 
+  """The token banner URL."""
+  imageBannerUrl: String
+
   """A description of the token."""
   description: String
 }
@@ -9790,6 +10031,10 @@ enum TokenRankingAttribute {
   change4
   change12
   change24
+  volumeChange1
+  volumeChange4
+  volumeChange12
+  volumeChange24
   high1
   high4
   high12
@@ -9978,11 +10223,125 @@ type TokenWithMetadata {
   """The token logo URL."""
   imageLargeUrl: String
 
+  """The token banner URL."""
+  imageBannerUrl: String
+
   """The unix timestamp for the creation of the token's first pair."""
   createdAt: Int
 
   """The unix timestamp for the token's last transaction."""
   lastTransaction: Int
+}
+
+"""An unconfirmed token transaction."""
+type UnconfirmedEvent {
+  """The contract address of the token's top pair."""
+  address: String!
+
+  """The hash of the block where the transaction occurred."""
+  blockHash: String!
+
+  """The block number for the transaction."""
+  blockNumber: Int!
+
+  """
+  The type of transaction event. Can be `Burn`, `Mint`, `Swap`, `Sync`, `Collect`, or `CollectProtocol`.
+  """
+  eventType: EventType!
+
+  """
+  The ID of the event (`address:networkId`). For example, `0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2:1`.
+  """
+  id: String!
+
+  """The index of the log in the block."""
+  logIndex: Int!
+
+  """The wallet address that performed the transaction."""
+  maker: String
+
+  """The network ID that the token is deployed on."""
+  networkId: Int!
+
+  """
+  The token of interest within the token's top pair. Can be `token0` or `token1`.
+  """
+  quoteToken: QuoteToken
+
+  """The unix timestamp for when the transaction occurred."""
+  timestamp: Int!
+
+  """The unique hash for the transaction."""
+  transactionHash: String!
+
+  """The index of the transaction within the block."""
+  transactionIndex: Int!
+
+  """
+  A optional unique identifier of where the event is within the transaction.
+  """
+  supplementalIndex: Int
+
+  """
+  A more specific breakdown of `eventType`. Splits `Swap` into `Buy` or `Sell`.
+  """
+  eventDisplayType: EventDisplayType
+
+  """The event-specific data for the transaction."""
+  data: UnconfirmedEventData
+}
+
+union UnconfirmedEventData = UnconfirmedSwapEventData | UnconfirmedLiquidityChangeEventData
+
+type UnconfirmedLiquidityChangeEventData {
+  """The amount of `token0` added or removed from the pair."""
+  amount0: String
+
+  """The amount of `token1` added or removed from the pair."""
+  amount1: String
+
+  """
+  The amount of `token0` added or removed from the pair, adjusted by the number of decimals in the token. For example, if `amount0` is in WEI, `amount0Shifted` will be in ETH.
+  """
+  amount0Shifted: String
+
+  """
+  The amount of `token1` added or removed from the pair, adjusted by the number of decimals in the token. For example, USDC `amount1Shifted` will be by 6 decimals.
+  """
+  amount1Shifted: String
+
+  """The type of token event, `Mint` or 'Burn'."""
+  type: EventType!
+}
+
+type UnconfirmedSwapEventData {
+  """
+  The amount of `quoteToken` involved in the swap. For example, if `quoteToken` is USDC for a USDC/WETH pair, `amountNonLiquidityToken` would be the amount of USDC involved in the swap.
+  """
+  amountNonLiquidityToken: String
+
+  """
+  The price per `quoteToken` at the time of the swap in the network's base token. For example, if `quoteToken` is USDC for a USDC/WETH pair on ETH network, `priceBaseToken` would the price of USDC in ETH.
+  """
+  priceBaseToken: String
+
+  """
+  The total amount of `quoteToken` involved in the swap in the network's base token (`amountNonLiquidityToken` x `priceBaseToken`).
+  """
+  priceBaseTokenTotal: String
+
+  """
+  The price per `quoteToken` at the time of the swap in USD. For example, if `quoteToken` is USDC for a USDC/WETH pair on ETH network, `priceBaseToken` would the price of USDC in USD ($1.00).
+  """
+  priceUsd: String
+
+  """
+  The total amount of `quoteToken` involved in the swap in USD (`amountNonLiquidityToken` x `priceUsd`).
+  """
+  priceUsdTotal: String
+
+  """The type of token event, `Swap`."""
+  type: EventType!
 }
 
 type UniV3Tick {

@@ -1,0 +1,472 @@
+mutation CreateWebhooks($input: CreateWebhooksInput!) {
+  createWebhooks(input: $input) {
+    nftEventWebhooks {
+      alertRecurrence
+      bucketId
+      bucketSortkey
+      callbackUrl
+      conditions {
+        ... on NftEventWebhookCondition {
+          contractAddress {
+            eq
+          }
+          eventType {
+            eq
+          }
+          exchangeAddress {
+            eq
+          }
+          fillSource {
+            oneOf
+          }
+          ignoreTransfers
+          individualBaseTokenPrice {
+            eq
+            gt
+            gte
+            lt
+            lte
+          }
+          maker {
+            eq
+          }
+          networkId {
+            oneOf
+          }
+          nftTokenAddress: tokenAddress {
+            eq
+          }
+          tokenId {
+            eq
+          }
+        }
+        ... on PriceEventWebhookCondition {
+          priceNetworkId: networkId {
+            eq
+          }
+          priceUsd {
+            eq
+            gt
+            gte
+            lt
+            lte
+          }
+          priceTokenAddress: tokenAddress {
+            eq
+          }
+        }
+        ... on RawTransactionWebhookCondition {
+          from {
+            eq
+          }
+          ignoreNftEvents
+          ignoreTokenPairEvents
+          input {
+            contains
+            notContains
+          }
+          networkId {
+            oneOf
+          }
+          to {
+            eq
+          }
+          toOrFrom {
+            eq
+          }
+        }
+        ... on TokenPairEventWebhookCondition {
+          eventType {
+            oneOf
+          }
+          exchangeAddress {
+            eq
+          }
+          maker {
+            eq
+          }
+          networkId {
+            oneOf
+          }
+          pairAddress {
+            eq
+          }
+          swapValue {
+            eq
+            gt
+            gte
+            lt
+            lte
+          }
+          tokenAddress {
+            eq
+          }
+        }
+      }
+      created
+      groupId
+      id
+      name
+      publishingType
+      retrySettings {
+        maxRetries
+        maxRetryDelay
+        maxTimeElapsed
+        minRetryDelay
+      }
+      status
+      webhookType
+    }
+    priceWebhooks {
+      alertRecurrence
+      bucketId
+      bucketSortkey
+      callbackUrl
+      conditions {
+        ... on NftEventWebhookCondition {
+          contractAddress {
+            eq
+          }
+          eventType {
+            eq
+          }
+          exchangeAddress {
+            eq
+          }
+          fillSource {
+            oneOf
+          }
+          ignoreTransfers
+          individualBaseTokenPrice {
+            eq
+            gt
+            gte
+            lt
+            lte
+          }
+          maker {
+            eq
+          }
+          networkId {
+            oneOf
+          }
+          nftTokenAddress: tokenAddress {
+            eq
+          }
+          tokenId {
+            eq
+          }
+        }
+        ... on PriceEventWebhookCondition {
+          priceNetworkId: networkId {
+            eq
+          }
+          priceUsd {
+            eq
+            gt
+            gte
+            lt
+            lte
+          }
+          priceTokenAddress: tokenAddress {
+            eq
+          }
+        }
+        ... on RawTransactionWebhookCondition {
+          from {
+            eq
+          }
+          ignoreNftEvents
+          ignoreTokenPairEvents
+          input {
+            contains
+            notContains
+          }
+          networkId {
+            oneOf
+          }
+          to {
+            eq
+          }
+          toOrFrom {
+            eq
+          }
+        }
+        ... on TokenPairEventWebhookCondition {
+          eventType {
+            oneOf
+          }
+          exchangeAddress {
+            eq
+          }
+          maker {
+            eq
+          }
+          networkId {
+            oneOf
+          }
+          pairAddress {
+            eq
+          }
+          swapValue {
+            eq
+            gt
+            gte
+            lt
+            lte
+          }
+          tokenAddress {
+            eq
+          }
+        }
+      }
+      created
+      groupId
+      id
+      name
+      publishingType
+      retrySettings {
+        maxRetries
+        maxRetryDelay
+        maxTimeElapsed
+        minRetryDelay
+      }
+      status
+      webhookType
+    }
+    rawTransactionWebhooks {
+      alertRecurrence
+      bucketId
+      bucketSortkey
+      callbackUrl
+      conditions {
+        ... on NftEventWebhookCondition {
+          contractAddress {
+            eq
+          }
+          eventType {
+            eq
+          }
+          exchangeAddress {
+            eq
+          }
+          fillSource {
+            oneOf
+          }
+          ignoreTransfers
+          individualBaseTokenPrice {
+            eq
+            gt
+            gte
+            lt
+            lte
+          }
+          maker {
+            eq
+          }
+          networkId {
+            oneOf
+          }
+          tokenAddress {
+            eq
+          }
+          tokenId {
+            eq
+          }
+        }
+        ... on PriceEventWebhookCondition {
+          priceEventNetworkId: networkId {
+            eq
+          }
+          priceUsd {
+            eq
+            gt
+            gte
+            lt
+            lte
+          }
+          priceEventTokenAddress: tokenAddress {
+            eq
+          }
+        }
+        ... on RawTransactionWebhookCondition {
+          from {
+            eq
+          }
+          ignoreNftEvents
+          ignoreTokenPairEvents
+          input {
+            contains
+            notContains
+          }
+          networkId {
+            oneOf
+          }
+          to {
+            eq
+          }
+          toOrFrom {
+            eq
+          }
+        }
+        ... on TokenPairEventWebhookCondition {
+          eventType {
+            oneOf
+          }
+          exchangeAddress {
+            eq
+          }
+          maker {
+            eq
+          }
+          networkId {
+            oneOf
+          }
+          pairAddress {
+            eq
+          }
+          swapValue {
+            eq
+            gt
+            gte
+            lt
+            lte
+          }
+          tokenAddress {
+            eq
+          }
+        }
+      }
+      created
+      groupId
+      id
+      name
+      publishingType
+      retrySettings {
+        maxRetries
+        maxRetryDelay
+        maxTimeElapsed
+        minRetryDelay
+      }
+      status
+      webhookType
+    }
+    tokenPairEventWebhooks {
+      alertRecurrence
+      bucketId
+      bucketSortkey
+      callbackUrl
+      conditions {
+        ... on NftEventWebhookCondition {
+          contractAddress {
+            eq
+          }
+          eventType {
+            eq
+          }
+          exchangeAddress {
+            eq
+          }
+          fillSource {
+            oneOf
+          }
+          ignoreTransfers
+          individualBaseTokenPrice {
+            eq
+            gt
+            gte
+            lt
+            lte
+          }
+          maker {
+            eq
+          }
+          networkId {
+            oneOf
+          }
+          tokenAddress {
+            eq
+          }
+          tokenId {
+            eq
+          }
+        }
+        ... on PriceEventWebhookCondition {
+          priceEventNetworkId: networkId {
+            eq
+          }
+          priceUsd {
+            eq
+            gt
+            gte
+            lt
+            lte
+          }
+          priceEventTokenAddress: tokenAddress {
+            eq
+          }
+        }
+        ... on RawTransactionWebhookCondition {
+          from {
+            eq
+          }
+          ignoreNftEvents
+          ignoreTokenPairEvents
+          input {
+            contains
+            notContains
+          }
+          networkId {
+            oneOf
+          }
+          to {
+            eq
+          }
+          toOrFrom {
+            eq
+          }
+        }
+        ... on TokenPairEventWebhookCondition {
+          eventType {
+            oneOf
+          }
+          exchangeAddress {
+            eq
+          }
+          maker {
+            eq
+          }
+          networkId {
+            oneOf
+          }
+          pairAddress {
+            eq
+          }
+          swapValue {
+            eq
+            gt
+            gte
+            lt
+            lte
+          }
+          tokenAddress {
+            eq
+          }
+        }
+      }
+      created
+      groupId
+      id
+      name
+      publishingType
+      retrySettings {
+        maxRetries
+        maxRetryDelay
+        maxTimeElapsed
+        minRetryDelay
+      }
+      status
+      webhookType
+    }
+  }
+}
