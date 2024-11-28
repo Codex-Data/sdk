@@ -7830,6 +7830,18 @@
             "deprecationReason": null
           },
           {
+            "name": "poolAddress",
+            "description": "The address of the pool, when omitted the top pool is used.",
+            "type": {
+              "kind": "SCALAR",
+              "name": "String",
+              "ofType": null
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
             "name": "timestamp",
             "description": "The unix timestamp for the price.",
             "type": {
@@ -31451,6 +31463,22 @@
               "ofType": {
                 "kind": "SCALAR",
                 "name": "Int",
+                "ofType": null
+              }
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "poolAddress",
+            "description": "The pool that emitted the swap generating this price",
+            "args": [],
+            "type": {
+              "kind": "NON_NULL",
+              "name": null,
+              "ofType": {
+                "kind": "SCALAR",
+                "name": "String",
                 "ofType": null
               }
             },

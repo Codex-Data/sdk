@@ -139,7 +139,7 @@ export class Subscribe {
     this.sdk.subscribe(
       `subscription OnPricesUpdated($input: [OnPricesUpdatedInput!]!) {
   onPricesUpdated (input: $input) {
-    address, confidence, networkId, priceUsd, timestamp
+    address, confidence, networkId, poolAddress, priceUsd, timestamp
   }
 }`,
       vars,
@@ -209,7 +209,7 @@ export class Subscribe {
     this.sdk.subscribe(
       `subscription OnPriceUpdated($address: String, $networkId: Int) {
   onPriceUpdated (address: $address, networkId: $networkId) {
-    address, confidence, networkId, priceUsd, timestamp
+    address, confidence, networkId, poolAddress, priceUsd, timestamp
   }
 }`,
       vars,

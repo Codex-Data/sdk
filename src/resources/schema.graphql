@@ -1522,6 +1522,9 @@ input GetPriceInput {
   """The unix timestamp for the price."""
   timestamp: Int
 
+  """The address of the pool, when omitted the top pool is used."""
+  poolAddress: String
+
   """
   The maximum number of deviations from the token's Liquidity-Weighted Mean Price. This is used to mitigate low liquidity pairs producing prices that are not representative of reality. Default is `1`.
   """
@@ -6768,6 +6771,9 @@ type Price {
 
   """The unix timestamp for the price."""
   timestamp: Int!
+
+  """The pool that emitted the swap generating this price"""
+  poolAddress: String!
 
   """Ratio of how confident we are in the price"""
   confidence: Float

@@ -1264,6 +1264,8 @@ export type GetPriceInput = {
   maxDeviations?: InputMaybe<Scalars['Float']['input']>;
   /** The network ID the token is deployed on. */
   networkId: Scalars['Int']['input'];
+  /** The address of the pool, when omitted the top pool is used. */
+  poolAddress?: InputMaybe<Scalars['String']['input']>;
   /** The unix timestamp for the price. */
   timestamp?: InputMaybe<Scalars['Int']['input']>;
 };
@@ -5202,6 +5204,8 @@ export type Price = {
   confidence?: Maybe<Scalars['Float']['output']>;
   /** The network ID the token is deployed on. */
   networkId: Scalars['Int']['output'];
+  /** The pool that emitted the swap generating this price */
+  poolAddress: Scalars['String']['output'];
   /** The token price in USD. */
   priceUsd: Scalars['Float']['output'];
   /** The unix timestamp for the price. */
