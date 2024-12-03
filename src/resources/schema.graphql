@@ -5733,6 +5733,36 @@ input OnTokenEventsCreatedInput {
   networkId: Int!
 }
 
+"""Response returned by `onUnconfirmedBarsUpdated`."""
+type OnUnconfirmedBarsUpdated {
+  """The contract address for the pair."""
+  pairAddress: String!
+
+  """The network ID the pair is deployed on."""
+  networkId: Int!
+
+  """The ID for the pair (`pairAddress`:`networkId`)."""
+  pairId: String!
+
+  """The unix timestamp for the new bar."""
+  timestamp: Int!
+
+  """
+  The sortKey for the bar (`blockNumber`#`transactionIndex`#`logIndex`, zero padded).
+  For example, `0000000016414564#00000224#00000413`.
+  """
+  eventSortKey: String!
+
+  """Price data broken down by resolution."""
+  aggregates: UnconfirmedResolutionBarData!
+
+  """The quote token within the pair."""
+  quoteToken: QuoteToken
+
+  """The address of the token being quoted"""
+  quoteTokenAddress: String!
+}
+
 enum OrderState {
   CREATED
   PENDING
@@ -7945,7 +7975,7 @@ type Query {
     phrase: String
 
     """
-    A list of token IDs (`address:networkId`). Can be left blank to discover new tokens.
+    A list of token IDs (`address:networkId`) or addresses. Can be left blank to discover new tokens.
     """
     tokens: [String]
 
@@ -9024,6 +9054,17 @@ type Subscription {
     """docs: hide"""
     statsType: TokenPairStatisticsType
   ): OnBarsUpdatedResponse
+
+  """
+  Unconfirmed live-streamed bar chart data to track price changes over time. (Solana only)
+  """
+  onUnconfirmedBarsUpdated(
+    """The ID of the pair (`address`:`networkId`)."""
+    pairId: String
+
+    """The token of interest within the pair. Can be `token0` or `token1`."""
+    quoteToken: QuoteToken
+  ): OnUnconfirmedBarsUpdated
 
   """
   Live-streamed bar chart data to track price changes over time for a token.
@@ -10293,6 +10334,30 @@ type UnconfirmedEvent {
 
 union UnconfirmedEventData = UnconfirmedSwapEventData | UnconfirmedLiquidityChangeEventData
 
+"""Unconfirmed bar chart data."""
+type UnconfirmedIndividualBarData {
+  """The opening price."""
+  o: Float!
+
+  """The high price."""
+  h: Float!
+
+  """The low price."""
+  l: Float!
+
+  """The closing price."""
+  c: Float!
+
+  """The volume."""
+  v: Int
+
+  """The volume with higher precision."""
+  volume: String!
+
+  """The timestamp for the bar."""
+  t: Int!
+}
+
 type UnconfirmedLiquidityChangeEventData {
   """The amount of `token0` added or removed from the pair."""
   amount0: String
@@ -10312,6 +10377,27 @@ type UnconfirmedLiquidityChangeEventData {
 
   """The type of token event, `Mint` or 'Burn'."""
   type: EventType!
+}
+
+"""Unconfirmed price data for each supported resolution."""
+type UnconfirmedResolutionBarData {
+  """1 second resolution."""
+  r1S: UnconfirmedIndividualBarData
+
+  """5 second resolution."""
+  r5S: UnconfirmedIndividualBarData
+
+  """15 second resolution."""
+  r15S: UnconfirmedIndividualBarData
+
+  """1 minute resolution."""
+  r1: UnconfirmedIndividualBarData
+
+  """5 minute resolution."""
+  r5: UnconfirmedIndividualBarData
+
+  """15 minute resolution."""
+  r15: UnconfirmedIndividualBarData
 }
 
 type UnconfirmedSwapEventData {

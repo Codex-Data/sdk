@@ -26643,6 +26643,142 @@
       },
       {
         "kind": "OBJECT",
+        "name": "OnUnconfirmedBarsUpdated",
+        "description": "Response returned by `onUnconfirmedBarsUpdated`.",
+        "isOneOf": null,
+        "fields": [
+          {
+            "name": "aggregates",
+            "description": "Price data broken down by resolution.",
+            "args": [],
+            "type": {
+              "kind": "NON_NULL",
+              "name": null,
+              "ofType": {
+                "kind": "OBJECT",
+                "name": "UnconfirmedResolutionBarData",
+                "ofType": null
+              }
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "eventSortKey",
+            "description": "The sortKey for the bar (`blockNumber`#`transactionIndex`#`logIndex`, zero padded).\nFor example, `0000000016414564#00000224#00000413`.",
+            "args": [],
+            "type": {
+              "kind": "NON_NULL",
+              "name": null,
+              "ofType": {
+                "kind": "SCALAR",
+                "name": "String",
+                "ofType": null
+              }
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "networkId",
+            "description": "The network ID the pair is deployed on.",
+            "args": [],
+            "type": {
+              "kind": "NON_NULL",
+              "name": null,
+              "ofType": {
+                "kind": "SCALAR",
+                "name": "Int",
+                "ofType": null
+              }
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "pairAddress",
+            "description": "The contract address for the pair.",
+            "args": [],
+            "type": {
+              "kind": "NON_NULL",
+              "name": null,
+              "ofType": {
+                "kind": "SCALAR",
+                "name": "String",
+                "ofType": null
+              }
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "pairId",
+            "description": "The ID for the pair (`pairAddress`:`networkId`).",
+            "args": [],
+            "type": {
+              "kind": "NON_NULL",
+              "name": null,
+              "ofType": {
+                "kind": "SCALAR",
+                "name": "String",
+                "ofType": null
+              }
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "quoteToken",
+            "description": "The quote token within the pair.",
+            "args": [],
+            "type": {
+              "kind": "ENUM",
+              "name": "QuoteToken",
+              "ofType": null
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "quoteTokenAddress",
+            "description": "The address of the token being quoted",
+            "args": [],
+            "type": {
+              "kind": "NON_NULL",
+              "name": null,
+              "ofType": {
+                "kind": "SCALAR",
+                "name": "String",
+                "ofType": null
+              }
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "timestamp",
+            "description": "The unix timestamp for the new bar.",
+            "args": [],
+            "type": {
+              "kind": "NON_NULL",
+              "name": null,
+              "ofType": {
+                "kind": "SCALAR",
+                "name": "Int",
+                "ofType": null
+              }
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          }
+        ],
+        "inputFields": null,
+        "interfaces": [],
+        "enumValues": null,
+        "possibleTypes": null
+      },
+      {
+        "kind": "OBJECT",
         "name": "OneOfNumberCondition",
         "description": null,
         "isOneOf": null,
@@ -35407,7 +35543,7 @@
               },
               {
                 "name": "tokens",
-                "description": "A list of token IDs (`address:networkId`). Can be left blank to discover new tokens.",
+                "description": "A list of token IDs (`address:networkId`) or addresses. Can be left blank to discover new tokens.",
                 "type": {
                   "kind": "LIST",
                   "name": null,
@@ -43522,6 +43658,43 @@
             "deprecationReason": null
           },
           {
+            "name": "onUnconfirmedBarsUpdated",
+            "description": "Unconfirmed live-streamed bar chart data to track price changes over time. (Solana only)",
+            "args": [
+              {
+                "name": "pairId",
+                "description": "The ID of the pair (`address`:`networkId`).",
+                "type": {
+                  "kind": "SCALAR",
+                  "name": "String",
+                  "ofType": null
+                },
+                "defaultValue": null,
+                "isDeprecated": false,
+                "deprecationReason": null
+              },
+              {
+                "name": "quoteToken",
+                "description": "The token of interest within the pair. Can be `token0` or `token1`.",
+                "type": {
+                  "kind": "ENUM",
+                  "name": "QuoteToken",
+                  "ofType": null
+                },
+                "defaultValue": null,
+                "isDeprecated": false,
+                "deprecationReason": null
+              }
+            ],
+            "type": {
+              "kind": "OBJECT",
+              "name": "OnUnconfirmedBarsUpdated",
+              "ofType": null
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
             "name": "onUnconfirmedEventsCreated",
             "description": "Live-streamed unconfirmed transactions for a token. (Solana only)",
             "args": [
@@ -48678,6 +48851,126 @@
       },
       {
         "kind": "OBJECT",
+        "name": "UnconfirmedIndividualBarData",
+        "description": "Unconfirmed bar chart data.",
+        "isOneOf": null,
+        "fields": [
+          {
+            "name": "c",
+            "description": "The closing price.",
+            "args": [],
+            "type": {
+              "kind": "NON_NULL",
+              "name": null,
+              "ofType": {
+                "kind": "SCALAR",
+                "name": "Float",
+                "ofType": null
+              }
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "h",
+            "description": "The high price.",
+            "args": [],
+            "type": {
+              "kind": "NON_NULL",
+              "name": null,
+              "ofType": {
+                "kind": "SCALAR",
+                "name": "Float",
+                "ofType": null
+              }
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "l",
+            "description": "The low price.",
+            "args": [],
+            "type": {
+              "kind": "NON_NULL",
+              "name": null,
+              "ofType": {
+                "kind": "SCALAR",
+                "name": "Float",
+                "ofType": null
+              }
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "o",
+            "description": "The opening price.",
+            "args": [],
+            "type": {
+              "kind": "NON_NULL",
+              "name": null,
+              "ofType": {
+                "kind": "SCALAR",
+                "name": "Float",
+                "ofType": null
+              }
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "t",
+            "description": "The timestamp for the bar.",
+            "args": [],
+            "type": {
+              "kind": "NON_NULL",
+              "name": null,
+              "ofType": {
+                "kind": "SCALAR",
+                "name": "Int",
+                "ofType": null
+              }
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "v",
+            "description": "The volume.",
+            "args": [],
+            "type": {
+              "kind": "SCALAR",
+              "name": "Int",
+              "ofType": null
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "volume",
+            "description": "The volume with higher precision.",
+            "args": [],
+            "type": {
+              "kind": "NON_NULL",
+              "name": null,
+              "ofType": {
+                "kind": "SCALAR",
+                "name": "String",
+                "ofType": null
+              }
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          }
+        ],
+        "inputFields": null,
+        "interfaces": [],
+        "enumValues": null,
+        "possibleTypes": null
+      },
+      {
+        "kind": "OBJECT",
         "name": "UnconfirmedLiquidityChangeEventData",
         "description": null,
         "isOneOf": null,
@@ -48742,6 +49035,90 @@
                 "name": "EventType",
                 "ofType": null
               }
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          }
+        ],
+        "inputFields": null,
+        "interfaces": [],
+        "enumValues": null,
+        "possibleTypes": null
+      },
+      {
+        "kind": "OBJECT",
+        "name": "UnconfirmedResolutionBarData",
+        "description": "Unconfirmed price data for each supported resolution.",
+        "isOneOf": null,
+        "fields": [
+          {
+            "name": "r1",
+            "description": "1 minute resolution.",
+            "args": [],
+            "type": {
+              "kind": "OBJECT",
+              "name": "UnconfirmedIndividualBarData",
+              "ofType": null
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "r1S",
+            "description": "1 second resolution.",
+            "args": [],
+            "type": {
+              "kind": "OBJECT",
+              "name": "UnconfirmedIndividualBarData",
+              "ofType": null
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "r5",
+            "description": "5 minute resolution.",
+            "args": [],
+            "type": {
+              "kind": "OBJECT",
+              "name": "UnconfirmedIndividualBarData",
+              "ofType": null
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "r5S",
+            "description": "5 second resolution.",
+            "args": [],
+            "type": {
+              "kind": "OBJECT",
+              "name": "UnconfirmedIndividualBarData",
+              "ofType": null
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "r15",
+            "description": "15 minute resolution.",
+            "args": [],
+            "type": {
+              "kind": "OBJECT",
+              "name": "UnconfirmedIndividualBarData",
+              "ofType": null
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "r15S",
+            "description": "15 second resolution.",
+            "args": [],
+            "type": {
+              "kind": "OBJECT",
+              "name": "UnconfirmedIndividualBarData",
+              "ofType": null
             },
             "isDeprecated": false,
             "deprecationReason": null

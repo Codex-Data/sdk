@@ -34,6 +34,8 @@ import {
   OnTokenEventsCreatedSubscriptionVariables,
   OnTokenLifecycleEventsCreatedSubscription,
   OnTokenLifecycleEventsCreatedSubscriptionVariables,
+  OnUnconfirmedBarsUpdatedSubscription,
+  OnUnconfirmedBarsUpdatedSubscriptionVariables,
   OnUnconfirmedEventsCreatedSubscription,
   OnUnconfirmedEventsCreatedSubscriptionVariables,
 } from "./generated/graphql";
@@ -275,6 +277,19 @@ export class Subscribe {
       `subscription OnTokenBarsUpdated($statsType: TokenPairStatisticsType, $tokenId: String) {
   onTokenBarsUpdated (statsType: $statsType, tokenId: $tokenId) {
     aggregates { r1 { t, token { buyVolume, buyers, buys, c, h, l, liquidity, o, sellVolume, sellers, sells, t, traders, transactions, v, volume, volumeNativeToken }, usd { buyVolume, buyers, buys, c, h, l, liquidity, o, sellVolume, sellers, sells, t, traders, transactions, v, volume, volumeNativeToken } }, r1D { t, token { buyVolume, buyers, buys, c, h, l, liquidity, o, sellVolume, sellers, sells, t, traders, transactions, v, volume, volumeNativeToken }, usd { buyVolume, buyers, buys, c, h, l, liquidity, o, sellVolume, sellers, sells, t, traders, transactions, v, volume, volumeNativeToken } }, r1S { t, token { buyVolume, buyers, buys, c, h, l, liquidity, o, sellVolume, sellers, sells, t, traders, transactions, v, volume, volumeNativeToken }, usd { buyVolume, buyers, buys, c, h, l, liquidity, o, sellVolume, sellers, sells, t, traders, transactions, v, volume, volumeNativeToken } }, r5 { t, token { buyVolume, buyers, buys, c, h, l, liquidity, o, sellVolume, sellers, sells, t, traders, transactions, v, volume, volumeNativeToken }, usd { buyVolume, buyers, buys, c, h, l, liquidity, o, sellVolume, sellers, sells, t, traders, transactions, v, volume, volumeNativeToken } }, r5S { t, token { buyVolume, buyers, buys, c, h, l, liquidity, o, sellVolume, sellers, sells, t, traders, transactions, v, volume, volumeNativeToken }, usd { buyVolume, buyers, buys, c, h, l, liquidity, o, sellVolume, sellers, sells, t, traders, transactions, v, volume, volumeNativeToken } }, r7D { t, token { buyVolume, buyers, buys, c, h, l, liquidity, o, sellVolume, sellers, sells, t, traders, transactions, v, volume, volumeNativeToken }, usd { buyVolume, buyers, buys, c, h, l, liquidity, o, sellVolume, sellers, sells, t, traders, transactions, v, volume, volumeNativeToken } }, r15 { t, token { buyVolume, buyers, buys, c, h, l, liquidity, o, sellVolume, sellers, sells, t, traders, transactions, v, volume, volumeNativeToken }, usd { buyVolume, buyers, buys, c, h, l, liquidity, o, sellVolume, sellers, sells, t, traders, transactions, v, volume, volumeNativeToken } }, r15S { t, token { buyVolume, buyers, buys, c, h, l, liquidity, o, sellVolume, sellers, sells, t, traders, transactions, v, volume, volumeNativeToken }, usd { buyVolume, buyers, buys, c, h, l, liquidity, o, sellVolume, sellers, sells, t, traders, transactions, v, volume, volumeNativeToken } }, r30 { t, token { buyVolume, buyers, buys, c, h, l, liquidity, o, sellVolume, sellers, sells, t, traders, transactions, v, volume, volumeNativeToken }, usd { buyVolume, buyers, buys, c, h, l, liquidity, o, sellVolume, sellers, sells, t, traders, transactions, v, volume, volumeNativeToken } }, r30S { t, token { buyVolume, buyers, buys, c, h, l, liquidity, o, sellVolume, sellers, sells, t, traders, transactions, v, volume, volumeNativeToken }, usd { buyVolume, buyers, buys, c, h, l, liquidity, o, sellVolume, sellers, sells, t, traders, transactions, v, volume, volumeNativeToken } }, r60 { t, token { buyVolume, buyers, buys, c, h, l, liquidity, o, sellVolume, sellers, sells, t, traders, transactions, v, volume, volumeNativeToken }, usd { buyVolume, buyers, buys, c, h, l, liquidity, o, sellVolume, sellers, sells, t, traders, transactions, v, volume, volumeNativeToken } }, r240 { t, token { buyVolume, buyers, buys, c, h, l, liquidity, o, sellVolume, sellers, sells, t, traders, transactions, v, volume, volumeNativeToken }, usd { buyVolume, buyers, buys, c, h, l, liquidity, o, sellVolume, sellers, sells, t, traders, transactions, v, volume, volumeNativeToken } }, r720 { t, token { buyVolume, buyers, buys, c, h, l, liquidity, o, sellVolume, sellers, sells, t, traders, transactions, v, volume, volumeNativeToken }, usd { buyVolume, buyers, buys, c, h, l, liquidity, o, sellVolume, sellers, sells, t, traders, transactions, v, volume, volumeNativeToken } } }, eventSortKey, networkId, pairAddress, pairId, quoteToken, statsType, timestamp, tokenAddress, tokenId
+  }
+}`,
+      vars,
+      sink,
+    );
+  onUnconfirmedBarsUpdated = async (
+    vars: OnUnconfirmedBarsUpdatedSubscriptionVariables,
+    sink: Sink<ExecutionResult<OnUnconfirmedBarsUpdatedSubscription>>,
+  ) =>
+    this.sdk.subscribe(
+      `subscription OnUnconfirmedBarsUpdated($pairId: String, $quoteToken: QuoteToken) {
+  onUnconfirmedBarsUpdated (pairId: $pairId, quoteToken: $quoteToken) {
+    aggregates { r1 { c, h, l, o, t, v, volume }, r1S { c, h, l, o, t, v, volume }, r5 { c, h, l, o, t, v, volume }, r5S { c, h, l, o, t, v, volume }, r15 { c, h, l, o, t, v, volume }, r15S { c, h, l, o, t, v, volume } }, eventSortKey, networkId, pairAddress, pairId, quoteToken, quoteTokenAddress, timestamp
   }
 }`,
       vars,

@@ -4403,6 +4403,30 @@ export type OnTokenEventsCreatedInput = {
   tokenAddress: Scalars['String']['input'];
 };
 
+/** Response returned by `onUnconfirmedBarsUpdated`. */
+export type OnUnconfirmedBarsUpdated = {
+  __typename?: 'OnUnconfirmedBarsUpdated';
+  /** Price data broken down by resolution. */
+  aggregates: UnconfirmedResolutionBarData;
+  /**
+   * The sortKey for the bar (`blockNumber`#`transactionIndex`#`logIndex`, zero padded).
+   * For example, `0000000016414564#00000224#00000413`.
+   */
+  eventSortKey: Scalars['String']['output'];
+  /** The network ID the pair is deployed on. */
+  networkId: Scalars['Int']['output'];
+  /** The contract address for the pair. */
+  pairAddress: Scalars['String']['output'];
+  /** The ID for the pair (`pairAddress`:`networkId`). */
+  pairId: Scalars['String']['output'];
+  /** The quote token within the pair. */
+  quoteToken?: Maybe<QuoteToken>;
+  /** The address of the token being quoted */
+  quoteTokenAddress: Scalars['String']['output'];
+  /** The unix timestamp for the new bar. */
+  timestamp: Scalars['Int']['output'];
+};
+
 export type OneOfNumberCondition = {
   __typename?: 'OneOfNumberCondition';
   oneOf: Array<Scalars['Int']['output']>;
@@ -6890,6 +6914,8 @@ export type Subscription = {
   onTokenEventsCreated: AddTokenEventsOutput;
   /** Live-streamed token lifecycle events (mints and burns) */
   onTokenLifecycleEventsCreated: AddTokenLifecycleEventsOutput;
+  /** Unconfirmed live-streamed bar chart data to track price changes over time. (Solana only) */
+  onUnconfirmedBarsUpdated?: Maybe<OnUnconfirmedBarsUpdated>;
   /** Live-streamed unconfirmed transactions for a token. (Solana only) */
   onUnconfirmedEventsCreated?: Maybe<AddUnconfirmedEventsOutput>;
 };
@@ -6994,6 +7020,12 @@ export type SubscriptionOnTokenEventsCreatedArgs = {
 export type SubscriptionOnTokenLifecycleEventsCreatedArgs = {
   address?: InputMaybe<Scalars['String']['input']>;
   networkId?: InputMaybe<Scalars['Int']['input']>;
+};
+
+
+export type SubscriptionOnUnconfirmedBarsUpdatedArgs = {
+  pairId?: InputMaybe<Scalars['String']['input']>;
+  quoteToken?: InputMaybe<QuoteToken>;
 };
 
 
@@ -7819,6 +7851,25 @@ export type UnconfirmedEvent = {
 
 export type UnconfirmedEventData = UnconfirmedLiquidityChangeEventData | UnconfirmedSwapEventData;
 
+/** Unconfirmed bar chart data. */
+export type UnconfirmedIndividualBarData = {
+  __typename?: 'UnconfirmedIndividualBarData';
+  /** The closing price. */
+  c: Scalars['Float']['output'];
+  /** The high price. */
+  h: Scalars['Float']['output'];
+  /** The low price. */
+  l: Scalars['Float']['output'];
+  /** The opening price. */
+  o: Scalars['Float']['output'];
+  /** The timestamp for the bar. */
+  t: Scalars['Int']['output'];
+  /** The volume. */
+  v?: Maybe<Scalars['Int']['output']>;
+  /** The volume with higher precision. */
+  volume: Scalars['String']['output'];
+};
+
 export type UnconfirmedLiquidityChangeEventData = {
   __typename?: 'UnconfirmedLiquidityChangeEventData';
   /** The amount of `token0` added or removed from the pair. */
@@ -7831,6 +7882,23 @@ export type UnconfirmedLiquidityChangeEventData = {
   amount1Shifted?: Maybe<Scalars['String']['output']>;
   /** The type of token event, `Mint` or 'Burn'. */
   type: EventType;
+};
+
+/** Unconfirmed price data for each supported resolution. */
+export type UnconfirmedResolutionBarData = {
+  __typename?: 'UnconfirmedResolutionBarData';
+  /** 1 minute resolution. */
+  r1?: Maybe<UnconfirmedIndividualBarData>;
+  /** 1 second resolution. */
+  r1S?: Maybe<UnconfirmedIndividualBarData>;
+  /** 5 minute resolution. */
+  r5?: Maybe<UnconfirmedIndividualBarData>;
+  /** 5 second resolution. */
+  r5S?: Maybe<UnconfirmedIndividualBarData>;
+  /** 15 minute resolution. */
+  r15?: Maybe<UnconfirmedIndividualBarData>;
+  /** 15 second resolution. */
+  r15S?: Maybe<UnconfirmedIndividualBarData>;
 };
 
 export type UnconfirmedSwapEventData = {
