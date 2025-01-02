@@ -99,6 +99,12 @@ This shows how you could use it in a NextJS project.
 - `bun i`
 - `NEXT_PUBLIC_CODEX_API_KEY=xyz bun run dev`
 
+## Releasing a new version
+
+- Increase version number to what you want in package.json on a branch.
+- Merge that Pr to main
+- Release it with the right version number. 
+
 ## Contributing
 
 Prs open!
