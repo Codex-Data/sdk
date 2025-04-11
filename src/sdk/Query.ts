@@ -114,6 +114,8 @@ import {
   TokenSparklinesDocument,
   TokenSparklinesQueryVariables,
   TokensQueryVariables,
+  TokenTopTradersDocument,
+  TokenTopTradersQueryVariables,
   Top10HoldersPercentDocument,
   Top10HoldersPercentQueryVariables,
   WalletNftCollectionAssetsDocument,
@@ -144,6 +146,8 @@ export class Query {
     this.sdk.query(PairMetadataDocument, vars);
   getNftContracts = async (vars: GetNftContractsQueryVariables) =>
     this.sdk.query(GetNftContractsDocument, vars);
+  tokenTopTraders = async (vars: TokenTopTradersQueryVariables) =>
+    this.sdk.query(TokenTopTradersDocument, vars);
   liquidityMetadata = async (vars: LiquidityMetadataQueryVariables) =>
     this.sdk.query(LiquidityMetadataDocument, vars);
   walletNftCollectionAssets = async (

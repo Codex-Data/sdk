@@ -147,12 +147,14 @@ export type AptosNetworkConfig = {
 /** Wallet balance of a token. */
 export type Balance = {
   __typename?: 'Balance';
-  /** The wallet address */
+  /** The wallet address. */
   address: Scalars['String']['output'];
   /** The balance held by the wallet. */
   balance: Scalars['String']['output'];
-  /** The time that this address first held a token */
+  /** The time that this address first held a token. */
   firstHeldTimestamp?: Maybe<Scalars['Int']['output']>;
+  /** The wallet network. */
+  networkId: Scalars['Int']['output'];
   /** The balance held by the wallet, adjusted by the number of decimals in the token. */
   shiftedBalance: Scalars['Float']['output'];
   /** The contract address of the token. */
@@ -170,8 +172,12 @@ export type BalancesInput = {
   filterToken?: InputMaybe<Scalars['String']['input']>;
   /** If set to true, native tokens in the response, they will have the id: native:<networkId> */
   includeNative?: InputMaybe<Scalars['Boolean']['input']>;
+  /** The maximum number of holdings to return. */
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  /** The wallet address to filter by. */
+  walletAddress?: InputMaybe<Scalars['String']['input']>;
   /** The ID of the wallet (`walletAddress:networkId`). */
-  walletId: Scalars['String']['input'];
+  walletId?: InputMaybe<Scalars['String']['input']>;
 };
 
 export type BalancesResponse = {
@@ -915,6 +921,8 @@ export type EnhancedToken = {
   info?: Maybe<TokenInfo>;
   /** Whether the token has been flagged as a scam. */
   isScam?: Maybe<Scalars['Boolean']['output']>;
+  /** The launchpad data for the token, if applicable. */
+  launchpad?: Maybe<LaunchpadData>;
   /** Whether or not the token is mintable */
   mintable?: Maybe<Scalars['String']['output']>;
   /** The token name. For example, `ApeCoin`. */
@@ -1104,6 +1112,8 @@ export type EventsQueryInput = {
   priceUsdTotal?: InputMaybe<NumberFilter>;
   /** The token of interest. Can be `token0` or `token1`. */
   quoteToken?: InputMaybe<QuoteToken>;
+  /** Specify the type of symbol you want to fetch values for (TOKEN | POOL) */
+  symbolType?: InputMaybe<SymbolType>;
   /** The time range to filter by. */
   timestamp?: InputMaybe<EventQueryTimestampInput>;
 };
@@ -1372,6 +1382,8 @@ export type GetNetworkStatsResponse = {
   transactions1: Scalars['Int']['output'];
   /** The unique number of transactions in the past 4 hours. */
   transactions4: Scalars['Int']['output'];
+  /** The unique number of transactions in the past 5 minutes. */
+  transactions5m: Scalars['Int']['output'];
   /** The unique number of transactions in the past 12 hours. */
   transactions12: Scalars['Int']['output'];
   /** The unique number of transactions in the past 24 hours. */
@@ -1380,10 +1392,22 @@ export type GetNetworkStatsResponse = {
   volume1: Scalars['Float']['output'];
   /** The network trade volume in USD over the past 4 hours. */
   volume4: Scalars['Float']['output'];
+  /** The network trade volume in USD over the past 5 minutes. */
+  volume5m: Scalars['Float']['output'];
   /** The network trade volume in USD over the past 12 hours. */
   volume12: Scalars['Float']['output'];
   /** The network trade volume in USD over the past 24 hours. */
   volume24: Scalars['Float']['output'];
+  /** The network trade volume change over the last hour */
+  volumeChange1: Scalars['Float']['output'];
+  /** The network trade volume change over the last 4 hours */
+  volumeChange4: Scalars['Float']['output'];
+  /** The network trade volume change over the last 5 minutes */
+  volumeChange5m: Scalars['Float']['output'];
+  /** The network trade volume change over the last 12 hours */
+  volumeChange12: Scalars['Float']['output'];
+  /** The network trade volume change over the last 24 hours */
+  volumeChange24: Scalars['Float']['output'];
 };
 
 /** Response returned by `getNftPoolCollectionsByExchange`. */
@@ -1720,6 +1744,71 @@ export type LatestTokenSimResults = {
   sellTax?: Maybe<Scalars['String']['output']>;
 };
 
+export type LaunchpadData = {
+  __typename?: 'LaunchpadData';
+  /** Indicates if the launchpad is completed. */
+  completed?: Maybe<Scalars['Boolean']['output']>;
+  /** The unix timestamp when the launchpad was completed. */
+  completedAt?: Maybe<Scalars['Int']['output']>;
+  /** The slot number when the launchpad was completed. */
+  completedSlot?: Maybe<Scalars['Int']['output']>;
+  /** The percentage of the pool that was sold to the public. */
+  graduationPercent?: Maybe<Scalars['Float']['output']>;
+  /** Indicates if the launchpad was migrated. */
+  migrated?: Maybe<Scalars['Boolean']['output']>;
+  /** The unix timestamp when the launchpad was migrated. */
+  migratedAt?: Maybe<Scalars['Int']['output']>;
+  /** The pool address after the launchpad was migrated. */
+  migratedPoolAddress?: Maybe<Scalars['String']['output']>;
+  /** The slot number when the launchpad was migrated. */
+  migratedSlot?: Maybe<Scalars['Int']['output']>;
+  /** The address of the pool. */
+  poolAddress?: Maybe<Scalars['String']['output']>;
+};
+
+/** Response returned by `onLaunchpadTokenEvent`. */
+export type LaunchpadTokenEventOutput = {
+  __typename?: 'LaunchpadTokenEventOutput';
+  /** The contract address of the token. */
+  address: Scalars['String']['output'];
+  /** The number of buys in the last 24 hours. */
+  buyCount1?: Maybe<Scalars['Int']['output']>;
+  /** The type of event. */
+  eventType: LaunchpadTokenEventType;
+  /** The number of holders. */
+  holders?: Maybe<Scalars['Int']['output']>;
+  /** The market cap of the token. */
+  marketCap?: Maybe<Scalars['String']['output']>;
+  /** The network ID that the token is deployed on. */
+  networkId: Scalars['Int']['output'];
+  /** The price of the token. */
+  price?: Maybe<Scalars['Float']['output']>;
+  /** The protocol of the token. */
+  protocol: Scalars['String']['output'];
+  /** The number of sells in the last 24 hours. */
+  sellCount1?: Maybe<Scalars['Int']['output']>;
+  /** Metadata for the token. */
+  token: EnhancedToken;
+  /** The number of transactions in the last 24 hours. */
+  transactions1?: Maybe<Scalars['Int']['output']>;
+  /** The volume of the token in the last 24 hours. */
+  volume1?: Maybe<Scalars['Int']['output']>;
+};
+
+/** The type of event. Note that associated statistics such as `buyCount1`, `price`, etc. are only available for `Updated` events. */
+export enum LaunchpadTokenEventType {
+  Completed = 'Completed',
+  Created = 'Created',
+  Migrated = 'Migrated',
+  Updated = 'Updated'
+}
+
+/** The protocol of the token. */
+export enum LaunchpadTokenProtocol {
+  FourMeme = 'FourMeme',
+  Pump = 'Pump'
+}
+
 export type LiquidityData = {
   __typename?: 'LiquidityData';
   /** The active liquidity in the pair. */
@@ -1741,8 +1830,13 @@ export type LiquidityLock = {
   liquidityAmount: Scalars['String']['output'];
   /** If the liquidity position is represented by an NFT, this will contain the NFT data. */
   liquidityNftData?: Maybe<LiquidityNftData>;
-  /** The protocol that created the pair */
+  /**
+   * The protocol that created the pair
+   * @deprecated Use liquidityProtocolV2 instead
+   */
   liquidityProtocol: LiquidityProtocol;
+  /** The protocol that created the pair */
+  liquidityProtocolV2: Scalars['String']['output'];
   /** The protocol with which the liquidity is locked. */
   lockProtocol: LiquidityLockProtocol;
   /** The address of the locker contract. */
@@ -1794,9 +1888,11 @@ export type LiquidityNftData = {
 
 /** Protocols that create trading pairs */
 export enum LiquidityProtocol {
+  PumpV1 = 'PUMP_V1',
   RaydiumV4 = 'RAYDIUM_V4',
   UniswapV2 = 'UNISWAP_V2',
-  UniswapV3 = 'UNISWAP_V3'
+  UniswapV3 = 'UNISWAP_V3',
+  UseLiquidityProtocolV2 = 'USE_LIQUIDITY_PROTOCOL_V2'
 }
 
 /** Response returned by `listPairsWithMetadataForToken`. */
@@ -4582,6 +4678,18 @@ export type OnBarsUpdatedResponse = {
   timestamp: Scalars['Int']['output'];
 };
 
+/** Input for `onLaunchpadTokenEvent`. */
+export type OnLaunchpadTokenEventInput = {
+  /** The contract address of the token. */
+  address?: InputMaybe<Scalars['String']['input']>;
+  /** The type of event. */
+  eventType?: InputMaybe<LaunchpadTokenEventType>;
+  /** The network ID that the token is deployed on. */
+  networkId?: InputMaybe<Scalars['Int']['input']>;
+  /** The protocol of the token. */
+  protocol?: InputMaybe<LaunchpadTokenProtocol>;
+};
+
 export type OnPricesUpdatedInput = {
   address: Scalars['String']['input'];
   networkId: Scalars['Int']['input'];
@@ -4618,7 +4726,7 @@ export type OnTokenBarsUpdatedResponse = {
 
 export type OnTokenEventsCreatedInput = {
   networkId: Scalars['Int']['input'];
-  tokenAddress: Scalars['String']['input'];
+  tokenAddress?: InputMaybe<Scalars['String']['input']>;
 };
 
 /** Response returned by `onUnconfirmedBarsUpdated`. */
@@ -4887,6 +4995,8 @@ export type PairFilters = {
   highPrice12?: InputMaybe<NumberFilter>;
   /** The highest price in USD in the past 24 hours. */
   highPrice24?: InputMaybe<NumberFilter>;
+  /** Whether to filter for pairs on testnet networks. Use `true` for testnet pairs only, `false` for mainnet pairs only and `undefined` (default) for both. */
+  isTestnet?: InputMaybe<Scalars['Boolean']['input']>;
   /** The unix timestamp for the last transaction to happen on the pair. */
   lastTransaction?: InputMaybe<NumberFilter>;
   /** The amount of liquidity in the pair. */
@@ -5114,6 +5224,7 @@ export enum PairRankingAttribute {
   TrendingScore = 'trendingScore',
   TrendingScore1 = 'trendingScore1',
   TrendingScore4 = 'trendingScore4',
+  TrendingScore5m = 'trendingScore5m',
   TrendingScore12 = 'trendingScore12',
   TrendingScore24 = 'trendingScore24',
   TxnCount1 = 'txnCount1',
@@ -6041,6 +6152,7 @@ export type Query = {
    * @deprecated This query is longer supported. Instead use filterPairs with sort order on createdAt DESC
    */
   getLatestPairs?: Maybe<LatestPairConnection>;
+  /** @deprecated This query is no longer supported. Use `filterTokens` with a createdAt: DESC filter instead. */
   getLatestTokens?: Maybe<LatestTokenConnection>;
   /** Returns metadata for a given network supported on Codex. */
   getNetworkStats?: Maybe<GetNetworkStatsResponse>;
@@ -6120,6 +6232,8 @@ export type Query = {
   tokenLifecycleEvents?: Maybe<TokenLifecycleEventConnection>;
   /** Returns a list of token simple chart data (sparklines) for the given tokens. */
   tokenSparklines: Array<TokenSparkline>;
+  /** Returns a list of top traders for a given token. */
+  tokenTopTraders: TokenTopTradersConnection;
   /** Returns a list of tokens by their addresses & network id, with pagination. */
   tokens: Array<Maybe<EnhancedToken>>;
   /** Returns the percentage of a token’s total supply held collectively by its top 10 holders. */
@@ -6581,6 +6695,11 @@ export type QueryTokenLifecycleEventsArgs = {
 
 export type QueryTokenSparklinesArgs = {
   input: TokenSparklineInput;
+};
+
+
+export type QueryTokenTopTradersArgs = {
+  input: TokenTopTradersInput;
 };
 
 
@@ -7077,6 +7196,26 @@ export type SparklineValue = {
   value: Scalars['Float']['output'];
 };
 
+export type StarknetNetworkConfig = {
+  __typename?: 'StarknetNetworkConfig';
+  baseTokenAddress: Scalars['String']['output'];
+  baseTokenSymbol: Scalars['String']['output'];
+  color?: Maybe<Scalars['String']['output']>;
+  defaultPairAddress: Scalars['String']['output'];
+  defaultPairQuoteToken: QuoteToken;
+  enabled: Scalars['Boolean']['output'];
+  id: Scalars['ID']['output'];
+  mainnet: Scalars['Boolean']['output'];
+  name: Scalars['String']['output'];
+  networkIconUrl: Scalars['String']['output'];
+  networkId: Scalars['Int']['output'];
+  networkName: Scalars['String']['output'];
+  networkShortName: Scalars['String']['output'];
+  newTokensEnabled?: Maybe<Scalars['Boolean']['output']>;
+  stableCoinAddresses?: Maybe<Array<Scalars['String']['output']>>;
+  wrappedBaseTokenSymbol: Scalars['String']['output'];
+};
+
 /** Filter for NFT stats. */
 export type StatsFilter = {
   /** The percent change between the `current` and `previous`. */
@@ -7131,6 +7270,8 @@ export type StringFilter = {
 
 export type Subscription = {
   __typename?: 'Subscription';
+  /** Live-streamed balance updates for a given wallet. */
+  onBalanceUpdated: Balance;
   /** Live-streamed bar chart data to track price changes over time. */
   onBarsUpdated?: Maybe<OnBarsUpdatedResponse>;
   /** Live-streamed bucketed stats for a given token within a pair. */
@@ -7144,6 +7285,7 @@ export type Subscription = {
   /** Live-streamed updates for newly listed pairs. */
   onLatestPairUpdated?: Maybe<LatestPair>;
   onLatestTokens?: Maybe<LatestToken>;
+  onLaunchpadTokenEvent: LaunchpadTokenEventOutput;
   /** Live-streamed transactions for an NFT asset. */
   onNftAssetsCreated?: Maybe<NftAsset>;
   /** Live-streamed transactions for an NFT collection. */
@@ -7170,6 +7312,11 @@ export type Subscription = {
 };
 
 
+export type SubscriptionOnBalanceUpdatedArgs = {
+  walletAddress: Scalars['String']['input'];
+};
+
+
 export type SubscriptionOnBarsUpdatedArgs = {
   pairId?: InputMaybe<Scalars['String']['input']>;
   quoteToken?: InputMaybe<QuoteToken>;
@@ -7192,6 +7339,7 @@ export type SubscriptionOnEventLabelCreatedArgs = {
 export type SubscriptionOnEventsCreatedArgs = {
   address?: InputMaybe<Scalars['String']['input']>;
   id?: InputMaybe<Scalars['String']['input']>;
+  networkId?: InputMaybe<Scalars['Int']['input']>;
   quoteToken?: InputMaybe<QuoteToken>;
 };
 
@@ -7211,6 +7359,11 @@ export type SubscriptionOnLatestTokensArgs = {
   id?: InputMaybe<Scalars['String']['input']>;
   networkId?: InputMaybe<Scalars['Int']['input']>;
   tokenAddress?: InputMaybe<Scalars['String']['input']>;
+};
+
+
+export type SubscriptionOnLaunchpadTokenEventArgs = {
+  input?: InputMaybe<OnLaunchpadTokenEventInput>;
 };
 
 
@@ -7262,6 +7415,7 @@ export type SubscriptionOnSimulateTokenContractArgs = {
 
 
 export type SubscriptionOnTokenBarsUpdatedArgs = {
+  networkId?: InputMaybe<Scalars['Int']['input']>;
   statsType?: InputMaybe<TokenPairStatisticsType>;
   tokenId?: InputMaybe<Scalars['String']['input']>;
 };
@@ -7694,6 +7848,8 @@ export type TokenFilters = {
   exchangeId?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
   /** @deprecated FDV isn't supported - use marketCap instead */
   fdv?: InputMaybe<NumberFilter>;
+  /** The token in freezable */
+  freezable?: InputMaybe<Scalars['Boolean']['input']>;
   /** The highest price in USD in the past hour. */
   high1?: InputMaybe<NumberFilter>;
   /** The highest price in USD in the past 4 hours. */
@@ -7708,10 +7864,22 @@ export type TokenFilters = {
   holders?: InputMaybe<NumberFilter>;
   /** Whether to include tokens that have been flagged as scams. Default: false */
   includeScams?: InputMaybe<Scalars['Boolean']['input']>;
+  /** Whether to filter for tokens on testnet networks. Use `true` for testnet tokens only, `false` for mainnet tokens only and `undefined` (default) for both. */
+  isTestnet?: InputMaybe<Scalars['Boolean']['input']>;
   /** Only include verified tokens */
   isVerified?: InputMaybe<Scalars['Boolean']['input']>;
   /** The unix timestamp for the token's last transaction. */
   lastTransaction?: InputMaybe<NumberFilter>;
+  /** Indicates if the launchpad is completed */
+  launchpadCompleted?: InputMaybe<Scalars['Boolean']['input']>;
+  /** The timestamp when the launchpad was completed */
+  launchpadCompletedAt?: InputMaybe<NumberFilter>;
+  /** The graduation percentage */
+  launchpadGraduationPercent?: InputMaybe<NumberFilter>;
+  /** Indicates if the launchpad has migrated */
+  launchpadMigrated?: InputMaybe<Scalars['Boolean']['input']>;
+  /** The timestamp when the launchpad was migrated */
+  launchpadMigratedAt?: InputMaybe<NumberFilter>;
   /** The amount of liquidity in the token's top pair. */
   liquidity?: InputMaybe<NumberFilter>;
   /** The lowest price in USD in the past hour. */
@@ -7726,6 +7894,8 @@ export type TokenFilters = {
   low24?: InputMaybe<NumberFilter>;
   /** The market cap of circulating supply. */
   marketCap?: InputMaybe<NumberFilter>;
+  /** The token in mintable */
+  mintable?: InputMaybe<Scalars['Boolean']['input']>;
   /** The list of network IDs to filter by. Applied in conjunction with `exchangeId` filter using an OR condition. When used together, the query returns results that match either the specified exchanges or the specified network. */
   network?: InputMaybe<Array<InputMaybe<Scalars['Int']['input']>>>;
   /** docs: hide */
@@ -8012,6 +8182,7 @@ export enum TokenRankingAttribute {
   Change12 = 'change12',
   Change24 = 'change24',
   CreatedAt = 'createdAt',
+  GraduationPercent = 'graduationPercent',
   High1 = 'high1',
   High4 = 'high4',
   High5m = 'high5m',
@@ -8019,6 +8190,8 @@ export enum TokenRankingAttribute {
   High24 = 'high24',
   Holders = 'holders',
   LastTransaction = 'lastTransaction',
+  LaunchpadCompletedAt = 'launchpadCompletedAt',
+  LaunchpadMigratedAt = 'launchpadMigratedAt',
   Liquidity = 'liquidity',
   Low1 = 'low1',
   Low4 = 'low4',
@@ -8036,6 +8209,7 @@ export enum TokenRankingAttribute {
   TrendingScore = 'trendingScore',
   TrendingScore1 = 'trendingScore1',
   TrendingScore4 = 'trendingScore4',
+  TrendingScore5m = 'trendingScore5m',
   TrendingScore12 = 'trendingScore12',
   TrendingScore24 = 'trendingScore24',
   TxnCount1 = 'txnCount1',
@@ -8094,6 +8268,72 @@ export type TokenSparkline = {
 export type TokenSparklineInput = {
   /** The contract address & networkId of the token, joined by a colon. ex: 0xbe042e9d09cb588331ff911c2b46fd833a3e5bd6:1 */
   ids: Array<Scalars['String']['input']>;
+};
+
+/** A top trader for a token. */
+export type TokenTopTrader = {
+  __typename?: 'TokenTopTrader';
+  /** The amount of tokens bought in USD. */
+  amountBoughtUsd: Scalars['String']['output'];
+  /** The amount of tokens sold in USD. */
+  amountSoldUsd: Scalars['String']['output'];
+  /** The number of buys. */
+  buys: Scalars['Int']['output'];
+  /** The unix timestamp for the first transaction from this wallet. */
+  firstTransactionAt?: Maybe<Scalars['Int']['output']>;
+  /** The unix timestamp for the last transaction from this wallet. */
+  lastTransactionAt: Scalars['Int']['output'];
+  /** The network ID. */
+  networkId: Scalars['Int']['output'];
+  /** The realized profit percentage. */
+  realizedProfitPercentage: Scalars['Float']['output'];
+  /** The realized profit in USD. */
+  realizedProfitUsd: Scalars['String']['output'];
+  /** The number of sells. */
+  sells: Scalars['Int']['output'];
+  /** The single token acquisition cost in USD. */
+  singleTokenAcquisitionCostUsd: Scalars['String']['output'];
+  /** The token address. */
+  tokenAddress: Scalars['String']['output'];
+  /** The amount of tokens bought. */
+  tokenAmountBought: Scalars['String']['output'];
+  /** The amount of tokens sold. */
+  tokenAmountSold: Scalars['String']['output'];
+  /** The token balance of the trader. */
+  tokenBalance: Scalars['String']['output'];
+  /** The volume of tokens bought and sold in USD. */
+  volumeUsd: Scalars['String']['output'];
+  /** The wallet address of the trader. */
+  walletAddress: Scalars['String']['output'];
+};
+
+/** A paginated list of top traders for a token. */
+export type TokenTopTradersConnection = {
+  __typename?: 'TokenTopTradersConnection';
+  /** The list of top traders. */
+  items: Array<Maybe<TokenTopTrader>>;
+  /** The network ID. */
+  networkId: Scalars['Int']['output'];
+  /** The offset of the first trader in the connection. */
+  offset?: Maybe<Scalars['Int']['output']>;
+  /** The token address. */
+  tokenAddress: Scalars['String']['output'];
+  /** The trading period. */
+  tradingPeriod: TradingPeriod;
+};
+
+/** Input arguments for the `tokenTopTraders` query. */
+export type TokenTopTradersInput = {
+  /** The number of traders to return */
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  /** The network ID */
+  networkId: Scalars['Int']['input'];
+  /** Where in the list the server started when returning items */
+  offset?: InputMaybe<Scalars['Int']['input']>;
+  /** The token address */
+  tokenAddress: Scalars['String']['input'];
+  /** The trading period */
+  tradingPeriod: TradingPeriod;
 };
 
 /** A token with metadata. */
@@ -8176,6 +8416,14 @@ export type TokenWithMetadata = {
   /** The volume over the time frame requested in USD. */
   volume: Scalars['String']['output'];
 };
+
+/** A time period used when calculating wallet trading data. */
+export enum TradingPeriod {
+  Day = 'DAY',
+  Month = 'MONTH',
+  Week = 'WEEK',
+  Year = 'YEAR'
+}
 
 /** An unconfirmed token transaction. */
 export type UnconfirmedEvent = {

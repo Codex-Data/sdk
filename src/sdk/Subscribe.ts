@@ -2,6 +2,8 @@
 import { ExecutionResult, Sink } from "graphql-ws";
 
 import {
+  OnBalanceUpdatedSubscription,
+  OnBalanceUpdatedSubscriptionVariables,
   OnBarsUpdatedSubscription,
   OnBarsUpdatedSubscriptionVariables,
   OnDetailedStatsUpdatedSubscription,
@@ -16,6 +18,8 @@ import {
   OnLatestPairUpdatedSubscriptionVariables,
   OnLatestTokensSubscription,
   OnLatestTokensSubscriptionVariables,
+  OnLaunchpadTokenEventSubscription,
+  OnLaunchpadTokenEventSubscriptionVariables,
   OnNftAssetsCreatedSubscription,
   OnNftAssetsCreatedSubscriptionVariables,
   OnNftEventsCreatedSubscription,
@@ -115,8 +119,8 @@ export class Subscribe {
     sink: Sink<ExecutionResult<OnEventsCreatedSubscription>>,
   ) =>
     this.sdk.subscribe(
-      `subscription OnEventsCreated($address: String, $id: String, $quoteToken: QuoteToken) {
-  onEventsCreated (address: $address, id: $id, quoteToken: $quoteToken) {
+      `subscription OnEventsCreated($address: String, $id: String, $networkId: Int, $quoteToken: QuoteToken) {
+  onEventsCreated (address: $address, id: $id, networkId: $networkId, quoteToken: $quoteToken) {
     address, events { address, baseTokenPrice, blockHash, blockNumber, data { ... on BurnEventData { amount0, amount0Shifted, amount1, amount1Shifted, tickLower, tickUpper, type }, ... on MintEventData { amount0, amount0Shifted, amount1, amount1Shifted, tickLower, tickUpper, type }, ... on PoolBalanceChangedEventData { amount0, amount0Shifted, amount1, amount1Shifted, liquidity0, liquidity1, protocolFeeAmount0, protocolFeeAmount1, sender, token0, token1, type }, ... on SwapEventData { amount0, amount0In, amount0Out, amount1, amount1In, amount1Out, amountNonLiquidityToken, priceBaseToken, priceBaseTokenTotal, priceUsd, priceUsdTotal, tick, type } }, eventDisplayType, eventType, id, labels { sandwich { label, sandwichType, token0DrainedAmount, token1DrainedAmount }, washtrade { label } }, liquidityToken, logIndex, maker, networkId, quoteToken, timestamp, token0Address, token0PoolValueUsd, token0SwapValueUsd, token0ValueBase, token1Address, token1PoolValueUsd, token1SwapValueUsd, token1ValueBase, transactionHash, transactionIndex }, id, networkId, quoteToken
   }
 }`,
@@ -226,7 +230,7 @@ export class Subscribe {
     this.sdk.subscribe(
       `subscription OnPairMetadataUpdated($id: String, $quoteToken: QuoteToken, $statsType: TokenPairStatisticsType) {
   onPairMetadataUpdated (id: $id, quoteToken: $quoteToken, statsType: $statsType) {
-    createdAt, enhancedToken0 { address, cmcId, createBlockNumber, createTransactionHash, createdAt, creatorAddress, decimals, exchanges { address, color, exchangeVersion, iconUrl, id, name, networkId, tradeUrl }, freezable, id, info { address, circulatingSupply, cmcId, description, id, imageBannerUrl, imageLargeUrl, imageSmallUrl, imageThumbUrl, isScam, name, networkId, symbol, totalSupply }, isScam, mintable, name, networkId, socialLinks { bitcointalk, blog, coingecko, coinmarketcap, discord, email, facebook, github, instagram, linkedin, reddit, slack, telegram, twitch, twitter, website, wechat, whitepaper, youtube }, symbol }, enhancedToken1 { address, cmcId, createBlockNumber, createTransactionHash, createdAt, creatorAddress, decimals, exchanges { address, color, exchangeVersion, iconUrl, id, name, networkId, tradeUrl }, freezable, id, info { address, circulatingSupply, cmcId, description, id, imageBannerUrl, imageLargeUrl, imageSmallUrl, imageThumbUrl, isScam, name, networkId, symbol, totalSupply }, isScam, mintable, name, networkId, socialLinks { bitcointalk, blog, coingecko, coinmarketcap, discord, email, facebook, github, instagram, linkedin, reddit, slack, telegram, twitch, twitter, website, wechat, whitepaper, youtube }, symbol }, exchangeId, fee, highPrice1, highPrice1w, highPrice4, highPrice5m, highPrice12, highPrice24, id, liquidity, liquidityToken, lowPrice1, lowPrice1w, lowPrice4, lowPrice5m, lowPrice12, lowPrice24, networkId, nonLiquidityToken, pairAddress, price, priceChange1, priceChange1w, priceChange4, priceChange5m, priceChange12, priceChange24, quoteToken, statsType, tickSpacing, token0 { address, decimals, labels { createdAt, subType, type }, name, networkId, pooled, price, symbol }, token1 { address, decimals, labels { createdAt, subType, type }, name, networkId, pooled, price, symbol }, volume1, volume1w, volume4, volume5m, volume12, volume24
+    createdAt, enhancedToken0 { address, cmcId, createBlockNumber, createTransactionHash, createdAt, creatorAddress, decimals, exchanges { address, color, exchangeVersion, iconUrl, id, name, networkId, tradeUrl }, freezable, id, info { address, circulatingSupply, cmcId, description, id, imageBannerUrl, imageLargeUrl, imageSmallUrl, imageThumbUrl, isScam, name, networkId, symbol, totalSupply }, isScam, launchpad { completed, completedAt, completedSlot, graduationPercent, migrated, migratedAt, migratedPoolAddress, migratedSlot, poolAddress }, mintable, name, networkId, socialLinks { bitcointalk, blog, coingecko, coinmarketcap, discord, email, facebook, github, instagram, linkedin, reddit, slack, telegram, twitch, twitter, website, wechat, whitepaper, youtube }, symbol }, enhancedToken1 { address, cmcId, createBlockNumber, createTransactionHash, createdAt, creatorAddress, decimals, exchanges { address, color, exchangeVersion, iconUrl, id, name, networkId, tradeUrl }, freezable, id, info { address, circulatingSupply, cmcId, description, id, imageBannerUrl, imageLargeUrl, imageSmallUrl, imageThumbUrl, isScam, name, networkId, symbol, totalSupply }, isScam, launchpad { completed, completedAt, completedSlot, graduationPercent, migrated, migratedAt, migratedPoolAddress, migratedSlot, poolAddress }, mintable, name, networkId, socialLinks { bitcointalk, blog, coingecko, coinmarketcap, discord, email, facebook, github, instagram, linkedin, reddit, slack, telegram, twitch, twitter, website, wechat, whitepaper, youtube }, symbol }, exchangeId, fee, highPrice1, highPrice1w, highPrice4, highPrice5m, highPrice12, highPrice24, id, liquidity, liquidityToken, lowPrice1, lowPrice1w, lowPrice4, lowPrice5m, lowPrice12, lowPrice24, networkId, nonLiquidityToken, pairAddress, price, priceChange1, priceChange1w, priceChange4, priceChange5m, priceChange12, priceChange24, quoteToken, statsType, tickSpacing, token0 { address, decimals, labels { createdAt, subType, type }, name, networkId, pooled, price, symbol }, token1 { address, decimals, labels { createdAt, subType, type }, name, networkId, pooled, price, symbol }, volume1, volume1w, volume4, volume5m, volume12, volume24
   }
 }`,
       vars,
@@ -245,6 +249,19 @@ export class Subscribe {
       vars,
       sink,
     );
+  onLaunchpadTokenEvent = async (
+    vars: OnLaunchpadTokenEventSubscriptionVariables,
+    sink: Sink<ExecutionResult<OnLaunchpadTokenEventSubscription>>,
+  ) =>
+    this.sdk.subscribe(
+      `subscription OnLaunchpadTokenEvent($input: OnLaunchpadTokenEventInput) {
+  onLaunchpadTokenEvent (input: $input) {
+    address, buyCount1, eventType, holders, marketCap, networkId, price, protocol, sellCount1, token { address, cmcId, createBlockNumber, createTransactionHash, createdAt, creatorAddress, decimals, exchanges { address, color, exchangeVersion, iconUrl, id, name, networkId, tradeUrl }, freezable, id, info { address, circulatingSupply, cmcId, description, id, imageBannerUrl, imageLargeUrl, imageSmallUrl, imageThumbUrl, isScam, name, networkId, symbol, totalSupply }, isScam, launchpad { completed, completedAt, completedSlot, graduationPercent, migrated, migratedAt, migratedPoolAddress, migratedSlot, poolAddress }, mintable, name, networkId, socialLinks { bitcointalk, blog, coingecko, coinmarketcap, discord, email, facebook, github, instagram, linkedin, reddit, slack, telegram, twitch, twitter, website, wechat, whitepaper, youtube }, symbol }, transactions1, volume1
+  }
+}`,
+      vars,
+      sink,
+    );
   onHoldersUpdated = async (
     vars: OnHoldersUpdatedSubscriptionVariables,
     sink: Sink<ExecutionResult<OnHoldersUpdatedSubscription>>,
@@ -252,7 +269,7 @@ export class Subscribe {
     this.sdk.subscribe(
       `subscription OnHoldersUpdated($tokenId: String!) {
   onHoldersUpdated (tokenId: $tokenId) {
-    balances { address, balance, firstHeldTimestamp, shiftedBalance, tokenAddress, tokenId, walletId }, holders, networkId, tokenAddress, tokenId
+    balances { address, balance, firstHeldTimestamp, networkId, shiftedBalance, tokenAddress, tokenId, walletId }, holders, networkId, tokenAddress, tokenId
   }
 }`,
       vars,
@@ -289,9 +306,22 @@ export class Subscribe {
     sink: Sink<ExecutionResult<OnTokenBarsUpdatedSubscription>>,
   ) =>
     this.sdk.subscribe(
-      `subscription OnTokenBarsUpdated($statsType: TokenPairStatisticsType, $tokenId: String) {
-  onTokenBarsUpdated (statsType: $statsType, tokenId: $tokenId) {
+      `subscription OnTokenBarsUpdated($networkId: Int, $statsType: TokenPairStatisticsType, $tokenId: String) {
+  onTokenBarsUpdated (networkId: $networkId, statsType: $statsType, tokenId: $tokenId) {
     aggregates { r1 { t, token { buyVolume, buyers, buys, c, h, l, liquidity, o, sellVolume, sellers, sells, t, traders, transactions, v, volume, volumeNativeToken }, usd { buyVolume, buyers, buys, c, h, l, liquidity, o, sellVolume, sellers, sells, t, traders, transactions, v, volume, volumeNativeToken } }, r1D { t, token { buyVolume, buyers, buys, c, h, l, liquidity, o, sellVolume, sellers, sells, t, traders, transactions, v, volume, volumeNativeToken }, usd { buyVolume, buyers, buys, c, h, l, liquidity, o, sellVolume, sellers, sells, t, traders, transactions, v, volume, volumeNativeToken } }, r1S { t, token { buyVolume, buyers, buys, c, h, l, liquidity, o, sellVolume, sellers, sells, t, traders, transactions, v, volume, volumeNativeToken }, usd { buyVolume, buyers, buys, c, h, l, liquidity, o, sellVolume, sellers, sells, t, traders, transactions, v, volume, volumeNativeToken } }, r5 { t, token { buyVolume, buyers, buys, c, h, l, liquidity, o, sellVolume, sellers, sells, t, traders, transactions, v, volume, volumeNativeToken }, usd { buyVolume, buyers, buys, c, h, l, liquidity, o, sellVolume, sellers, sells, t, traders, transactions, v, volume, volumeNativeToken } }, r5S { t, token { buyVolume, buyers, buys, c, h, l, liquidity, o, sellVolume, sellers, sells, t, traders, transactions, v, volume, volumeNativeToken }, usd { buyVolume, buyers, buys, c, h, l, liquidity, o, sellVolume, sellers, sells, t, traders, transactions, v, volume, volumeNativeToken } }, r7D { t, token { buyVolume, buyers, buys, c, h, l, liquidity, o, sellVolume, sellers, sells, t, traders, transactions, v, volume, volumeNativeToken }, usd { buyVolume, buyers, buys, c, h, l, liquidity, o, sellVolume, sellers, sells, t, traders, transactions, v, volume, volumeNativeToken } }, r15 { t, token { buyVolume, buyers, buys, c, h, l, liquidity, o, sellVolume, sellers, sells, t, traders, transactions, v, volume, volumeNativeToken }, usd { buyVolume, buyers, buys, c, h, l, liquidity, o, sellVolume, sellers, sells, t, traders, transactions, v, volume, volumeNativeToken } }, r15S { t, token { buyVolume, buyers, buys, c, h, l, liquidity, o, sellVolume, sellers, sells, t, traders, transactions, v, volume, volumeNativeToken }, usd { buyVolume, buyers, buys, c, h, l, liquidity, o, sellVolume, sellers, sells, t, traders, transactions, v, volume, volumeNativeToken } }, r30 { t, token { buyVolume, buyers, buys, c, h, l, liquidity, o, sellVolume, sellers, sells, t, traders, transactions, v, volume, volumeNativeToken }, usd { buyVolume, buyers, buys, c, h, l, liquidity, o, sellVolume, sellers, sells, t, traders, transactions, v, volume, volumeNativeToken } }, r30S { t, token { buyVolume, buyers, buys, c, h, l, liquidity, o, sellVolume, sellers, sells, t, traders, transactions, v, volume, volumeNativeToken }, usd { buyVolume, buyers, buys, c, h, l, liquidity, o, sellVolume, sellers, sells, t, traders, transactions, v, volume, volumeNativeToken } }, r60 { t, token { buyVolume, buyers, buys, c, h, l, liquidity, o, sellVolume, sellers, sells, t, traders, transactions, v, volume, volumeNativeToken }, usd { buyVolume, buyers, buys, c, h, l, liquidity, o, sellVolume, sellers, sells, t, traders, transactions, v, volume, volumeNativeToken } }, r240 { t, token { buyVolume, buyers, buys, c, h, l, liquidity, o, sellVolume, sellers, sells, t, traders, transactions, v, volume, volumeNativeToken }, usd { buyVolume, buyers, buys, c, h, l, liquidity, o, sellVolume, sellers, sells, t, traders, transactions, v, volume, volumeNativeToken } }, r720 { t, token { buyVolume, buyers, buys, c, h, l, liquidity, o, sellVolume, sellers, sells, t, traders, transactions, v, volume, volumeNativeToken }, usd { buyVolume, buyers, buys, c, h, l, liquidity, o, sellVolume, sellers, sells, t, traders, transactions, v, volume, volumeNativeToken } } }, eventSortKey, networkId, pairAddress, pairId, quoteToken, statsType, timestamp, tokenAddress, tokenId
+  }
+}`,
+      vars,
+      sink,
+    );
+  onBalanceUpdated = async (
+    vars: OnBalanceUpdatedSubscriptionVariables,
+    sink: Sink<ExecutionResult<OnBalanceUpdatedSubscription>>,
+  ) =>
+    this.sdk.subscribe(
+      `subscription OnBalanceUpdated($walletAddress: String!) {
+  onBalanceUpdated (walletAddress: $walletAddress) {
+    address, balance, firstHeldTimestamp, networkId, shiftedBalance, tokenAddress, tokenId, walletId
   }
 }`,
       vars,

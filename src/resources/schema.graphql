@@ -165,8 +165,11 @@ type Balance {
   """The ID of the token (`tokenAddress:networkId`)."""
   tokenId: String!
 
-  """The wallet address"""
+  """The wallet address."""
   address: String!
+
+  """The wallet network."""
+  networkId: Int!
 
   """The contract address of the token."""
   tokenAddress: String!
@@ -179,13 +182,16 @@ type Balance {
   """
   shiftedBalance: Float!
 
-  """The time that this address first held a token"""
+  """The time that this address first held a token."""
   firstHeldTimestamp: Int
 }
 
 input BalancesInput {
   """The ID of the wallet (`walletAddress:networkId`)."""
-  walletId: String!
+  walletId: String
+
+  """The wallet address to filter by."""
+  walletAddress: String
 
   """A cursor for use in pagination."""
   cursor: String
@@ -197,6 +203,9 @@ input BalancesInput {
   If set to true, native tokens in the response, they will have the id: native:<networkId>
   """
   includeNative: Boolean
+
+  """The maximum number of holdings to return."""
+  limit: Int
 }
 
 type BalancesResponse {
@@ -1188,6 +1197,9 @@ type EnhancedToken {
 
   """Whether or not the token is freezable"""
   freezable: String
+
+  """The launchpad data for the token, if applicable."""
+  launchpad: LaunchpadData
 }
 
 enum Entitlement {
@@ -1419,6 +1431,9 @@ input EventsQueryInput {
   The total amount of `quoteToken` involved in the swap in USD (`amountNonLiquidityToken` x `priceUsd`).
   """
   priceUsdTotal: NumberFilter
+
+  """Specify the type of symbol you want to fetch values for (TOKEN | POOL)"""
+  symbolType: SymbolType
 }
 
 """The event type for a token transaction."""
@@ -1756,6 +1771,24 @@ type GetNetworkStatsResponse {
   """The network trade volume in USD over the past hour."""
   volume1: Float!
 
+  """The network trade volume in USD over the past 5 minutes."""
+  volume5m: Float!
+
+  """The network trade volume change over the last 24 hours"""
+  volumeChange24: Float!
+
+  """The network trade volume change over the last 12 hours"""
+  volumeChange12: Float!
+
+  """The network trade volume change over the last 4 hours"""
+  volumeChange4: Float!
+
+  """The network trade volume change over the last hour"""
+  volumeChange1: Float!
+
+  """The network trade volume change over the last 5 minutes"""
+  volumeChange5m: Float!
+
   """The network liquidity in USD."""
   liquidity: Float!
 
@@ -1770,6 +1803,9 @@ type GetNetworkStatsResponse {
 
   """The unique number of transactions in the past hour."""
   transactions1: Int!
+
+  """The unique number of transactions in the past 5 minutes."""
+  transactions5m: Int!
 }
 
 """Response returned by `getNftPoolCollectionsByExchange`."""
@@ -2219,6 +2255,90 @@ type LatestTokenSimResults {
   openTradingCall: String
 }
 
+type LaunchpadData {
+  """The percentage of the pool that was sold to the public."""
+  graduationPercent: Float
+
+  """The address of the pool."""
+  poolAddress: String
+
+  """The unix timestamp when the launchpad was completed."""
+  completedAt: Int
+
+  """Indicates if the launchpad is completed."""
+  completed: Boolean
+
+  """The slot number when the launchpad was completed."""
+  completedSlot: Int
+
+  """The slot number when the launchpad was migrated."""
+  migratedSlot: Int
+
+  """The unix timestamp when the launchpad was migrated."""
+  migratedAt: Int
+
+  """Indicates if the launchpad was migrated."""
+  migrated: Boolean
+
+  """The pool address after the launchpad was migrated."""
+  migratedPoolAddress: String
+}
+
+"""Response returned by `onLaunchpadTokenEvent`."""
+type LaunchpadTokenEventOutput {
+  """The contract address of the token."""
+  address: String!
+
+  """The network ID that the token is deployed on."""
+  networkId: Int!
+
+  """The protocol of the token."""
+  protocol: String!
+
+  """Metadata for the token."""
+  token: EnhancedToken!
+
+  """The number of buys in the last 24 hours."""
+  buyCount1: Int
+
+  """The type of event."""
+  eventType: LaunchpadTokenEventType!
+
+  """The number of holders."""
+  holders: Int
+
+  """The market cap of the token."""
+  marketCap: String
+
+  """The price of the token."""
+  price: Float
+
+  """The number of sells in the last 24 hours."""
+  sellCount1: Int
+
+  """The volume of the token in the last 24 hours."""
+  volume1: Int
+
+  """The number of transactions in the last 24 hours."""
+  transactions1: Int
+}
+
+"""
+The type of event. Note that associated statistics such as `buyCount1`, `price`, etc. are only available for `Updated` events.
+"""
+enum LaunchpadTokenEventType {
+  Updated
+  Created
+  Completed
+  Migrated
+}
+
+"""The protocol of the token."""
+enum LaunchpadTokenProtocol {
+  Pump
+  FourMeme
+}
+
 scalar link__Import
 
 enum link__Purpose {
@@ -2265,7 +2385,10 @@ type LiquidityLock {
   lockProtocol: LiquidityLockProtocol!
 
   """The protocol that created the pair"""
-  liquidityProtocol: LiquidityProtocol!
+  liquidityProtocol: LiquidityProtocol! @deprecated(reason: "Use liquidityProtocolV2 instead")
+
+  """The protocol that created the pair"""
+  liquidityProtocolV2: String!
 
   """The amount of liquidity locked."""
   liquidityAmount: String!
@@ -2322,6 +2445,8 @@ enum LiquidityProtocol {
   UNISWAP_V3
   UNISWAP_V2
   RAYDIUM_V4
+  PUMP_V1
+  USE_LIQUIDITY_PROTOCOL_V2
 }
 
 """Response returned by `listPairsWithMetadataForToken`."""
@@ -6072,6 +6197,21 @@ input OneOfNumberConditionInput {
   oneOf: [Int!]!
 }
 
+"""Input for `onLaunchpadTokenEvent`."""
+input OnLaunchpadTokenEventInput {
+  """The protocol of the token."""
+  protocol: LaunchpadTokenProtocol
+
+  """The type of event."""
+  eventType: LaunchpadTokenEventType
+
+  """The contract address of the token."""
+  address: String
+
+  """The network ID that the token is deployed on."""
+  networkId: Int
+}
+
 input OnPricesUpdatedInput {
   address: String!
   networkId: Int!
@@ -6115,7 +6255,7 @@ type OnTokenBarsUpdatedResponse {
 }
 
 input OnTokenEventsCreatedInput {
-  tokenAddress: String!
+  tokenAddress: String
   networkId: Int!
 }
 
@@ -6603,6 +6743,11 @@ input PairFilters {
 
   """Whether to ignore pairs/tokens not relevant to trending"""
   trendingIgnored: Boolean
+
+  """
+  Whether to filter for pairs on testnet networks. Use `true` for testnet pairs only, `false` for mainnet pairs only and `undefined` (default) for both.
+  """
+  isTestnet: Boolean
 }
 
 type PairMetadata {
@@ -6789,6 +6934,7 @@ enum PairRankingAttribute {
   sellCount12
   sellCount24
   trendingScore
+  trendingScore5m
   trendingScore1
   trendingScore4
   trendingScore12
@@ -8862,7 +9008,7 @@ type Query {
 
     """The offset to use for pagination."""
     offset: Int
-  ): LatestTokenConnection
+  ): LatestTokenConnection @deprecated(reason: "This query is no longer supported. Use `filterTokens` with a createdAt: DESC filter instead.")
 
   """Returns liquidity locks for a given pair."""
   liquidityLocks(
@@ -8886,6 +9032,9 @@ type Query {
     """The network id of the pair."""
     networkId: Int!
   ): LiquidityMetadata
+
+  """Returns a list of top traders for a given token."""
+  tokenTopTraders(input: TokenTopTradersInput!): TokenTopTradersConnection!
 
   """Returns community gathered notes."""
   getCommunityNotes(input: CommunityNotesInput): CommunityNotesResponse!
@@ -9418,6 +9567,25 @@ type SparklineValue {
   value: Float!
 }
 
+type StarknetNetworkConfig {
+  id: ID!
+  networkId: Int!
+  baseTokenAddress: String!
+  baseTokenSymbol: String!
+  color: String
+  defaultPairAddress: String!
+  defaultPairQuoteToken: QuoteToken!
+  enabled: Boolean!
+  newTokensEnabled: Boolean
+  mainnet: Boolean!
+  name: String!
+  networkIconUrl: String!
+  networkName: String!
+  networkShortName: String!
+  stableCoinAddresses: [String!]
+  wrappedBaseTokenSymbol: String!
+}
+
 """Currency stats."""
 input statsCurrency {
   """The volume over the time frame."""
@@ -9600,6 +9768,9 @@ type Subscription {
 
     """docs: hide"""
     statsType: TokenPairStatisticsType
+
+    """The networkId to use when getting all bars per network"""
+    networkId: Int
   ): OnTokenBarsUpdatedResponse
 
   """Live-streamed transactions for a token."""
@@ -9612,6 +9783,9 @@ type Subscription {
 
     """The token of interest within the pair. Can be `token0` or `token1`."""
     quoteToken: QuoteToken
+
+    """The networkId to use when getting all events per network"""
+    networkId: Int
   ): AddEventsOutput
 
   """Live-streamed unconfirmed transactions for a token. (Solana only)"""
@@ -9699,6 +9873,9 @@ type Subscription {
   """
   onHoldersUpdated(tokenId: String!): HoldersUpdate
 
+  """Live-streamed balance updates for a given wallet."""
+  onBalanceUpdated(walletAddress: String!): Balance!
+
   """Live-streamed token lifecycle events (mints and burns)."""
   onTokenLifecycleEventsCreated(
     """The token contract address."""
@@ -9707,6 +9884,7 @@ type Subscription {
     """The network ID the token is deployed on."""
     networkId: Int
   ): AddTokenLifecycleEventsOutput!
+  onLaunchpadTokenEvent(input: OnLaunchpadTokenEventInput): LaunchpadTokenEventOutput!
 }
 
 type SuiNetworkConfig {
@@ -10482,6 +10660,11 @@ input TokenFilters {
   """
   includeScams: Boolean
 
+  """
+  Whether to filter for tokens on testnet networks. Use `true` for testnet tokens only, `false` for mainnet tokens only and `undefined` (default) for both.
+  """
+  isTestnet: Boolean
+
   """Only include verified tokens"""
   isVerified: Boolean
 
@@ -10493,6 +10676,27 @@ input TokenFilters {
 
   """The address of the creator of the token"""
   creatorAddress: String
+
+  """Indicates if the launchpad is completed"""
+  launchpadCompleted: Boolean
+
+  """Indicates if the launchpad has migrated"""
+  launchpadMigrated: Boolean
+
+  """The graduation percentage"""
+  launchpadGraduationPercent: NumberFilter
+
+  """The timestamp when the launchpad was completed"""
+  launchpadCompletedAt: NumberFilter
+
+  """The timestamp when the launchpad was migrated"""
+  launchpadMigratedAt: NumberFilter
+
+  """The token in freezable"""
+  freezable: Boolean
+
+  """The token in mintable"""
+  mintable: Boolean
 }
 
 """Metadata for a token."""
@@ -10765,6 +10969,7 @@ enum TokenRankingAttribute {
   sellCount12
   sellCount24
   trendingScore
+  trendingScore5m
   trendingScore1
   trendingScore4
   trendingScore12
@@ -10794,6 +10999,9 @@ enum TokenRankingAttribute {
   volume4
   volume12
   volume24
+  launchpadCompletedAt
+  launchpadMigratedAt
+  graduationPercent
 }
 
 """Response returned by `searchTokens`."""
@@ -10828,6 +11036,93 @@ input TokenSparklineInput {
   The contract address & networkId of the token, joined by a colon. ex: 0xbe042e9d09cb588331ff911c2b46fd833a3e5bd6:1
   """
   ids: [String!]!
+}
+
+"""A top trader for a token."""
+type TokenTopTrader {
+  """The wallet address of the trader."""
+  walletAddress: String!
+
+  """The token address."""
+  tokenAddress: String!
+
+  """The network ID."""
+  networkId: Int!
+
+  """The amount of tokens bought."""
+  tokenAmountBought: String!
+
+  """The amount of tokens sold."""
+  tokenAmountSold: String!
+
+  """The amount of tokens bought in USD."""
+  amountBoughtUsd: String!
+
+  """The amount of tokens sold in USD."""
+  amountSoldUsd: String!
+
+  """The volume of tokens bought and sold in USD."""
+  volumeUsd: String!
+
+  """The realized profit in USD."""
+  realizedProfitUsd: String!
+
+  """The realized profit percentage."""
+  realizedProfitPercentage: Float!
+
+  """The single token acquisition cost in USD."""
+  singleTokenAcquisitionCostUsd: String!
+
+  """The number of buys."""
+  buys: Int!
+
+  """The number of sells."""
+  sells: Int!
+
+  """The token balance of the trader."""
+  tokenBalance: String!
+
+  """The unix timestamp for the first transaction from this wallet."""
+  firstTransactionAt: Int
+
+  """The unix timestamp for the last transaction from this wallet."""
+  lastTransactionAt: Int!
+}
+
+"""A paginated list of top traders for a token."""
+type TokenTopTradersConnection {
+  """The token address."""
+  tokenAddress: String!
+
+  """The network ID."""
+  networkId: Int!
+
+  """The trading period."""
+  tradingPeriod: TradingPeriod!
+
+  """The list of top traders."""
+  items: [TokenTopTrader]!
+
+  """The offset of the first trader in the connection."""
+  offset: Int
+}
+
+"""Input arguments for the `tokenTopTraders` query."""
+input TokenTopTradersInput {
+  """The token address"""
+  tokenAddress: String!
+
+  """The network ID"""
+  networkId: Int!
+
+  """The trading period"""
+  tradingPeriod: TradingPeriod!
+
+  """The number of traders to return"""
+  limit: Int
+
+  """Where in the list the server started when returning items"""
+  offset: Int
 }
 
 """A token with metadata."""
@@ -10949,6 +11244,14 @@ type TokenWithMetadata {
 
   """The unix timestamp for the token's last transaction."""
   lastTransaction: Int
+}
+
+"""A time period used when calculating wallet trading data."""
+enum TradingPeriod {
+  DAY
+  WEEK
+  MONTH
+  YEAR
 }
 
 """An unconfirmed token transaction."""
