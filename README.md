@@ -97,7 +97,7 @@ This shows how you could use it in a NextJS project.
 
 - `cd examples/next`
 - `bun i`
-- `NEXT_PUBLIC_CODEX_API_KEY=xyz bun run dev`
+- `CODEX_API_KEY=xyz bun run dev`
 
 ## Releasing a new version
 
