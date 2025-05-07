@@ -1313,6 +1313,9 @@ type Event {
 
   """Labels attributed to the event."""
   labels: LabelsForEvent
+
+  """The age of the wallet in seconds."""
+  walletAge: Int
 }
 
 """Response returned by `getTokenEvents`."""
@@ -6608,6 +6611,30 @@ type PairFilterResult {
   """The trade volume in USD in the past 24 hours."""
   volumeUSD24: String
 
+  """The buy volume in USD in the past hour."""
+  buyVolumeUSD1: String
+
+  """The buy volume in USD in the past 12 hours."""
+  buyVolumeUSD12: String
+
+  """The buy volume in USD in the past 24 hours."""
+  buyVolumeUSD24: String
+
+  """The buy volume in USD in the past 4 hours."""
+  buyVolumeUSD4: String
+
+  """The sell volume in USD in the past hour."""
+  sellVolumeUSD1: String
+
+  """The sell volume in USD in the past 12 hours."""
+  sellVolumeUSD12: String
+
+  """The sell volume in USD in the past 24 hours."""
+  sellVolumeUSD24: String
+
+  """The sell volume in USD in the past 4 hours."""
+  sellVolumeUSD4: String
+
   """The average age of the wallets that traded in the last 24h"""
   walletAgeAvg: String
 
@@ -6784,6 +6811,30 @@ input PairFilters {
 
   """The trade volume in USD in the past 4 hours."""
   volumeUSD4: NumberFilter
+
+  """The buy volume in USD in the past hour."""
+  buyVolumeUSD1: NumberFilter
+
+  """The buy volume in USD in the past 12 hours."""
+  buyVolumeUSD12: NumberFilter
+
+  """The buy volume in USD in the past 24 hours."""
+  buyVolumeUSD24: NumberFilter
+
+  """The buy volume in USD in the past 4 hours."""
+  buyVolumeUSD4: NumberFilter
+
+  """The sell volume in USD in the past hour."""
+  sellVolumeUSD1: NumberFilter
+
+  """The sell volume in USD in the past 12 hours."""
+  sellVolumeUSD12: NumberFilter
+
+  """The sell volume in USD in the past 24 hours."""
+  sellVolumeUSD24: NumberFilter
+
+  """The sell volume in USD in the past 4 hours."""
+  sellVolumeUSD4: NumberFilter
 
   """Filter potential Scams"""
   potentialScam: Boolean
@@ -7024,6 +7075,14 @@ enum PairRankingAttribute {
   volumeUSD4
   volumeUSD12
   volumeUSD24
+  buyVolumeUSD1
+  buyVolumeUSD4
+  buyVolumeUSD12
+  buyVolumeUSD24
+  sellVolumeUSD1
+  sellVolumeUSD4
+  sellVolumeUSD12
+  sellVolumeUSD24
   walletAgeAvg
   walletAgeStd
   swapPct1dOldWallet
@@ -9953,6 +10012,7 @@ type Subscription {
     """The network ID the token is deployed on."""
     networkId: Int
   ): AddTokenLifecycleEventsOutput!
+  onLaunchpadTokenEventBatch: [LaunchpadTokenEventOutput!]!
   onLaunchpadTokenEvent(input: OnLaunchpadTokenEventInput): LaunchpadTokenEventOutput!
 }
 
@@ -10514,6 +10574,36 @@ type TokenFilterResult {
   """The trade volume in USD in the past 4 hours."""
   volume4: String
 
+  """The buy volume in USD in the past hour."""
+  buyVolume1: String
+
+  """The buy volume in USD in the past 12 hours."""
+  buyVolume12: String
+
+  """The buy volume in USD in the past 24 hours."""
+  buyVolume24: String
+
+  """The buy volume in USD in the past 4 hours."""
+  buyVolume4: String
+
+  """The buy volume in USD in the past 5 minutes."""
+  buyVolume5m: String
+
+  """The sell volume in USD in the past hour."""
+  sellVolume1: String
+
+  """The sell volume in USD in the past 12 hours."""
+  sellVolume12: String
+
+  """The sell volume in USD in the past 24 hours."""
+  sellVolume24: String
+
+  """The sell volume in USD in the past 4 hours."""
+  sellVolume4: String
+
+  """The sell volume in USD in the past 5 minutes."""
+  sellVolume5m: String
+
   """Whether the token has been flagged as a scam."""
   isScam: Boolean
 
@@ -10741,6 +10831,36 @@ input TokenFilters {
 
   """The trade volume in USD in the past 5 minutes."""
   volume5m: NumberFilter
+
+  """The buy volume in USD in the past hour."""
+  buyVolume1: NumberFilter
+
+  """The buy volume in USD in the past 12 hours."""
+  buyVolume12: NumberFilter
+
+  """The buy volume in USD in the past 24 hours."""
+  buyVolume24: NumberFilter
+
+  """The buy volume in USD in the past 4 hours."""
+  buyVolume4: NumberFilter
+
+  """The buy volume in USD in the past 5 minutes."""
+  buyVolume5m: NumberFilter
+
+  """The sell volume in USD in the past hour."""
+  sellVolume1: NumberFilter
+
+  """The sell volume in USD in the past 12 hours."""
+  sellVolume12: NumberFilter
+
+  """The sell volume in USD in the past 24 hours."""
+  sellVolume24: NumberFilter
+
+  """The sell volume in USD in the past 4 hours."""
+  sellVolume4: NumberFilter
+
+  """The sell volume in USD in the past 5 minutes."""
+  sellVolume5m: NumberFilter
 
   """
   Whether to include tokens that have been flagged as scams. Default: false
@@ -11107,6 +11227,16 @@ enum TokenRankingAttribute {
   volume4
   volume12
   volume24
+  buyVolume5m
+  buyVolume1
+  buyVolume4
+  buyVolume12
+  buyVolume24
+  sellVolume5m
+  sellVolume1
+  sellVolume4
+  sellVolume12
+  sellVolume24
   launchpadCompletedAt
   launchpadMigratedAt
   graduationPercent

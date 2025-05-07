@@ -1018,6 +1018,8 @@ export type Event = {
   transactionHash: Scalars['String']['output'];
   /** The index of the transaction within the block. */
   transactionIndex: Scalars['Int']['output'];
+  /** The age of the wallet in seconds. */
+  walletAge?: Maybe<Scalars['Int']['output']>;
 };
 
 /** Response returned by `getTokenEvents`. */
@@ -4889,6 +4891,14 @@ export type PairFilterResult = {
   buyCount12?: Maybe<Scalars['Int']['output']>;
   /** The number of buys in the past 24 hours. */
   buyCount24?: Maybe<Scalars['Int']['output']>;
+  /** The buy volume in USD in the past hour. */
+  buyVolumeUSD1?: Maybe<Scalars['String']['output']>;
+  /** The buy volume in USD in the past 4 hours. */
+  buyVolumeUSD4?: Maybe<Scalars['String']['output']>;
+  /** The buy volume in USD in the past 12 hours. */
+  buyVolumeUSD12?: Maybe<Scalars['String']['output']>;
+  /** The buy volume in USD in the past 24 hours. */
+  buyVolumeUSD24?: Maybe<Scalars['String']['output']>;
   /** The unix timestamp for the creation of the pair. */
   createdAt?: Maybe<Scalars['Int']['output']>;
   /** Exchange metadata for the pair. */
@@ -4943,6 +4953,14 @@ export type PairFilterResult = {
   sellCount12?: Maybe<Scalars['Int']['output']>;
   /** The number of sells in the past 24 hours. */
   sellCount24?: Maybe<Scalars['Int']['output']>;
+  /** The sell volume in USD in the past hour. */
+  sellVolumeUSD1?: Maybe<Scalars['String']['output']>;
+  /** The sell volume in USD in the past 4 hours. */
+  sellVolumeUSD4?: Maybe<Scalars['String']['output']>;
+  /** The sell volume in USD in the past 12 hours. */
+  sellVolumeUSD12?: Maybe<Scalars['String']['output']>;
+  /** The sell volume in USD in the past 24 hours. */
+  sellVolumeUSD24?: Maybe<Scalars['String']['output']>;
   /** The percentage of wallets that are less than 1d old that have traded in the last 24h */
   swapPct1dOldWallet?: Maybe<Scalars['String']['output']>;
   /** The percentage of wallets that are less than 7d old that have traded in the last 24h */
@@ -5015,6 +5033,14 @@ export type PairFilters = {
   buyCount12?: InputMaybe<NumberFilter>;
   /** The number of buys in the past 24 hours. */
   buyCount24?: InputMaybe<NumberFilter>;
+  /** The buy volume in USD in the past hour. */
+  buyVolumeUSD1?: InputMaybe<NumberFilter>;
+  /** The buy volume in USD in the past 4 hours. */
+  buyVolumeUSD4?: InputMaybe<NumberFilter>;
+  /** The buy volume in USD in the past 12 hours. */
+  buyVolumeUSD12?: InputMaybe<NumberFilter>;
+  /** The buy volume in USD in the past 24 hours. */
+  buyVolumeUSD24?: InputMaybe<NumberFilter>;
   /** The unix timestamp for the creation of the pair. */
   createdAt?: InputMaybe<NumberFilter>;
   /** The list of exchange contract addresses to filter by. */
@@ -5065,6 +5091,14 @@ export type PairFilters = {
   sellCount12?: InputMaybe<NumberFilter>;
   /** The number of sells in the past 24 hours. */
   sellCount24?: InputMaybe<NumberFilter>;
+  /** The sell volume in USD in the past hour. */
+  sellVolumeUSD1?: InputMaybe<NumberFilter>;
+  /** The sell volume in USD in the past 4 hours. */
+  sellVolumeUSD4?: InputMaybe<NumberFilter>;
+  /** The sell volume in USD in the past 12 hours. */
+  sellVolumeUSD12?: InputMaybe<NumberFilter>;
+  /** The sell volume in USD in the past 24 hours. */
+  sellVolumeUSD24?: InputMaybe<NumberFilter>;
   /** The percentage of wallets that are less than 1d old that have traded in the last 24h */
   swapPct1dOldWallet?: InputMaybe<NumberFilter>;
   /** The percentage of wallets that are less than 7d old that have traded in the last 24h */
@@ -5239,6 +5273,10 @@ export enum PairRankingAttribute {
   BuyCount4 = 'buyCount4',
   BuyCount12 = 'buyCount12',
   BuyCount24 = 'buyCount24',
+  BuyVolumeUsd1 = 'buyVolumeUSD1',
+  BuyVolumeUsd4 = 'buyVolumeUSD4',
+  BuyVolumeUsd12 = 'buyVolumeUSD12',
+  BuyVolumeUsd24 = 'buyVolumeUSD24',
   CreatedAt = 'createdAt',
   HighPrice1 = 'highPrice1',
   HighPrice4 = 'highPrice4',
@@ -5261,6 +5299,10 @@ export enum PairRankingAttribute {
   SellCount4 = 'sellCount4',
   SellCount12 = 'sellCount12',
   SellCount24 = 'sellCount24',
+  SellVolumeUsd1 = 'sellVolumeUSD1',
+  SellVolumeUsd4 = 'sellVolumeUSD4',
+  SellVolumeUsd12 = 'sellVolumeUSD12',
+  SellVolumeUsd24 = 'sellVolumeUSD24',
   SwapPct1dOldWallet = 'swapPct1dOldWallet',
   SwapPct7dOldWallet = 'swapPct7dOldWallet',
   TrendingScore = 'trendingScore',
@@ -7330,6 +7372,7 @@ export type Subscription = {
   onLatestPairUpdated?: Maybe<LatestPair>;
   onLatestTokens?: Maybe<LatestToken>;
   onLaunchpadTokenEvent: LaunchpadTokenEventOutput;
+  onLaunchpadTokenEventBatch: Array<LaunchpadTokenEventOutput>;
   /** Live-streamed transactions for an NFT asset. */
   onNftAssetsCreated?: Maybe<NftAsset>;
   /** Live-streamed transactions for an NFT collection. */
@@ -7732,6 +7775,16 @@ export type TokenFilterResult = {
   buyCount12?: Maybe<Scalars['Int']['output']>;
   /** The number of buys in the past 24 hours. */
   buyCount24?: Maybe<Scalars['Int']['output']>;
+  /** The buy volume in USD in the past hour. */
+  buyVolume1?: Maybe<Scalars['String']['output']>;
+  /** The buy volume in USD in the past 4 hours. */
+  buyVolume4?: Maybe<Scalars['String']['output']>;
+  /** The buy volume in USD in the past 5 minutes. */
+  buyVolume5m?: Maybe<Scalars['String']['output']>;
+  /** The buy volume in USD in the past 12 hours. */
+  buyVolume12?: Maybe<Scalars['String']['output']>;
+  /** The buy volume in USD in the past 24 hours. */
+  buyVolume24?: Maybe<Scalars['String']['output']>;
   /** The percent price change in the past hour. Decimal format. */
   change1?: Maybe<Scalars['String']['output']>;
   /** The percent price change in the past 4 hours. Decimal format. */
@@ -7794,6 +7847,16 @@ export type TokenFilterResult = {
   sellCount12?: Maybe<Scalars['Int']['output']>;
   /** The number of sells in the past 24 hours. */
   sellCount24?: Maybe<Scalars['Int']['output']>;
+  /** The sell volume in USD in the past hour. */
+  sellVolume1?: Maybe<Scalars['String']['output']>;
+  /** The sell volume in USD in the past 4 hours. */
+  sellVolume4?: Maybe<Scalars['String']['output']>;
+  /** The sell volume in USD in the past 5 minutes. */
+  sellVolume5m?: Maybe<Scalars['String']['output']>;
+  /** The sell volume in USD in the past 12 hours. */
+  sellVolume12?: Maybe<Scalars['String']['output']>;
+  /** The sell volume in USD in the past 24 hours. */
+  sellVolume24?: Maybe<Scalars['String']['output']>;
   /** The percentage of wallets that are less than 1d old that have traded in the last 24h */
   swapPct1dOldWallet?: Maybe<Scalars['String']['output']>;
   /** The percentage of wallets that are less than 7d old that have traded in the last 24h */
@@ -7880,6 +7943,16 @@ export type TokenFilters = {
   buyCount12?: InputMaybe<NumberFilter>;
   /** The number of buys in the past 24 hours. */
   buyCount24?: InputMaybe<NumberFilter>;
+  /** The buy volume in USD in the past hour. */
+  buyVolume1?: InputMaybe<NumberFilter>;
+  /** The buy volume in USD in the past 4 hours. */
+  buyVolume4?: InputMaybe<NumberFilter>;
+  /** The buy volume in USD in the past 5 minutes. */
+  buyVolume5m?: InputMaybe<NumberFilter>;
+  /** The buy volume in USD in the past 12 hours. */
+  buyVolume12?: InputMaybe<NumberFilter>;
+  /** The buy volume in USD in the past 24 hours. */
+  buyVolume24?: InputMaybe<NumberFilter>;
   /** The percent price change in the past hour. Decimal format. */
   change1?: InputMaybe<NumberFilter>;
   /** The percent price change in the past 4 hours. Decimal format. */
@@ -7968,6 +8041,16 @@ export type TokenFilters = {
   sellCount12?: InputMaybe<NumberFilter>;
   /** The number of sells in the past 24 hours. */
   sellCount24?: InputMaybe<NumberFilter>;
+  /** The sell volume in USD in the past hour. */
+  sellVolume1?: InputMaybe<NumberFilter>;
+  /** The sell volume in USD in the past 4 hours. */
+  sellVolume4?: InputMaybe<NumberFilter>;
+  /** The sell volume in USD in the past 5 minutes. */
+  sellVolume5m?: InputMaybe<NumberFilter>;
+  /** The sell volume in USD in the past 12 hours. */
+  sellVolume12?: InputMaybe<NumberFilter>;
+  /** The sell volume in USD in the past 24 hours. */
+  sellVolume24?: InputMaybe<NumberFilter>;
   /** The percentage of wallets that are less than 1d old that have traded in the last 24h */
   swapPct1dOldWallet?: InputMaybe<NumberFilter>;
   /** The percentage of wallets that are less than 7d old that have traded in the last 24h */
@@ -8238,6 +8321,11 @@ export enum TokenRankingAttribute {
   BuyCount5m = 'buyCount5m',
   BuyCount12 = 'buyCount12',
   BuyCount24 = 'buyCount24',
+  BuyVolume1 = 'buyVolume1',
+  BuyVolume4 = 'buyVolume4',
+  BuyVolume5m = 'buyVolume5m',
+  BuyVolume12 = 'buyVolume12',
+  BuyVolume24 = 'buyVolume24',
   Change1 = 'change1',
   Change4 = 'change4',
   Change5m = 'change5m',
@@ -8268,6 +8356,11 @@ export enum TokenRankingAttribute {
   SellCount5m = 'sellCount5m',
   SellCount12 = 'sellCount12',
   SellCount24 = 'sellCount24',
+  SellVolume1 = 'sellVolume1',
+  SellVolume4 = 'sellVolume4',
+  SellVolume5m = 'sellVolume5m',
+  SellVolume12 = 'sellVolume12',
+  SellVolume24 = 'sellVolume24',
   SwapPct1dOldWallet = 'swapPct1dOldWallet',
   SwapPct7dOldWallet = 'swapPct7dOldWallet',
   TrendingScore = 'trendingScore',
