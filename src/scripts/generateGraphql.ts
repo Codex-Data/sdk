@@ -215,14 +215,12 @@ async function run() {
 
   for (const field of subscriptionType.fields) {
     const args = field.args;
-    const parsedVariables = parseVariables(args);
+    const parsedVariables = parseVariables(args) ?? {};
     const parsedFields = getLeafType(field.type, types, [], "").filter(Boolean);
 
     const subscriptionBuilderObject = gql.subscription({
       operation: field.name,
-      variables: Object.keys(parsedVariables).length
-        ? parsedVariables
-        : undefined,
+      variables: parsedVariables,
       fields: parsedFields.length ? parsedFields : undefined,
     });
     console.log(`Writing subscription: ${field.name}.graphql`);

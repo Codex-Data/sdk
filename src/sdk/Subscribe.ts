@@ -18,6 +18,8 @@ import {
   OnLatestPairUpdatedSubscriptionVariables,
   OnLatestTokensSubscription,
   OnLatestTokensSubscriptionVariables,
+  OnLaunchpadTokenEventBatchSubscription,
+  OnLaunchpadTokenEventBatchSubscriptionVariables,
   OnLaunchpadTokenEventSubscription,
   OnLaunchpadTokenEventSubscriptionVariables,
   OnNftAssetsCreatedSubscription,
@@ -121,7 +123,7 @@ export class Subscribe {
     this.sdk.subscribe(
       `subscription OnEventsCreated($address: String, $id: String, $networkId: Int, $quoteToken: QuoteToken) {
   onEventsCreated (address: $address, id: $id, networkId: $networkId, quoteToken: $quoteToken) {
-    address, events { address, baseTokenPrice, blockHash, blockNumber, data { ... on BurnEventData { amount0, amount0Shifted, amount1, amount1Shifted, tickLower, tickUpper, type }, ... on MintEventData { amount0, amount0Shifted, amount1, amount1Shifted, tickLower, tickUpper, type }, ... on PoolBalanceChangedEventData { amount0, amount0Shifted, amount1, amount1Shifted, liquidity0, liquidity1, protocolFeeAmount0, protocolFeeAmount1, sender, token0, token1, type }, ... on SwapEventData { amount0, amount0In, amount0Out, amount1, amount1In, amount1Out, amountNonLiquidityToken, priceBaseToken, priceBaseTokenTotal, priceUsd, priceUsdTotal, tick, type } }, eventDisplayType, eventType, id, labels { sandwich { label, sandwichType, token0DrainedAmount, token1DrainedAmount }, washtrade { label } }, liquidityToken, logIndex, maker, networkId, quoteToken, timestamp, token0Address, token0PoolValueUsd, token0SwapValueUsd, token0ValueBase, token1Address, token1PoolValueUsd, token1SwapValueUsd, token1ValueBase, transactionHash, transactionIndex }, id, networkId, quoteToken
+    address, events { address, baseTokenPrice, blockHash, blockNumber, data { ... on BurnEventData { amount0, amount0Shifted, amount1, amount1Shifted, tickLower, tickUpper, type }, ... on MintEventData { amount0, amount0Shifted, amount1, amount1Shifted, tickLower, tickUpper, type }, ... on PoolBalanceChangedEventData { amount0, amount0Shifted, amount1, amount1Shifted, liquidity0, liquidity1, protocolFeeAmount0, protocolFeeAmount1, sender, token0, token1, type }, ... on SwapEventData { amount0, amount0In, amount0Out, amount1, amount1In, amount1Out, amountNonLiquidityToken, priceBaseToken, priceBaseTokenTotal, priceUsd, priceUsdTotal, tick, type } }, eventDisplayType, eventType, id, labels { sandwich { label, sandwichType, token0DrainedAmount, token1DrainedAmount }, washtrade { label } }, liquidityToken, logIndex, maker, networkId, quoteToken, timestamp, token0Address, token0PoolValueUsd, token0SwapValueUsd, token0ValueBase, token1Address, token1PoolValueUsd, token1SwapValueUsd, token1ValueBase, transactionHash, transactionIndex, walletAge }, id, networkId, quoteToken
   }
 }`,
       vars,
@@ -295,7 +297,7 @@ export class Subscribe {
     this.sdk.subscribe(
       `subscription OnTokenEventsCreated($input: OnTokenEventsCreatedInput!) {
   onTokenEventsCreated (input: $input) {
-    events { address, baseTokenPrice, blockHash, blockNumber, data { ... on BurnEventData { amount0, amount0Shifted, amount1, amount1Shifted, tickLower, tickUpper, type }, ... on MintEventData { amount0, amount0Shifted, amount1, amount1Shifted, tickLower, tickUpper, type }, ... on PoolBalanceChangedEventData { amount0, amount0Shifted, amount1, amount1Shifted, liquidity0, liquidity1, protocolFeeAmount0, protocolFeeAmount1, sender, token0, token1, type }, ... on SwapEventData { amount0, amount0In, amount0Out, amount1, amount1In, amount1Out, amountNonLiquidityToken, priceBaseToken, priceBaseTokenTotal, priceUsd, priceUsdTotal, tick, type } }, eventDisplayType, eventType, id, labels { sandwich { label, sandwichType, token0DrainedAmount, token1DrainedAmount }, washtrade { label } }, liquidityToken, logIndex, maker, networkId, quoteToken, timestamp, token0Address, token0PoolValueUsd, token0SwapValueUsd, token0ValueBase, token1Address, token1PoolValueUsd, token1SwapValueUsd, token1ValueBase, transactionHash, transactionIndex }, id
+    events { address, baseTokenPrice, blockHash, blockNumber, data { ... on BurnEventData { amount0, amount0Shifted, amount1, amount1Shifted, tickLower, tickUpper, type }, ... on MintEventData { amount0, amount0Shifted, amount1, amount1Shifted, tickLower, tickUpper, type }, ... on PoolBalanceChangedEventData { amount0, amount0Shifted, amount1, amount1Shifted, liquidity0, liquidity1, protocolFeeAmount0, protocolFeeAmount1, sender, token0, token1, type }, ... on SwapEventData { amount0, amount0In, amount0Out, amount1, amount1In, amount1Out, amountNonLiquidityToken, priceBaseToken, priceBaseTokenTotal, priceUsd, priceUsdTotal, tick, type } }, eventDisplayType, eventType, id, labels { sandwich { label, sandwichType, token0DrainedAmount, token1DrainedAmount }, washtrade { label } }, liquidityToken, logIndex, maker, networkId, quoteToken, timestamp, token0Address, token0PoolValueUsd, token0SwapValueUsd, token0ValueBase, token1Address, token1PoolValueUsd, token1SwapValueUsd, token1ValueBase, transactionHash, transactionIndex, walletAge }, id
   }
 }`,
       vars,
@@ -335,6 +337,19 @@ export class Subscribe {
       `subscription OnUnconfirmedBarsUpdated($pairId: String, $quoteToken: QuoteToken) {
   onUnconfirmedBarsUpdated (pairId: $pairId, quoteToken: $quoteToken) {
     aggregates { r1 { c, h, l, o, t, v, volume }, r1S { c, h, l, o, t, v, volume }, r5 { c, h, l, o, t, v, volume }, r5S { c, h, l, o, t, v, volume }, r15 { c, h, l, o, t, v, volume }, r15S { c, h, l, o, t, v, volume } }, eventSortKey, networkId, pairAddress, pairId, quoteToken, quoteTokenAddress, timestamp
+  }
+}`,
+      vars,
+      sink,
+    );
+  onLaunchpadTokenEventBatch = async (
+    vars: OnLaunchpadTokenEventBatchSubscriptionVariables,
+    sink: Sink<ExecutionResult<OnLaunchpadTokenEventBatchSubscription>>,
+  ) =>
+    this.sdk.subscribe(
+      `subscription OnLaunchpadTokenEventBatch {
+  onLaunchpadTokenEventBatch {
+    address, buyCount1, eventType, holders, marketCap, networkId, price, protocol, sellCount1, token { address, cmcId, createBlockNumber, createTransactionHash, createdAt, creatorAddress, decimals, exchanges { address, color, exchangeVersion, iconUrl, id, name, networkId, tradeUrl }, freezable, id, info { address, circulatingSupply, cmcId, description, id, imageBannerUrl, imageLargeUrl, imageSmallUrl, imageThumbUrl, isScam, name, networkId, symbol, totalSupply }, isScam, launchpad { completed, completedAt, completedSlot, graduationPercent, launchpadProtocol, migrated, migratedAt, migratedPoolAddress, migratedSlot, name, poolAddress }, mintable, name, networkId, socialLinks { bitcointalk, blog, coingecko, coinmarketcap, discord, email, facebook, github, instagram, linkedin, reddit, slack, telegram, twitch, twitter, website, wechat, whitepaper, youtube }, symbol }, transactions1, volume1
   }
 }`,
       vars,
