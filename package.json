@@ -10,7 +10,6 @@
     "build": "bun run fetch:schema && bun run src/scripts/generateGraphql.ts && bun run src/scripts/buildSdk.ts && bun run codegen && bun run lint ./src/sdk --fix && bun run eslint --no-ignore ./src/resources/**/*.graphql --fix && bun run tsc",
     "fetch:schema": "curl -s https://graph.codex.io/schema/latest.graphql --output src/resources/schema.graphql",
     "codegen": "graphql-codegen --config codegen.ts",
-    "prepack": "cp -R src/resources/* dist/resources/",
     "lint": "eslint --ext .ts src",
     "test": "jest"
   },
