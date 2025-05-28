@@ -169,17 +169,17 @@ export type BalancesInput = {
   /** A cursor for use in pagination. */
   cursor?: InputMaybe<Scalars['String']['input']>;
   /**
-   * Optional token specifically request the balance for.
+   * Optional token specifically request the balance for. Only works with `walletId`.
    * @deprecated Use tokens list instead
    */
   filterToken?: InputMaybe<Scalars['String']['input']>;
-  /** If set to true, native tokens in the response, they will have the id: native:<networkId> */
+  /** Whether to include native network balances in the response (ID will be native:<networkId>). Requires a list of `networks`. Does not apply when using `tokens`. */
   includeNative?: InputMaybe<Scalars['Boolean']['input']>;
-  /** The maximum number of holdings to return. */
+  /** The maximum number of holdings to return. Does not apply when using `tokens`. */
   limit?: InputMaybe<Scalars['Int']['input']>;
   /** The network IDs to filter by. */
   networks?: InputMaybe<Array<Scalars['Int']['input']>>;
-  /** The token IDs (`address:networkId`) or addresses to request the balance for. Only applied when using `walletAddress` and `networks` (not `walletId`). */
+  /** The token IDs (`address:networkId`) or addresses to request the balance for. Requires a list of `networks` if only passing addresses. Include native network balances using `native` as the token address. Only applied when using `walletAddress` (not `walletId`). Max 200 tokens. */
   tokens?: InputMaybe<Array<Scalars['String']['input']>>;
   /** The wallet address to filter by. */
   walletAddress?: InputMaybe<Scalars['String']['input']>;
@@ -852,6 +852,48 @@ export enum DetailedStatsWindowSize {
   Min5 = 'min5'
 }
 
+/** The detailed stats for a wallet. */
+export type DetailedWalletStats = {
+  __typename?: 'DetailedWalletStats';
+  /** The likelihood of the wallet being a bot */
+  botScore?: Maybe<Scalars['Int']['output']>;
+  /** The labels associated with the wallet */
+  labels: Array<Scalars['String']['output']>;
+  /** The last transaction timestamp */
+  lastTransactionAt: Scalars['Int']['output'];
+  /** The network breakdown */
+  networkBreakdown?: Maybe<Array<NetworkBreakdown>>;
+  /**
+   * The network specific stats
+   * @deprecated Use networkBreakdown instead
+   */
+  networkSpecificStats?: Maybe<Array<NetworkWalletStats>>;
+  /** The likelihood of the wallet being a scammer */
+  scammerScore?: Maybe<Scalars['Int']['output']>;
+  /** The stats for the last day */
+  statsDay1?: Maybe<WindowedWalletStats>;
+  /** The stats for the last 30 days */
+  statsDay30?: Maybe<WindowedWalletStats>;
+  /** The stats for the last week */
+  statsWeek1?: Maybe<WindowedWalletStats>;
+  /** The stats for the last year */
+  statsYear1?: Maybe<WindowedWalletStats>;
+  /** The wallet address */
+  walletAddress: Scalars['String']['output'];
+};
+
+/** The input for detailed wallet stats. */
+export type DetailedWalletStatsInput = {
+  /** Whether to include network breakdown stats */
+  includeNetworkBreakdown?: InputMaybe<Scalars['Boolean']['input']>;
+  /** The network ID */
+  networkId?: InputMaybe<Scalars['Int']['input']>;
+  /** The timestamp to get stats for */
+  timestamp?: InputMaybe<Scalars['Int']['input']>;
+  /** The wallet address */
+  walletAddress: Scalars['String']['input'];
+};
+
 /** Metadata for a contract. */
 export type EnhancedContract = EnhancedNftContract | EnhancedToken;
 
@@ -1316,6 +1358,73 @@ export type FilterExchange = {
   tradeUrl?: Maybe<Scalars['String']['output']>;
 };
 
+/** The input for filtering wallets for a network. */
+export type FilterNetworkWalletsInput = {
+  /** Exclude wallets with these labels. */
+  excludeLabels?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  /** A set of filters to apply. */
+  filters?: InputMaybe<WalletNetworkFilters>;
+  /** Include wallets with these labels. */
+  includeLabels?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  /** The maximum number of wallets to return. */
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  /** The network ID to filter wallets for */
+  networkId: Scalars['Int']['input'];
+  /** Where in the list the server should start when returning items. Use `count`+`offset` from the previous query to request the next page of results. */
+  offset?: InputMaybe<Scalars['Int']['input']>;
+  /** A list of ranking attributes to apply. */
+  rankings?: InputMaybe<Array<InputMaybe<WalletNetworkRanking>>>;
+  /** A list of wallet addresses to filter by. */
+  wallets?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+};
+
+/** The input for filtering wallets for a token. */
+export type FilterTokenWalletsInput = {
+  /** Exclude wallets with these labels. */
+  excludeLabels?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  /**
+   * A set of filters to apply
+   * @deprecated Use filtersV2 instead
+   */
+  filters?: InputMaybe<WalletTokenFilters>;
+  /** A set of filters to apply */
+  filtersV2?: InputMaybe<WalletTokenFiltersV2>;
+  /** Include wallets with these labels. */
+  includeLabels?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  /** The maximum number of wallets to return */
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  /** The network ID to filter wallets for */
+  networkId?: InputMaybe<Scalars['Int']['input']>;
+  /** Where in the list the server should start when returning items */
+  offset?: InputMaybe<Scalars['Int']['input']>;
+  /** A phrase to search for in token symbol and name */
+  phrase?: InputMaybe<Scalars['String']['input']>;
+  /** A list of ranking attributes to apply */
+  rankings?: InputMaybe<Array<InputMaybe<WalletTokenRanking>>>;
+  /** The ID of the token to filter wallets for */
+  tokenId?: InputMaybe<Scalars['String']['input']>;
+  /** The wallet address to filter wallets for */
+  walletAddress?: InputMaybe<Scalars['String']['input']>;
+};
+
+/** The input for filtering wallets. */
+export type FilterWalletsInput = {
+  /** Exclude wallets with these labels. */
+  excludeLabels?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  /** A set of filters to apply. */
+  filters?: InputMaybe<WalletFilters>;
+  /** Include wallets with these labels. */
+  includeLabels?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  /** The maximum number of wallets to return. */
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  /** Where in the list the server should start when returning items. Use `count`+`offset` from the previous query to request the next page of results. */
+  offset?: InputMaybe<Scalars['Int']['input']>;
+  /** A list of ranking attributes to apply. */
+  rankings?: InputMaybe<Array<InputMaybe<WalletRanking>>>;
+  /** A list of wallet addresses to filter by. */
+  wallets?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+};
+
 /** Metadata for a front-run label. */
 export type FrontRunLabelData = {
   __typename?: 'FrontRunLabelData';
@@ -1375,13 +1484,13 @@ export type GetDetailedPairsStatsInput = {
 
 export type GetGasEstimateInput = {
   customGas?: InputMaybe<Scalars['String']['input']>;
-  exchangeAddress?: InputMaybe<Scalars['String']['input']>;
+  exchangeAddress: Scalars['String']['input'];
   gasPrice?: InputMaybe<GasPrice>;
   inputTokenAddress: Scalars['String']['input'];
   inputTokenAmount: Scalars['String']['input'];
   networkId: Scalars['Int']['input'];
   outputTokenAddress: Scalars['String']['input'];
-  poolAddress?: InputMaybe<Scalars['String']['input']>;
+  poolAddress: Scalars['String']['input'];
   sendWithPrivateRpc?: InputMaybe<Scalars['Boolean']['input']>;
   slippage?: InputMaybe<Scalars['Float']['input']>;
   userId?: InputMaybe<Scalars['Int']['input']>;
@@ -1462,12 +1571,12 @@ export type GetPriceInput = {
 
 export type GetQuoteInput = {
   customGas?: InputMaybe<Scalars['String']['input']>;
-  exchangeAddress?: InputMaybe<Scalars['String']['input']>;
+  exchangeAddress: Scalars['String']['input'];
   inputTokenAddress: Scalars['String']['input'];
   inputTokenAmount: Scalars['String']['input'];
   networkId: Scalars['Int']['input'];
   outputTokenAddress: Scalars['String']['input'];
-  poolAddress?: InputMaybe<Scalars['String']['input']>;
+  poolAddress: Scalars['String']['input'];
   slippage?: InputMaybe<Scalars['Float']['input']>;
   userId?: InputMaybe<Scalars['Int']['input']>;
 };
@@ -1769,6 +1878,8 @@ export type LaunchpadData = {
   completedSlot?: Maybe<Scalars['Int']['output']>;
   /** The percentage of the pool that was sold to the public. */
   graduationPercent?: Maybe<Scalars['Float']['output']>;
+  /** The name of the launchpad. */
+  launchpadName?: Maybe<Scalars['String']['output']>;
   /** The launchpad protocol */
   launchpadProtocol?: Maybe<Scalars['String']['output']>;
   /** Indicates if the launchpad was migrated. */
@@ -1779,7 +1890,10 @@ export type LaunchpadData = {
   migratedPoolAddress?: Maybe<Scalars['String']['output']>;
   /** The slot number when the launchpad was migrated. */
   migratedSlot?: Maybe<Scalars['Int']['output']>;
-  /** The name of the launchpad. */
+  /**
+   * The name of the launchpad.
+   * @deprecated Use launchpadName instead
+   */
   name?: Maybe<Scalars['String']['output']>;
   /** The address of the pool. */
   poolAddress?: Maybe<Scalars['String']['output']>;
@@ -1830,9 +1944,13 @@ export enum LaunchpadTokenEventType {
 
 /** The protocol of the token. */
 export enum LaunchpadTokenProtocol {
+  BoopFun = 'BoopFun',
+  EgoTech = 'EgoTech',
   FourMeme = 'FourMeme',
   Pump = 'Pump',
-  RaydiumLaunchpad = 'RaydiumLaunchpad'
+  Rainbow = 'Rainbow',
+  RaydiumLaunchpad = 'RaydiumLaunchpad',
+  Vertigo = 'Vertigo'
 }
 
 export type LiquidityData = {
@@ -2082,6 +2200,142 @@ export type Network = {
   /** The name of the network. For example, `arbitrum`. */
   name: Scalars['String']['output'];
   networkShortName?: Maybe<Scalars['String']['output']>;
+};
+
+/** A breakdown of the wallet's activity by network. */
+export type NetworkBreakdown = {
+  __typename?: 'NetworkBreakdown';
+  /** The native token balance */
+  nativeTokenBalance: Scalars['String']['output'];
+  /** The network ID */
+  networkId: Scalars['Int']['output'];
+  /** The stats for the last day */
+  statsDay1?: Maybe<WindowedWalletStats>;
+  /** The stats for the last 30 days */
+  statsDay30?: Maybe<WindowedWalletStats>;
+  /** The stats for the last week */
+  statsWeek1?: Maybe<WindowedWalletStats>;
+  /** The stats for the last year */
+  statsYear1?: Maybe<WindowedWalletStats>;
+};
+
+export type NetworkWalletFilterConnection = {
+  __typename?: 'NetworkWalletFilterConnection';
+  /** The number of wallets returned. */
+  count: Scalars['Int']['output'];
+  /** Where in the list the server started when returning items. */
+  offset: Scalars['Int']['output'];
+  /** The list of wallets matching the filter parameters. */
+  results: Array<NetworkWalletFilterResult>;
+};
+
+export type NetworkWalletFilterResult = {
+  __typename?: 'NetworkWalletFilterResult';
+  /** The wallet address */
+  address: Scalars['String']['output'];
+  /** Average profit in USD per trade in the past day */
+  averageProfitUsdPerTrade1d: Scalars['String']['output'];
+  /** Average profit in USD per trade in the past week */
+  averageProfitUsdPerTrade1w: Scalars['String']['output'];
+  /** Average profit in USD per trade in the past year */
+  averageProfitUsdPerTrade1y: Scalars['String']['output'];
+  /** Average profit in USD per trade in the past 30 days */
+  averageProfitUsdPerTrade30d: Scalars['String']['output'];
+  /** Average swap amount in USD in the past day */
+  averageSwapAmountUsd1d: Scalars['String']['output'];
+  /** Average swap amount in USD in the past week */
+  averageSwapAmountUsd1w: Scalars['String']['output'];
+  /** Average swap amount in USD in the past year */
+  averageSwapAmountUsd1y: Scalars['String']['output'];
+  /** Average swap amount in USD in the past 30 days */
+  averageSwapAmountUsd30d: Scalars['String']['output'];
+  /** The bot score for the wallet. */
+  botScore?: Maybe<Scalars['Int']['output']>;
+  /** The unix timestamp for the first transaction from this wallet */
+  firstTransactionAt?: Maybe<Scalars['Int']['output']>;
+  /** The labels associated with the wallet */
+  labels: Array<Scalars['String']['output']>;
+  /** The unix timestamp for the last transaction from this wallet */
+  lastTransactionAt: Scalars['Int']['output'];
+  /** The native token balance of the wallet */
+  nativeTokenBalance: Scalars['String']['output'];
+  /** The network ID of the wallet */
+  networkId: Scalars['Int']['output'];
+  /** Realized profit percentage in the past day */
+  realizedProfitPercentage1d: Scalars['Float']['output'];
+  /** Realized profit percentage in the past week */
+  realizedProfitPercentage1w: Scalars['Float']['output'];
+  /** Realized profit percentage in the past year */
+  realizedProfitPercentage1y: Scalars['Float']['output'];
+  /** Realized profit percentage in the past 30 days */
+  realizedProfitPercentage30d: Scalars['Float']['output'];
+  /** Realized profit in USD in the past day */
+  realizedProfitUsd1d: Scalars['String']['output'];
+  /** Realized profit in USD in the past week */
+  realizedProfitUsd1w: Scalars['String']['output'];
+  /** Realized profit in USD in the past year */
+  realizedProfitUsd1y: Scalars['String']['output'];
+  /** Realized profit in USD in the past 30 days */
+  realizedProfitUsd30d: Scalars['String']['output'];
+  /** The scammer score for the wallet. */
+  scammerScore?: Maybe<Scalars['Int']['output']>;
+  /** Number of swaps in the past day */
+  swaps1d: Scalars['Int']['output'];
+  /** Number of swaps in the past week */
+  swaps1w: Scalars['Int']['output'];
+  /** Number of swaps in the past year */
+  swaps1y: Scalars['Int']['output'];
+  /** Number of swaps in the past 30 days */
+  swaps30d: Scalars['Int']['output'];
+  /** Total number of swaps in the past day including all tokens */
+  swapsAll1d: Scalars['Int']['output'];
+  /** Total number of swaps in the past week including all tokens */
+  swapsAll1w: Scalars['Int']['output'];
+  /** Total number of swaps in the past year including all tokens */
+  swapsAll1y: Scalars['Int']['output'];
+  /** Total number of swaps in the past 30 days including all tokens */
+  swapsAll30d: Scalars['Int']['output'];
+  /** Number of unique tokens traded in the past day */
+  uniqueTokens1d: Scalars['Int']['output'];
+  /** Number of unique tokens traded in the past week */
+  uniqueTokens1w: Scalars['Int']['output'];
+  /** Number of unique tokens traded in the past year */
+  uniqueTokens1y: Scalars['Int']['output'];
+  /** Number of unique tokens traded in the past 30 days */
+  uniqueTokens30d: Scalars['Int']['output'];
+  /** Volume in USD in the past day */
+  volumeUsd1d: Scalars['String']['output'];
+  /** Volume in USD in the past week */
+  volumeUsd1w: Scalars['String']['output'];
+  /** Volume in USD in the past year */
+  volumeUsd1y: Scalars['String']['output'];
+  /** Volume in USD in the past 30 days */
+  volumeUsd30d: Scalars['String']['output'];
+  /** Total volume in USD in the past day including all tokens */
+  volumeUsdAll1d: Scalars['String']['output'];
+  /** Total volume in USD in the past week including all tokens */
+  volumeUsdAll1w: Scalars['String']['output'];
+  /** Total volume in USD in the past year including all tokens */
+  volumeUsdAll1y: Scalars['String']['output'];
+  /** Total volume in USD in the past 30 days including all tokens */
+  volumeUsdAll30d: Scalars['String']['output'];
+  /** Win rate in the past day */
+  winRate1d: Scalars['Float']['output'];
+  /** Win rate in the past week */
+  winRate1w: Scalars['Float']['output'];
+  /** Win rate in the past year */
+  winRate1y: Scalars['Float']['output'];
+  /** Win rate in the past 30 days */
+  winRate30d: Scalars['Float']['output'];
+};
+
+/** Native token balance for a wallet on a network. */
+export type NetworkWalletStats = {
+  __typename?: 'NetworkWalletStats';
+  /** The native token balance */
+  nativeTokenBalance: Scalars['String']['output'];
+  /** The network ID */
+  networkId: Scalars['Int']['output'];
 };
 
 /** Event data for creating a new NFT pool. */
@@ -4853,7 +5107,7 @@ export type PairChartSettings = {
   pairAddress: Scalars['String']['input'];
   /** The token of interest within the token's top pair. Can be `token0` or `token1`. */
   quoteToken?: InputMaybe<QuoteToken>;
-  /** The time frame for each candle. Available options are `1`, `5`, `15`, `30`, `60`, `240`, `720`, `1D`, `7D`. */
+  /** The time frame for each candle. Available options are `1S`, `5S`, `15S`, `30S`, `1`, `5`, `15`, `30`, `60`, `240`, `720`, `1D`, `7D`. */
   resolution?: InputMaybe<Scalars['String']['input']>;
   /** The color theme of the chart. */
   theme?: InputMaybe<ChartTheme>;
@@ -6200,8 +6454,15 @@ export type Query = {
   balances: BalancesResponse;
   /** Returns a URL for a pair chart. */
   chartUrls?: Maybe<ChartUrlsResponse>;
+  /** Returns detailed stats for a wallet. */
+  detailedWalletStats?: Maybe<DetailedWalletStats>;
   /** Returns a list of exchanges based on a variety of filters. */
   filterExchanges?: Maybe<ExchangeFilterConnection>;
+  /**
+   * Returns a list of wallets with stats narrowed down to a specific network.
+   * @deprecated Use filterWallets instead
+   */
+  filterNetworkWallets: NetworkWalletFilterConnection;
   /** Returns a list of NFT collection based on a variety of filters. */
   filterNftCollections?: Maybe<NftCollectionFilterConnection>;
   /** Returns a list of Parallel assets based on a variety of filters. */
@@ -6212,8 +6473,12 @@ export type Query = {
   filterNftPools?: Maybe<NftPoolFilterConnection>;
   /** Returns a list of pairs based on a variety of filters. */
   filterPairs?: Maybe<PairFilterConnection>;
+  /** Returns a list of wallets with stats narrowed down to a specific token. */
+  filterTokenWallets: TokenWalletFilterConnection;
   /** Returns a list of tokens based on a variety of filters. */
   filterTokens?: Maybe<TokenFilterConnection>;
+  /** Returns a list of wallets based on a variety of filters. */
+  filterWallets: WalletFilterConnection;
   /** Returns bar chart data to track price changes over time. */
   getBars?: Maybe<BarsResponse>;
   /** Returns community gathered notes. */
@@ -6324,6 +6589,8 @@ export type Query = {
   tokens: Array<Maybe<EnhancedToken>>;
   /** Returns the percentage of a token’s total supply held collectively by its top 10 holders. */
   top10HoldersPercent?: Maybe<Scalars['Float']['output']>;
+  /** Returns a chart of a wallet's activity. */
+  walletChart?: Maybe<WalletChartResponse>;
   /** Returns list of NFT assets held by a given wallet for a single collection. */
   walletNftCollectionAssets: WalletNftCollectionAssetsResponse;
   /** Returns list of collections and quantity of NFTs held by a given wallet. */
@@ -6346,12 +6613,22 @@ export type QueryChartUrlsArgs = {
 };
 
 
+export type QueryDetailedWalletStatsArgs = {
+  input: DetailedWalletStatsInput;
+};
+
+
 export type QueryFilterExchangesArgs = {
   filters?: InputMaybe<ExchangeFilters>;
   limit?: InputMaybe<Scalars['Int']['input']>;
   offset?: InputMaybe<Scalars['Int']['input']>;
   phrase?: InputMaybe<Scalars['String']['input']>;
   rankings?: InputMaybe<Array<InputMaybe<ExchangeRanking>>>;
+};
+
+
+export type QueryFilterNetworkWalletsArgs = {
+  input: FilterNetworkWalletsInput;
 };
 
 
@@ -6405,6 +6682,11 @@ export type QueryFilterPairsArgs = {
 };
 
 
+export type QueryFilterTokenWalletsArgs = {
+  input: FilterTokenWalletsInput;
+};
+
+
 export type QueryFilterTokensArgs = {
   excludeTokens?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
   filters?: InputMaybe<TokenFilters>;
@@ -6414,6 +6696,11 @@ export type QueryFilterTokensArgs = {
   rankings?: InputMaybe<Array<InputMaybe<TokenRanking>>>;
   statsType?: InputMaybe<TokenPairStatisticsType>;
   tokens?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+};
+
+
+export type QueryFilterWalletsArgs = {
+  input: FilterWalletsInput;
 };
 
 
@@ -6799,6 +7086,11 @@ export type QueryTop10HoldersPercentArgs = {
 };
 
 
+export type QueryWalletChartArgs = {
+  input: WalletChartInput;
+};
+
+
 export type QueryWalletNftCollectionAssetsArgs = {
   input: WalletNftCollectionAssetsInput;
 };
@@ -6847,6 +7139,12 @@ export enum QuoteType {
   Input = 'INPUT',
   Output = 'OUTPUT'
 }
+
+/** The range of time for a chart. */
+export type RangeInput = {
+  end: Scalars['Int']['input'];
+  start: Scalars['Int']['input'];
+};
 
 /** The order of ranking. */
 export enum RankingDirection {
@@ -7795,6 +8093,8 @@ export type TokenFilterResult = {
   change12?: Maybe<Scalars['String']['output']>;
   /** The percent price change in the past 24 hours. Decimal format. */
   change24?: Maybe<Scalars['String']['output']>;
+  /** The circulating market cap. */
+  circulatingMarketCap?: Maybe<Scalars['String']['output']>;
   /** The unix timestamp for the creation of the token's first pair. */
   createdAt?: Maybe<Scalars['Int']['output']>;
   /** The exchanges the token is listed on. */
@@ -7829,7 +8129,7 @@ export type TokenFilterResult = {
   low12?: Maybe<Scalars['String']['output']>;
   /** The lowest price in USD in the past 24 hours. */
   low24?: Maybe<Scalars['String']['output']>;
-  /** The fully diluted market cap. For circulating market cap multiply `token { info { circulatingSupply } }` by `priceUSD`. */
+  /** The fully diluted market cap. */
   marketCap?: Maybe<Scalars['String']['output']>;
   /** Metadata for the token's top pair. */
   pair?: Maybe<Pair>;
@@ -7963,6 +8263,8 @@ export type TokenFilters = {
   change12?: InputMaybe<NumberFilter>;
   /** The percent price change in the past 24 hours. Decimal format. */
   change24?: InputMaybe<NumberFilter>;
+  /** The circulating market cap. */
+  circulatingMarketCap?: InputMaybe<NumberFilter>;
   /** The unix timestamp for the creation of the token's first pair. */
   createdAt?: InputMaybe<NumberFilter>;
   /** The address of the creator of the token */
@@ -8005,6 +8307,8 @@ export type TokenFilters = {
   launchpadMigrated?: InputMaybe<Scalars['Boolean']['input']>;
   /** The timestamp when the launchpad was migrated */
   launchpadMigratedAt?: InputMaybe<NumberFilter>;
+  /** The name of the launchpad */
+  launchpadName?: InputMaybe<Scalars['String']['input']>;
   /** The launchpad protocol */
   launchpadProtocol?: InputMaybe<Scalars['String']['input']>;
   /** The amount of liquidity in the token's top pair. */
@@ -8331,6 +8635,7 @@ export enum TokenRankingAttribute {
   Change5m = 'change5m',
   Change12 = 'change12',
   Change24 = 'change24',
+  CirculatingMarketCap = 'circulatingMarketCap',
   CreatedAt = 'createdAt',
   GraduationPercent = 'graduationPercent',
   High1 = 'high1',
@@ -8493,6 +8798,133 @@ export type TokenTopTradersInput = {
   tokenAddress: Scalars['String']['input'];
   /** The trading period */
   tradingPeriod: TradingPeriod;
+};
+
+export type TokenWalletFilterConnection = {
+  __typename?: 'TokenWalletFilterConnection';
+  /** The number of wallets returned. */
+  count: Scalars['Int']['output'];
+  /** Where in the list the server started when returning items. */
+  offset: Scalars['Int']['output'];
+  /** The list of wallets matching the filter parameters. */
+  results: Array<TokenWalletFilterResult>;
+};
+
+/** The result for filtering wallets for a token. */
+export type TokenWalletFilterResult = {
+  __typename?: 'TokenWalletFilterResult';
+  /** The wallet address */
+  address: Scalars['String']['output'];
+  /** Amount bought in USD in the past day */
+  amountBoughtUsd1d: Scalars['String']['output'];
+  /** Amount bought in USD in the past week */
+  amountBoughtUsd1w: Scalars['String']['output'];
+  /** Amount bought in USD in the past year */
+  amountBoughtUsd1y: Scalars['String']['output'];
+  /** Amount bought in USD in the past 30 days */
+  amountBoughtUsd30d: Scalars['String']['output'];
+  /** Amount sold in USD in the past day */
+  amountSoldUsd1d: Scalars['String']['output'];
+  /** Amount sold in USD in the past week */
+  amountSoldUsd1w: Scalars['String']['output'];
+  /** Amount sold in USD in the past year */
+  amountSoldUsd1y: Scalars['String']['output'];
+  /** Amount sold in USD in the past 30 days */
+  amountSoldUsd30d: Scalars['String']['output'];
+  /** Amount sold USD all in the past day */
+  amountSoldUsdAll1d: Scalars['String']['output'];
+  /** Amount sold USD all in the past week */
+  amountSoldUsdAll1w: Scalars['String']['output'];
+  /** Amount sold USD all in the past year */
+  amountSoldUsdAll1y: Scalars['String']['output'];
+  /** Amount sold USD all in the past 30 days */
+  amountSoldUsdAll30d: Scalars['String']['output'];
+  /** The bot score for the wallet. */
+  botScore?: Maybe<Scalars['Int']['output']>;
+  /** Number of buys in the past day */
+  buys1d: Scalars['Int']['output'];
+  /** Number of buys in the past week */
+  buys1w: Scalars['Int']['output'];
+  /** Number of buys in the past year */
+  buys1y: Scalars['Int']['output'];
+  /** Number of buys in the past 30 days */
+  buys30d: Scalars['Int']['output'];
+  /** The unix timestamp for the first transaction from this wallet */
+  firstTransactionAt?: Maybe<Scalars['Int']['output']>;
+  /** The labels associated with the wallet */
+  labels: Array<Scalars['String']['output']>;
+  /** The unix timestamp for the last transaction from this wallet */
+  lastTransactionAt: Scalars['Int']['output'];
+  /** The network ID */
+  networkId: Scalars['Int']['output'];
+  /** The purchased token balance */
+  purchasedTokenBalance: Scalars['String']['output'];
+  /** Realized profit percentage in the past day */
+  realizedProfitPercentage1d: Scalars['Float']['output'];
+  /** Realized profit percentage in the past week */
+  realizedProfitPercentage1w: Scalars['Float']['output'];
+  /** Realized profit percentage in the past year */
+  realizedProfitPercentage1y: Scalars['Float']['output'];
+  /** Realized profit percentage in the past 30 days */
+  realizedProfitPercentage30d: Scalars['Float']['output'];
+  /** Realized profit in USD in the past day */
+  realizedProfitUsd1d: Scalars['String']['output'];
+  /** Realized profit in USD in the past week */
+  realizedProfitUsd1w: Scalars['String']['output'];
+  /** Realized profit in USD in the past year */
+  realizedProfitUsd1y: Scalars['String']['output'];
+  /** Realized profit in USD in the past 30 days */
+  realizedProfitUsd30d: Scalars['String']['output'];
+  /** The scammer score for the wallet. */
+  scammerScore?: Maybe<Scalars['Int']['output']>;
+  /** Number of sells in the past day */
+  sells1d: Scalars['Int']['output'];
+  /** Number of sells in the past week */
+  sells1w: Scalars['Int']['output'];
+  /** Number of sells in the past year */
+  sells1y: Scalars['Int']['output'];
+  /** Number of sells in the past 30 days */
+  sells30d: Scalars['Int']['output'];
+  /** Number of sells all in the past day */
+  sellsAll1d: Scalars['Int']['output'];
+  /** Number of sells all in the past week */
+  sellsAll1w: Scalars['Int']['output'];
+  /** Number of sells all in the past year */
+  sellsAll1y: Scalars['Int']['output'];
+  /** Number of sells all in the past 30 days */
+  sellsAll30d: Scalars['Int']['output'];
+  /** The token metadata */
+  token: EnhancedToken;
+  /** The token acquisition cost in USD */
+  tokenAcquisitionCostUsd: Scalars['String']['output'];
+  /** The token address */
+  tokenAddress: Scalars['String']['output'];
+  /** Token amount bought in the past day */
+  tokenAmountBought1d: Scalars['String']['output'];
+  /** Token amount bought in the past week */
+  tokenAmountBought1w: Scalars['String']['output'];
+  /** Token amount bought in the past year */
+  tokenAmountBought1y: Scalars['String']['output'];
+  /** Token amount bought in the past 30 days */
+  tokenAmountBought30d: Scalars['String']['output'];
+  /** Token amount sold in the past day */
+  tokenAmountSold1d: Scalars['String']['output'];
+  /** Token amount sold in the past week */
+  tokenAmountSold1w: Scalars['String']['output'];
+  /** Token amount sold in the past year */
+  tokenAmountSold1y: Scalars['String']['output'];
+  /** Token amount sold in the past 30 days */
+  tokenAmountSold30d: Scalars['String']['output'];
+  /** Token amount sold all in the past day */
+  tokenAmountSoldAll1d: Scalars['String']['output'];
+  /** Token amount sold all in the past week */
+  tokenAmountSoldAll1w: Scalars['String']['output'];
+  /** Token amount sold all in the past year */
+  tokenAmountSoldAll1y: Scalars['String']['output'];
+  /** Token amount sold all in the past 30 days */
+  tokenAmountSoldAll30d: Scalars['String']['output'];
+  /** The current token balance */
+  tokenBalance: Scalars['String']['output'];
 };
 
 /** A token with metadata. */
@@ -8689,11 +9121,409 @@ export type UnconfirmedSwapEventData = {
   type: EventType;
 };
 
+/** The data for a chart of a wallet's activity. */
+export type WalletChartData = {
+  __typename?: 'WalletChartData';
+  /** The realized profit in USD */
+  realizedProfitUsd: Scalars['String']['output'];
+  /** The resolution */
+  resolution: Scalars['String']['output'];
+  /** The number of swaps */
+  swaps: Scalars['Int']['output'];
+  /** The timestamp */
+  timestamp: Scalars['Int']['output'];
+  /** The volume in USD */
+  volumeUsd: Scalars['String']['output'];
+  /** The volume in USD including tokens sold for which we do not have a price */
+  volumeUsdAll: Scalars['String']['output'];
+};
+
+/** The input for a chart of a wallet's activity. */
+export type WalletChartInput = {
+  /** The network ID */
+  networkId?: InputMaybe<Scalars['Int']['input']>;
+  /** The range of time for the chart */
+  range: RangeInput;
+  /** The resolution of the chart */
+  resolution: Scalars['String']['input'];
+  /** The wallet address */
+  walletAddress: Scalars['String']['input'];
+};
+
+/** The range of time for a chart. */
 export type WalletChartRange = {
   __typename?: 'WalletChartRange';
   end: Scalars['Int']['output'];
   start: Scalars['Int']['output'];
 };
+
+/** The response for a chart of a wallet's activity. */
+export type WalletChartResponse = {
+  __typename?: 'WalletChartResponse';
+  /** The data for the chart */
+  data: Array<WalletChartData>;
+  /** The network ID */
+  networkId?: Maybe<Scalars['Int']['output']>;
+  /** The range of time for the chart */
+  range: WalletChartRange;
+  /** The resolution of the chart */
+  resolution: Scalars['String']['output'];
+  /** The wallet address */
+  walletAddress: Scalars['String']['output'];
+};
+
+export type WalletFilterConnection = {
+  __typename?: 'WalletFilterConnection';
+  /** The number of wallets returned. */
+  count: Scalars['Int']['output'];
+  /** Where in the list the server started when returning items. */
+  offset: Scalars['Int']['output'];
+  /** The list of wallets matching the filter parameters. */
+  results: Array<WalletFilterResult>;
+};
+
+export type WalletFilterResult = {
+  __typename?: 'WalletFilterResult';
+  /** The wallet address */
+  address: Scalars['String']['output'];
+  /** Average profit in USD per trade in the past day */
+  averageProfitUsdPerTrade1d: Scalars['String']['output'];
+  /** Average profit in USD per trade in the past week */
+  averageProfitUsdPerTrade1w: Scalars['String']['output'];
+  /** Average profit in USD per trade in the past year */
+  averageProfitUsdPerTrade1y: Scalars['String']['output'];
+  /** Average profit in USD per trade in the past 30 days */
+  averageProfitUsdPerTrade30d: Scalars['String']['output'];
+  /** Average swap amount in USD in the past day */
+  averageSwapAmountUsd1d: Scalars['String']['output'];
+  /** Average swap amount in USD in the past week */
+  averageSwapAmountUsd1w: Scalars['String']['output'];
+  /** Average swap amount in USD in the past year */
+  averageSwapAmountUsd1y: Scalars['String']['output'];
+  /** Average swap amount in USD in the past 30 days */
+  averageSwapAmountUsd30d: Scalars['String']['output'];
+  /** The bot score for the wallet. */
+  botScore?: Maybe<Scalars['Int']['output']>;
+  /** The unix timestamp for the first transaction from this wallet */
+  firstTransactionAt?: Maybe<Scalars['Int']['output']>;
+  /** The labels associated with the wallet */
+  labels: Array<Scalars['String']['output']>;
+  /** The unix timestamp for the last transaction from this wallet */
+  lastTransactionAt: Scalars['Int']['output'];
+  /** The native token balance of the wallet (only present if filtered by network) */
+  nativeTokenBalance?: Maybe<Scalars['String']['output']>;
+  /** The network ID of the wallet (only present if filtered by network) */
+  networkId?: Maybe<Scalars['Int']['output']>;
+  /** Realized profit percentage in the past day */
+  realizedProfitPercentage1d: Scalars['Float']['output'];
+  /** Realized profit percentage in the past week */
+  realizedProfitPercentage1w: Scalars['Float']['output'];
+  /** Realized profit percentage in the past year */
+  realizedProfitPercentage1y: Scalars['Float']['output'];
+  /** Realized profit percentage in the past 30 days */
+  realizedProfitPercentage30d: Scalars['Float']['output'];
+  /** Realized profit in USD in the past day */
+  realizedProfitUsd1d: Scalars['String']['output'];
+  /** Realized profit in USD in the past week */
+  realizedProfitUsd1w: Scalars['String']['output'];
+  /** Realized profit in USD in the past year */
+  realizedProfitUsd1y: Scalars['String']['output'];
+  /** Realized profit in USD in the past 30 days */
+  realizedProfitUsd30d: Scalars['String']['output'];
+  /** The scammer score for the wallet. */
+  scammerScore?: Maybe<Scalars['Int']['output']>;
+  /** Number of swaps in the past day */
+  swaps1d: Scalars['Int']['output'];
+  /** Number of swaps in the past week */
+  swaps1w: Scalars['Int']['output'];
+  /** Number of swaps in the past year */
+  swaps1y: Scalars['Int']['output'];
+  /** Number of swaps in the past 30 days */
+  swaps30d: Scalars['Int']['output'];
+  /** Total number of swaps in the past day including all tokens */
+  swapsAll1d: Scalars['Int']['output'];
+  /** Total number of swaps in the past week including all tokens */
+  swapsAll1w: Scalars['Int']['output'];
+  /** Total number of swaps in the past year including all tokens */
+  swapsAll1y: Scalars['Int']['output'];
+  /** Total number of swaps in the past 30 days including all tokens */
+  swapsAll30d: Scalars['Int']['output'];
+  /** Number of unique tokens traded in the past day */
+  uniqueTokens1d: Scalars['Int']['output'];
+  /** Number of unique tokens traded in the past week */
+  uniqueTokens1w: Scalars['Int']['output'];
+  /** Number of unique tokens traded in the past year */
+  uniqueTokens1y: Scalars['Int']['output'];
+  /** Number of unique tokens traded in the past 30 days */
+  uniqueTokens30d: Scalars['Int']['output'];
+  /** Volume in USD in the past day */
+  volumeUsd1d: Scalars['String']['output'];
+  /** Volume in USD in the past week */
+  volumeUsd1w: Scalars['String']['output'];
+  /** Volume in USD in the past year */
+  volumeUsd1y: Scalars['String']['output'];
+  /** Volume in USD in the past 30 days */
+  volumeUsd30d: Scalars['String']['output'];
+  /** Total volume in USD in the past day including all tokens */
+  volumeUsdAll1d: Scalars['String']['output'];
+  /** Total volume in USD in the past week including all tokens */
+  volumeUsdAll1w: Scalars['String']['output'];
+  /** Total volume in USD in the past year including all tokens */
+  volumeUsdAll1y: Scalars['String']['output'];
+  /** Total volume in USD in the past 30 days including all tokens */
+  volumeUsdAll30d: Scalars['String']['output'];
+  /** Win rate in the past day */
+  winRate1d: Scalars['Float']['output'];
+  /** Win rate in the past week */
+  winRate1w: Scalars['Float']['output'];
+  /** Win rate in the past year */
+  winRate1y: Scalars['Float']['output'];
+  /** Win rate in the past 30 days */
+  winRate30d: Scalars['Float']['output'];
+};
+
+export type WalletFilters = {
+  /** Average profit in USD per trade in the past day */
+  averageProfitUsdPerTrade1d?: InputMaybe<NumberFilter>;
+  /** Average profit in USD per trade in the past week */
+  averageProfitUsdPerTrade1w?: InputMaybe<NumberFilter>;
+  /** Average profit in USD per trade in the past year */
+  averageProfitUsdPerTrade1y?: InputMaybe<NumberFilter>;
+  /** Average profit in USD per trade in the past 30 days */
+  averageProfitUsdPerTrade30d?: InputMaybe<NumberFilter>;
+  /** Average swap amount in USD in the past day */
+  averageSwapAmountUsd1d?: InputMaybe<NumberFilter>;
+  /** Average swap amount in USD in the past week */
+  averageSwapAmountUsd1w?: InputMaybe<NumberFilter>;
+  /** Average swap amount in USD in the past year */
+  averageSwapAmountUsd1y?: InputMaybe<NumberFilter>;
+  /** Average swap amount in USD in the past 30 days */
+  averageSwapAmountUsd30d?: InputMaybe<NumberFilter>;
+  /** The bot score for the wallet. */
+  botScore?: InputMaybe<NumberFilter>;
+  /** The unix timestamp for the first transaction from this wallet. */
+  firstTransactionAt?: InputMaybe<NumberFilter>;
+  /** The unix timestamp for the last transaction from this wallet. */
+  lastTransactionAt?: InputMaybe<NumberFilter>;
+  /** The native token balance of the wallet. Can only be used in conjunction with `networkId` filter. */
+  nativeTokenBalance?: InputMaybe<NumberFilter>;
+  /** The network ID to filter by. */
+  networkId?: InputMaybe<Scalars['Int']['input']>;
+  /** Realized profit percentage in the past day */
+  realizedProfitPercentage1d?: InputMaybe<NumberFilter>;
+  /** Realized profit percentage in the past week */
+  realizedProfitPercentage1w?: InputMaybe<NumberFilter>;
+  /** Realized profit percentage in the past year */
+  realizedProfitPercentage1y?: InputMaybe<NumberFilter>;
+  /** Realized profit percentage in the past 30 days */
+  realizedProfitPercentage30d?: InputMaybe<NumberFilter>;
+  /** Realized profit in USD in the past day */
+  realizedProfitUsd1d?: InputMaybe<NumberFilter>;
+  /** Realized profit in USD in the past week */
+  realizedProfitUsd1w?: InputMaybe<NumberFilter>;
+  /** Realized profit in USD in the past year */
+  realizedProfitUsd1y?: InputMaybe<NumberFilter>;
+  /** Realized profit in USD in the past 30 days */
+  realizedProfitUsd30d?: InputMaybe<NumberFilter>;
+  /** The scammer score for the wallet. */
+  scammerScore?: InputMaybe<NumberFilter>;
+  /** Number of swaps in the past day */
+  swaps1d?: InputMaybe<NumberFilter>;
+  /** Number of swaps in the past week */
+  swaps1w?: InputMaybe<NumberFilter>;
+  /** Number of swaps in the past year */
+  swaps1y?: InputMaybe<NumberFilter>;
+  /** Number of swaps in the past 30 days */
+  swaps30d?: InputMaybe<NumberFilter>;
+  /** Total number of swaps in the past day including all tokens */
+  swapsAll1d?: InputMaybe<NumberFilter>;
+  /** Total number of swaps in the past week including all tokens */
+  swapsAll1w?: InputMaybe<NumberFilter>;
+  /** Total number of swaps in the past year including all tokens */
+  swapsAll1y?: InputMaybe<NumberFilter>;
+  /** Total number of swaps in the past 30 days including all tokens */
+  swapsAll30d?: InputMaybe<NumberFilter>;
+  /** Number of unique tokens traded in the past day */
+  uniqueTokens1d?: InputMaybe<NumberFilter>;
+  /** Number of unique tokens traded in the past week */
+  uniqueTokens1w?: InputMaybe<NumberFilter>;
+  /** Number of unique tokens traded in the past year */
+  uniqueTokens1y?: InputMaybe<NumberFilter>;
+  /** Number of unique tokens traded in the past 30 days */
+  uniqueTokens30d?: InputMaybe<NumberFilter>;
+  /** Volume in USD in the past day */
+  volumeUsd1d?: InputMaybe<NumberFilter>;
+  /** Volume in USD in the past week */
+  volumeUsd1w?: InputMaybe<NumberFilter>;
+  /** Volume in USD in the past year */
+  volumeUsd1y?: InputMaybe<NumberFilter>;
+  /** Volume in USD in the past 30 days */
+  volumeUsd30d?: InputMaybe<NumberFilter>;
+  /** Total volume in USD in the past day including all tokens */
+  volumeUsdAll1d?: InputMaybe<NumberFilter>;
+  /** Total volume in USD in the past week including all tokens */
+  volumeUsdAll1w?: InputMaybe<NumberFilter>;
+  /** Total volume in USD in the past year including all tokens */
+  volumeUsdAll1y?: InputMaybe<NumberFilter>;
+  /** Total volume in USD in the past 30 days including all tokens */
+  volumeUsdAll30d?: InputMaybe<NumberFilter>;
+  /** Win rate in the past day */
+  winRate1d?: InputMaybe<NumberFilter>;
+  /** Win rate in the past week */
+  winRate1w?: InputMaybe<NumberFilter>;
+  /** Win rate in the past year */
+  winRate1y?: InputMaybe<NumberFilter>;
+  /** Win rate in the past 30 days */
+  winRate30d?: InputMaybe<NumberFilter>;
+};
+
+export type WalletNetworkFilters = {
+  /** Average profit in USD per trade in the past day */
+  averageProfitUsdPerTrade1d?: InputMaybe<NumberFilter>;
+  /** Average profit in USD per trade in the past week */
+  averageProfitUsdPerTrade1w?: InputMaybe<NumberFilter>;
+  /** Average profit in USD per trade in the past year */
+  averageProfitUsdPerTrade1y?: InputMaybe<NumberFilter>;
+  /** Average profit in USD per trade in the past 30 days */
+  averageProfitUsdPerTrade30d?: InputMaybe<NumberFilter>;
+  /** Average swap amount in USD in the past day */
+  averageSwapAmountUsd1d?: InputMaybe<NumberFilter>;
+  /** Average swap amount in USD in the past week */
+  averageSwapAmountUsd1w?: InputMaybe<NumberFilter>;
+  /** Average swap amount in USD in the past year */
+  averageSwapAmountUsd1y?: InputMaybe<NumberFilter>;
+  /** Average swap amount in USD in the past 30 days */
+  averageSwapAmountUsd30d?: InputMaybe<NumberFilter>;
+  /** The bot score for the wallet. Indicates the likelihood of the wallet being a bot. Zero being not a bot and 100 being a definite bot. */
+  botScore?: InputMaybe<NumberFilter>;
+  /** The unix timestamp for the first transaction from this wallet. */
+  firstTransactionAt?: InputMaybe<NumberFilter>;
+  /** The unix timestamp for the last transaction from this wallet. */
+  lastTransactionAt?: InputMaybe<NumberFilter>;
+  /** The native token balance of the wallet. */
+  nativeTokenBalance?: InputMaybe<NumberFilter>;
+  /** Realized profit percentage in the past day */
+  realizedProfitPercentage1d?: InputMaybe<NumberFilter>;
+  /** Realized profit percentage in the past week */
+  realizedProfitPercentage1w?: InputMaybe<NumberFilter>;
+  /** Realized profit percentage in the past year */
+  realizedProfitPercentage1y?: InputMaybe<NumberFilter>;
+  /** Realized profit percentage in the past 30 days */
+  realizedProfitPercentage30d?: InputMaybe<NumberFilter>;
+  /** Realized profit in USD in the past day */
+  realizedProfitUsd1d?: InputMaybe<NumberFilter>;
+  /** Realized profit in USD in the past week */
+  realizedProfitUsd1w?: InputMaybe<NumberFilter>;
+  /** Realized profit in USD in the past year */
+  realizedProfitUsd1y?: InputMaybe<NumberFilter>;
+  /** Realized profit in USD in the past 30 days */
+  realizedProfitUsd30d?: InputMaybe<NumberFilter>;
+  /** The scammer score for the wallet. Indicates the likelihood of the wallet being a scammer. Zero being not a scammer and 100 being a definite scammer. */
+  scammerScore?: InputMaybe<NumberFilter>;
+  /** Number of swaps in the past day */
+  swaps1d?: InputMaybe<NumberFilter>;
+  /** Number of swaps in the past week */
+  swaps1w?: InputMaybe<NumberFilter>;
+  /** Number of swaps in the past year */
+  swaps1y?: InputMaybe<NumberFilter>;
+  /** Number of swaps in the past 30 days */
+  swaps30d?: InputMaybe<NumberFilter>;
+  /** Total number of swaps in the past day including all tokens */
+  swapsAll1d?: InputMaybe<NumberFilter>;
+  /** Total number of swaps in the past week including all tokens */
+  swapsAll1w?: InputMaybe<NumberFilter>;
+  /** Total number of swaps in the past year including all tokens */
+  swapsAll1y?: InputMaybe<NumberFilter>;
+  /** Total number of swaps in the past 30 days including all tokens */
+  swapsAll30d?: InputMaybe<NumberFilter>;
+  /** Number of unique tokens traded in the past day */
+  uniqueTokens1d?: InputMaybe<NumberFilter>;
+  /** Number of unique tokens traded in the past week */
+  uniqueTokens1w?: InputMaybe<NumberFilter>;
+  /** Number of unique tokens traded in the past year */
+  uniqueTokens1y?: InputMaybe<NumberFilter>;
+  /** Number of unique tokens traded in the past 30 days */
+  uniqueTokens30d?: InputMaybe<NumberFilter>;
+  /** Volume in USD in the past day */
+  volumeUsd1d?: InputMaybe<NumberFilter>;
+  /** Volume in USD in the past week */
+  volumeUsd1w?: InputMaybe<NumberFilter>;
+  /** Volume in USD in the past year */
+  volumeUsd1y?: InputMaybe<NumberFilter>;
+  /** Volume in USD in the past 30 days */
+  volumeUsd30d?: InputMaybe<NumberFilter>;
+  /** Total volume in USD in the past day including all tokens */
+  volumeUsdAll1d?: InputMaybe<NumberFilter>;
+  /** Total volume in USD in the past week including all tokens */
+  volumeUsdAll1w?: InputMaybe<NumberFilter>;
+  /** Total volume in USD in the past year including all tokens */
+  volumeUsdAll1y?: InputMaybe<NumberFilter>;
+  /** Total volume in USD in the past 30 days including all tokens */
+  volumeUsdAll30d?: InputMaybe<NumberFilter>;
+  /** Win rate in the past day */
+  winRate1d?: InputMaybe<NumberFilter>;
+  /** Win rate in the past week */
+  winRate1w?: InputMaybe<NumberFilter>;
+  /** Win rate in the past year */
+  winRate1y?: InputMaybe<NumberFilter>;
+  /** Win rate in the past 30 days */
+  winRate30d?: InputMaybe<NumberFilter>;
+};
+
+export type WalletNetworkRanking = {
+  /** The attribute to rank wallets by. */
+  attribute?: InputMaybe<WalletNetworkRankingAttribute>;
+  /** The direction to apply to the ranking attribute. */
+  direction?: InputMaybe<RankingDirection>;
+};
+
+export enum WalletNetworkRankingAttribute {
+  AverageProfitUsdPerTrade1d = 'averageProfitUsdPerTrade1d',
+  AverageProfitUsdPerTrade1w = 'averageProfitUsdPerTrade1w',
+  AverageProfitUsdPerTrade1y = 'averageProfitUsdPerTrade1y',
+  AverageProfitUsdPerTrade30d = 'averageProfitUsdPerTrade30d',
+  AverageSwapAmountUsd1d = 'averageSwapAmountUsd1d',
+  AverageSwapAmountUsd1w = 'averageSwapAmountUsd1w',
+  AverageSwapAmountUsd1y = 'averageSwapAmountUsd1y',
+  AverageSwapAmountUsd30d = 'averageSwapAmountUsd30d',
+  BotScore = 'botScore',
+  FirstTransactionAt = 'firstTransactionAt',
+  LastTransactionAt = 'lastTransactionAt',
+  NativeTokenBalance = 'nativeTokenBalance',
+  RealizedProfitPercentage1d = 'realizedProfitPercentage1d',
+  RealizedProfitPercentage1w = 'realizedProfitPercentage1w',
+  RealizedProfitPercentage1y = 'realizedProfitPercentage1y',
+  RealizedProfitPercentage30d = 'realizedProfitPercentage30d',
+  RealizedProfitUsd1d = 'realizedProfitUsd1d',
+  RealizedProfitUsd1w = 'realizedProfitUsd1w',
+  RealizedProfitUsd1y = 'realizedProfitUsd1y',
+  RealizedProfitUsd30d = 'realizedProfitUsd30d',
+  ScammerScore = 'scammerScore',
+  Swaps1d = 'swaps1d',
+  Swaps1w = 'swaps1w',
+  Swaps1y = 'swaps1y',
+  Swaps30d = 'swaps30d',
+  SwapsAll1d = 'swapsAll1d',
+  SwapsAll1w = 'swapsAll1w',
+  SwapsAll1y = 'swapsAll1y',
+  SwapsAll30d = 'swapsAll30d',
+  UniqueTokens1d = 'uniqueTokens1d',
+  UniqueTokens1w = 'uniqueTokens1w',
+  UniqueTokens1y = 'uniqueTokens1y',
+  UniqueTokens30d = 'uniqueTokens30d',
+  VolumeUsd1d = 'volumeUsd1d',
+  VolumeUsd1w = 'volumeUsd1w',
+  VolumeUsd1y = 'volumeUsd1y',
+  VolumeUsd30d = 'volumeUsd30d',
+  VolumeUsdAll1d = 'volumeUsdAll1d',
+  VolumeUsdAll1w = 'volumeUsdAll1w',
+  VolumeUsdAll1y = 'volumeUsdAll1y',
+  VolumeUsdAll30d = 'volumeUsdAll30d',
+  WinRate1d = 'winRate1d',
+  WinRate1w = 'winRate1w',
+  WinRate1y = 'winRate1y',
+  WinRate30d = 'winRate30d'
+}
 
 export type WalletNftCollection = {
   __typename?: 'WalletNftCollection';
@@ -8748,6 +9578,326 @@ export type WalletNftCollectionsResponse = {
   /** The list of collections for a wallet. */
   items: Array<WalletNftCollection>;
 };
+
+export type WalletRanking = {
+  /** The attribute to rank wallets by. */
+  attribute?: InputMaybe<WalletRankingAttribute>;
+  /** The direction to apply to the ranking attribute. */
+  direction?: InputMaybe<RankingDirection>;
+};
+
+export enum WalletRankingAttribute {
+  AverageProfitUsdPerTrade1d = 'averageProfitUsdPerTrade1d',
+  AverageProfitUsdPerTrade1w = 'averageProfitUsdPerTrade1w',
+  AverageProfitUsdPerTrade1y = 'averageProfitUsdPerTrade1y',
+  AverageProfitUsdPerTrade30d = 'averageProfitUsdPerTrade30d',
+  AverageSwapAmountUsd1d = 'averageSwapAmountUsd1d',
+  AverageSwapAmountUsd1w = 'averageSwapAmountUsd1w',
+  AverageSwapAmountUsd1y = 'averageSwapAmountUsd1y',
+  AverageSwapAmountUsd30d = 'averageSwapAmountUsd30d',
+  BotScore = 'botScore',
+  FirstTransactionAt = 'firstTransactionAt',
+  LastTransactionAt = 'lastTransactionAt',
+  NativeTokenBalance = 'nativeTokenBalance',
+  RealizedProfitPercentage1d = 'realizedProfitPercentage1d',
+  RealizedProfitPercentage1w = 'realizedProfitPercentage1w',
+  RealizedProfitPercentage1y = 'realizedProfitPercentage1y',
+  RealizedProfitPercentage30d = 'realizedProfitPercentage30d',
+  RealizedProfitUsd1d = 'realizedProfitUsd1d',
+  RealizedProfitUsd1w = 'realizedProfitUsd1w',
+  RealizedProfitUsd1y = 'realizedProfitUsd1y',
+  RealizedProfitUsd30d = 'realizedProfitUsd30d',
+  ScammerScore = 'scammerScore',
+  Swaps1d = 'swaps1d',
+  Swaps1w = 'swaps1w',
+  Swaps1y = 'swaps1y',
+  Swaps30d = 'swaps30d',
+  SwapsAll1d = 'swapsAll1d',
+  SwapsAll1w = 'swapsAll1w',
+  SwapsAll1y = 'swapsAll1y',
+  SwapsAll30d = 'swapsAll30d',
+  UniqueTokens1d = 'uniqueTokens1d',
+  UniqueTokens1w = 'uniqueTokens1w',
+  UniqueTokens1y = 'uniqueTokens1y',
+  UniqueTokens30d = 'uniqueTokens30d',
+  VolumeUsd1d = 'volumeUsd1d',
+  VolumeUsd1w = 'volumeUsd1w',
+  VolumeUsd1y = 'volumeUsd1y',
+  VolumeUsd30d = 'volumeUsd30d',
+  VolumeUsdAll1d = 'volumeUsdAll1d',
+  VolumeUsdAll1w = 'volumeUsdAll1w',
+  VolumeUsdAll1y = 'volumeUsdAll1y',
+  VolumeUsdAll30d = 'volumeUsdAll30d',
+  WinRate1d = 'winRate1d',
+  WinRate1w = 'winRate1w',
+  WinRate1y = 'winRate1y',
+  WinRate30d = 'winRate30d'
+}
+
+/** The period the wallet stats are for. */
+export enum WalletStatsDuration {
+  Day1 = 'day1',
+  Day30 = 'day30',
+  Week1 = 'week1',
+  Year1 = 'year1'
+}
+
+export type WalletTokenFilterRange = {
+  /** The maximum value (inclusive) */
+  max?: InputMaybe<Scalars['String']['input']>;
+  /** The minimum value (inclusive) */
+  min?: InputMaybe<Scalars['String']['input']>;
+};
+
+export type WalletTokenFilters = {
+  /** Filter by amount bought in USD in the past day */
+  amountBoughtUsd1d?: InputMaybe<WalletTokenFilterRange>;
+  /** Filter by amount bought in USD in the past week */
+  amountBoughtUsd1w?: InputMaybe<WalletTokenFilterRange>;
+  /** Filter by amount bought in USD in the past year */
+  amountBoughtUsd1y?: InputMaybe<WalletTokenFilterRange>;
+  /** Filter by amount bought in USD in the past 30 days */
+  amountBoughtUsd30d?: InputMaybe<WalletTokenFilterRange>;
+  /** Filter by amount sold in USD in the past day */
+  amountSoldUsd1d?: InputMaybe<WalletTokenFilterRange>;
+  /** Filter by amount sold in USD in the past week */
+  amountSoldUsd1w?: InputMaybe<WalletTokenFilterRange>;
+  /** Filter by amount sold in USD in the past year */
+  amountSoldUsd1y?: InputMaybe<WalletTokenFilterRange>;
+  /** Filter by amount sold in USD in the past 30 days */
+  amountSoldUsd30d?: InputMaybe<WalletTokenFilterRange>;
+  /** Filter by bot score */
+  botScore?: InputMaybe<WalletTokenFilterRange>;
+  /** Filter by number of buys in the past day */
+  buys1d?: InputMaybe<WalletTokenFilterRange>;
+  /** Filter by number of buys in the past week */
+  buys1w?: InputMaybe<WalletTokenFilterRange>;
+  /** Filter by number of buys in the past year */
+  buys1y?: InputMaybe<WalletTokenFilterRange>;
+  /** Filter by number of buys in the past 30 days */
+  buys30d?: InputMaybe<WalletTokenFilterRange>;
+  /** Filter by first transaction timestamp */
+  firstTransactionAt?: InputMaybe<WalletTokenFilterRange>;
+  /** Filter by last transaction timestamp */
+  lastTransactionAt?: InputMaybe<WalletTokenFilterRange>;
+  /** Filter by purchased token balance */
+  purchasedTokenBalance?: InputMaybe<WalletTokenFilterRange>;
+  /** Filter by realized profit percentage in the past day */
+  realizedProfitPercentage1d?: InputMaybe<WalletTokenFilterRange>;
+  /** Filter by realized profit percentage in the past week */
+  realizedProfitPercentage1w?: InputMaybe<WalletTokenFilterRange>;
+  /** Filter by realized profit percentage in the past year */
+  realizedProfitPercentage1y?: InputMaybe<WalletTokenFilterRange>;
+  /** Filter by realized profit percentage in the past 30 days */
+  realizedProfitPercentage30d?: InputMaybe<WalletTokenFilterRange>;
+  /** Filter by realized profit in USD in the past day */
+  realizedProfitUsd1d?: InputMaybe<WalletTokenFilterRange>;
+  /** Filter by realized profit in USD in the past week */
+  realizedProfitUsd1w?: InputMaybe<WalletTokenFilterRange>;
+  /** Filter by realized profit in USD in the past year */
+  realizedProfitUsd1y?: InputMaybe<WalletTokenFilterRange>;
+  /** Filter by realized profit in USD in the past 30 days */
+  realizedProfitUsd30d?: InputMaybe<WalletTokenFilterRange>;
+  /** Filter by scammer score */
+  scammerScore?: InputMaybe<WalletTokenFilterRange>;
+  /** Filter by number of sells in the past day */
+  sells1d?: InputMaybe<WalletTokenFilterRange>;
+  /** Filter by number of sells in the past week */
+  sells1w?: InputMaybe<WalletTokenFilterRange>;
+  /** Filter by number of sells in the past year */
+  sells1y?: InputMaybe<WalletTokenFilterRange>;
+  /** Filter by number of sells in the past 30 days */
+  sells30d?: InputMaybe<WalletTokenFilterRange>;
+  /** Filter by token acquisition cost in USD */
+  tokenAcquisitionCostUsd?: InputMaybe<WalletTokenFilterRange>;
+  /** Filter by token amount bought in the past day */
+  tokenAmountBought1d?: InputMaybe<WalletTokenFilterRange>;
+  /** Filter by token amount bought in the past week */
+  tokenAmountBought1w?: InputMaybe<WalletTokenFilterRange>;
+  /** Filter by token amount bought in the past year */
+  tokenAmountBought1y?: InputMaybe<WalletTokenFilterRange>;
+  /** Filter by token amount bought in the past 30 days */
+  tokenAmountBought30d?: InputMaybe<WalletTokenFilterRange>;
+  /** Filter by token amount sold in the past day */
+  tokenAmountSold1d?: InputMaybe<WalletTokenFilterRange>;
+  /** Filter by token amount sold in the past week */
+  tokenAmountSold1w?: InputMaybe<WalletTokenFilterRange>;
+  /** Filter by token amount sold in the past year */
+  tokenAmountSold1y?: InputMaybe<WalletTokenFilterRange>;
+  /** Filter by token amount sold in the past 30 days */
+  tokenAmountSold30d?: InputMaybe<WalletTokenFilterRange>;
+  /** Filter by token balance */
+  tokenBalance?: InputMaybe<WalletTokenFilterRange>;
+};
+
+export type WalletTokenFiltersV2 = {
+  /** Filter by amount bought in USD in the past day */
+  amountBoughtUsd1d?: InputMaybe<NumberFilter>;
+  /** Filter by amount bought in USD in the past week */
+  amountBoughtUsd1w?: InputMaybe<NumberFilter>;
+  /** Filter by amount bought in USD in the past year */
+  amountBoughtUsd1y?: InputMaybe<NumberFilter>;
+  /** Filter by amount bought in USD in the past 30 days */
+  amountBoughtUsd30d?: InputMaybe<NumberFilter>;
+  /** Filter by amount sold in USD in the past day */
+  amountSoldUsd1d?: InputMaybe<NumberFilter>;
+  /** Filter by amount sold in USD in the past week */
+  amountSoldUsd1w?: InputMaybe<NumberFilter>;
+  /** Filter by amount sold in USD in the past year */
+  amountSoldUsd1y?: InputMaybe<NumberFilter>;
+  /** Filter by amount sold in USD in the past 30 days */
+  amountSoldUsd30d?: InputMaybe<NumberFilter>;
+  /** Filter by bot score */
+  botScore?: InputMaybe<NumberFilter>;
+  /** Filter by number of buys in the past day */
+  buys1d?: InputMaybe<NumberFilter>;
+  /** Filter by number of buys in the past week */
+  buys1w?: InputMaybe<NumberFilter>;
+  /** Filter by number of buys in the past year */
+  buys1y?: InputMaybe<NumberFilter>;
+  /** Filter by number of buys in the past 30 days */
+  buys30d?: InputMaybe<NumberFilter>;
+  /** Filter by first transaction timestamp */
+  firstTransactionAt?: InputMaybe<NumberFilter>;
+  /** Filter by last transaction timestamp */
+  lastTransactionAt?: InputMaybe<NumberFilter>;
+  /** Filter by purchased token balance */
+  purchasedTokenBalance?: InputMaybe<NumberFilter>;
+  /** Filter by realized profit percentage in the past day */
+  realizedProfitPercentage1d?: InputMaybe<NumberFilter>;
+  /** Filter by realized profit percentage in the past week */
+  realizedProfitPercentage1w?: InputMaybe<NumberFilter>;
+  /** Filter by realized profit percentage in the past year */
+  realizedProfitPercentage1y?: InputMaybe<NumberFilter>;
+  /** Filter by realized profit percentage in the past 30 days */
+  realizedProfitPercentage30d?: InputMaybe<NumberFilter>;
+  /** Filter by realized profit in USD in the past day */
+  realizedProfitUsd1d?: InputMaybe<NumberFilter>;
+  /** Filter by realized profit in USD in the past week */
+  realizedProfitUsd1w?: InputMaybe<NumberFilter>;
+  /** Filter by realized profit in USD in the past year */
+  realizedProfitUsd1y?: InputMaybe<NumberFilter>;
+  /** Filter by realized profit in USD in the past 30 days */
+  realizedProfitUsd30d?: InputMaybe<NumberFilter>;
+  /** Filter by scammer score */
+  scammerScore?: InputMaybe<NumberFilter>;
+  /** Filter by number of sells in the past day */
+  sells1d?: InputMaybe<NumberFilter>;
+  /** Filter by number of sells in the past week */
+  sells1w?: InputMaybe<NumberFilter>;
+  /** Filter by number of sells in the past year */
+  sells1y?: InputMaybe<NumberFilter>;
+  /** Filter by number of sells in the past 30 days */
+  sells30d?: InputMaybe<NumberFilter>;
+  /** Filter by token acquisition cost in USD */
+  tokenAcquisitionCostUsd?: InputMaybe<NumberFilter>;
+  /** Filter by token amount bought in the past day */
+  tokenAmountBought1d?: InputMaybe<NumberFilter>;
+  /** Filter by token amount bought in the past week */
+  tokenAmountBought1w?: InputMaybe<NumberFilter>;
+  /** Filter by token amount bought in the past year */
+  tokenAmountBought1y?: InputMaybe<NumberFilter>;
+  /** Filter by token amount bought in the past 30 days */
+  tokenAmountBought30d?: InputMaybe<NumberFilter>;
+  /** Filter by token amount sold in the past day */
+  tokenAmountSold1d?: InputMaybe<NumberFilter>;
+  /** Filter by token amount sold in the past week */
+  tokenAmountSold1w?: InputMaybe<NumberFilter>;
+  /** Filter by token amount sold in the past year */
+  tokenAmountSold1y?: InputMaybe<NumberFilter>;
+  /** Filter by token amount sold in the past 30 days */
+  tokenAmountSold30d?: InputMaybe<NumberFilter>;
+  /** Filter by token balance */
+  tokenBalance?: InputMaybe<NumberFilter>;
+};
+
+export type WalletTokenRanking = {
+  /** The attribute to rank wallets by */
+  attribute: WalletTokenRankingAttribute;
+  /** The direction to apply to the ranking attribute */
+  direction: RankingDirection;
+};
+
+export enum WalletTokenRankingAttribute {
+  /** Amount bought in USD in the past day */
+  AmountBoughtUsd1d = 'amountBoughtUsd1d',
+  /** Amount bought in USD in the past week */
+  AmountBoughtUsd1w = 'amountBoughtUsd1w',
+  /** Amount bought in USD in the past year */
+  AmountBoughtUsd1y = 'amountBoughtUsd1y',
+  /** Amount bought in USD in the past 30 days */
+  AmountBoughtUsd30d = 'amountBoughtUsd30d',
+  /** Amount sold in USD in the past day */
+  AmountSoldUsd1d = 'amountSoldUsd1d',
+  /** Amount sold in USD in the past week */
+  AmountSoldUsd1w = 'amountSoldUsd1w',
+  /** Amount sold in USD in the past year */
+  AmountSoldUsd1y = 'amountSoldUsd1y',
+  /** Amount sold in USD in the past 30 days */
+  AmountSoldUsd30d = 'amountSoldUsd30d',
+  /** The bot score for the wallet. */
+  BotScore = 'botScore',
+  /** Number of buys in the past day */
+  Buys1d = 'buys1d',
+  /** Number of buys in the past week */
+  Buys1w = 'buys1w',
+  /** Number of buys in the past year */
+  Buys1y = 'buys1y',
+  /** Number of buys in the past 30 days */
+  Buys30d = 'buys30d',
+  /** The first transaction timestamp */
+  FirstTransactionAt = 'firstTransactionAt',
+  /** The last transaction timestamp */
+  LastTransactionAt = 'lastTransactionAt',
+  /** Purchased token balance */
+  PurchasedTokenBalance = 'purchasedTokenBalance',
+  /** Realized profit percentage in the past day */
+  RealizedProfitPercentage1d = 'realizedProfitPercentage1d',
+  /** Realized profit percentage in the past week */
+  RealizedProfitPercentage1w = 'realizedProfitPercentage1w',
+  /** Realized profit percentage in the past year */
+  RealizedProfitPercentage1y = 'realizedProfitPercentage1y',
+  /** Realized profit percentage in the past 30 days */
+  RealizedProfitPercentage30d = 'realizedProfitPercentage30d',
+  /** Realized profit in USD in the past day */
+  RealizedProfitUsd1d = 'realizedProfitUsd1d',
+  /** Realized profit in USD in the past week */
+  RealizedProfitUsd1w = 'realizedProfitUsd1w',
+  /** Realized profit in USD in the past year */
+  RealizedProfitUsd1y = 'realizedProfitUsd1y',
+  /** Realized profit in USD in the past 30 days */
+  RealizedProfitUsd30d = 'realizedProfitUsd30d',
+  /** The scammer score for the wallet. */
+  ScammerScore = 'scammerScore',
+  /** Number of sells in the past day */
+  Sells1d = 'sells1d',
+  /** Number of sells in the past week */
+  Sells1w = 'sells1w',
+  /** Number of sells in the past year */
+  Sells1y = 'sells1y',
+  /** Number of sells in the past 30 days */
+  Sells30d = 'sells30d',
+  /** Token acquisition cost in USD */
+  TokenAcquisitionCostUsd = 'tokenAcquisitionCostUsd',
+  /** Token amount bought in the past day */
+  TokenAmountBought1d = 'tokenAmountBought1d',
+  /** Token amount bought in the past week */
+  TokenAmountBought1w = 'tokenAmountBought1w',
+  /** Token amount bought in the past year */
+  TokenAmountBought1y = 'tokenAmountBought1y',
+  /** Token amount bought in the past 30 days */
+  TokenAmountBought30d = 'tokenAmountBought30d',
+  /** Token amount sold in the past day */
+  TokenAmountSold1d = 'tokenAmountSold1d',
+  /** Token amount sold in the past week */
+  TokenAmountSold1w = 'tokenAmountSold1w',
+  /** Token amount sold in the past year */
+  TokenAmountSold1y = 'tokenAmountSold1y',
+  /** Token amount sold in the past 30 days */
+  TokenAmountSold30d = 'tokenAmountSold30d',
+  /** Token balance */
+  TokenBalance = 'tokenBalance'
+}
 
 /** Metadata for a washtrade label. */
 export type WashtradeLabelForEvent = {
@@ -8845,6 +9995,27 @@ export type WindowedDetailedCurrencyPairStats = {
   volume?: Maybe<DetailedPairStatsStringMetrics>;
 };
 
+/** The currency stats for a wallet over a time window. */
+export type WindowedDetailedCurrencyWalletStats = {
+  __typename?: 'WindowedDetailedCurrencyWalletStats';
+  /** The average profit in USD per trade */
+  averageProfitUsdPerTrade: Scalars['String']['output'];
+  /** The average swap amount in USD */
+  averageSwapAmountUsd: Scalars['String']['output'];
+  /** The cost of tokens held in the wallet */
+  heldTokenAcquisitionCostUsd: Scalars['String']['output'];
+  /** The realized profit percentage */
+  realizedProfitPercentage: Scalars['Float']['output'];
+  /** The realized profit in USD */
+  realizedProfitUsd: Scalars['String']['output'];
+  /** The cost of tokens sold during the period */
+  soldTokenAcquisitionCostUsd: Scalars['String']['output'];
+  /** The volume in USD */
+  volumeUsd: Scalars['String']['output'];
+  /** The volume in USD including tokens sold for which we do not have a price */
+  volumeUsdAll: Scalars['String']['output'];
+};
+
 /** Price stats for an NFT collection over a time frame. Either in USD or the network's base token. */
 export type WindowedDetailedNftCurrencyStats = {
   __typename?: 'WindowedDetailedNftCurrencyStats';
@@ -8919,6 +10090,19 @@ export type WindowedDetailedNonCurrencyPairStats = {
   transactions?: Maybe<DetailedPairStatsNumberMetrics>;
 };
 
+/** The non-currency stats for a wallet over a time window. */
+export type WindowedDetailedNonCurrencyWalletStats = {
+  __typename?: 'WindowedDetailedNonCurrencyWalletStats';
+  /** The number of losses */
+  losses: Scalars['Int']['output'];
+  /** The number of swaps */
+  swaps: Scalars['Int']['output'];
+  /** The number of unique tokens */
+  uniqueTokens: Scalars['Int']['output'];
+  /** The number of wins */
+  wins: Scalars['Int']['output'];
+};
+
 /** Detailed pair stats over a time frame. */
 export type WindowedDetailedPairStats = {
   __typename?: 'WindowedDetailedPairStats';
@@ -8965,6 +10149,25 @@ export type WindowedDetailedStats = {
   volume: DetailedStatsStringMetrics;
   /** The window size used to request detailed stats. */
   windowSize: DetailedStatsWindowSize;
+};
+
+/** The stats for a wallet over a time window. */
+export type WindowedWalletStats = {
+  __typename?: 'WindowedWalletStats';
+  /** The end timestamp */
+  end: Scalars['Int']['output'];
+  /** The last transaction timestamp */
+  lastTransactionAt: Scalars['Int']['output'];
+  /** The network ID */
+  networkId?: Maybe<Scalars['Int']['output']>;
+  /** The start timestamp */
+  start: Scalars['Int']['output'];
+  /** The stats related to non-currency */
+  statsNonCurrency: WindowedDetailedNonCurrencyWalletStats;
+  /** The stats related to currency */
+  statsUsd: WindowedDetailedCurrencyWalletStats;
+  /** The wallet address */
+  walletAddress: Scalars['String']['output'];
 };
 
 export enum Join__Graph {

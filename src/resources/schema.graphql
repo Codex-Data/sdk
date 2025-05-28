@@ -187,33 +187,37 @@ type Balance {
 }
 
 input BalancesInput {
-  """The ID of the wallet (`walletAddress:networkId`)."""
-  walletId: String @deprecated(reason: "Use walletAddress and networkId instead")
-
   """The wallet address to filter by."""
   walletAddress: String
-
-  """A cursor for use in pagination."""
-  cursor: String
 
   """The network IDs to filter by."""
   networks: [Int!]
 
   """
-  The token IDs (`address:networkId`) or addresses to request the balance for. Only applied when using `walletAddress` and `networks` (not `walletId`).
+  The token IDs (`address:networkId`) or addresses to request the balance for. Requires a list of `networks` if only passing addresses. Include native network balances using `native` as the token address. Only applied when using `walletAddress` (not `walletId`). Max 200 tokens.
   """
   tokens: [String!]
 
-  """Optional token specifically request the balance for."""
-  filterToken: String @deprecated(reason: "Use tokens list instead")
-
   """
-  If set to true, native tokens in the response, they will have the id: native:<networkId>
+  Whether to include native network balances in the response (ID will be native:<networkId>). Requires a list of `networks`. Does not apply when using `tokens`.
   """
   includeNative: Boolean
 
-  """The maximum number of holdings to return."""
+  """
+  The maximum number of holdings to return. Does not apply when using `tokens`.
+  """
   limit: Int
+
+  """A cursor for use in pagination."""
+  cursor: String
+
+  """The ID of the wallet (`walletAddress:networkId`)."""
+  walletId: String @deprecated(reason: "Use walletAddress and networkId instead")
+
+  """
+  Optional token specifically request the balance for. Only works with `walletId`.
+  """
+  filterToken: String @deprecated(reason: "Use tokens list instead")
 }
 
 type BalancesResponse {
@@ -1091,6 +1095,57 @@ enum DetailedStatsWindowSize {
   min5
 }
 
+"""The detailed stats for a wallet."""
+type DetailedWalletStats {
+  """The wallet address"""
+  walletAddress: String!
+
+  """The last transaction timestamp"""
+  lastTransactionAt: Int!
+
+  """The network specific stats"""
+  networkSpecificStats: [NetworkWalletStats!] @deprecated(reason: "Use networkBreakdown instead")
+
+  """The network breakdown"""
+  networkBreakdown: [NetworkBreakdown!]
+
+  """The labels associated with the wallet"""
+  labels: [String!]!
+
+  """The likelihood of the wallet being a scammer"""
+  scammerScore: Int
+
+  """The likelihood of the wallet being a bot"""
+  botScore: Int
+
+  """The stats for the last day"""
+  statsDay1: WindowedWalletStats
+
+  """The stats for the last week"""
+  statsWeek1: WindowedWalletStats
+
+  """The stats for the last 30 days"""
+  statsDay30: WindowedWalletStats
+
+  """The stats for the last year"""
+  statsYear1: WindowedWalletStats
+}
+
+"""The input for detailed wallet stats."""
+input DetailedWalletStatsInput {
+  """The wallet address"""
+  walletAddress: String!
+
+  """The network ID"""
+  networkId: Int
+
+  """The timestamp to get stats for"""
+  timestamp: Int
+
+  """Whether to include network breakdown stats"""
+  includeNetworkBreakdown: Boolean
+}
+
 """Metadata for a contract."""
 union EnhancedContract = EnhancedToken | EnhancedNftContract
 
@@ -1688,6 +1743,97 @@ type FilterExchange {
   tradeUrl: String
 }
 
+"""The input for filtering wallets for a network."""
+input FilterNetworkWalletsInput {
+  """The network ID to filter wallets for"""
+  networkId: Int!
+
+  """A set of filters to apply."""
+  filters: WalletNetworkFilters
+
+  """A list of wallet addresses to filter by."""
+  wallets: [String]
+
+  """Exclude wallets with these labels."""
+  excludeLabels: [String]
+
+  """Include wallets with these labels."""
+  includeLabels: [String]
+
+  """A list of ranking attributes to apply."""
+  rankings: [WalletNetworkRanking]
+
+  """The maximum number of wallets to return."""
+  limit: Int
+
+  """
+  Where in the list the server should start when returning items. Use `count`+`offset` from the previous query to request the next page of results.
+  """
+  offset: Int
+}
+
+"""The input for filtering wallets for a token."""
+input FilterTokenWalletsInput {
+  """The ID of the token to filter wallets for"""
+  tokenId: String
+
+  """The wallet address to filter wallets for"""
+  walletAddress: String
+
+  """The network ID to filter wallets for"""
+  networkId: Int
+
+  """A set of filters to apply"""
+  filters: WalletTokenFilters @deprecated(reason: "Use filtersV2 instead")
+
+  """A set of filters to apply"""
+  filtersV2: WalletTokenFiltersV2
+
+  """A phrase to search for in token symbol and name"""
+  phrase: String
+
+  """A list of ranking attributes to apply"""
+  rankings: [WalletTokenRanking]
+
+  """Exclude wallets with these labels."""
+  excludeLabels: [String]
+
+  """Include wallets with these labels."""
+  includeLabels: [String]
+
+  """The maximum number of wallets to return"""
+  limit: Int
+
+  """Where in the list the server should start when returning items"""
+  offset: Int
+}
+
+"""The input for filtering wallets."""
+input FilterWalletsInput {
+  """A set of filters to apply."""
+  filters: WalletFilters
+
+  """A list of wallet addresses to filter by."""
+  wallets: [String]
+
+  """Exclude wallets with these labels."""
+  excludeLabels: [String]
+
+  """Include wallets with these labels."""
+  includeLabels: [String]
+
+  """A list of ranking attributes to apply."""
+  rankings: [WalletRanking]
+
+  """The maximum number of wallets to return."""
+  limit: Int
+
+  """
+  Where in the list the server should start when returning items. Use `count`+`offset` from the previous query to request the next page of results.
+  """
+  offset: Int
+}
+
 """Metadata for a front-run label."""
 type FrontRunLabelData {
   """The index of the front-run label. Can be 0 or 1."""
@@ -1759,8 +1905,8 @@ input GetGasEstimateInput {
   inputTokenAmount: String!
   networkId: Int!
   outputTokenAddress: String!
-  poolAddress: String
-  exchangeAddress: String
+  poolAddress: String!
+  exchangeAddress: String!
   userId: Int
   walletId: Int
   customGas: String
@@ -1864,8 +2010,8 @@ input GetQuoteInput {
   inputTokenAmount: String!
   networkId: Int!
   outputTokenAddress: String!
-  poolAddress: String
-  exchangeAddress: String
+  poolAddress: String!
+  exchangeAddress: String!
   userId: Int
   customGas: String
   slippage: Float
@@ -2268,7 +2414,10 @@ type LatestTokenSimResults {
 
 type LaunchpadData {
   """The name of the launchpad."""
-  name: String
+  name: String @deprecated(reason: "Use launchpadName instead")
+
+  """The name of the launchpad."""
+  launchpadName: String
 
   """The percentage of the pool that was sold to the public."""
   graduationPercent: Float
@@ -2365,6 +2514,10 @@ enum LaunchpadTokenProtocol {
   Pump
   FourMeme
   RaydiumLaunchpad
+  BoopFun
+  Vertigo
+  Rainbow
+  EgoTech
 }
 
 scalar link__Import
@@ -2653,6 +2806,193 @@ type Network {
   """The network ID. For example, `42161` for `arbitrum`."""
   id: Int!
   networkShortName: String
+}
+
+"""A breakdown of the wallet's activity by network."""
+type NetworkBreakdown {
+  """The network ID"""
+  networkId: Int!
+
+  """The native token balance"""
+  nativeTokenBalance: String!
+
+  """The stats for the last day"""
+  statsDay1: WindowedWalletStats
+
+  """The stats for the last week"""
+  statsWeek1: WindowedWalletStats
+
+  """The stats for the last 30 days"""
+  statsDay30: WindowedWalletStats
+
+  """The stats for the last year"""
+  statsYear1: WindowedWalletStats
+}
+
+type NetworkWalletFilterConnection {
+  """The list of wallets matching the filter parameters."""
+  results: [NetworkWalletFilterResult!]!
+
+  """The number of wallets returned."""
+  count: Int!
+
+  """Where in the list the server started when returning items."""
+  offset: Int!
+}
+
+type NetworkWalletFilterResult {
+  """The wallet address"""
+  address: String!
+
+  """The network ID of the wallet"""
+  networkId: Int!
+
+  """The unix timestamp for the first transaction from this wallet"""
+  firstTransactionAt: Int
+
+  """The unix timestamp for the last transaction from this wallet"""
+  lastTransactionAt: Int!
+
+  """The native token balance of the wallet"""
+  nativeTokenBalance: String!
+
+  """The labels associated with the wallet"""
+  labels: [String!]!
+
+  """Volume in USD in the past day"""
+  volumeUsd1d: String!
+
+  """Total volume in USD in the past day including all tokens"""
+  volumeUsdAll1d: String!
+
+  """Realized profit in USD in the past day"""
+  realizedProfitUsd1d: String!
+
+  """Average profit in USD per trade in the past day"""
+  averageProfitUsdPerTrade1d: String!
+
+  """Average swap amount in USD in the past day"""
+  averageSwapAmountUsd1d: String!
+
+  """Realized profit percentage in the past day"""
+  realizedProfitPercentage1d: Float!
+
+  """Number of swaps in the past day"""
+  swaps1d: Int!
+
+  """Total number of swaps in the past day including all tokens"""
+  swapsAll1d: Int!
+
+  """Number of unique tokens traded in the past day"""
+  uniqueTokens1d: Int!
+
+  """Win rate in the past day"""
+  winRate1d: Float!
+
+  """Volume in USD in the past week"""
+  volumeUsd1w: String!
+
+  """Total volume in USD in the past week including all tokens"""
+  volumeUsdAll1w: String!
+
+  """Realized profit in USD in the past week"""
+  realizedProfitUsd1w: String!
+
+  """Average profit in USD per trade in the past week"""
+  averageProfitUsdPerTrade1w: String!
+
+  """Average swap amount in USD in the past week"""
+  averageSwapAmountUsd1w: String!
+
+  """Realized profit percentage in the past week"""
+  realizedProfitPercentage1w: Float!
+
+  """Number of swaps in the past week"""
+  swaps1w: Int!
+
+  """Total number of swaps in the past week including all tokens"""
+  swapsAll1w: Int!
+
+  """Number of unique tokens traded in the past week"""
+  uniqueTokens1w: Int!
+
+  """Win rate in the past week"""
+  winRate1w: Float!
+
+  """Volume in USD in the past 30 days"""
+  volumeUsd30d: String!
+
+  """Total volume in USD in the past 30 days including all tokens"""
+  volumeUsdAll30d: String!
+
+  """Realized profit in USD in the past 30 days"""
+  realizedProfitUsd30d: String!
+
+  """Average profit in USD per trade in the past 30 days"""
+  averageProfitUsdPerTrade30d: String!
+
+  """Average swap amount in USD in the past 30 days"""
+  averageSwapAmountUsd30d: String!
+
+  """Realized profit percentage in the past 30 days"""
+  realizedProfitPercentage30d: Float!
+
+  """Number of swaps in the past 30 days"""
+  swaps30d: Int!
+
+  """Total number of swaps in the past 30 days including all tokens"""
+  swapsAll30d: Int!
+
+  """Number of unique tokens traded in the past 30 days"""
+  uniqueTokens30d: Int!
+
+  """Win rate in the past 30 days"""
+  winRate30d: Float!
+
+  """Volume in USD in the past year"""
+  volumeUsd1y: String!
+
+  """Total volume in USD in the past year including all tokens"""
+  volumeUsdAll1y: String!
+
+  """Realized profit in USD in the past year"""
+  realizedProfitUsd1y: String!
+
+  """Average profit in USD per trade in the past year"""
+  averageProfitUsdPerTrade1y: String!
+
+  """Average swap amount in USD in the past year"""
+  averageSwapAmountUsd1y: String!
+
+  """Realized profit percentage in the past year"""
+  realizedProfitPercentage1y: Float!
+
+  """Number of swaps in the past year"""
+  swaps1y: Int!
+
+  """Total number of swaps in the past year including all tokens"""
+  swapsAll1y: Int!
+
+  """Number of unique tokens traded in the past year"""
+  uniqueTokens1y: Int!
+
+  """Win rate in the past year"""
+  winRate1y: Float!
+
+  """The scammer score for the wallet."""
+  scammerScore: Int
+
+  """The bot score for the wallet."""
+  botScore: Int
+}
+
+"""Native token balance for a wallet on a network."""
+type NetworkWalletStats {
+  """The network ID"""
+  networkId: Int!
+
+  """The native token balance"""
+  nativeTokenBalance: String!
 }
 
 """Event data for creating a new NFT pool."""
@@ -6405,7 +6745,7 @@ input PairChartSettings {
   quoteToken: QuoteToken
 
   """
-  The time frame for each candle. Available options are `1`, `5`, `15`, `30`, `60`, `240`, `720`, `1D`, `7D`.
+  The time frame for each candle. Available options are `1S`, `5S`, `15S`, `30S`, `1`, `5`, `15`, `30`, `60`, `240`, `720`, `1D`, `7D`.
   """
   resolution: String
 
@@ -8934,7 +9274,7 @@ type Query {
     to: Int!
 
     """
-    The time frame for each candle. Available options are `1`, `5`, `15`, `30`, `60`, `240`, `720`, `1D`, `7D`.
+    The time frame for each candle. Available options are `1S`, `5S`, `15S`, `30S`, `1`, `5`, `15`, `30`, `60`, `240`, `720`, `1D`, `7D`.
     """
     resolution: String!
 
@@ -9164,6 +9504,25 @@ type Query {
   """Returns a list of top traders for a given token."""
   tokenTopTraders(input: TokenTopTradersInput!): TokenTopTradersConnection!
 
+  """Returns a list of wallets based on a variety of filters."""
+  filterWallets(input: FilterWalletsInput!): WalletFilterConnection!
+
+  """
+  Returns a list of wallets with stats narrowed down to a specific network.
+  """
+  filterNetworkWallets(input: FilterNetworkWalletsInput!): NetworkWalletFilterConnection! @deprecated(reason: "Use filterWallets instead")
+
+  """
+  Returns a list of wallets with stats narrowed down to a specific token.
+  """
+  filterTokenWallets(input: FilterTokenWalletsInput!): TokenWalletFilterConnection!
+
+  """Returns detailed stats for a wallet."""
+  detailedWalletStats(input: DetailedWalletStatsInput!): DetailedWalletStats
+
+  """Returns a chart of a wallet's activity."""
+  walletChart(input: WalletChartInput!): WalletChartResponse
+
   """Returns community gathered notes."""
   getCommunityNotes(input: CommunityNotesInput): CommunityNotesResponse!
 }
@@ -9204,6 +9563,12 @@ enum QuoteToken {
 enum QuoteType {
   INPUT
   OUTPUT
+}
+
+"""The range of time for a chart."""
+input RangeInput {
+  start: Int!
+  end: Int!
 }
 
 """The order of ranking."""
@@ -10470,10 +10835,11 @@ type TokenFilterResult {
   """The lowest price in USD in the past 4 hours."""
   low4: String
 
-  """
-  The fully diluted market cap. For circulating market cap multiply `token { info { circulatingSupply } }` by `priceUSD`.
-  """
+  """The fully diluted market cap."""
   marketCap: String
+
+  """The circulating market cap."""
+  circulatingMarketCap: String
 
   """Metadata for the token's top pair."""
   pair: Pair
@@ -10728,6 +11094,9 @@ input TokenFilters {
   """The market cap of circulating supply."""
   marketCap: NumberFilter
 
+  """The circulating market cap."""
+  circulatingMarketCap: NumberFilter
+
   """
   The list of network IDs to filter by. Applied in conjunction with `exchangeId` filter using an OR condition. When used together, the query returns results that match either the specified exchanges or the specified network.
   """
@@ -10886,6 +11255,9 @@ input TokenFilters {
 
   """The launchpad protocol"""
   launchpadProtocol: String
+
+  """The name of the launchpad"""
+  launchpadName: String
 
   """Indicates if the launchpad is completed"""
   launchpadCompleted: Boolean
@@ -11190,6 +11562,7 @@ enum TokenRankingAttribute {
   low12
   low24
   marketCap
+  circulatingMarketCap
   priceUSD
   sellCount5m
   sellCount1
@@ -11365,6 +11738,188 @@ input TokenTopTradersInput {
 
   """Where in the list the server started when returning items"""
   offset: Int
+}
+
+type TokenWalletFilterConnection {
+  """The list of wallets matching the filter parameters."""
+  results: [TokenWalletFilterResult!]!
+
+  """The number of wallets returned."""
+  count: Int!
+
+  """Where in the list the server started when returning items."""
+  offset: Int!
+}
+
+"""The result for filtering wallets for a token."""
+type TokenWalletFilterResult {
+  """The wallet address"""
+  address: String!
+
+  """The token address"""
+  tokenAddress: String!
+
+  """The network ID"""
+  networkId: Int!
+
+  """The unix timestamp for the first transaction from this wallet"""
+  firstTransactionAt: Int
+
+  """The unix timestamp for the last transaction from this wallet"""
+  lastTransactionAt: Int!
+
+  """The labels associated with the wallet"""
+  labels: [String!]!
+
+  """Token amount bought in the past day"""
+  tokenAmountBought1d: String!
+
+  """Token amount sold in the past day"""
+  tokenAmountSold1d: String!
+
+  """Token amount sold all in the past day"""
+  tokenAmountSoldAll1d: String!
+
+  """Amount bought in USD in the past day"""
+  amountBoughtUsd1d: String!
+
+  """Amount sold in USD in the past day"""
+  amountSoldUsd1d: String!
+
+  """Amount sold USD all in the past day"""
+  amountSoldUsdAll1d: String!
+
+  """Realized profit in USD in the past day"""
+  realizedProfitUsd1d: String!
+
+  """Realized profit percentage in the past day"""
+  realizedProfitPercentage1d: Float!
+
+  """Number of buys in the past day"""
+  buys1d: Int!
+
+  """Number of sells in the past day"""
+  sells1d: Int!
+
+  """Number of sells all in the past day"""
+  sellsAll1d: Int!
+
+  """Token amount bought in the past week"""
+  tokenAmountBought1w: String!
+
+  """Token amount sold in the past week"""
+  tokenAmountSold1w: String!
+
+  """Token amount sold all in the past week"""
+  tokenAmountSoldAll1w: String!
+
+  """Amount bought in USD in the past week"""
+  amountBoughtUsd1w: String!
+
+  """Amount sold in USD in the past week"""
+  amountSoldUsd1w: String!
+
+  """Amount sold USD all in the past week"""
+  amountSoldUsdAll1w: String!
+
+  """Realized profit in USD in the past week"""
+  realizedProfitUsd1w: String!
+
+  """Realized profit percentage in the past week"""
+  realizedProfitPercentage1w: Float!
+
+  """Number of buys in the past week"""
+  buys1w: Int!
+
+  """Number of sells in the past week"""
+  sells1w: Int!
+
+  """Number of sells all in the past week"""
+  sellsAll1w: Int!
+
+  """Token amount bought in the past 30 days"""
+  tokenAmountBought30d: String!
+
+  """Token amount sold in the past 30 days"""
+  tokenAmountSold30d: String!
+
+  """Token amount sold all in the past 30 days"""
+  tokenAmountSoldAll30d: String!
+
+  """Amount bought in USD in the past 30 days"""
+  amountBoughtUsd30d: String!
+
+  """Amount sold in USD in the past 30 days"""
+  amountSoldUsd30d: String!
+
+  """Amount sold USD all in the past 30 days"""
+  amountSoldUsdAll30d: String!
+
+  """Realized profit in USD in the past 30 days"""
+  realizedProfitUsd30d: String!
+
+  """Realized profit percentage in the past 30 days"""
+  realizedProfitPercentage30d: Float!
+
+  """Number of buys in the past 30 days"""
+  buys30d: Int!
+
+  """Number of sells in the past 30 days"""
+  sells30d: Int!
+
+  """Number of sells all in the past 30 days"""
+  sellsAll30d: Int!
+
+  """Token amount bought in the past year"""
+  tokenAmountBought1y: String!
+
+  """Token amount sold in the past year"""
+  tokenAmountSold1y: String!
+
+  """Token amount sold all in the past year"""
+  tokenAmountSoldAll1y: String!
+
+  """Amount bought in USD in the past year"""
+  amountBoughtUsd1y: String!
+
+  """Amount sold in USD in the past year"""
+  amountSoldUsd1y: String!
+
+  """Amount sold USD all in the past year"""
+  amountSoldUsdAll1y: String!
+
+  """Realized profit in USD in the past year"""
+  realizedProfitUsd1y: String!
+
+  """Realized profit percentage in the past year"""
+  realizedProfitPercentage1y: Float!
+
+  """Number of buys in the past year"""
+  buys1y: Int!
+
+  """Number of sells in the past year"""
+  sells1y: Int!
+
+  """Number of sells all in the past year"""
+  sellsAll1y: Int!
+
+  """The purchased token balance"""
+  purchasedTokenBalance: String!
+
+  """The token acquisition cost in USD"""
+  tokenAcquisitionCostUsd: String!
+
+  """The current token balance"""
+  tokenBalance: String!
+
+  """The token metadata"""
+  token: EnhancedToken!
+
+  """The scammer score for the wallet."""
+  scammerScore: Int
+
+  """The bot score for the wallet."""
+  botScore: Int
 }
 
 """A token with metadata."""
@@ -11657,9 +12212,564 @@ type UnconfirmedSwapEventData {
 
 scalar Void
 
+"""The data for a chart of a wallet's activity."""
+type WalletChartData {
+  """The timestamp"""
+  timestamp: Int!
+
+  """The resolution"""
+  resolution: String!
+
+  """The volume in USD"""
+  volumeUsd: String!
+
+  """
+  The volume in USD including tokens sold for which we do not have a price
+  """
+  volumeUsdAll: String!
+
+  """The realized profit in USD"""
+  realizedProfitUsd: String!
+
+  """The number of swaps"""
+  swaps: Int!
+}
+
+"""The input for a chart of a wallet's activity."""
+input WalletChartInput {
+  """The wallet address"""
+  walletAddress: String!
+
+  """The network ID"""
+  networkId: Int
+
+  """The range of time for the chart"""
+  range: RangeInput!
+
+  """The resolution of the chart"""
+  resolution: String!
+}
+
+"""The range of time for a chart."""
 type WalletChartRange {
   start: Int!
   end: Int!
+}
+
+"""The response for a chart of a wallet's activity."""
+type WalletChartResponse {
+  """The wallet address"""
+  walletAddress: String!
+
+  """The network ID"""
+  networkId: Int
+
+  """The range of time for the chart"""
+  range: WalletChartRange!
+
+  """The resolution of the chart"""
+  resolution: String!
+
+  """The data for the chart"""
+  data: [WalletChartData!]!
+}
+
+type WalletFilterConnection {
+  """The list of wallets matching the filter parameters."""
+  results: [WalletFilterResult!]!
+
+  """The number of wallets returned."""
+  count: Int!
+
+  """Where in the list the server started when returning items."""
+  offset: Int!
+}
+
+type WalletFilterResult {
+  """The wallet address"""
+  address: String!
+
+  """The unix timestamp for the first transaction from this wallet"""
+  firstTransactionAt: Int
+
+  """The unix timestamp for the last transaction from this wallet"""
+  lastTransactionAt: Int!
+
+  """The labels associated with the wallet"""
+  labels: [String!]!
+
+  """Volume in USD in the past day"""
+  volumeUsd1d: String!
+
+  """Total volume in USD in the past day including all tokens"""
+  volumeUsdAll1d: String!
+
+  """Realized profit in USD in the past day"""
+  realizedProfitUsd1d: String!
+
+  """Average profit in USD per trade in the past day"""
+  averageProfitUsdPerTrade1d: String!
+
+  """Average swap amount in USD in the past day"""
+  averageSwapAmountUsd1d: String!
+
+  """Realized profit percentage in the past day"""
+  realizedProfitPercentage1d: Float!
+
+  """Number of swaps in the past day"""
+  swaps1d: Int!
+
+  """Total number of swaps in the past day including all tokens"""
+  swapsAll1d: Int!
+
+  """Number of unique tokens traded in the past day"""
+  uniqueTokens1d: Int!
+
+  """Win rate in the past day"""
+  winRate1d: Float!
+
+  """Volume in USD in the past week"""
+  volumeUsd1w: String!
+
+  """Total volume in USD in the past week including all tokens"""
+  volumeUsdAll1w: String!
+
+  """Realized profit in USD in the past week"""
+  realizedProfitUsd1w: String!
+
+  """Average profit in USD per trade in the past week"""
+  averageProfitUsdPerTrade1w: String!
+
+  """Average swap amount in USD in the past week"""
+  averageSwapAmountUsd1w: String!
+
+  """Realized profit percentage in the past week"""
+  realizedProfitPercentage1w: Float!
+
+  """Number of swaps in the past week"""
+  swaps1w: Int!
+
+  """Total number of swaps in the past week including all tokens"""
+  swapsAll1w: Int!
+
+  """Number of unique tokens traded in the past week"""
+  uniqueTokens1w: Int!
+
+  """Win rate in the past week"""
+  winRate1w: Float!
+
+  """Volume in USD in the past 30 days"""
+  volumeUsd30d: String!
+
+  """Total volume in USD in the past 30 days including all tokens"""
+  volumeUsdAll30d: String!
+
+  """Realized profit in USD in the past 30 days"""
+  realizedProfitUsd30d: String!
+
+  """Average profit in USD per trade in the past 30 days"""
+  averageProfitUsdPerTrade30d: String!
+
+  """Average swap amount in USD in the past 30 days"""
+  averageSwapAmountUsd30d: String!
+
+  """Realized profit percentage in the past 30 days"""
+  realizedProfitPercentage30d: Float!
+
+  """Number of swaps in the past 30 days"""
+  swaps30d: Int!
+
+  """Total number of swaps in the past 30 days including all tokens"""
+  swapsAll30d: Int!
+
+  """Number of unique tokens traded in the past 30 days"""
+  uniqueTokens30d: Int!
+
+  """Win rate in the past 30 days"""
+  winRate30d: Float!
+
+  """Volume in USD in the past year"""
+  volumeUsd1y: String!
+
+  """Total volume in USD in the past year including all tokens"""
+  volumeUsdAll1y: String!
+
+  """Realized profit in USD in the past year"""
+  realizedProfitUsd1y: String!
+
+  """Average profit in USD per trade in the past year"""
+  averageProfitUsdPerTrade1y: String!
+
+  """Average swap amount in USD in the past year"""
+  averageSwapAmountUsd1y: String!
+
+  """Realized profit percentage in the past year"""
+  realizedProfitPercentage1y: Float!
+
+  """Number of swaps in the past year"""
+  swaps1y: Int!
+
+  """Total number of swaps in the past year including all tokens"""
+  swapsAll1y: Int!
+
+  """Number of unique tokens traded in the past year"""
+  uniqueTokens1y: Int!
+
+  """Win rate in the past year"""
+  winRate1y: Float!
+
+  """The scammer score for the wallet."""
+  scammerScore: Int
+
+  """The bot score for the wallet."""
+  botScore: Int
+
+  """The network ID of the wallet (only present if filtered by network)"""
+  networkId: Int
+
+  """
+  The native token balance of the wallet (only present if filtered by network)
+  """
+  nativeTokenBalance: String
+}
+
+input WalletFilters {
+  """The unix timestamp for the last transaction from this wallet."""
+  lastTransactionAt: NumberFilter
+
+  """The unix timestamp for the first transaction from this wallet."""
+  firstTransactionAt: NumberFilter
+
+  """Volume in USD in the past day"""
+  volumeUsd1d: NumberFilter
+
+  """Total volume in USD in the past day including all tokens"""
+  volumeUsdAll1d: NumberFilter
+
+  """Realized profit in USD in the past day"""
+  realizedProfitUsd1d: NumberFilter
+
+  """Average profit in USD per trade in the past day"""
+  averageProfitUsdPerTrade1d: NumberFilter
+
+  """Average swap amount in USD in the past day"""
+  averageSwapAmountUsd1d: NumberFilter
+
+  """Realized profit percentage in the past day"""
+  realizedProfitPercentage1d: NumberFilter
+
+  """Number of swaps in the past day"""
+  swaps1d: NumberFilter
+
+  """Total number of swaps in the past day including all tokens"""
+  swapsAll1d: NumberFilter
+
+  """Number of unique tokens traded in the past day"""
+  uniqueTokens1d: NumberFilter
+
+  """Win rate in the past day"""
+  winRate1d: NumberFilter
+
+  """Volume in USD in the past week"""
+  volumeUsd1w: NumberFilter
+
+  """Total volume in USD in the past week including all tokens"""
+  volumeUsdAll1w: NumberFilter
+
+  """Realized profit in USD in the past week"""
+  realizedProfitUsd1w: NumberFilter
+
+  """Average profit in USD per trade in the past week"""
+  averageProfitUsdPerTrade1w: NumberFilter
+
+  """Average swap amount in USD in the past week"""
+  averageSwapAmountUsd1w: NumberFilter
+
+  """Realized profit percentage in the past week"""
+  realizedProfitPercentage1w: NumberFilter
+
+  """Number of swaps in the past week"""
+  swaps1w: NumberFilter
+
+  """Total number of swaps in the past week including all tokens"""
+  swapsAll1w: NumberFilter
+
+  """Number of unique tokens traded in the past week"""
+  uniqueTokens1w: NumberFilter
+
+  """Win rate in the past week"""
+  winRate1w: NumberFilter
+
+  """Volume in USD in the past 30 days"""
+  volumeUsd30d: NumberFilter
+
+  """Total volume in USD in the past 30 days including all tokens"""
+  volumeUsdAll30d: NumberFilter
+
+  """Realized profit in USD in the past 30 days"""
+  realizedProfitUsd30d: NumberFilter
+
+  """Average profit in USD per trade in the past 30 days"""
+  averageProfitUsdPerTrade30d: NumberFilter
+
+  """Average swap amount in USD in the past 30 days"""
+  averageSwapAmountUsd30d: NumberFilter
+
+  """Realized profit percentage in the past 30 days"""
+  realizedProfitPercentage30d: NumberFilter
+
+  """Number of swaps in the past 30 days"""
+  swaps30d: NumberFilter
+
+  """Total number of swaps in the past 30 days including all tokens"""
+  swapsAll30d: NumberFilter
+
+  """Number of unique tokens traded in the past 30 days"""
+  uniqueTokens30d: NumberFilter
+
+  """Win rate in the past 30 days"""
+  winRate30d: NumberFilter
+
+  """Volume in USD in the past year"""
+  volumeUsd1y: NumberFilter
+
+  """Total volume in USD in the past year including all tokens"""
+  volumeUsdAll1y: NumberFilter
+
+  """Realized profit in USD in the past year"""
+  realizedProfitUsd1y: NumberFilter
+
+  """Average profit in USD per trade in the past year"""
+  averageProfitUsdPerTrade1y: NumberFilter
+
+  """Average swap amount in USD in the past year"""
+  averageSwapAmountUsd1y: NumberFilter
+
+  """Realized profit percentage in the past year"""
+  realizedProfitPercentage1y: NumberFilter
+
+  """Number of swaps in the past year"""
+  swaps1y: NumberFilter
+
+  """Total number of swaps in the past year including all tokens"""
+  swapsAll1y: NumberFilter
+
+  """Number of unique tokens traded in the past year"""
+  uniqueTokens1y: NumberFilter
+
+  """Win rate in the past year"""
+  winRate1y: NumberFilter
+
+  """The scammer score for the wallet."""
+  scammerScore: NumberFilter
+
+  """The bot score for the wallet."""
+  botScore: NumberFilter
+
+  """The network ID to filter by."""
+  networkId: Int
+
+  """
+  The native token balance of the wallet. Can only be used in conjunction with `networkId` filter.
+  """
+  nativeTokenBalance: NumberFilter
+}
+
+input WalletNetworkFilters {
+  """The unix timestamp for the last transaction from this wallet."""
+  lastTransactionAt: NumberFilter
+
+  """The unix timestamp for the first transaction from this wallet."""
+  firstTransactionAt: NumberFilter
+
+  """Volume in USD in the past day"""
+  volumeUsd1d: NumberFilter
+
+  """Total volume in USD in the past day including all tokens"""
+  volumeUsdAll1d: NumberFilter
+
+  """Realized profit in USD in the past day"""
+  realizedProfitUsd1d: NumberFilter
+
+  """Average profit in USD per trade in the past day"""
+  averageProfitUsdPerTrade1d: NumberFilter
+
+  """Average swap amount in USD in the past day"""
+  averageSwapAmountUsd1d: NumberFilter
+
+  """Realized profit percentage in the past day"""
+  realizedProfitPercentage1d: NumberFilter
+
+  """Number of swaps in the past day"""
+  swaps1d: NumberFilter
+
+  """Total number of swaps in the past day including all tokens"""
+  swapsAll1d: NumberFilter
+
+  """Number of unique tokens traded in the past day"""
+  uniqueTokens1d: NumberFilter
+
+  """Win rate in the past day"""
+  winRate1d: NumberFilter
+
+  """Volume in USD in the past week"""
+  volumeUsd1w: NumberFilter
+
+  """Total volume in USD in the past week including all tokens"""
+  volumeUsdAll1w: NumberFilter
+
+  """Realized profit in USD in the past week"""
+  realizedProfitUsd1w: NumberFilter
+
+  """Average profit in USD per trade in the past week"""
+  averageProfitUsdPerTrade1w: NumberFilter
+
+  """Average swap amount in USD in the past week"""
+  averageSwapAmountUsd1w: NumberFilter
+
+  """Realized profit percentage in the past week"""
+  realizedProfitPercentage1w: NumberFilter
+
+  """Number of swaps in the past week"""
+  swaps1w: NumberFilter
+
+  """Total number of swaps in the past week including all tokens"""
+  swapsAll1w: NumberFilter
+
+  """Number of unique tokens traded in the past week"""
+  uniqueTokens1w: NumberFilter
+
+  """Win rate in the past week"""
+  winRate1w: NumberFilter
+
+  """Volume in USD in the past 30 days"""
+  volumeUsd30d: NumberFilter
+
+  """Total volume in USD in the past 30 days including all tokens"""
+  volumeUsdAll30d: NumberFilter
+
+  """Realized profit in USD in the past 30 days"""
+  realizedProfitUsd30d: NumberFilter
+
+  """Average profit in USD per trade in the past 30 days"""
+  averageProfitUsdPerTrade30d: NumberFilter
+
+  """Average swap amount in USD in the past 30 days"""
+  averageSwapAmountUsd30d: NumberFilter
+
+  """Realized profit percentage in the past 30 days"""
+  realizedProfitPercentage30d: NumberFilter
+
+  """Number of swaps in the past 30 days"""
+  swaps30d: NumberFilter
+
+  """Total number of swaps in the past 30 days including all tokens"""
+  swapsAll30d: NumberFilter
+
+  """Number of unique tokens traded in the past 30 days"""
+  uniqueTokens30d: NumberFilter
+
+  """Win rate in the past 30 days"""
+  winRate30d: NumberFilter
+
+  """Volume in USD in the past year"""
+  volumeUsd1y: NumberFilter
+
+  """Total volume in USD in the past year including all tokens"""
+  volumeUsdAll1y: NumberFilter
+
+  """Realized profit in USD in the past year"""
+  realizedProfitUsd1y: NumberFilter
+
+  """Average profit in USD per trade in the past year"""
+  averageProfitUsdPerTrade1y: NumberFilter
+
+  """Average swap amount in USD in the past year"""
+  averageSwapAmountUsd1y: NumberFilter
+
+  """Realized profit percentage in the past year"""
+  realizedProfitPercentage1y: NumberFilter
+
+  """Number of swaps in the past year"""
+  swaps1y: NumberFilter
+
+  """Total number of swaps in the past year including all tokens"""
+  swapsAll1y: NumberFilter
+
+  """Number of unique tokens traded in the past year"""
+  uniqueTokens1y: NumberFilter
+
+  """Win rate in the past year"""
+  winRate1y: NumberFilter
+
+  """The native token balance of the wallet."""
+  nativeTokenBalance: NumberFilter
+
+  """
+  The scammer score for the wallet. Indicates the likelihood of the wallet being a scammer. Zero being not a scammer and 100 being a definite scammer.
+  """
+  scammerScore: NumberFilter
+
+  """
+  The bot score for the wallet. Indicates the likelihood of the wallet being a bot. Zero being not a bot and 100 being a definite bot.
+  """
+  botScore: NumberFilter
+}
+
+input WalletNetworkRanking {
+  """The attribute to rank wallets by."""
+  attribute: WalletNetworkRankingAttribute
+
+  """The direction to apply to the ranking attribute."""
+  direction: RankingDirection
+}
+
+enum WalletNetworkRankingAttribute {
+  firstTransactionAt
+  lastTransactionAt
+  volumeUsd1d
+  volumeUsdAll1d
+  realizedProfitUsd1d
+  averageProfitUsdPerTrade1d
+  averageSwapAmountUsd1d
+  realizedProfitPercentage1d
+  swaps1d
+  swapsAll1d
+  uniqueTokens1d
+  winRate1d
+  volumeUsd1w
+  volumeUsdAll1w
+  realizedProfitUsd1w
+  averageProfitUsdPerTrade1w
+  averageSwapAmountUsd1w
+  realizedProfitPercentage1w
+  swaps1w
+  swapsAll1w
+  uniqueTokens1w
+  winRate1w
+  volumeUsd30d
+  volumeUsdAll30d
+  realizedProfitUsd30d
+  averageProfitUsdPerTrade30d
+  averageSwapAmountUsd30d
+  realizedProfitPercentage30d
+  swaps30d
+  swapsAll30d
+  uniqueTokens30d
+  winRate30d
+  volumeUsd1y
+  volumeUsdAll1y
+  realizedProfitUsd1y
+  averageProfitUsdPerTrade1y
+  averageSwapAmountUsd1y
+  realizedProfitPercentage1y
+  swaps1y
+  swapsAll1y
+  uniqueTokens1y
+  winRate1y
+  nativeTokenBalance
+  scammerScore
+  botScore
 }
 
 type WalletNftCollection {
@@ -11722,6 +12832,443 @@ type WalletNftCollectionsResponse {
 
   """A cursor for use in pagination."""
   cursor: String
+}
+
+input WalletRanking {
+  """The attribute to rank wallets by."""
+  attribute: WalletRankingAttribute
+
+  """The direction to apply to the ranking attribute."""
+  direction: RankingDirection
+}
+
+enum WalletRankingAttribute {
+  firstTransactionAt
+  lastTransactionAt
+  volumeUsd1d
+  volumeUsdAll1d
+  realizedProfitUsd1d
+  averageProfitUsdPerTrade1d
+  averageSwapAmountUsd1d
+  realizedProfitPercentage1d
+  swaps1d
+  swapsAll1d
+  uniqueTokens1d
+  winRate1d
+  volumeUsd1w
+  volumeUsdAll1w
+  realizedProfitUsd1w
+  averageProfitUsdPerTrade1w
+  averageSwapAmountUsd1w
+  realizedProfitPercentage1w
+  swaps1w
+  swapsAll1w
+  uniqueTokens1w
+  winRate1w
+  volumeUsd30d
+  volumeUsdAll30d
+  realizedProfitUsd30d
+  averageProfitUsdPerTrade30d
+  averageSwapAmountUsd30d
+  realizedProfitPercentage30d
+  swaps30d
+  swapsAll30d
+  uniqueTokens30d
+  winRate30d
+  volumeUsd1y
+  volumeUsdAll1y
+  realizedProfitUsd1y
+  averageProfitUsdPerTrade1y
+  averageSwapAmountUsd1y
+  realizedProfitPercentage1y
+  swaps1y
+  swapsAll1y
+  uniqueTokens1y
+  winRate1y
+  nativeTokenBalance
+  scammerScore
+  botScore
+}
+
+"""The period the wallet stats are for."""
+enum WalletStatsDuration {
+  year1
+  day30
+  week1
+  day1
+}
+
+input WalletTokenFilterRange {
+  """The minimum value (inclusive)"""
+  min: String
+
+  """The maximum value (inclusive)"""
+  max: String
+}
+
+input WalletTokenFilters {
+  """Filter by last transaction timestamp"""
+  lastTransactionAt: WalletTokenFilterRange
+
+  """Filter by first transaction timestamp"""
+  firstTransactionAt: WalletTokenFilterRange
+
+  """Filter by token amount bought in the past day"""
+  tokenAmountBought1d: WalletTokenFilterRange
+
+  """Filter by token amount sold in the past day"""
+  tokenAmountSold1d: WalletTokenFilterRange
+
+  """Filter by amount bought in USD in the past day"""
+  amountBoughtUsd1d: WalletTokenFilterRange
+
+  """Filter by amount sold in USD in the past day"""
+  amountSoldUsd1d: WalletTokenFilterRange
+
+  """Filter by realized profit in USD in the past day"""
+  realizedProfitUsd1d: WalletTokenFilterRange
+
+  """Filter by realized profit percentage in the past day"""
+  realizedProfitPercentage1d: WalletTokenFilterRange
+
+  """Filter by number of buys in the past day"""
+  buys1d: WalletTokenFilterRange
+
+  """Filter by number of sells in the past day"""
+  sells1d: WalletTokenFilterRange
+
+  """Filter by token amount bought in the past week"""
+  tokenAmountBought1w: WalletTokenFilterRange
+
+  """Filter by token amount sold in the past week"""
+  tokenAmountSold1w: WalletTokenFilterRange
+
+  """Filter by amount bought in USD in the past week"""
+  amountBoughtUsd1w: WalletTokenFilterRange
+
+  """Filter by amount sold in USD in the past week"""
+  amountSoldUsd1w: WalletTokenFilterRange
+
+  """Filter by realized profit in USD in the past week"""
+  realizedProfitUsd1w: WalletTokenFilterRange
+
+  """Filter by realized profit percentage in the past week"""
+  realizedProfitPercentage1w: WalletTokenFilterRange
+
+  """Filter by number of buys in the past week"""
+  buys1w: WalletTokenFilterRange
+
+  """Filter by number of sells in the past week"""
+  sells1w: WalletTokenFilterRange
+
+  """Filter by token amount bought in the past 30 days"""
+  tokenAmountBought30d: WalletTokenFilterRange
+
+  """Filter by token amount sold in the past 30 days"""
+  tokenAmountSold30d: WalletTokenFilterRange
+
+  """Filter by amount bought in USD in the past 30 days"""
+  amountBoughtUsd30d: WalletTokenFilterRange
+
+  """Filter by amount sold in USD in the past 30 days"""
+  amountSoldUsd30d: WalletTokenFilterRange
+
+  """Filter by realized profit in USD in the past 30 days"""
+  realizedProfitUsd30d: WalletTokenFilterRange
+
+  """Filter by realized profit percentage in the past 30 days"""
+  realizedProfitPercentage30d: WalletTokenFilterRange
+
+  """Filter by number of buys in the past 30 days"""
+  buys30d: WalletTokenFilterRange
+
+  """Filter by number of sells in the past 30 days"""
+  sells30d: WalletTokenFilterRange
+
+  """Filter by token amount bought in the past year"""
+  tokenAmountBought1y: WalletTokenFilterRange
+
+  """Filter by token amount sold in the past year"""
+  tokenAmountSold1y: WalletTokenFilterRange
+
+  """Filter by amount bought in USD in the past year"""
+  amountBoughtUsd1y: WalletTokenFilterRange
+
+  """Filter by amount sold in USD in the past year"""
+  amountSoldUsd1y: WalletTokenFilterRange
+
+  """Filter by realized profit in USD in the past year"""
+  realizedProfitUsd1y: WalletTokenFilterRange
+
+  """Filter by realized profit percentage in the past year"""
+  realizedProfitPercentage1y: WalletTokenFilterRange
+
+  """Filter by number of buys in the past year"""
+  buys1y: WalletTokenFilterRange
+
+  """Filter by number of sells in the past year"""
+  sells1y: WalletTokenFilterRange
+
+  """Filter by token balance"""
+  tokenBalance: WalletTokenFilterRange
+
+  """Filter by purchased token balance"""
+  purchasedTokenBalance: WalletTokenFilterRange
+
+  """Filter by token acquisition cost in USD"""
+  tokenAcquisitionCostUsd: WalletTokenFilterRange
+
+  """Filter by scammer score"""
+  scammerScore: WalletTokenFilterRange
+
+  """Filter by bot score"""
+  botScore: WalletTokenFilterRange
+}
+
+input WalletTokenFiltersV2 {
+  """Filter by last transaction timestamp"""
+  lastTransactionAt: NumberFilter
+
+  """Filter by first transaction timestamp"""
+  firstTransactionAt: NumberFilter
+
+  """Filter by token amount bought in the past day"""
+  tokenAmountBought1d: NumberFilter
+
+  """Filter by token amount sold in the past day"""
+  tokenAmountSold1d: NumberFilter
+
+  """Filter by amount bought in USD in the past day"""
+  amountBoughtUsd1d: NumberFilter
+
+  """Filter by amount sold in USD in the past day"""
+  amountSoldUsd1d: NumberFilter
+
+  """Filter by realized profit in USD in the past day"""
+  realizedProfitUsd1d: NumberFilter
+
+  """Filter by realized profit percentage in the past day"""
+  realizedProfitPercentage1d: NumberFilter
+
+  """Filter by number of buys in the past day"""
+  buys1d: NumberFilter
+
+  """Filter by number of sells in the past day"""
+  sells1d: NumberFilter
+
+  """Filter by token amount bought in the past week"""
+  tokenAmountBought1w: NumberFilter
+
+  """Filter by token amount sold in the past week"""
+  tokenAmountSold1w: NumberFilter
+
+  """Filter by amount bought in USD in the past week"""
+  amountBoughtUsd1w: NumberFilter
+
+  """Filter by amount sold in USD in the past week"""
+  amountSoldUsd1w: NumberFilter
+
+  """Filter by realized profit in USD in the past week"""
+  realizedProfitUsd1w: NumberFilter
+
+  """Filter by realized profit percentage in the past week"""
+  realizedProfitPercentage1w: NumberFilter
+
+  """Filter by number of buys in the past week"""
+  buys1w: NumberFilter
+
+  """Filter by number of sells in the past week"""
+  sells1w: NumberFilter
+
+  """Filter by token amount bought in the past 30 days"""
+  tokenAmountBought30d: NumberFilter
+
+  """Filter by token amount sold in the past 30 days"""
+  tokenAmountSold30d: NumberFilter
+
+  """Filter by amount bought in USD in the past 30 days"""
+  amountBoughtUsd30d: NumberFilter
+
+  """Filter by amount sold in USD in the past 30 days"""
+  amountSoldUsd30d: NumberFilter
+
+  """Filter by realized profit in USD in the past 30 days"""
+  realizedProfitUsd30d: NumberFilter
+
+  """Filter by realized profit percentage in the past 30 days"""
+  realizedProfitPercentage30d: NumberFilter
+
+  """Filter by number of buys in the past 30 days"""
+  buys30d: NumberFilter
+
+  """Filter by number of sells in the past 30 days"""
+  sells30d: NumberFilter
+
+  """Filter by token amount bought in the past year"""
+  tokenAmountBought1y: NumberFilter
+
+  """Filter by token amount sold in the past year"""
+  tokenAmountSold1y: NumberFilter
+
+  """Filter by amount bought in USD in the past year"""
+  amountBoughtUsd1y: NumberFilter
+
+  """Filter by amount sold in USD in the past year"""
+  amountSoldUsd1y: NumberFilter
+
+  """Filter by realized profit in USD in the past year"""
+  realizedProfitUsd1y: NumberFilter
+
+  """Filter by realized profit percentage in the past year"""
+  realizedProfitPercentage1y: NumberFilter
+
+  """Filter by number of buys in the past year"""
+  buys1y: NumberFilter
+
+  """Filter by number of sells in the past year"""
+  sells1y: NumberFilter
+
+  """Filter by token balance"""
+  tokenBalance: NumberFilter
+
+  """Filter by purchased token balance"""
+  purchasedTokenBalance: NumberFilter
+
+  """Filter by token acquisition cost in USD"""
+  tokenAcquisitionCostUsd: NumberFilter
+
+  """Filter by scammer score"""
+  scammerScore: NumberFilter
+
+  """Filter by bot score"""
+  botScore: NumberFilter
+}
+
+input WalletTokenRanking {
+  """The attribute to rank wallets by"""
+  attribute: WalletTokenRankingAttribute!
+
+  """The direction to apply to the ranking attribute"""
+  direction: RankingDirection!
+}
+
+enum WalletTokenRankingAttribute {
+  """The first transaction timestamp"""
+  firstTransactionAt
+
+  """The last transaction timestamp"""
+  lastTransactionAt
+
+  """Token amount bought in the past day"""
+  tokenAmountBought1d
+
+  """Token amount sold in the past day"""
+  tokenAmountSold1d
+
+  """Amount bought in USD in the past day"""
+  amountBoughtUsd1d
+
+  """Amount sold in USD in the past day"""
+  amountSoldUsd1d
+
+  """Realized profit in USD in the past day"""
+  realizedProfitUsd1d
+
+  """Realized profit percentage in the past day"""
+  realizedProfitPercentage1d
+
+  """Number of buys in the past day"""
+  buys1d
+
+  """Number of sells in the past day"""
+  sells1d
+
+  """Token amount bought in the past week"""
+  tokenAmountBought1w
+
+  """Token amount sold in the past week"""
+  tokenAmountSold1w
+
+  """Amount bought in USD in the past week"""
+  amountBoughtUsd1w
+
+  """Amount sold in USD in the past week"""
+  amountSoldUsd1w
+
+  """Realized profit in USD in the past week"""
+  realizedProfitUsd1w
+
+  """Realized profit percentage in the past week"""
+  realizedProfitPercentage1w
+
+  """Number of buys in the past week"""
+  buys1w
+
+  """Number of sells in the past week"""
+  sells1w
+
+  """Token amount bought in the past 30 days"""
+  tokenAmountBought30d
+
+  """Token amount sold in the past 30 days"""
+  tokenAmountSold30d
+
+  """Amount bought in USD in the past 30 days"""
+  amountBoughtUsd30d
+
+  """Amount sold in USD in the past 30 days"""
+  amountSoldUsd30d
+
+  """Realized profit in USD in the past 30 days"""
+  realizedProfitUsd30d
+
+  """Realized profit percentage in the past 30 days"""
+  realizedProfitPercentage30d
+
+  """Number of buys in the past 30 days"""
+  buys30d
+
+  """Number of sells in the past 30 days"""
+  sells30d
+
+  """Token amount bought in the past year"""
+  tokenAmountBought1y
+
+  """Token amount sold in the past year"""
+  tokenAmountSold1y
+
+  """Amount bought in USD in the past year"""
+  amountBoughtUsd1y
+
+  """Amount sold in USD in the past year"""
+  amountSoldUsd1y
+
+  """Realized profit in USD in the past year"""
+  realizedProfitUsd1y
+
+  """Realized profit percentage in the past year"""
+  realizedProfitPercentage1y
+
+  """Number of buys in the past year"""
+  buys1y
+
+  """Number of sells in the past year"""
+  sells1y
+
+  """Token balance"""
+  tokenBalance
+
+  """Purchased token balance"""
+  purchasedTokenBalance
+
+  """Token acquisition cost in USD"""
+  tokenAcquisitionCostUsd
+
+  """The scammer score for the wallet."""
+  scammerScore
+
+  """The bot score for the wallet."""
+  botScore
 }
 
 """Metadata for a washtrade label."""
@@ -11848,6 +13395,35 @@ type WindowedDetailedCurrencyPairStats {
   liquidity: DetailedPairStatsStringMetrics
 }
 
+"""The currency stats for a wallet over a time window."""
+type WindowedDetailedCurrencyWalletStats {
+  """The volume in USD"""
+  volumeUsd: String!
+
+  """
+  The volume in USD including tokens sold for which we do not have a price
+  """
+  volumeUsdAll: String!
+
+  """The cost of tokens held in the wallet"""
+  heldTokenAcquisitionCostUsd: String!
+
+  """The cost of tokens sold during the period"""
+  soldTokenAcquisitionCostUsd: String!
+
+  """The realized profit in USD"""
+  realizedProfitUsd: String!
+
+  """The average profit in USD per trade"""
+  averageProfitUsdPerTrade: String!
+
+  """The average swap amount in USD"""
+  averageSwapAmountUsd: String!
+
+  """The realized profit percentage"""
+  realizedProfitPercentage: Float!
+}
+
 """
 Price stats for an NFT collection over a time frame. Either in USD or the network's base token.
 """
@@ -11945,6 +13521,21 @@ type WindowedDetailedNonCurrencyPairStats {
   sellers: DetailedPairStatsNumberMetrics
 }
 
+"""The non-currency stats for a wallet over a time window."""
+type WindowedDetailedNonCurrencyWalletStats {
+  """The number of swaps"""
+  swaps: Int!
+
+  """The number of unique tokens"""
+  uniqueTokens: Int!
+
+  """The number of wins"""
+  wins: Int!
+
+  """The number of losses"""
+  losses: Int!
+}
+
 """Detailed pair stats over a time frame."""
 type WindowedDetailedPairStats {
   """The duration used to request detailed pair stats."""
@@ -12010,4 +13601,28 @@ type WindowedDetailedStats {
 
   """The sell volume over the window."""
   sellVolume: DetailedStatsStringMetrics
+}
+
+"""The stats for a wallet over a time window."""
+type WindowedWalletStats {
+  """The wallet address"""
+  walletAddress: String!
+
+  """The network ID"""
+  networkId: Int
+
+  """The start timestamp"""
+  start: Int!
+
+  """The end timestamp"""
+  end: Int!
+
+  """The last transaction timestamp"""
+  lastTransactionAt: Int!
+
+  """The stats related to currency"""
+  statsUsd: WindowedDetailedCurrencyWalletStats!
+
+  """The stats related to non-currency"""
+  statsNonCurrency: WindowedDetailedNonCurrencyWalletStats!
 }

@@ -44,7 +44,7 @@ describe("Codex", () => {
         .spyOn(sdk["client"], "request")
         .mockResolvedValue({} as unknown);
       await sdk.query(getNetworksDocument, {});
-      expect(fetchSpy).toHaveBeenCalledWith(getNetworksDocument, {});
+      expect(fetchSpy).toHaveBeenCalledWith(getNetworksDocument, {}, {});
     });
   });
   describe("send", () => {
@@ -53,7 +53,7 @@ describe("Codex", () => {
         .spyOn(sdk["client"], "request")
         .mockResolvedValue({} as unknown);
       await sdk.send(getNetworksString, {});
-      expect(fetchSpy).toHaveBeenCalledWith(getNetworksString, {});
+      expect(fetchSpy).toHaveBeenCalledWith(getNetworksString, {}, {});
     });
   });
   describe("subscribe", () => {
@@ -66,7 +66,7 @@ describe("Codex", () => {
         error,
         complete,
       };
-      jest.spyOn(sdk["wsClient"], "subscribe").mockReturnValue(() => {});
+      jest.spyOn(sdk["wsClient"] as any, "subscribe").mockReturnValue(() => {});
       const cleanup = sdk.subscribe(
         subscribePriceUpdatedString,
         { address: "0xtoken", networkId: 1 },
