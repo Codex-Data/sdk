@@ -232,7 +232,7 @@ export class Subscribe {
     this.sdk.subscribe(
       `subscription OnPairMetadataUpdated($id: String, $quoteToken: QuoteToken, $statsType: TokenPairStatisticsType) {
   onPairMetadataUpdated (id: $id, quoteToken: $quoteToken, statsType: $statsType) {
-    createdAt, enhancedToken0 { address, cmcId, createBlockNumber, createTransactionHash, createdAt, creatorAddress, decimals, exchanges { address, color, exchangeVersion, iconUrl, id, name, networkId, tradeUrl }, freezable, id, info { address, circulatingSupply, cmcId, description, id, imageBannerUrl, imageLargeUrl, imageSmallUrl, imageThumbUrl, isScam, name, networkId, symbol, totalSupply }, isScam, launchpad { completed, completedAt, completedSlot, graduationPercent, launchpadProtocol, migrated, migratedAt, migratedPoolAddress, migratedSlot, name, poolAddress }, mintable, name, networkId, socialLinks { bitcointalk, blog, coingecko, coinmarketcap, discord, email, facebook, github, instagram, linkedin, reddit, slack, telegram, twitch, twitter, website, wechat, whitepaper, youtube }, symbol }, enhancedToken1 { address, cmcId, createBlockNumber, createTransactionHash, createdAt, creatorAddress, decimals, exchanges { address, color, exchangeVersion, iconUrl, id, name, networkId, tradeUrl }, freezable, id, info { address, circulatingSupply, cmcId, description, id, imageBannerUrl, imageLargeUrl, imageSmallUrl, imageThumbUrl, isScam, name, networkId, symbol, totalSupply }, isScam, launchpad { completed, completedAt, completedSlot, graduationPercent, launchpadProtocol, migrated, migratedAt, migratedPoolAddress, migratedSlot, name, poolAddress }, mintable, name, networkId, socialLinks { bitcointalk, blog, coingecko, coinmarketcap, discord, email, facebook, github, instagram, linkedin, reddit, slack, telegram, twitch, twitter, website, wechat, whitepaper, youtube }, symbol }, exchangeId, fee, highPrice1, highPrice1w, highPrice4, highPrice5m, highPrice12, highPrice24, id, liquidity, liquidityToken, lowPrice1, lowPrice1w, lowPrice4, lowPrice5m, lowPrice12, lowPrice24, networkId, nonLiquidityToken, pairAddress, price, priceChange1, priceChange1w, priceChange4, priceChange5m, priceChange12, priceChange24, quoteToken, statsType, tickSpacing, token0 { address, decimals, labels { createdAt, subType, type }, name, networkId, pooled, price, symbol }, token1 { address, decimals, labels { createdAt, subType, type }, name, networkId, pooled, price, symbol }, volume1, volume1w, volume4, volume5m, volume12, volume24
+    createdAt, enhancedToken0 { address, cmcId, createBlockNumber, createTransactionHash, createdAt, creatorAddress, decimals, exchanges { address, color, exchangeVersion, iconUrl, id, name, networkId, tradeUrl }, freezable, id, info { address, circulatingSupply, cmcId, description, id, imageBannerUrl, imageLargeUrl, imageSmallUrl, imageThumbUrl, isScam, name, networkId, symbol, totalSupply }, isScam, launchpad { completed, completedAt, completedSlot, graduationPercent, launchpadName, launchpadProtocol, migrated, migratedAt, migratedPoolAddress, migratedSlot, poolAddress }, mintable, name, networkId, socialLinks { bitcointalk, blog, coingecko, coinmarketcap, discord, email, facebook, github, instagram, linkedin, reddit, slack, telegram, twitch, twitter, website, wechat, whitepaper, youtube }, symbol }, enhancedToken1 { address, cmcId, createBlockNumber, createTransactionHash, createdAt, creatorAddress, decimals, exchanges { address, color, exchangeVersion, iconUrl, id, name, networkId, tradeUrl }, freezable, id, info { address, circulatingSupply, cmcId, description, id, imageBannerUrl, imageLargeUrl, imageSmallUrl, imageThumbUrl, isScam, name, networkId, symbol, totalSupply }, isScam, launchpad { completed, completedAt, completedSlot, graduationPercent, launchpadName, launchpadProtocol, migrated, migratedAt, migratedPoolAddress, migratedSlot, poolAddress }, mintable, name, networkId, socialLinks { bitcointalk, blog, coingecko, coinmarketcap, discord, email, facebook, github, instagram, linkedin, reddit, slack, telegram, twitch, twitter, website, wechat, whitepaper, youtube }, symbol }, exchangeId, fee, highPrice1, highPrice1w, highPrice4, highPrice5m, highPrice12, highPrice24, id, liquidity, liquidityToken, lowPrice1, lowPrice1w, lowPrice4, lowPrice5m, lowPrice12, lowPrice24, networkId, nonLiquidityToken, pairAddress, price, priceChange1, priceChange1w, priceChange4, priceChange5m, priceChange12, priceChange24, quoteToken, statsType, tickSpacing, token0 { address, decimals, labels { createdAt, subType, type }, name, networkId, pooled, price, symbol }, token1 { address, decimals, labels { createdAt, subType, type }, name, networkId, pooled, price, symbol }, volume1, volume1w, volume4, volume5m, volume12, volume24
   }
 }`,
       vars,
@@ -258,7 +258,7 @@ export class Subscribe {
     this.sdk.subscribe(
       `subscription OnLaunchpadTokenEvent($input: OnLaunchpadTokenEventInput) {
   onLaunchpadTokenEvent (input: $input) {
-    address, buyCount1, eventType, holders, marketCap, networkId, price, protocol, sellCount1, token { address, cmcId, createBlockNumber, createTransactionHash, createdAt, creatorAddress, decimals, exchanges { address, color, exchangeVersion, iconUrl, id, name, networkId, tradeUrl }, freezable, id, info { address, circulatingSupply, cmcId, description, id, imageBannerUrl, imageLargeUrl, imageSmallUrl, imageThumbUrl, isScam, name, networkId, symbol, totalSupply }, isScam, launchpad { completed, completedAt, completedSlot, graduationPercent, launchpadProtocol, migrated, migratedAt, migratedPoolAddress, migratedSlot, name, poolAddress }, mintable, name, networkId, socialLinks { bitcointalk, blog, coingecko, coinmarketcap, discord, email, facebook, github, instagram, linkedin, reddit, slack, telegram, twitch, twitter, website, wechat, whitepaper, youtube }, symbol }, transactions1, volume1
+    address, buyCount1, eventType, holders, marketCap, networkId, price, protocol, sellCount1, token { address, cmcId, createBlockNumber, createTransactionHash, createdAt, creatorAddress, decimals, exchanges { address, color, exchangeVersion, iconUrl, id, name, networkId, tradeUrl }, freezable, id, info { address, circulatingSupply, cmcId, description, id, imageBannerUrl, imageLargeUrl, imageSmallUrl, imageThumbUrl, isScam, name, networkId, symbol, totalSupply }, isScam, launchpad { completed, completedAt, completedSlot, graduationPercent, launchpadName, launchpadProtocol, migrated, migratedAt, migratedPoolAddress, migratedSlot, poolAddress }, mintable, name, networkId, socialLinks { bitcointalk, blog, coingecko, coinmarketcap, discord, email, facebook, github, instagram, linkedin, reddit, slack, telegram, twitch, twitter, website, wechat, whitepaper, youtube }, symbol }, transactions1, volume1
   }
 }`,
       vars,
@@ -349,9 +349,96 @@ export class Subscribe {
     this.sdk.subscribe(
       `subscription OnLaunchpadTokenEventBatch {
   onLaunchpadTokenEventBatch {
-    address, buyCount1, eventType, holders, marketCap, networkId, price, protocol, sellCount1, token { address, cmcId, createBlockNumber, createTransactionHash, createdAt, creatorAddress, decimals, exchanges { address, color, exchangeVersion, iconUrl, id, name, networkId, tradeUrl }, freezable, id, info { address, circulatingSupply, cmcId, description, id, imageBannerUrl, imageLargeUrl, imageSmallUrl, imageThumbUrl, isScam, name, networkId, symbol, totalSupply }, isScam, launchpad { completed, completedAt, completedSlot, graduationPercent, launchpadProtocol, migrated, migratedAt, migratedPoolAddress, migratedSlot, name, poolAddress }, mintable, name, networkId, socialLinks { bitcointalk, blog, coingecko, coinmarketcap, discord, email, facebook, github, instagram, linkedin, reddit, slack, telegram, twitch, twitter, website, wechat, whitepaper, youtube }, symbol }, transactions1, volume1
+    address
+    buyCount1
+    eventType
+    holders
+    marketCap
+    networkId
+    price
+    protocol
+    sellCount1
+    token {
+      address
+      cmcId
+      createBlockNumber
+      createTransactionHash
+      createdAt
+      creatorAddress
+      decimals
+      exchanges {
+        address
+        color
+        exchangeVersion
+        iconUrl
+        id
+        name
+        networkId
+        tradeUrl
+      }
+      freezable
+      id
+      info {
+        address
+        circulatingSupply
+        cmcId
+        description
+        id
+        imageBannerUrl
+        imageLargeUrl
+        imageSmallUrl
+        imageThumbUrl
+        isScam
+        name
+        networkId
+        symbol
+        totalSupply
+      }
+      isScam
+      launchpad {
+        completed
+        completedAt
+        completedSlot
+        graduationPercent
+        launchpadProtocol
+        migrated
+        migratedAt
+        migratedPoolAddress
+        migratedSlot
+        name
+        poolAddress
+      }
+      mintable
+      name
+      networkId
+      socialLinks {
+        bitcointalk
+        blog
+        coingecko
+        coinmarketcap
+        discord
+        email
+        facebook
+        github
+        instagram
+        linkedin
+        reddit
+        slack
+        telegram
+        twitch
+        twitter
+        website
+        wechat
+        whitepaper
+        youtube
+      }
+      symbol
+    }
+    transactions1
+    volume1
   }
-}`,
+}
+`,
       vars,
       sink,
     );

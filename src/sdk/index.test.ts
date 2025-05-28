@@ -66,7 +66,7 @@ describe("Codex", () => {
         error,
         complete,
       };
-      jest.spyOn(sdk["wsClient"], "subscribe").mockReturnValue(() => {});
+      jest.spyOn(sdk["wsClient"] as any, "subscribe").mockReturnValue(() => {});
       const cleanup = sdk.subscribe(
         subscribePriceUpdatedString,
         { address: "0xtoken", networkId: 1 },
