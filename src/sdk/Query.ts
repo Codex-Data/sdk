@@ -96,6 +96,8 @@ import {
   HoldersQueryVariables,
   LiquidityLocksDocument,
   LiquidityLocksQueryVariables,
+  LiquidityMetadataByTokenDocument,
+  LiquidityMetadataByTokenQueryVariables,
   LiquidityMetadataDocument,
   LiquidityMetadataQueryVariables,
   ListPairsForTokenDocument,
@@ -172,6 +174,9 @@ export class Query {
   ) => this.sdk.query(FilterNftPoolCollectionsDocument, vars);
   getPrimePools = async (vars: GetPrimePoolsQueryVariables) =>
     this.sdk.query(GetPrimePoolsDocument, vars);
+  liquidityMetadataByToken = async (
+    vars: LiquidityMetadataByTokenQueryVariables,
+  ) => this.sdk.query(LiquidityMetadataByTokenDocument, vars);
   primeHolders = async (vars: PrimeHoldersQueryVariables) =>
     this.sdk.query(PrimeHoldersDocument, vars);
   balances = async (vars: BalancesQueryVariables) =>
