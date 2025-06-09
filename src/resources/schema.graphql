@@ -14,6 +14,15 @@ directive @join__unionMember(graph: join__Graph!, member: String!) repeatable on
 
 directive @link(url: String, as: String, for: link__Purpose, import: [link__Import]) repeatable on SCHEMA
 
+"""Response returned by `onEventsCreatedByMaker`."""
+type AddEventsByMakerOutput {
+  """The address of the maker."""
+  makerAddress: String!
+
+  """A list of transactions for the maker."""
+  events: [Event!]!
+}
+
 """Response returned by `onEventsCreated`."""
 type AddEventsOutput {
   """The contract address of the pair."""
@@ -84,6 +93,14 @@ type AddTokenLifecycleEventsOutput {
 
 type AddTrackedWalletEventsOutput {
   userId: String!
+}
+
+type AddUnconfirmedEventsByMakerOutput {
+  """The wallet address of the maker."""
+  makerAddress: String!
+
+  """A list of transactions for the maker."""
+  events: [UnconfirmedEvent!]!
 }
 
 """Response returned by `onUnconfirmedEventsCreated`."""
@@ -182,8 +199,17 @@ type Balance {
   """
   shiftedBalance: Float!
 
+  """The balance held by the wallet in USD."""
+  balanceUsd: String
+
+  """The token price in USD."""
+  tokenPriceUsd: String
+
   """The time that this address first held a token."""
   firstHeldTimestamp: Int
+
+  """Metadata for the token."""
+  token: EnhancedToken
 }
 
 input BalancesInput {
@@ -210,6 +236,9 @@ input BalancesInput {
 
   """A cursor for use in pagination."""
   cursor: String
+
+  """Whether to remove scam tokens from the response."""
+  removeScams: Boolean
 
   """The ID of the wallet (`walletAddress:networkId`)."""
   walletId: String @deprecated(reason: "Use walletAddress and networkId instead")
@@ -541,6 +570,62 @@ input CreateApiTokensInput {
   expiresIn: Int
 }
 
+"""Input for creating a market cap webhook."""
+input CreateMarketCapWebhookArgs {
+  """The name of the webhook (max 128 characters)."""
+  name: String!
+
+  """The url to which the webhook message should be sent."""
+  callbackUrl: String!
+
+  """
+  A string value to hash along with `deduplicationId` using SHA-256. Included in the webhook message for added security.
+  """
+  securityToken: String!
+
+  """The recurrence of the webhook. Can be `INDEFINITE` or `ONCE`."""
+  alertRecurrence: AlertRecurrence!
+
+  """
+  A webhook group ID (max 64 characters). Can be used to group webhooks so that their messages are kept in order as a group rather than by individual webhook.
+  """
+  groupId: String
+
+  """
+  The conditions which must be met in order for the webhook to send a message.
+  """
+  conditions: MarketCapEventWebhookConditionInput!
+
+  """The settings for retrying failed webhook messages."""
+  retrySettings: RetrySettingsInput
+
+  """
+  An optional bucket ID (max 64 characters). Can be used to query for subgroups of webhooks (useful if you have a large number of webhooks).
+  """
+  bucketId: String
+
+  """
+  An optional bucket sort key (max 64 characters). Can be used to query for subgroups of webhooks (useful if you have a large number of webhooks).
+  """
+  bucketSortkey: String
+
+  """
+  The type of publishing for the webhook. If not set, it defaults to `SINGLE`.
+  """
+  publishingType: PublishingType
+
+  """
+  If enabled, new webhooks won't be created if a webhook with the same parameters already exists. If callbackUrl, conditions, publishingType, and alertRecurrence all match, then we return the existing webhook.
+  """
+  deduplicate: Boolean
+}
+
+"""Input for creating market cap webhooks."""
+input CreateMarketCapWebhooksInput {
+  """A list of market cap webhooks to create."""
+  webhooks: [CreateMarketCapWebhookArgs!]!
+}
+
 """Input for creating an NFT event webhook."""
 input CreateNftEventWebhookArgs {
   """The name of the webhook (max 128 characters)."""
@@ -778,6 +863,9 @@ input CreateWebhooksInput {
 
   """Input for creating raw transaction webhooks."""
   rawTransactionWebhooksInput: CreateRawTransactionWebhooksInput
+
+  """Input for creating market cap webhooks."""
+  marketCapWebhooksInput: CreateMarketCapWebhooksInput
 }
 
 """Result returned by `createWebhooks`."""
@@ -793,6 +881,9 @@ type CreateWebhooksOutput {
 
   """The list of raw transaction webhooks that were created."""
   rawTransactionWebhooks: [Webhook]!
+
+  """The list of market cap event webhooks that were created."""
+  marketCapWebhooks: [Webhook]!
 }
 
 enum CreationContext {
@@ -1371,6 +1462,9 @@ type Event {
 
   """The age of the wallet in seconds."""
   walletAge: Int
+
+  """Labels attributed to the wallet."""
+  walletLabels: [String!]
 }
 
 """Response returned by `getTokenEvents`."""
@@ -1778,7 +1872,10 @@ input FilterTokenWalletsInput {
   tokenId: String
 
   """The wallet address to filter wallets for"""
-  walletAddress: String
+  walletAddress: String @deprecated(reason: "Use wallets instead")
+
+  """A list of wallet addresses to filter wallets for"""
+  wallets: [String]
 
   """The network ID to filter wallets for"""
   networkId: Int
@@ -2111,6 +2208,16 @@ type HoldersUpdate {
 
   """The list of wallets holding the token."""
   balances: [Balance!]!
+}
+
+input IndexerStateInput {
+  """The network ID to check the state of."""
+  networkId: Int!
+}
+
+enum IndexerStatus {
+  Behind
+  Normal
 }
 
 """Bar chart data."""
@@ -2586,6 +2693,23 @@ type LiquidityLock {
   liquidityNftData: LiquidityNftData
 }
 
+"""A breakdown of how much and where liquidity is locked."""
+type LiquidityLockBreakdownForToken {
+  """The protocol with which the liquidity is locked."""
+  lockProtocol: LiquidityLockProtocol!
+
+  """The amount of liquidity locked in USD."""
+  amountLockedUsd: String!
+
+  """The amount of tokens locked in the protocol."""
+  amountLockedTokens: String!
+
+  """
+  The amount of tokens locked in the protocol shifted by number of decimals the token has.
+  """
+  amountLockedTokensShifted: String!
+}
+
 type LiquidityLockConnection {
   """A list of liquidity locks."""
   items: [LiquidityLock!]!
@@ -2610,6 +2734,45 @@ type LiquidityMetadata {
 
   """Data about unlocked liquidity."""
   liquidity: LiquidityData!
+}
+
+"""
+Metadata about a token's liquidity. Includes locked liquidity data for up to 100 pairs that the token is in.
+"""
+type LiquidityMetadataByToken {
+  """The address of the token."""
+  tokenAddress: String!
+
+  """The network ID the token is deployed on."""
+  networkId: Int!
+
+  """The total liquidity in USD."""
+  totalLiquidityUsd: String!
+
+  """The locked liquidity in USD."""
+  lockedLiquidityUsd: String!
+
+  """The total amount of tokens in pairs."""
+  totalTokenLiquidity: String!
+
+  """
+  The total amount of tokens in pairs shifted by number of decimals the token has.
+  """
+  totalTokenLiquidityShifted: String!
+
+  """The locked amount of tokens in pairs."""
+  lockedTokenLiquidity: String!
+
+  """
+  The locked amount of tokens in pairs shifted by number of decimals the token has.
+  """
+  lockedTokenLiquidityShifted: String!
+
+  """The percentage of liquidity that is locked."""
+  lockedLiquidityPercentage: Float!
+
+  """A breakdown of how much and where liquidity is locked."""
+  lockBreakdown: [LiquidityLockBreakdownForToken]!
 }
 
 """Liquidity NFT position data"""
@@ -2716,6 +2879,46 @@ input MakerEventsQueryInput {
 
   """The token involved in the event."""
   tokenAddress: String
+}
+
+"""Webhook conditions for a market cap event."""
+type MarketCapEventWebhookCondition {
+  """The token contract address the webhook is listening for."""
+  tokenAddress: StringEqualsCondition!
+
+  """The network ID the webhook is listening on."""
+  networkId: IntEqualsCondition!
+
+  """
+  The market cap condition that must be met in order for the webhook to send.
+  """
+  fdvMarketCapUsd: ComparisonOperator
+
+  """
+  The circulating market cap condition that must be met in order for the webhook to send.
+  """
+  circulatingMarketCapUsd: ComparisonOperator
+
+  """The pair contract address the webhook is listening for."""
+  pairAddress: StringEqualsCondition
+}
+
+"""Input conditions for a market cap event webhook."""
+input MarketCapEventWebhookConditionInput {
+  """The contract address of the token to listen for."""
+  tokenAddress: StringEqualsConditionInput!
+
+  """The network ID to listen on."""
+  networkId: IntEqualsConditionInput!
+
+  """The price conditions to listen for."""
+  fdvMarketCapUsd: ComparisonOperatorInput
+
+  """The circulating market cap conditions to listen for."""
+  circulatingMarketCapUsd: ComparisonOperatorInput
+
+  """The contract address of the pair to listen for."""
+  pairAddress: StringEqualsConditionInput
 }
 
 """The status for a network supported on Defined."""
@@ -6565,6 +6768,12 @@ input OneOfNumberConditionInput {
   oneOf: [Int!]!
 }
 
+"""Input for `onEventsCreatedByMaker`."""
+input OnEventsCreatedByMakerInput {
+  """The wallet address of the maker."""
+  makerAddress: String!
+}
+
 """Input for `onLaunchpadTokenEvent`."""
 input OnLaunchpadTokenEventInput {
   """The protocol of the token."""
@@ -6627,7 +6836,10 @@ type OnTokenBarsUpdatedResponse {
 }
 
 input OnTokenEventsCreatedInput {
+  """The token address to filter by."""
   tokenAddress: String
+
+  """The network ID to filter by."""
   networkId: Int!
 }
 
@@ -6659,6 +6871,12 @@ type OnUnconfirmedBarsUpdated {
 
   """The address of the token being quoted"""
   quoteTokenAddress: String!
+}
+
+"""Input for `onUnconfirmedEventsCreatedByMaker`."""
+input OnUnconfirmedEventsCreatedByMakerInput {
+  """The wallet address of the maker."""
+  makerAddress: String!
 }
 
 enum OrderState {
@@ -9192,7 +9410,7 @@ type Query {
     The time frame for trending results. Can be `1`, `5`, `15`, `30`, `60`, `240`, `720`, or `1D`.
     """
     resolution: String
-  ): [TokenWithMetadata!]
+  ): [TokenWithMetadata!] @deprecated(reason: "This query is no longer supported and will not return up to date data. Use `filterTokens` instead.")
 
   """
   Returns charting metadata for a given pair. Used for implementing a Trading View datafeed.
@@ -9331,7 +9549,7 @@ type Query {
   ): TokenSearchResponse @deprecated(reason: "This query is no longer supported and will not return up to date data. Use `filterTokens` instead.")
 
   """
-  Returns the percentage of a token’s total supply held collectively by its top 10 holders.
+  Returns the percentage of a token's total supply held collectively by its top 10 holders.
   """
   top10HoldersPercent(tokenId: String!): Float
 
@@ -9481,7 +9699,10 @@ type Query {
   """Returns liquidity locks for a given pair."""
   liquidityLocks(
     """The address of the pair."""
-    pairAddress: String!
+    pairAddress: String
+
+    """The address of the token."""
+    tokenAddress: String
 
     """The network id of the pair."""
     networkId: Int!
@@ -9500,6 +9721,17 @@ type Query {
     """The network id of the pair."""
     networkId: Int!
   ): LiquidityMetadata
+
+  """
+  Returns liquidity metadata for a given token. Includes liquidity lock data for up to 100 pairs that the token is in.
+  """
+  liquidityMetadataByToken(
+    """The address of the token."""
+    tokenAddress: String!
+
+    """The network id of the token."""
+    networkId: Int!
+  ): LiquidityMetadataByToken!
 
   """Returns a list of top traders for a given token."""
   tokenTopTraders(input: TokenTopTradersInput!): TokenTopTradersConnection!
@@ -10279,7 +10511,13 @@ type Subscription {
 
     """The networkId to use when getting all events per network"""
     networkId: Int
+
+    """docs: hide"""
+    maker: String
   ): AddEventsOutput
+
+  """Live-streamed transactions for a maker."""
+  onEventsCreatedByMaker(input: OnEventsCreatedByMakerInput!): AddEventsByMakerOutput
 
   """Live-streamed unconfirmed transactions for a token. (Solana only)"""
   onUnconfirmedEventsCreated(
@@ -10292,6 +10530,9 @@ type Subscription {
     """The token of interest within the pair. Can be `token0` or `token1`."""
     quoteToken: QuoteToken
   ): AddUnconfirmedEventsOutput
+
+  """Live-streamed unconfirmed transactions for a maker. (Solana only)"""
+  onUnconfirmedEventsCreatedByMaker(input: OnUnconfirmedEventsCreatedByMakerInput!): AddUnconfirmedEventsByMakerOutput
 
   """Live-streamed price updates for a token."""
   onPriceUpdated(
@@ -13332,7 +13573,7 @@ type Webhook {
 }
 
 """Webhook conditions that must be met for each webhook type."""
-union WebhookCondition = PriceEventWebhookCondition | TokenPairEventWebhookCondition | NftEventWebhookCondition | RawTransactionWebhookCondition
+union WebhookCondition = PriceEventWebhookCondition | MarketCapEventWebhookCondition | TokenPairEventWebhookCondition | NftEventWebhookCondition | RawTransactionWebhookCondition
 
 """NFT marketplace names."""
 enum WebhookNftEventFillSource {
@@ -13366,6 +13607,7 @@ enum WebhookType {
   NFT_EVENT
   TOKEN_PAIR_EVENT
   RAW_TRANSACTION
+  MARKET_CAP_EVENT
 }
 
 """Price stats for a pair over a time frame."""

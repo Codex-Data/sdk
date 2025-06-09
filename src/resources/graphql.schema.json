@@ -12,6 +12,58 @@
     "types": [
       {
         "kind": "OBJECT",
+        "name": "AddEventsByMakerOutput",
+        "description": "Response returned by `onEventsCreatedByMaker`.",
+        "isOneOf": null,
+        "fields": [
+          {
+            "name": "events",
+            "description": "A list of transactions for the maker.",
+            "args": [],
+            "type": {
+              "kind": "NON_NULL",
+              "name": null,
+              "ofType": {
+                "kind": "LIST",
+                "name": null,
+                "ofType": {
+                  "kind": "NON_NULL",
+                  "name": null,
+                  "ofType": {
+                    "kind": "OBJECT",
+                    "name": "Event",
+                    "ofType": null
+                  }
+                }
+              }
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "makerAddress",
+            "description": "The address of the maker.",
+            "args": [],
+            "type": {
+              "kind": "NON_NULL",
+              "name": null,
+              "ofType": {
+                "kind": "SCALAR",
+                "name": "String",
+                "ofType": null
+              }
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          }
+        ],
+        "inputFields": null,
+        "interfaces": [],
+        "enumValues": null,
+        "possibleTypes": null
+      },
+      {
+        "kind": "OBJECT",
         "name": "AddEventsOutput",
         "description": "Response returned by `onEventsCreated`.",
         "isOneOf": null,
@@ -407,6 +459,58 @@
           {
             "name": "userId",
             "description": null,
+            "args": [],
+            "type": {
+              "kind": "NON_NULL",
+              "name": null,
+              "ofType": {
+                "kind": "SCALAR",
+                "name": "String",
+                "ofType": null
+              }
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          }
+        ],
+        "inputFields": null,
+        "interfaces": [],
+        "enumValues": null,
+        "possibleTypes": null
+      },
+      {
+        "kind": "OBJECT",
+        "name": "AddUnconfirmedEventsByMakerOutput",
+        "description": null,
+        "isOneOf": null,
+        "fields": [
+          {
+            "name": "events",
+            "description": "A list of transactions for the maker.",
+            "args": [],
+            "type": {
+              "kind": "NON_NULL",
+              "name": null,
+              "ofType": {
+                "kind": "LIST",
+                "name": null,
+                "ofType": {
+                  "kind": "NON_NULL",
+                  "name": null,
+                  "ofType": {
+                    "kind": "OBJECT",
+                    "name": "UnconfirmedEvent",
+                    "ofType": null
+                  }
+                }
+              }
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "makerAddress",
+            "description": "The wallet address of the maker.",
             "args": [],
             "type": {
               "kind": "NON_NULL",
@@ -1007,6 +1111,18 @@
             "deprecationReason": null
           },
           {
+            "name": "balanceUsd",
+            "description": "The balance held by the wallet in USD.",
+            "args": [],
+            "type": {
+              "kind": "SCALAR",
+              "name": "String",
+              "ofType": null
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
             "name": "firstHeldTimestamp",
             "description": "The time that this address first held a token.",
             "args": [],
@@ -1051,6 +1167,18 @@
             "deprecationReason": null
           },
           {
+            "name": "token",
+            "description": "Metadata for the token.",
+            "args": [],
+            "type": {
+              "kind": "OBJECT",
+              "name": "EnhancedToken",
+              "ofType": null
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
             "name": "tokenAddress",
             "description": "The contract address of the token.",
             "args": [],
@@ -1078,6 +1206,18 @@
                 "name": "String",
                 "ofType": null
               }
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "tokenPriceUsd",
+            "description": "The token price in USD.",
+            "args": [],
+            "type": {
+              "kind": "SCALAR",
+              "name": "String",
+              "ofType": null
             },
             "isDeprecated": false,
             "deprecationReason": null
@@ -1174,6 +1314,18 @@
                   "ofType": null
                 }
               }
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "removeScams",
+            "description": "Whether to remove scam tokens from the response.",
+            "type": {
+              "kind": "SCALAR",
+              "name": "Boolean",
+              "ofType": null
             },
             "defaultValue": null,
             "isDeprecated": false,
@@ -2721,6 +2873,206 @@
       },
       {
         "kind": "INPUT_OBJECT",
+        "name": "CreateMarketCapWebhookArgs",
+        "description": "Input for creating a market cap webhook.",
+        "isOneOf": false,
+        "fields": null,
+        "inputFields": [
+          {
+            "name": "alertRecurrence",
+            "description": "The recurrence of the webhook. Can be `INDEFINITE` or `ONCE`.",
+            "type": {
+              "kind": "NON_NULL",
+              "name": null,
+              "ofType": {
+                "kind": "ENUM",
+                "name": "AlertRecurrence",
+                "ofType": null
+              }
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "bucketId",
+            "description": "An optional bucket ID (max 64 characters). Can be used to query for subgroups of webhooks (useful if you have a large number of webhooks).",
+            "type": {
+              "kind": "SCALAR",
+              "name": "String",
+              "ofType": null
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "bucketSortkey",
+            "description": "An optional bucket sort key (max 64 characters). Can be used to query for subgroups of webhooks (useful if you have a large number of webhooks).",
+            "type": {
+              "kind": "SCALAR",
+              "name": "String",
+              "ofType": null
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "callbackUrl",
+            "description": "The url to which the webhook message should be sent.",
+            "type": {
+              "kind": "NON_NULL",
+              "name": null,
+              "ofType": {
+                "kind": "SCALAR",
+                "name": "String",
+                "ofType": null
+              }
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "conditions",
+            "description": "The conditions which must be met in order for the webhook to send a message.",
+            "type": {
+              "kind": "NON_NULL",
+              "name": null,
+              "ofType": {
+                "kind": "INPUT_OBJECT",
+                "name": "MarketCapEventWebhookConditionInput",
+                "ofType": null
+              }
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "deduplicate",
+            "description": "If enabled, new webhooks won't be created if a webhook with the same parameters already exists. If callbackUrl, conditions, publishingType, and alertRecurrence all match, then we return the existing webhook.",
+            "type": {
+              "kind": "SCALAR",
+              "name": "Boolean",
+              "ofType": null
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "groupId",
+            "description": "A webhook group ID (max 64 characters). Can be used to group webhooks so that their messages are kept in order as a group rather than by individual webhook.",
+            "type": {
+              "kind": "SCALAR",
+              "name": "String",
+              "ofType": null
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "name",
+            "description": "The name of the webhook (max 128 characters).",
+            "type": {
+              "kind": "NON_NULL",
+              "name": null,
+              "ofType": {
+                "kind": "SCALAR",
+                "name": "String",
+                "ofType": null
+              }
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "publishingType",
+            "description": "The type of publishing for the webhook. If not set, it defaults to `SINGLE`.",
+            "type": {
+              "kind": "ENUM",
+              "name": "PublishingType",
+              "ofType": null
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "retrySettings",
+            "description": "The settings for retrying failed webhook messages.",
+            "type": {
+              "kind": "INPUT_OBJECT",
+              "name": "RetrySettingsInput",
+              "ofType": null
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "securityToken",
+            "description": "A string value to hash along with `deduplicationId` using SHA-256. Included in the webhook message for added security.",
+            "type": {
+              "kind": "NON_NULL",
+              "name": null,
+              "ofType": {
+                "kind": "SCALAR",
+                "name": "String",
+                "ofType": null
+              }
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          }
+        ],
+        "interfaces": null,
+        "enumValues": null,
+        "possibleTypes": null
+      },
+      {
+        "kind": "INPUT_OBJECT",
+        "name": "CreateMarketCapWebhooksInput",
+        "description": "Input for creating market cap webhooks.",
+        "isOneOf": false,
+        "fields": null,
+        "inputFields": [
+          {
+            "name": "webhooks",
+            "description": "A list of market cap webhooks to create.",
+            "type": {
+              "kind": "NON_NULL",
+              "name": null,
+              "ofType": {
+                "kind": "LIST",
+                "name": null,
+                "ofType": {
+                  "kind": "NON_NULL",
+                  "name": null,
+                  "ofType": {
+                    "kind": "INPUT_OBJECT",
+                    "name": "CreateMarketCapWebhookArgs",
+                    "ofType": null
+                  }
+                }
+              }
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          }
+        ],
+        "interfaces": null,
+        "enumValues": null,
+        "possibleTypes": null
+      },
+      {
+        "kind": "INPUT_OBJECT",
         "name": "CreateNftEventWebhookArgs",
         "description": "Input for creating an NFT event webhook.",
         "isOneOf": false,
@@ -3527,6 +3879,18 @@
         "fields": null,
         "inputFields": [
           {
+            "name": "marketCapWebhooksInput",
+            "description": "Input for creating market cap webhooks.",
+            "type": {
+              "kind": "INPUT_OBJECT",
+              "name": "CreateMarketCapWebhooksInput",
+              "ofType": null
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
             "name": "nftEventWebhooksInput",
             "description": "Input for creating NFT event webhooks.",
             "type": {
@@ -3585,6 +3949,26 @@
         "description": "Result returned by `createWebhooks`.",
         "isOneOf": null,
         "fields": [
+          {
+            "name": "marketCapWebhooks",
+            "description": "The list of market cap event webhooks that were created.",
+            "args": [],
+            "type": {
+              "kind": "NON_NULL",
+              "name": null,
+              "ofType": {
+                "kind": "LIST",
+                "name": null,
+                "ofType": {
+                  "kind": "OBJECT",
+                  "name": "Webhook",
+                  "ofType": null
+                }
+              }
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
           {
             "name": "nftEventWebhooks",
             "description": "The list of NFT event webhooks that were created.",
@@ -6186,6 +6570,26 @@
             },
             "isDeprecated": false,
             "deprecationReason": null
+          },
+          {
+            "name": "walletLabels",
+            "description": "Labels attributed to the wallet.",
+            "args": [],
+            "type": {
+              "kind": "LIST",
+              "name": null,
+              "ofType": {
+                "kind": "NON_NULL",
+                "name": null,
+                "ofType": {
+                  "kind": "SCALAR",
+                  "name": "String",
+                  "ofType": null
+                }
+              }
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
           }
         ],
         "inputFields": null,
@@ -8111,6 +8515,22 @@
               "ofType": null
             },
             "defaultValue": null,
+            "isDeprecated": true,
+            "deprecationReason": "Use wallets instead"
+          },
+          {
+            "name": "wallets",
+            "description": "A list of wallet addresses to filter wallets for",
+            "type": {
+              "kind": "LIST",
+              "name": null,
+              "ofType": {
+                "kind": "SCALAR",
+                "name": "String",
+                "ofType": null
+              }
+            },
+            "defaultValue": null,
             "isDeprecated": false,
             "deprecationReason": null
           }
@@ -9849,6 +10269,58 @@
         "inputFields": null,
         "interfaces": null,
         "enumValues": null,
+        "possibleTypes": null
+      },
+      {
+        "kind": "INPUT_OBJECT",
+        "name": "IndexerStateInput",
+        "description": null,
+        "isOneOf": false,
+        "fields": null,
+        "inputFields": [
+          {
+            "name": "networkId",
+            "description": "The network ID to check the state of.",
+            "type": {
+              "kind": "NON_NULL",
+              "name": null,
+              "ofType": {
+                "kind": "SCALAR",
+                "name": "Int",
+                "ofType": null
+              }
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          }
+        ],
+        "interfaces": null,
+        "enumValues": null,
+        "possibleTypes": null
+      },
+      {
+        "kind": "ENUM",
+        "name": "IndexerStatus",
+        "description": null,
+        "isOneOf": null,
+        "fields": null,
+        "inputFields": null,
+        "interfaces": null,
+        "enumValues": [
+          {
+            "name": "Behind",
+            "description": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "Normal",
+            "description": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          }
+        ],
         "possibleTypes": null
       },
       {
@@ -11875,6 +12347,82 @@
       },
       {
         "kind": "OBJECT",
+        "name": "LiquidityLockBreakdownForToken",
+        "description": "A breakdown of how much and where liquidity is locked.",
+        "isOneOf": null,
+        "fields": [
+          {
+            "name": "amountLockedTokens",
+            "description": "The amount of tokens locked in the protocol.",
+            "args": [],
+            "type": {
+              "kind": "NON_NULL",
+              "name": null,
+              "ofType": {
+                "kind": "SCALAR",
+                "name": "String",
+                "ofType": null
+              }
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "amountLockedTokensShifted",
+            "description": "The amount of tokens locked in the protocol shifted by number of decimals the token has.",
+            "args": [],
+            "type": {
+              "kind": "NON_NULL",
+              "name": null,
+              "ofType": {
+                "kind": "SCALAR",
+                "name": "String",
+                "ofType": null
+              }
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "amountLockedUsd",
+            "description": "The amount of liquidity locked in USD.",
+            "args": [],
+            "type": {
+              "kind": "NON_NULL",
+              "name": null,
+              "ofType": {
+                "kind": "SCALAR",
+                "name": "String",
+                "ofType": null
+              }
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "lockProtocol",
+            "description": "The protocol with which the liquidity is locked.",
+            "args": [],
+            "type": {
+              "kind": "NON_NULL",
+              "name": null,
+              "ofType": {
+                "kind": "ENUM",
+                "name": "LiquidityLockProtocol",
+                "ofType": null
+              }
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          }
+        ],
+        "inputFields": null,
+        "interfaces": [],
+        "enumValues": null,
+        "possibleTypes": null
+      },
+      {
+        "kind": "OBJECT",
         "name": "LiquidityLockConnection",
         "description": null,
         "isOneOf": null,
@@ -11995,6 +12543,182 @@
               "ofType": {
                 "kind": "OBJECT",
                 "name": "LockedLiquidityData",
+                "ofType": null
+              }
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          }
+        ],
+        "inputFields": null,
+        "interfaces": [],
+        "enumValues": null,
+        "possibleTypes": null
+      },
+      {
+        "kind": "OBJECT",
+        "name": "LiquidityMetadataByToken",
+        "description": "Metadata about a token's liquidity. Includes locked liquidity data for up to 100 pairs that the token is in.",
+        "isOneOf": null,
+        "fields": [
+          {
+            "name": "lockBreakdown",
+            "description": "A breakdown of how much and where liquidity is locked.",
+            "args": [],
+            "type": {
+              "kind": "NON_NULL",
+              "name": null,
+              "ofType": {
+                "kind": "LIST",
+                "name": null,
+                "ofType": {
+                  "kind": "OBJECT",
+                  "name": "LiquidityLockBreakdownForToken",
+                  "ofType": null
+                }
+              }
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "lockedLiquidityPercentage",
+            "description": "The percentage of liquidity that is locked.",
+            "args": [],
+            "type": {
+              "kind": "NON_NULL",
+              "name": null,
+              "ofType": {
+                "kind": "SCALAR",
+                "name": "Float",
+                "ofType": null
+              }
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "lockedLiquidityUsd",
+            "description": "The locked liquidity in USD.",
+            "args": [],
+            "type": {
+              "kind": "NON_NULL",
+              "name": null,
+              "ofType": {
+                "kind": "SCALAR",
+                "name": "String",
+                "ofType": null
+              }
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "lockedTokenLiquidity",
+            "description": "The locked amount of tokens in pairs.",
+            "args": [],
+            "type": {
+              "kind": "NON_NULL",
+              "name": null,
+              "ofType": {
+                "kind": "SCALAR",
+                "name": "String",
+                "ofType": null
+              }
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "lockedTokenLiquidityShifted",
+            "description": "The locked amount of tokens in pairs shifted by number of decimals the token has.",
+            "args": [],
+            "type": {
+              "kind": "NON_NULL",
+              "name": null,
+              "ofType": {
+                "kind": "SCALAR",
+                "name": "String",
+                "ofType": null
+              }
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "networkId",
+            "description": "The network ID the token is deployed on.",
+            "args": [],
+            "type": {
+              "kind": "NON_NULL",
+              "name": null,
+              "ofType": {
+                "kind": "SCALAR",
+                "name": "Int",
+                "ofType": null
+              }
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "tokenAddress",
+            "description": "The address of the token.",
+            "args": [],
+            "type": {
+              "kind": "NON_NULL",
+              "name": null,
+              "ofType": {
+                "kind": "SCALAR",
+                "name": "String",
+                "ofType": null
+              }
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "totalLiquidityUsd",
+            "description": "The total liquidity in USD.",
+            "args": [],
+            "type": {
+              "kind": "NON_NULL",
+              "name": null,
+              "ofType": {
+                "kind": "SCALAR",
+                "name": "String",
+                "ofType": null
+              }
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "totalTokenLiquidity",
+            "description": "The total amount of tokens in pairs.",
+            "args": [],
+            "type": {
+              "kind": "NON_NULL",
+              "name": null,
+              "ofType": {
+                "kind": "SCALAR",
+                "name": "String",
+                "ofType": null
+              }
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "totalTokenLiquidityShifted",
+            "description": "The total amount of tokens in pairs shifted by number of decimals the token has.",
+            "args": [],
+            "type": {
+              "kind": "NON_NULL",
+              "name": null,
+              "ofType": {
+                "kind": "SCALAR",
+                "name": "String",
                 "ofType": null
               }
             },
@@ -12503,6 +13227,166 @@
               "kind": "SCALAR",
               "name": "String",
               "ofType": null
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          }
+        ],
+        "interfaces": null,
+        "enumValues": null,
+        "possibleTypes": null
+      },
+      {
+        "kind": "OBJECT",
+        "name": "MarketCapEventWebhookCondition",
+        "description": "Webhook conditions for a market cap event.",
+        "isOneOf": null,
+        "fields": [
+          {
+            "name": "circulatingMarketCapUsd",
+            "description": "The circulating market cap condition that must be met in order for the webhook to send.",
+            "args": [],
+            "type": {
+              "kind": "OBJECT",
+              "name": "ComparisonOperator",
+              "ofType": null
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "fdvMarketCapUsd",
+            "description": "The market cap condition that must be met in order for the webhook to send.",
+            "args": [],
+            "type": {
+              "kind": "OBJECT",
+              "name": "ComparisonOperator",
+              "ofType": null
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "networkId",
+            "description": "The network ID the webhook is listening on.",
+            "args": [],
+            "type": {
+              "kind": "NON_NULL",
+              "name": null,
+              "ofType": {
+                "kind": "OBJECT",
+                "name": "IntEqualsCondition",
+                "ofType": null
+              }
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "pairAddress",
+            "description": "The pair contract address the webhook is listening for.",
+            "args": [],
+            "type": {
+              "kind": "OBJECT",
+              "name": "StringEqualsCondition",
+              "ofType": null
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "tokenAddress",
+            "description": "The token contract address the webhook is listening for.",
+            "args": [],
+            "type": {
+              "kind": "NON_NULL",
+              "name": null,
+              "ofType": {
+                "kind": "OBJECT",
+                "name": "StringEqualsCondition",
+                "ofType": null
+              }
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          }
+        ],
+        "inputFields": null,
+        "interfaces": [],
+        "enumValues": null,
+        "possibleTypes": null
+      },
+      {
+        "kind": "INPUT_OBJECT",
+        "name": "MarketCapEventWebhookConditionInput",
+        "description": "Input conditions for a market cap event webhook.",
+        "isOneOf": false,
+        "fields": null,
+        "inputFields": [
+          {
+            "name": "circulatingMarketCapUsd",
+            "description": "The circulating market cap conditions to listen for.",
+            "type": {
+              "kind": "INPUT_OBJECT",
+              "name": "ComparisonOperatorInput",
+              "ofType": null
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "fdvMarketCapUsd",
+            "description": "The price conditions to listen for.",
+            "type": {
+              "kind": "INPUT_OBJECT",
+              "name": "ComparisonOperatorInput",
+              "ofType": null
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "networkId",
+            "description": "The network ID to listen on.",
+            "type": {
+              "kind": "NON_NULL",
+              "name": null,
+              "ofType": {
+                "kind": "INPUT_OBJECT",
+                "name": "IntEqualsConditionInput",
+                "ofType": null
+              }
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "pairAddress",
+            "description": "The contract address of the pair to listen for.",
+            "type": {
+              "kind": "INPUT_OBJECT",
+              "name": "StringEqualsConditionInput",
+              "ofType": null
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "tokenAddress",
+            "description": "The contract address of the token to listen for.",
+            "type": {
+              "kind": "NON_NULL",
+              "name": null,
+              "ofType": {
+                "kind": "INPUT_OBJECT",
+                "name": "StringEqualsConditionInput",
+                "ofType": null
+              }
             },
             "defaultValue": null,
             "isDeprecated": false,
@@ -29352,6 +30236,34 @@
       },
       {
         "kind": "INPUT_OBJECT",
+        "name": "OnEventsCreatedByMakerInput",
+        "description": "Input for `onEventsCreatedByMaker`.",
+        "isOneOf": false,
+        "fields": null,
+        "inputFields": [
+          {
+            "name": "makerAddress",
+            "description": "The wallet address of the maker.",
+            "type": {
+              "kind": "NON_NULL",
+              "name": null,
+              "ofType": {
+                "kind": "SCALAR",
+                "name": "String",
+                "ofType": null
+              }
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          }
+        ],
+        "interfaces": null,
+        "enumValues": null,
+        "possibleTypes": null
+      },
+      {
+        "kind": "INPUT_OBJECT",
         "name": "OnLaunchpadTokenEventInput",
         "description": "Input for `onLaunchpadTokenEvent`.",
         "isOneOf": false,
@@ -29643,7 +30555,7 @@
         "inputFields": [
           {
             "name": "networkId",
-            "description": null,
+            "description": "The network ID to filter by.",
             "type": {
               "kind": "NON_NULL",
               "name": null,
@@ -29659,7 +30571,7 @@
           },
           {
             "name": "tokenAddress",
-            "description": null,
+            "description": "The token address to filter by.",
             "type": {
               "kind": "SCALAR",
               "name": "String",
@@ -29807,6 +30719,34 @@
         ],
         "inputFields": null,
         "interfaces": [],
+        "enumValues": null,
+        "possibleTypes": null
+      },
+      {
+        "kind": "INPUT_OBJECT",
+        "name": "OnUnconfirmedEventsCreatedByMakerInput",
+        "description": "Input for `onUnconfirmedEventsCreatedByMaker`.",
+        "isOneOf": false,
+        "fields": null,
+        "inputFields": [
+          {
+            "name": "makerAddress",
+            "description": "The wallet address of the maker.",
+            "type": {
+              "kind": "NON_NULL",
+              "name": null,
+              "ofType": {
+                "kind": "SCALAR",
+                "name": "String",
+                "ofType": null
+              }
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          }
+        ],
+        "interfaces": null,
         "enumValues": null,
         "possibleTypes": null
       },
@@ -41513,13 +42453,21 @@
                 "name": "pairAddress",
                 "description": "The address of the pair.",
                 "type": {
-                  "kind": "NON_NULL",
-                  "name": null,
-                  "ofType": {
-                    "kind": "SCALAR",
-                    "name": "String",
-                    "ofType": null
-                  }
+                  "kind": "SCALAR",
+                  "name": "String",
+                  "ofType": null
+                },
+                "defaultValue": null,
+                "isDeprecated": false,
+                "deprecationReason": null
+              },
+              {
+                "name": "tokenAddress",
+                "description": "The address of the token.",
+                "type": {
+                  "kind": "SCALAR",
+                  "name": "String",
+                  "ofType": null
                 },
                 "defaultValue": null,
                 "isDeprecated": false,
@@ -41575,6 +42523,55 @@
               "kind": "OBJECT",
               "name": "LiquidityMetadata",
               "ofType": null
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "liquidityMetadataByToken",
+            "description": "Returns liquidity metadata for a given token. Includes liquidity lock data for up to 100 pairs that the token is in.",
+            "args": [
+              {
+                "name": "networkId",
+                "description": "The network id of the token.",
+                "type": {
+                  "kind": "NON_NULL",
+                  "name": null,
+                  "ofType": {
+                    "kind": "SCALAR",
+                    "name": "Int",
+                    "ofType": null
+                  }
+                },
+                "defaultValue": null,
+                "isDeprecated": false,
+                "deprecationReason": null
+              },
+              {
+                "name": "tokenAddress",
+                "description": "The address of the token.",
+                "type": {
+                  "kind": "NON_NULL",
+                  "name": null,
+                  "ofType": {
+                    "kind": "SCALAR",
+                    "name": "String",
+                    "ofType": null
+                  }
+                },
+                "defaultValue": null,
+                "isDeprecated": false,
+                "deprecationReason": null
+              }
+            ],
+            "type": {
+              "kind": "NON_NULL",
+              "name": null,
+              "ofType": {
+                "kind": "OBJECT",
+                "name": "LiquidityMetadataByToken",
+                "ofType": null
+              }
             },
             "isDeprecated": false,
             "deprecationReason": null
@@ -41767,8 +42764,8 @@
                 }
               }
             },
-            "isDeprecated": false,
-            "deprecationReason": null
+            "isDeprecated": true,
+            "deprecationReason": "This query is no longer supported and will not return up to date data. Use `filterTokens` instead."
           },
           {
             "name": "nftHolders",
@@ -42278,7 +43275,7 @@
           },
           {
             "name": "top10HoldersPercent",
-            "description": "Returns the percentage of a token’s total supply held collectively by its top 10 holders.",
+            "description": "Returns the percentage of a token's total supply held collectively by its top 10 holders.",
             "args": [
               {
                 "name": "tokenId",
@@ -46664,6 +47661,18 @@
                 "deprecationReason": null
               },
               {
+                "name": "maker",
+                "description": "docs: hide",
+                "type": {
+                  "kind": "SCALAR",
+                  "name": "String",
+                  "ofType": null
+                },
+                "defaultValue": null,
+                "isDeprecated": false,
+                "deprecationReason": null
+              },
+              {
                 "name": "networkId",
                 "description": "The networkId to use when getting all events per network",
                 "type": {
@@ -46691,6 +47700,35 @@
             "type": {
               "kind": "OBJECT",
               "name": "AddEventsOutput",
+              "ofType": null
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "onEventsCreatedByMaker",
+            "description": "Live-streamed transactions for a maker.",
+            "args": [
+              {
+                "name": "input",
+                "description": null,
+                "type": {
+                  "kind": "NON_NULL",
+                  "name": null,
+                  "ofType": {
+                    "kind": "INPUT_OBJECT",
+                    "name": "OnEventsCreatedByMakerInput",
+                    "ofType": null
+                  }
+                },
+                "defaultValue": null,
+                "isDeprecated": false,
+                "deprecationReason": null
+              }
+            ],
+            "type": {
+              "kind": "OBJECT",
+              "name": "AddEventsByMakerOutput",
               "ofType": null
             },
             "isDeprecated": false,
@@ -47411,6 +48449,35 @@
             "type": {
               "kind": "OBJECT",
               "name": "AddUnconfirmedEventsOutput",
+              "ofType": null
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "onUnconfirmedEventsCreatedByMaker",
+            "description": "Live-streamed unconfirmed transactions for a maker. (Solana only)",
+            "args": [
+              {
+                "name": "input",
+                "description": null,
+                "type": {
+                  "kind": "NON_NULL",
+                  "name": null,
+                  "ofType": {
+                    "kind": "INPUT_OBJECT",
+                    "name": "OnUnconfirmedEventsCreatedByMakerInput",
+                    "ofType": null
+                  }
+                },
+                "defaultValue": null,
+                "isDeprecated": false,
+                "deprecationReason": null
+              }
+            ],
+            "type": {
+              "kind": "OBJECT",
+              "name": "AddUnconfirmedEventsByMakerOutput",
               "ofType": null
             },
             "isDeprecated": false,
@@ -60397,6 +61464,11 @@
         "possibleTypes": [
           {
             "kind": "OBJECT",
+            "name": "MarketCapEventWebhookCondition",
+            "ofType": null
+          },
+          {
+            "kind": "OBJECT",
             "name": "NftEventWebhookCondition",
             "ofType": null
           },
@@ -60558,6 +61630,12 @@
         "inputFields": null,
         "interfaces": null,
         "enumValues": [
+          {
+            "name": "MARKET_CAP_EVENT",
+            "description": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
           {
             "name": "NFT_EVENT",
             "description": null,

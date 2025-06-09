@@ -18,6 +18,15 @@ export type Scalars = {
   link__Import: { input: any; output: any; }
 };
 
+/** Response returned by `onEventsCreatedByMaker`. */
+export type AddEventsByMakerOutput = {
+  __typename?: 'AddEventsByMakerOutput';
+  /** A list of transactions for the maker. */
+  events: Array<Event>;
+  /** The address of the maker. */
+  makerAddress: Scalars['String']['output'];
+};
+
 /** Response returned by `onEventsCreated`. */
 export type AddEventsOutput = {
   __typename?: 'AddEventsOutput';
@@ -76,6 +85,14 @@ export type AddTokenLifecycleEventsOutput = {
 export type AddTrackedWalletEventsOutput = {
   __typename?: 'AddTrackedWalletEventsOutput';
   userId: Scalars['String']['output'];
+};
+
+export type AddUnconfirmedEventsByMakerOutput = {
+  __typename?: 'AddUnconfirmedEventsByMakerOutput';
+  /** A list of transactions for the maker. */
+  events: Array<UnconfirmedEvent>;
+  /** The wallet address of the maker. */
+  makerAddress: Scalars['String']['output'];
 };
 
 /** Response returned by `onUnconfirmedEventsCreated`. */
@@ -151,16 +168,22 @@ export type Balance = {
   address: Scalars['String']['output'];
   /** The balance held by the wallet. */
   balance: Scalars['String']['output'];
+  /** The balance held by the wallet in USD. */
+  balanceUsd?: Maybe<Scalars['String']['output']>;
   /** The time that this address first held a token. */
   firstHeldTimestamp?: Maybe<Scalars['Int']['output']>;
   /** The wallet network. */
   networkId: Scalars['Int']['output'];
   /** The balance held by the wallet, adjusted by the number of decimals in the token. */
   shiftedBalance: Scalars['Float']['output'];
+  /** Metadata for the token. */
+  token?: Maybe<EnhancedToken>;
   /** The contract address of the token. */
   tokenAddress: Scalars['String']['output'];
   /** The ID of the token (`tokenAddress:networkId`). */
   tokenId: Scalars['String']['output'];
+  /** The token price in USD. */
+  tokenPriceUsd?: Maybe<Scalars['String']['output']>;
   /** The ID of the wallet (`walletAddress:networkId`). */
   walletId: Scalars['String']['output'];
 };
@@ -179,6 +202,8 @@ export type BalancesInput = {
   limit?: InputMaybe<Scalars['Int']['input']>;
   /** The network IDs to filter by. */
   networks?: InputMaybe<Array<Scalars['Int']['input']>>;
+  /** Whether to remove scam tokens from the response. */
+  removeScams?: InputMaybe<Scalars['Boolean']['input']>;
   /** The token IDs (`address:networkId`) or addresses to request the balance for. Requires a list of `networks` if only passing addresses. Include native network balances using `native` as the token address. Only applied when using `walletAddress` (not `walletId`). Max 200 tokens. */
   tokens?: InputMaybe<Array<Scalars['String']['input']>>;
   /** The wallet address to filter by. */
@@ -449,6 +474,38 @@ export type CreateApiTokensInput = {
   requestLimit?: InputMaybe<Scalars['String']['input']>;
 };
 
+/** Input for creating a market cap webhook. */
+export type CreateMarketCapWebhookArgs = {
+  /** The recurrence of the webhook. Can be `INDEFINITE` or `ONCE`. */
+  alertRecurrence: AlertRecurrence;
+  /** An optional bucket ID (max 64 characters). Can be used to query for subgroups of webhooks (useful if you have a large number of webhooks). */
+  bucketId?: InputMaybe<Scalars['String']['input']>;
+  /** An optional bucket sort key (max 64 characters). Can be used to query for subgroups of webhooks (useful if you have a large number of webhooks). */
+  bucketSortkey?: InputMaybe<Scalars['String']['input']>;
+  /** The url to which the webhook message should be sent. */
+  callbackUrl: Scalars['String']['input'];
+  /** The conditions which must be met in order for the webhook to send a message. */
+  conditions: MarketCapEventWebhookConditionInput;
+  /** If enabled, new webhooks won't be created if a webhook with the same parameters already exists. If callbackUrl, conditions, publishingType, and alertRecurrence all match, then we return the existing webhook. */
+  deduplicate?: InputMaybe<Scalars['Boolean']['input']>;
+  /** A webhook group ID (max 64 characters). Can be used to group webhooks so that their messages are kept in order as a group rather than by individual webhook. */
+  groupId?: InputMaybe<Scalars['String']['input']>;
+  /** The name of the webhook (max 128 characters). */
+  name: Scalars['String']['input'];
+  /** The type of publishing for the webhook. If not set, it defaults to `SINGLE`. */
+  publishingType?: InputMaybe<PublishingType>;
+  /** The settings for retrying failed webhook messages. */
+  retrySettings?: InputMaybe<RetrySettingsInput>;
+  /** A string value to hash along with `deduplicationId` using SHA-256. Included in the webhook message for added security. */
+  securityToken: Scalars['String']['input'];
+};
+
+/** Input for creating market cap webhooks. */
+export type CreateMarketCapWebhooksInput = {
+  /** A list of market cap webhooks to create. */
+  webhooks: Array<CreateMarketCapWebhookArgs>;
+};
+
 /** Input for creating an NFT event webhook. */
 export type CreateNftEventWebhookArgs = {
   /** The recurrence of the webhook. Can be `INDEFINITE` or `ONCE`. */
@@ -579,6 +636,8 @@ export type CreateTokenPairEventWebhooksInput = {
 
 /** Input for creating webhooks. */
 export type CreateWebhooksInput = {
+  /** Input for creating market cap webhooks. */
+  marketCapWebhooksInput?: InputMaybe<CreateMarketCapWebhooksInput>;
   /** Input for creating NFT event webhooks. */
   nftEventWebhooksInput?: InputMaybe<CreateNftEventWebhooksInput>;
   /** Input for creating price webhooks. */
@@ -592,6 +651,8 @@ export type CreateWebhooksInput = {
 /** Result returned by `createWebhooks`. */
 export type CreateWebhooksOutput = {
   __typename?: 'CreateWebhooksOutput';
+  /** The list of market cap event webhooks that were created. */
+  marketCapWebhooks: Array<Maybe<Webhook>>;
   /** The list of NFT event webhooks that were created. */
   nftEventWebhooks: Array<Maybe<Webhook>>;
   /** The list of price webhooks that were created. */
@@ -1062,6 +1123,8 @@ export type Event = {
   transactionIndex: Scalars['Int']['output'];
   /** The age of the wallet in seconds. */
   walletAge?: Maybe<Scalars['Int']['output']>;
+  /** Labels attributed to the wallet. */
+  walletLabels?: Maybe<Array<Scalars['String']['output']>>;
 };
 
 /** Response returned by `getTokenEvents`. */
@@ -1403,8 +1466,13 @@ export type FilterTokenWalletsInput = {
   rankings?: InputMaybe<Array<InputMaybe<WalletTokenRanking>>>;
   /** The ID of the token to filter wallets for */
   tokenId?: InputMaybe<Scalars['String']['input']>;
-  /** The wallet address to filter wallets for */
+  /**
+   * The wallet address to filter wallets for
+   * @deprecated Use wallets instead
+   */
   walletAddress?: InputMaybe<Scalars['String']['input']>;
+  /** A list of wallet addresses to filter wallets for */
+  wallets?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
 };
 
 /** The input for filtering wallets. */
@@ -1665,6 +1733,16 @@ export type HoldersUpdate = {
   /** The ID of the token (`tokenAddress:networkId`). */
   tokenId: Scalars['String']['output'];
 };
+
+export type IndexerStateInput = {
+  /** The network ID to check the state of. */
+  networkId: Scalars['Int']['input'];
+};
+
+export enum IndexerStatus {
+  Behind = 'Behind',
+  Normal = 'Normal'
+}
 
 /** Bar chart data. */
 export type IndividualBarData = {
@@ -1995,6 +2073,19 @@ export type LiquidityLock = {
   unlockAt?: Maybe<Scalars['Int']['output']>;
 };
 
+/** A breakdown of how much and where liquidity is locked. */
+export type LiquidityLockBreakdownForToken = {
+  __typename?: 'LiquidityLockBreakdownForToken';
+  /** The amount of tokens locked in the protocol. */
+  amountLockedTokens: Scalars['String']['output'];
+  /** The amount of tokens locked in the protocol shifted by number of decimals the token has. */
+  amountLockedTokensShifted: Scalars['String']['output'];
+  /** The amount of liquidity locked in USD. */
+  amountLockedUsd: Scalars['String']['output'];
+  /** The protocol with which the liquidity is locked. */
+  lockProtocol: LiquidityLockProtocol;
+};
+
 export type LiquidityLockConnection = {
   __typename?: 'LiquidityLockConnection';
   /** A cursor for use in pagination. */
@@ -2019,6 +2110,31 @@ export type LiquidityMetadata = {
   liquidity: LiquidityData;
   /** Data about locked liquidity. */
   lockedLiquidity: LockedLiquidityData;
+};
+
+/** Metadata about a token's liquidity. Includes locked liquidity data for up to 100 pairs that the token is in. */
+export type LiquidityMetadataByToken = {
+  __typename?: 'LiquidityMetadataByToken';
+  /** A breakdown of how much and where liquidity is locked. */
+  lockBreakdown: Array<Maybe<LiquidityLockBreakdownForToken>>;
+  /** The percentage of liquidity that is locked. */
+  lockedLiquidityPercentage: Scalars['Float']['output'];
+  /** The locked liquidity in USD. */
+  lockedLiquidityUsd: Scalars['String']['output'];
+  /** The locked amount of tokens in pairs. */
+  lockedTokenLiquidity: Scalars['String']['output'];
+  /** The locked amount of tokens in pairs shifted by number of decimals the token has. */
+  lockedTokenLiquidityShifted: Scalars['String']['output'];
+  /** The network ID the token is deployed on. */
+  networkId: Scalars['Int']['output'];
+  /** The address of the token. */
+  tokenAddress: Scalars['String']['output'];
+  /** The total liquidity in USD. */
+  totalLiquidityUsd: Scalars['String']['output'];
+  /** The total amount of tokens in pairs. */
+  totalTokenLiquidity: Scalars['String']['output'];
+  /** The total amount of tokens in pairs shifted by number of decimals the token has. */
+  totalTokenLiquidityShifted: Scalars['String']['output'];
 };
 
 /** Liquidity NFT position data */
@@ -2114,6 +2230,35 @@ export type MakerEventsQueryInput = {
   timestamp?: InputMaybe<EventQueryTimestampInput>;
   /** The token involved in the event. */
   tokenAddress?: InputMaybe<Scalars['String']['input']>;
+};
+
+/** Webhook conditions for a market cap event. */
+export type MarketCapEventWebhookCondition = {
+  __typename?: 'MarketCapEventWebhookCondition';
+  /** The circulating market cap condition that must be met in order for the webhook to send. */
+  circulatingMarketCapUsd?: Maybe<ComparisonOperator>;
+  /** The market cap condition that must be met in order for the webhook to send. */
+  fdvMarketCapUsd?: Maybe<ComparisonOperator>;
+  /** The network ID the webhook is listening on. */
+  networkId: IntEqualsCondition;
+  /** The pair contract address the webhook is listening for. */
+  pairAddress?: Maybe<StringEqualsCondition>;
+  /** The token contract address the webhook is listening for. */
+  tokenAddress: StringEqualsCondition;
+};
+
+/** Input conditions for a market cap event webhook. */
+export type MarketCapEventWebhookConditionInput = {
+  /** The circulating market cap conditions to listen for. */
+  circulatingMarketCapUsd?: InputMaybe<ComparisonOperatorInput>;
+  /** The price conditions to listen for. */
+  fdvMarketCapUsd?: InputMaybe<ComparisonOperatorInput>;
+  /** The network ID to listen on. */
+  networkId: IntEqualsConditionInput;
+  /** The contract address of the pair to listen for. */
+  pairAddress?: InputMaybe<StringEqualsConditionInput>;
+  /** The contract address of the token to listen for. */
+  tokenAddress: StringEqualsConditionInput;
 };
 
 /** The status for a network supported on Defined. */
@@ -4958,6 +5103,12 @@ export type OnBarsUpdatedResponse = {
   timestamp: Scalars['Int']['output'];
 };
 
+/** Input for `onEventsCreatedByMaker`. */
+export type OnEventsCreatedByMakerInput = {
+  /** The wallet address of the maker. */
+  makerAddress: Scalars['String']['input'];
+};
+
 /** Input for `onLaunchpadTokenEvent`. */
 export type OnLaunchpadTokenEventInput = {
   /** The contract address of the token. Required when `networkId` is provided. */
@@ -5005,7 +5156,9 @@ export type OnTokenBarsUpdatedResponse = {
 };
 
 export type OnTokenEventsCreatedInput = {
+  /** The network ID to filter by. */
   networkId: Scalars['Int']['input'];
+  /** The token address to filter by. */
   tokenAddress?: InputMaybe<Scalars['String']['input']>;
 };
 
@@ -5031,6 +5184,12 @@ export type OnUnconfirmedBarsUpdated = {
   quoteTokenAddress: Scalars['String']['output'];
   /** The unix timestamp for the new bar. */
   timestamp: Scalars['Int']['output'];
+};
+
+/** Input for `onUnconfirmedEventsCreatedByMaker`. */
+export type OnUnconfirmedEventsCreatedByMakerInput = {
+  /** The wallet address of the maker. */
+  makerAddress: Scalars['String']['input'];
 };
 
 /** Integer list condition. */
@@ -6558,11 +6717,16 @@ export type Query = {
   liquidityLocks?: Maybe<LiquidityLockConnection>;
   /** Returns liquidity metadata for a given pair. Includes liquidity lock data. */
   liquidityMetadata?: Maybe<LiquidityMetadata>;
+  /** Returns liquidity metadata for a given token. Includes liquidity lock data for up to 100 pairs that the token is in. */
+  liquidityMetadataByToken: LiquidityMetadataByToken;
   /** Returns a list of pairs containing a given token. */
   listPairsForToken: Array<Maybe<Pair>>;
   /** Returns a list of pair metadata for a token. */
   listPairsWithMetadataForToken: ListPairsForTokenResponse;
-  /** Returns a list of trending tokens across any given network(s). */
+  /**
+   * Returns a list of trending tokens across any given network(s).
+   * @deprecated This query is no longer supported and will not return up to date data. Use `filterTokens` instead.
+   */
   listTopTokens?: Maybe<Array<TokenWithMetadata>>;
   /** Returns list of wallets that hold a given collection, ordered by holdings descending. Also has the unique count of holders for that collection */
   nftHolders: NftHoldersResponse;
@@ -6587,7 +6751,7 @@ export type Query = {
   tokenTopTraders: TokenTopTradersConnection;
   /** Returns a list of tokens by their addresses & network id, with pagination. */
   tokens: Array<Maybe<EnhancedToken>>;
-  /** Returns the percentage of a token’s total supply held collectively by its top 10 holders. */
+  /** Returns the percentage of a token's total supply held collectively by its top 10 holders. */
   top10HoldersPercent?: Maybe<Scalars['Float']['output']>;
   /** Returns a chart of a wallet's activity. */
   walletChart?: Maybe<WalletChartResponse>;
@@ -6987,13 +7151,20 @@ export type QueryHoldersArgs = {
 export type QueryLiquidityLocksArgs = {
   cursor?: InputMaybe<Scalars['String']['input']>;
   networkId: Scalars['Int']['input'];
-  pairAddress: Scalars['String']['input'];
+  pairAddress?: InputMaybe<Scalars['String']['input']>;
+  tokenAddress?: InputMaybe<Scalars['String']['input']>;
 };
 
 
 export type QueryLiquidityMetadataArgs = {
   networkId: Scalars['Int']['input'];
   pairAddress: Scalars['String']['input'];
+};
+
+
+export type QueryLiquidityMetadataByTokenArgs = {
+  networkId: Scalars['Int']['input'];
+  tokenAddress: Scalars['String']['input'];
 };
 
 
@@ -7664,6 +7835,8 @@ export type Subscription = {
   onEventLabelCreated?: Maybe<EventLabel>;
   /** Live-streamed transactions for a token. */
   onEventsCreated?: Maybe<AddEventsOutput>;
+  /** Live-streamed transactions for a maker. */
+  onEventsCreatedByMaker?: Maybe<AddEventsByMakerOutput>;
   /** Live-streamed list of wallets that hold a given token. Also has the unique count of holders for that token. */
   onHoldersUpdated?: Maybe<HoldersUpdate>;
   /** Live-streamed updates for newly listed pairs. */
@@ -7694,6 +7867,8 @@ export type Subscription = {
   onUnconfirmedBarsUpdated?: Maybe<OnUnconfirmedBarsUpdated>;
   /** Live-streamed unconfirmed transactions for a token. (Solana only) */
   onUnconfirmedEventsCreated?: Maybe<AddUnconfirmedEventsOutput>;
+  /** Live-streamed unconfirmed transactions for a maker. (Solana only) */
+  onUnconfirmedEventsCreatedByMaker?: Maybe<AddUnconfirmedEventsByMakerOutput>;
 };
 
 
@@ -7724,8 +7899,14 @@ export type SubscriptionOnEventLabelCreatedArgs = {
 export type SubscriptionOnEventsCreatedArgs = {
   address?: InputMaybe<Scalars['String']['input']>;
   id?: InputMaybe<Scalars['String']['input']>;
+  maker?: InputMaybe<Scalars['String']['input']>;
   networkId?: InputMaybe<Scalars['Int']['input']>;
   quoteToken?: InputMaybe<QuoteToken>;
+};
+
+
+export type SubscriptionOnEventsCreatedByMakerArgs = {
+  input: OnEventsCreatedByMakerInput;
 };
 
 
@@ -7827,6 +8008,11 @@ export type SubscriptionOnUnconfirmedEventsCreatedArgs = {
   address?: InputMaybe<Scalars['String']['input']>;
   id?: InputMaybe<Scalars['String']['input']>;
   quoteToken?: InputMaybe<QuoteToken>;
+};
+
+
+export type SubscriptionOnUnconfirmedEventsCreatedByMakerArgs = {
+  input: OnUnconfirmedEventsCreatedByMakerInput;
 };
 
 export type SuiNetworkConfig = {
@@ -9938,7 +10124,7 @@ export type Webhook = {
 };
 
 /** Webhook conditions that must be met for each webhook type. */
-export type WebhookCondition = NftEventWebhookCondition | PriceEventWebhookCondition | RawTransactionWebhookCondition | TokenPairEventWebhookCondition;
+export type WebhookCondition = MarketCapEventWebhookCondition | NftEventWebhookCondition | PriceEventWebhookCondition | RawTransactionWebhookCondition | TokenPairEventWebhookCondition;
 
 /** NFT marketplace names. */
 export enum WebhookNftEventFillSource {
@@ -9968,6 +10154,7 @@ export enum WebhookNftEventType {
 
 /** The type of webhook. */
 export enum WebhookType {
+  MarketCapEvent = 'MARKET_CAP_EVENT',
   NftEvent = 'NFT_EVENT',
   PriceEvent = 'PRICE_EVENT',
   RawTransaction = 'RAW_TRANSACTION',

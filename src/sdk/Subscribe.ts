@@ -10,6 +10,8 @@ import {
   OnDetailedStatsUpdatedSubscriptionVariables,
   OnEventLabelCreatedSubscription,
   OnEventLabelCreatedSubscriptionVariables,
+  OnEventsCreatedByMakerSubscription,
+  OnEventsCreatedByMakerSubscriptionVariables,
   OnEventsCreatedSubscription,
   OnEventsCreatedSubscriptionVariables,
   OnHoldersUpdatedSubscription,
@@ -44,6 +46,8 @@ import {
   OnTokenLifecycleEventsCreatedSubscriptionVariables,
   OnUnconfirmedBarsUpdatedSubscription,
   OnUnconfirmedBarsUpdatedSubscriptionVariables,
+  OnUnconfirmedEventsCreatedByMakerSubscription,
+  OnUnconfirmedEventsCreatedByMakerSubscriptionVariables,
   OnUnconfirmedEventsCreatedSubscription,
   OnUnconfirmedEventsCreatedSubscriptionVariables,
 } from "./generated/graphql";
@@ -121,9 +125,9 @@ export class Subscribe {
     sink: Sink<ExecutionResult<OnEventsCreatedSubscription>>,
   ) =>
     this.sdk.subscribe(
-      `subscription OnEventsCreated($address: String, $id: String, $networkId: Int, $quoteToken: QuoteToken) {
-  onEventsCreated (address: $address, id: $id, networkId: $networkId, quoteToken: $quoteToken) {
-    address, events { address, baseTokenPrice, blockHash, blockNumber, data { ... on BurnEventData { amount0, amount0Shifted, amount1, amount1Shifted, tickLower, tickUpper, type }, ... on MintEventData { amount0, amount0Shifted, amount1, amount1Shifted, tickLower, tickUpper, type }, ... on PoolBalanceChangedEventData { amount0, amount0Shifted, amount1, amount1Shifted, liquidity0, liquidity1, protocolFeeAmount0, protocolFeeAmount1, sender, token0, token1, type }, ... on SwapEventData { amount0, amount0In, amount0Out, amount1, amount1In, amount1Out, amountNonLiquidityToken, priceBaseToken, priceBaseTokenTotal, priceUsd, priceUsdTotal, tick, type } }, eventDisplayType, eventType, id, labels { sandwich { label, sandwichType, token0DrainedAmount, token1DrainedAmount }, washtrade { label } }, liquidityToken, logIndex, maker, networkId, quoteToken, timestamp, token0Address, token0PoolValueUsd, token0SwapValueUsd, token0ValueBase, token1Address, token1PoolValueUsd, token1SwapValueUsd, token1ValueBase, transactionHash, transactionIndex, walletAge }, id, networkId, quoteToken
+      `subscription OnEventsCreated($address: String, $id: String, $maker: String, $networkId: Int, $quoteToken: QuoteToken) {
+  onEventsCreated (address: $address, id: $id, maker: $maker, networkId: $networkId, quoteToken: $quoteToken) {
+    address, events { address, baseTokenPrice, blockHash, blockNumber, data { ... on BurnEventData { amount0, amount0Shifted, amount1, amount1Shifted, tickLower, tickUpper, type }, ... on MintEventData { amount0, amount0Shifted, amount1, amount1Shifted, tickLower, tickUpper, type }, ... on PoolBalanceChangedEventData { amount0, amount0Shifted, amount1, amount1Shifted, liquidity0, liquidity1, protocolFeeAmount0, protocolFeeAmount1, sender, token0, token1, type }, ... on SwapEventData { amount0, amount0In, amount0Out, amount1, amount1In, amount1Out, amountNonLiquidityToken, priceBaseToken, priceBaseTokenTotal, priceUsd, priceUsdTotal, tick, type } }, eventDisplayType, eventType, id, labels { sandwich { label, sandwichType, token0DrainedAmount, token1DrainedAmount }, washtrade { label } }, liquidityToken, logIndex, maker, networkId, quoteToken, timestamp, token0Address, token0PoolValueUsd, token0SwapValueUsd, token0ValueBase, token1Address, token1PoolValueUsd, token1SwapValueUsd, token1ValueBase, transactionHash, transactionIndex, walletAge, walletLabels }, id, networkId, quoteToken
   }
 }`,
       vars,
@@ -137,6 +141,19 @@ export class Subscribe {
       `subscription OnNftPoolEventsCreated($collectionAddress: String, $exchangeAddress: String, $networkId: Int, $poolAddress: String) {
   onNftPoolEventsCreated (collectionAddress: $collectionAddress, exchangeAddress: $exchangeAddress, networkId: $networkId, poolAddress: $poolAddress) {
     collectionAddress, events { blockHash, blockNumber, collectionAddress, collectionId, data { ... on NewPoolEventData { assetRecipientAddress, bondingCurveAddress, bondingCurveType, buyPriceT, collectionAddress, createdAt, delta, feeAmountT, nbtRatio, networkId, nftTokenBalance, ownerAddress, poolAddress, sellPriceT, startPriceT, tokenAddress, tokenBalanceT, type, usdRatio }, ... on NewPoolEventDataV2 { assetRecipientAddress, bondingCurveAddress, bondingCurveType, buyPriceT, collectionAddress, createdAt, delta, feeAmountT, nbtRatio, networkId, nftAssets { address, attributes { class, css, displayType, maxValue, name, value, valueType }, description, id, media { image, processed, thumbLg, thumbSm }, name, networkId, originalImage, quantity, rawAssetData { animationUrl, externalUrl, imageData, imageUrl }, tokenId, uri }, nftTokenIds, nftTokenQuantities, ownerAddress, poolAddress, poolNftType, propertyChecker, royalties { percent, recipient }, sellPriceT, startPriceT, tokenAddress, tokenBalanceT, type, usdRatio }, ... on NftPoolAssetRecipientUpdateEventData { newAssetRecipient, type }, ... on NftPoolDeltaUpdateEventData { newDelta, type }, ... on NftPoolFeeUpdateEventData { nbtRatio, newFeeT, type, usdRatio }, ... on NftPoolNftDepositEventData { nftTokenBalance, nftTokenIds, tokenBalanceT, type }, ... on NftPoolNftDepositEventDataV2 { nftAssets { address, attributes { class, css, displayType, maxValue, name, value, valueType }, description, id, media { image, processed, thumbLg, thumbSm }, name, networkId, originalImage, quantity, rawAssetData { animationUrl, externalUrl, imageData, imageUrl }, tokenId, uri }, nftTokenAmounts, nftTokenIds, tokenBalanceT, type }, ... on NftPoolNftWithdrawalEventData { nftTokenBalance, nftTokenIds, tokenBalanceT, type }, ... on NftPoolNftWithdrawalEventDataV2 { nftAssets { address, attributes { class, css, displayType, maxValue, name, value, valueType }, description, id, media { image, processed, thumbLg, thumbSm }, name, networkId, originalImage, quantity, rawAssetData { animationUrl, externalUrl, imageData, imageUrl }, tokenId, uri }, nftTokenAmounts, nftTokenIds, tokenBalanceT, type }, ... on NftPoolOwnershipTransferredEventDataV2 { newOwner, type }, ... on NftPoolSpotPriceUpdateEventData { nbtRatio, newBuyPriceT, newSellPriceT, newSpotPriceT, type, usdRatio }, ... on NftPoolSpotPriceUpdateEventDataV2 { nbtRatio, newBuyPriceT, newSellPriceT, newSpotPriceT, type, usdRatio }, ... on NftPoolTokenDepositEventData { amountT, nbtRatio, nftTokenBalance, tokenBalanceT, type, usdRatio }, ... on NftPoolTokenDepositEventDataV2 { amountT, nbtRatio, tokenBalanceT, type, usdRatio }, ... on NftPoolTokenWithdrawalEventData { amountT, nbtRatio, nftTokenBalance, tokenBalanceT, type, usdRatio }, ... on NftPoolTokenWithdrawalEventDataV2 { amountT, nbtRatio, tokenBalanceT, type, usdRatio }, ... on SwapNftInPoolEventData { amountT, nbtRatio, newBuyPriceT, newDelta, newSellPriceT, newSpotPriceT, nftTokenBalance, nftsTransfered { amountT, nftTokenId }, poolFeeT, protocolFeeT, tokenBalanceT, tokenId, type, usdRatio }, ... on SwapNftInPoolEventDataV2 { amountT, nbtRatio, newBuyPriceT, newDelta, newSellPriceT, newSpotPriceT, nftAssets { address, attributes { class, css, displayType, maxValue, name, value, valueType }, description, id, media { image, processed, thumbLg, thumbSm }, name, networkId, originalImage, quantity, rawAssetData { animationUrl, externalUrl, imageData, imageUrl }, tokenId, uri }, nftsTransfered { amountT, nftQuantity, nftTokenId }, poolFeeT, protocolFeeT, tokenBalanceT, tokenId, type, usdRatio }, ... on SwapNftOutPoolEventData { amountT, nbtRatio, newBuyPriceT, newDelta, newSellPriceT, newSpotPriceT, nftTokenBalance, nftsTransfered { amountT, nftTokenId }, poolFeeT, protocolFeeT, tokenBalanceT, tokenId, type, usdRatio }, ... on SwapNftOutPoolEventDataV2 { amountT, nbtRatio, newBuyPriceT, newDelta, newSellPriceT, newSpotPriceT, nftAssets { address, attributes { class, css, displayType, maxValue, name, value, valueType }, description, id, media { image, processed, thumbLg, thumbSm }, name, networkId, originalImage, quantity, rawAssetData { animationUrl, externalUrl, imageData, imageUrl }, tokenId, uri }, nftsTransfered { amountT, nftQuantity, nftTokenId }, poolFeeT, protocolFeeT, tokenBalanceT, tokenId, type, usdRatio } }, eventType, exchangeAddress, id, logIndex, maker, networkId, poolAddress, poolType, timestamp, tokenAddress, transactionHash, transactionIndex }, exchangeAddress, id, networkId, poolAddress
+  }
+}`,
+      vars,
+      sink,
+    );
+  onEventsCreatedByMaker = async (
+    vars: OnEventsCreatedByMakerSubscriptionVariables,
+    sink: Sink<ExecutionResult<OnEventsCreatedByMakerSubscription>>,
+  ) =>
+    this.sdk.subscribe(
+      `subscription OnEventsCreatedByMaker($input: OnEventsCreatedByMakerInput!) {
+  onEventsCreatedByMaker (input: $input) {
+    events { address, baseTokenPrice, blockHash, blockNumber, data { ... on BurnEventData { amount0, amount0Shifted, amount1, amount1Shifted, tickLower, tickUpper, type }, ... on MintEventData { amount0, amount0Shifted, amount1, amount1Shifted, tickLower, tickUpper, type }, ... on PoolBalanceChangedEventData { amount0, amount0Shifted, amount1, amount1Shifted, liquidity0, liquidity1, protocolFeeAmount0, protocolFeeAmount1, sender, token0, token1, type }, ... on SwapEventData { amount0, amount0In, amount0Out, amount1, amount1In, amount1Out, amountNonLiquidityToken, priceBaseToken, priceBaseTokenTotal, priceUsd, priceUsdTotal, tick, type } }, eventDisplayType, eventType, id, labels { sandwich { label, sandwichType, token0DrainedAmount, token1DrainedAmount }, washtrade { label } }, liquidityToken, logIndex, maker, networkId, quoteToken, timestamp, token0Address, token0PoolValueUsd, token0SwapValueUsd, token0ValueBase, token1Address, token1PoolValueUsd, token1SwapValueUsd, token1ValueBase, transactionHash, transactionIndex, walletAge, walletLabels }, makerAddress
   }
 }`,
       vars,
@@ -271,7 +288,7 @@ export class Subscribe {
     this.sdk.subscribe(
       `subscription OnHoldersUpdated($tokenId: String!) {
   onHoldersUpdated (tokenId: $tokenId) {
-    balances { address, balance, firstHeldTimestamp, networkId, shiftedBalance, tokenAddress, tokenId, walletId }, holders, networkId, tokenAddress, tokenId
+    balances { address, balance, balanceUsd, firstHeldTimestamp, networkId, shiftedBalance, token { address, cmcId, createBlockNumber, createTransactionHash, createdAt, creatorAddress, decimals, exchanges { address, color, exchangeVersion, iconUrl, id, name, networkId, tradeUrl }, freezable, id, info { address, circulatingSupply, cmcId, description, id, imageBannerUrl, imageLargeUrl, imageSmallUrl, imageThumbUrl, isScam, name, networkId, symbol, totalSupply }, isScam, launchpad { completed, completedAt, completedSlot, graduationPercent, launchpadName, launchpadProtocol, migrated, migratedAt, migratedPoolAddress, migratedSlot, poolAddress }, mintable, name, networkId, socialLinks { bitcointalk, blog, coingecko, coinmarketcap, discord, email, facebook, github, instagram, linkedin, reddit, slack, telegram, twitch, twitter, website, wechat, whitepaper, youtube }, symbol }, tokenAddress, tokenId, tokenPriceUsd, walletId }, holders, networkId, tokenAddress, tokenId
   }
 }`,
       vars,
@@ -297,7 +314,20 @@ export class Subscribe {
     this.sdk.subscribe(
       `subscription OnTokenEventsCreated($input: OnTokenEventsCreatedInput!) {
   onTokenEventsCreated (input: $input) {
-    events { address, baseTokenPrice, blockHash, blockNumber, data { ... on BurnEventData { amount0, amount0Shifted, amount1, amount1Shifted, tickLower, tickUpper, type }, ... on MintEventData { amount0, amount0Shifted, amount1, amount1Shifted, tickLower, tickUpper, type }, ... on PoolBalanceChangedEventData { amount0, amount0Shifted, amount1, amount1Shifted, liquidity0, liquidity1, protocolFeeAmount0, protocolFeeAmount1, sender, token0, token1, type }, ... on SwapEventData { amount0, amount0In, amount0Out, amount1, amount1In, amount1Out, amountNonLiquidityToken, priceBaseToken, priceBaseTokenTotal, priceUsd, priceUsdTotal, tick, type } }, eventDisplayType, eventType, id, labels { sandwich { label, sandwichType, token0DrainedAmount, token1DrainedAmount }, washtrade { label } }, liquidityToken, logIndex, maker, networkId, quoteToken, timestamp, token0Address, token0PoolValueUsd, token0SwapValueUsd, token0ValueBase, token1Address, token1PoolValueUsd, token1SwapValueUsd, token1ValueBase, transactionHash, transactionIndex, walletAge }, id
+    events { address, baseTokenPrice, blockHash, blockNumber, data { ... on BurnEventData { amount0, amount0Shifted, amount1, amount1Shifted, tickLower, tickUpper, type }, ... on MintEventData { amount0, amount0Shifted, amount1, amount1Shifted, tickLower, tickUpper, type }, ... on PoolBalanceChangedEventData { amount0, amount0Shifted, amount1, amount1Shifted, liquidity0, liquidity1, protocolFeeAmount0, protocolFeeAmount1, sender, token0, token1, type }, ... on SwapEventData { amount0, amount0In, amount0Out, amount1, amount1In, amount1Out, amountNonLiquidityToken, priceBaseToken, priceBaseTokenTotal, priceUsd, priceUsdTotal, tick, type } }, eventDisplayType, eventType, id, labels { sandwich { label, sandwichType, token0DrainedAmount, token1DrainedAmount }, washtrade { label } }, liquidityToken, logIndex, maker, networkId, quoteToken, timestamp, token0Address, token0PoolValueUsd, token0SwapValueUsd, token0ValueBase, token1Address, token1PoolValueUsd, token1SwapValueUsd, token1ValueBase, transactionHash, transactionIndex, walletAge, walletLabels }, id
+  }
+}`,
+      vars,
+      sink,
+    );
+  onUnconfirmedEventsCreatedByMaker = async (
+    vars: OnUnconfirmedEventsCreatedByMakerSubscriptionVariables,
+    sink: Sink<ExecutionResult<OnUnconfirmedEventsCreatedByMakerSubscription>>,
+  ) =>
+    this.sdk.subscribe(
+      `subscription OnUnconfirmedEventsCreatedByMaker($input: OnUnconfirmedEventsCreatedByMakerInput!) {
+  onUnconfirmedEventsCreatedByMaker (input: $input) {
+    events { address, blockHash, blockNumber, data { ... on UnconfirmedLiquidityChangeEventData { amount0, amount0Shifted, amount1, amount1Shifted, type }, ... on UnconfirmedSwapEventData { amountBaseToken, amountNonLiquidityToken, priceBaseToken, priceBaseTokenTotal, priceUsd, priceUsdTotal, type } }, eventDisplayType, eventType, id, logIndex, maker, networkId, quoteToken, supplementalIndex, timestamp, transactionHash, transactionIndex }, makerAddress
   }
 }`,
       vars,
@@ -323,7 +353,7 @@ export class Subscribe {
     this.sdk.subscribe(
       `subscription OnBalanceUpdated($walletAddress: String!) {
   onBalanceUpdated (walletAddress: $walletAddress) {
-    address, balance, firstHeldTimestamp, networkId, shiftedBalance, tokenAddress, tokenId, walletId
+    address, balance, balanceUsd, firstHeldTimestamp, networkId, shiftedBalance, token { address, cmcId, createBlockNumber, createTransactionHash, createdAt, creatorAddress, decimals, exchanges { address, color, exchangeVersion, iconUrl, id, name, networkId, tradeUrl }, freezable, id, info { address, circulatingSupply, cmcId, description, id, imageBannerUrl, imageLargeUrl, imageSmallUrl, imageThumbUrl, isScam, name, networkId, symbol, totalSupply }, isScam, launchpad { completed, completedAt, completedSlot, graduationPercent, launchpadName, launchpadProtocol, migrated, migratedAt, migratedPoolAddress, migratedSlot, poolAddress }, mintable, name, networkId, socialLinks { bitcointalk, blog, coingecko, coinmarketcap, discord, email, facebook, github, instagram, linkedin, reddit, slack, telegram, twitch, twitter, website, wechat, whitepaper, youtube }, symbol }, tokenAddress, tokenId, tokenPriceUsd, walletId
   }
 }`,
       vars,
