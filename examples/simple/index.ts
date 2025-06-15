@@ -1,7 +1,6 @@
 import { Codex } from "@codex-data/sdk";
 
-// import { AlertRecurrence } from "../../dist/sdk/generated/graphql";
-import { AlertRecurrence, Network } from "../../src/resources/graphql";
+import { AlertRecurrence, Network } from "../../dist/sdk/generated/graphql";
 
 const sdk = new Codex(process.env.CODEX_API_KEY || "");
 

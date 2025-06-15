@@ -1,6 +1,10 @@
 @import "tailwindcss";
 @import "tw-animate-css";
 
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {
@@ -105,5 +109,22 @@
     @apply bg-background text-foreground font-mono;
     /* Remove default sans font variable if it exists */
     /* --font-sans: var(--font-geist-sans); */
+  }
+}
+/* Add this */
+@layer utilities {
+  @keyframes row-pulse {
+    0% {
+      /* Use a subtle background color from your theme, e.g., primary-foreground or blue-100 */
+      /* Adjust opacity as needed */
+      background-color: var(--color-gray-900);
+    }
+    100% {
+      background-color: transparent; /* Slightly more intense color */
+    }
+  }
+
+  .animate-row-pulse {
+    animation: row-pulse 2s cubic-bezier(0.16, 1, 0.3, 1); /* Match duration with JS timeout */
   }
 }
