@@ -2625,6 +2625,8 @@ enum LaunchpadTokenProtocol {
   Vertigo
   Rainbow
   EgoTech
+  ArenaTrade
+  Moonit
 }
 
 scalar link__Import

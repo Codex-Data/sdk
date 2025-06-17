@@ -2024,9 +2024,11 @@ export enum LaunchpadTokenEventType {
 
 /** The protocol of the token. */
 export enum LaunchpadTokenProtocol {
+  ArenaTrade = 'ArenaTrade',
   BoopFun = 'BoopFun',
   EgoTech = 'EgoTech',
   FourMeme = 'FourMeme',
+  Moonit = 'Moonit',
   Pump = 'Pump',
   Rainbow = 'Rainbow',
   RaydiumLaunchpad = 'RaydiumLaunchpad',

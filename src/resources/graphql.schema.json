@@ -12045,6 +12045,12 @@
         "interfaces": null,
         "enumValues": [
           {
+            "name": "ArenaTrade",
+            "description": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
             "name": "BoopFun",
             "description": null,
             "isDeprecated": false,
@@ -12058,6 +12064,12 @@
           },
           {
             "name": "FourMeme",
+            "description": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "Moonit",
             "description": null,
             "isDeprecated": false,
             "deprecationReason": null
