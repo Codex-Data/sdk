@@ -63,6 +63,10 @@ export class Codex {
 
     this.client = this.createGraphQLClient(config);
     this.wsClient = this.createWebsocketClient(config);
+
+    this.wsClient?.on("error", (error) => {
+      console.error("Websocket error: ", error);
+    });
   }
 
   private parseConfig(config: Partial<ApiConfig>) {
@@ -124,6 +128,16 @@ export class Codex {
     // Create a new websocket connection with the new headers.
     this.wsClient = this.createWebsocketClient(config);
     this.client = this.createGraphQLClient(config);
+
+    this.wsClient?.on("error", (error) => {
+      console.error("Websocket error: ", error);
+    });
+    this.wsClient?.on("closed", (er) => {
+      console.log("Websocket closed", er);
+    });
+    this.wsClient?.on("connecting", () => {
+      console.log("Websocket connecting");
+    });
   }
 
   /**

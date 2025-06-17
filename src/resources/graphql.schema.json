@@ -61683,7 +61683,7 @@
           },
           {
             "name": "close",
-            "description": "The closing price for the time frame.",
+            "description": "The closing price forr the time frame.",
             "args": [],
             "type": {
               "kind": "OBJECT",
