@@ -52,12 +52,11 @@ export class Codex {
     private apiKey: string,
     private apiConfig?: Partial<ApiConfig>,
   ) {
-    invariant(this.apiKey, "apiKey must be defined");
-    const config = Object.assign({}, defaultConfig, apiConfig);
-
+    const config = this.parseConfig(this.apiConfig ?? {});
     this.queries = new Query(this);
     this.mutations = new Mutation(this);
     this.subscriptions = new Subscribe(this);
+
     this.client = new GraphQLClient(config.apiUrl, {
       method: "POST",
       headers: new Headers({
@@ -67,7 +66,15 @@ export class Codex {
         ...config.headers,
       }),
     });
-    this.wsClient = config.ws
+    this.wsClient = this.createWebsocketClient(config);
+  }
+  private parseConfig(config: Partial<ApiConfig>) {
+    invariant(this.apiKey, "apiKey must be defined");
+    return Object.assign({}, defaultConfig, config);
+  }
+
+  private createWebsocketClient(config: ApiConfig) {
+    return config.ws
       ? createClient({
           webSocketImpl: WebSocket,
           keepAlive: 10_000, // ping server every 10 seconds
@@ -89,6 +96,30 @@ export class Codex {
       ...dynamicHeaders,
     };
     return headers;
+  }
+
+  /**
+   * Need to update the headers on the websocket connection.
+   * This is useful if the api key changes, or you need to modify the connection init params at all.
+   * NOTE: it will dispose of the old connection, so all existing subscriptions will be closed.
+   */
+  public updateWsHeaders(incomingConfig: Partial<ApiConfig>) {
+    // If we have an existing websocket connection, dispose of it.
+    if (this.wsClient) this.dispose();
+    this.apiConfig = incomingConfig;
+    const config = this.parseConfig(this.apiConfig);
+    // Create a new websocket connection with the new headers.
+    this.wsClient = this.createWebsocketClient(config);
+  }
+
+  /**
+   * Call this to dispose of the websocket connection, and make this class ready for garbage collection.
+   * This will also close any open subscriptions.
+   *
+   * It's useful for when you need to modify some of the configuration, or when you're done with the class.
+   */
+  public async dispose() {
+    this.wsClient?.dispose();
   }
 
   public async query<TResults, TVars extends Variables>(
