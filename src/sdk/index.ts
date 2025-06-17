@@ -48,6 +48,10 @@ export class Codex {
   public mutations: Mutation;
   public subscriptions: Subscribe;
 
+  /**
+   * @param apiKey - The api key to use for the requests.
+   * @param apiConfig - The configuration to use for the requests.
+   */
   constructor(
     private apiKey: string,
     private apiConfig?: Partial<ApiConfig>,
@@ -57,7 +61,17 @@ export class Codex {
     this.mutations = new Mutation(this);
     this.subscriptions = new Subscribe(this);
 
-    this.client = new GraphQLClient(config.apiUrl, {
+    this.client = this.createGraphQLClient(config);
+    this.wsClient = this.createWebsocketClient(config);
+  }
+
+  private parseConfig(config: Partial<ApiConfig>) {
+    invariant(this.apiKey, "apiKey must be defined");
+    return Object.assign({}, defaultConfig, config);
+  }
+
+  private createGraphQLClient(config: ApiConfig) {
+    return new GraphQLClient(config.apiUrl, {
       method: "POST",
       headers: new Headers({
         "Content-Type": "application/json",
@@ -66,11 +80,6 @@ export class Codex {
         ...config.headers,
       }),
     });
-    this.wsClient = this.createWebsocketClient(config);
-  }
-  private parseConfig(config: Partial<ApiConfig>) {
-    invariant(this.apiKey, "apiKey must be defined");
-    return Object.assign({}, defaultConfig, config);
   }
 
   private createWebsocketClient(config: ApiConfig) {
@@ -103,13 +112,17 @@ export class Codex {
    * This is useful if the api key changes, or you need to modify the connection init params at all.
    * NOTE: it will dispose of the old connection, so all existing subscriptions will be closed.
    */
-  public updateWsHeaders(incomingConfig: Partial<ApiConfig>) {
+  public updateConfig(incomingConfig: Partial<ApiConfig>) {
     // If we have an existing websocket connection, dispose of it.
     if (this.wsClient) this.dispose();
+
     this.apiConfig = incomingConfig;
+
     const config = this.parseConfig(this.apiConfig);
+
     // Create a new websocket connection with the new headers.
     this.wsClient = this.createWebsocketClient(config);
+    this.client = this.createGraphQLClient(config);
   }
 
   /**
@@ -122,6 +135,12 @@ export class Codex {
     this.wsClient?.dispose();
   }
 
+  /**
+   * This is the preferred way to execute queries.
+   * @param doc - The graphql document node to execute.
+   * @param args - The variables to pass to the document.
+   * @returns The result of the query.
+   */
   public async query<TResults, TVars extends Variables>(
     doc: TypedDocumentNode<TResults, TVars>,
     args: TVars = {} as TVars,
@@ -134,6 +153,12 @@ export class Codex {
     return res as TResults;
   }
 
+  /**
+   * This is functionally the same thing as the `query` method, but it's more expressive.
+   * @param doc - The graphql document node to execute.
+   * @param args - The variables to pass to the document.
+   * @returns The result of the mutation.
+   */
   public async mutation<TResults, TVars extends Variables>(
     doc: TypedDocumentNode<TResults, TVars>,
     args: TVars = {} as TVars,
@@ -146,7 +171,13 @@ export class Codex {
     return res as TResults;
   }
 
-  // Very simple network based fetch implementation, no compilation required
+  /**
+   * This should be used when you don't want to use graphql libaries to create a document node,
+   * and would rather just pass in a string.
+   * @param gqlString - The graphql document string to execute.
+   * @param args - The variables to pass to the document.
+   * @returns The result of the mutation.
+   */
   public async send<TResults, V extends Variables = Variables>(
     gqlString: string,
     args: V = {} as V,
@@ -159,6 +190,12 @@ export class Codex {
     return res;
   }
 
+  /**
+   * @param doc - The graphql document string to execute.
+   * @param args - The variables to pass to the document.
+   * @param sink - The sink to receive the results.
+   * @returns A cleanup function to unsubscribe from the subscription.
+   */
   public subscribe<
     TResults,
     TVars extends Record<string, unknown> = Record<string, never>,
