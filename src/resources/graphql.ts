@@ -10166,7 +10166,7 @@ export type WindowedDetailedCurrencyPairStats = {
   __typename?: 'WindowedDetailedCurrencyPairStats';
   /** The buy volume over the time frame. */
   buyVolume?: Maybe<DetailedPairStatsStringMetrics>;
-  /** The closing price for the time frame. */
+  /** The closing price forr the time frame. */
   close?: Maybe<DetailedPairStatsStringMetrics>;
   /** The highest price in USD in the time frame. */
   highest?: Maybe<DetailedPairStatsStringMetrics>;

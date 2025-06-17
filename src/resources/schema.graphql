@@ -13630,7 +13630,7 @@ type WindowedDetailedCurrencyPairStats {
   """The lowest price in USD in the time frame."""
   lowest: DetailedPairStatsStringMetrics
 
-  """The closing price for the time frame."""
+  """The closing price forr the time frame."""
   close: DetailedPairStatsStringMetrics
 
   """The liquidity for the time frame."""
