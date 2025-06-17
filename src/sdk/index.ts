@@ -116,9 +116,10 @@ export class Codex {
     // If we have an existing websocket connection, dispose of it.
     if (this.wsClient) this.dispose();
 
-    this.apiConfig = incomingConfig;
-
-    const config = this.parseConfig(this.apiConfig);
+    // Merge the incoming config with the existing config.
+    const config = this.parseConfig(
+      Object.assign({}, this.apiConfig, incomingConfig),
+    );
 
     // Create a new websocket connection with the new headers.
     this.wsClient = this.createWebsocketClient(config);
