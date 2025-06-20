@@ -3,7 +3,12 @@ import type { NextConfig } from "next";
 const nextConfig: NextConfig = {
   /* config options here */
   images: {
-    domains: ['token-media.defined.fi', 'assets.coingecko.com'],
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: 'token-media.defined.fi',
+      },
+    ],
   },
 };
 

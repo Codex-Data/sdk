@@ -72,7 +72,7 @@ export const GlitchText: React.FC<GlitchTextProps> = ({
   }, [text, charSet, intervalMs, iterationsPerChar]);
 
   // Conditionally apply opacity class
-  const animationClass = isAnimating ? 'opacity-75' : '';
+  const animationClass = isAnimating ? 'opacity-50' : '';
 
   return <span className={`${className} ${animationClass}`}>{displayText}</span>;
 };
