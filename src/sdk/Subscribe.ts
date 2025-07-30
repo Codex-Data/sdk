@@ -36,8 +36,6 @@ import {
   OnPricesUpdatedSubscriptionVariables,
   OnPriceUpdatedSubscription,
   OnPriceUpdatedSubscriptionVariables,
-  OnSimulateTokenContractSubscription,
-  OnSimulateTokenContractSubscriptionVariables,
   OnTokenBarsUpdatedSubscription,
   OnTokenBarsUpdatedSubscriptionVariables,
   OnTokenEventsCreatedSubscription,
@@ -55,20 +53,20 @@ import { Codex } from "./index";
 
 export class Subscribe {
   constructor(private sdk: Codex) {}
-  onBarsUpdated = async (
+  onBarsUpdated = (
     vars: OnBarsUpdatedSubscriptionVariables,
     sink: Sink<ExecutionResult<OnBarsUpdatedSubscription>>,
   ) =>
     this.sdk.subscribe(
-      `subscription OnBarsUpdated($pairId: String, $quoteToken: QuoteToken, $statsType: TokenPairStatisticsType) {
-  onBarsUpdated (pairId: $pairId, quoteToken: $quoteToken, statsType: $statsType) {
+      `subscription OnBarsUpdated($pairId: String, $quoteToken: QuoteToken) {
+  onBarsUpdated (pairId: $pairId, quoteToken: $quoteToken) {
     aggregates { r1 { t, token { buyVolume, buyers, buys, c, h, l, liquidity, o, sellVolume, sellers, sells, t, traders, transactions, v, volume, volumeNativeToken }, usd { buyVolume, buyers, buys, c, h, l, liquidity, o, sellVolume, sellers, sells, t, traders, transactions, v, volume, volumeNativeToken } }, r1D { t, token { buyVolume, buyers, buys, c, h, l, liquidity, o, sellVolume, sellers, sells, t, traders, transactions, v, volume, volumeNativeToken }, usd { buyVolume, buyers, buys, c, h, l, liquidity, o, sellVolume, sellers, sells, t, traders, transactions, v, volume, volumeNativeToken } }, r1S { t, token { buyVolume, buyers, buys, c, h, l, liquidity, o, sellVolume, sellers, sells, t, traders, transactions, v, volume, volumeNativeToken }, usd { buyVolume, buyers, buys, c, h, l, liquidity, o, sellVolume, sellers, sells, t, traders, transactions, v, volume, volumeNativeToken } }, r5 { t, token { buyVolume, buyers, buys, c, h, l, liquidity, o, sellVolume, sellers, sells, t, traders, transactions, v, volume, volumeNativeToken }, usd { buyVolume, buyers, buys, c, h, l, liquidity, o, sellVolume, sellers, sells, t, traders, transactions, v, volume, volumeNativeToken } }, r5S { t, token { buyVolume, buyers, buys, c, h, l, liquidity, o, sellVolume, sellers, sells, t, traders, transactions, v, volume, volumeNativeToken }, usd { buyVolume, buyers, buys, c, h, l, liquidity, o, sellVolume, sellers, sells, t, traders, transactions, v, volume, volumeNativeToken } }, r7D { t, token { buyVolume, buyers, buys, c, h, l, liquidity, o, sellVolume, sellers, sells, t, traders, transactions, v, volume, volumeNativeToken }, usd { buyVolume, buyers, buys, c, h, l, liquidity, o, sellVolume, sellers, sells, t, traders, transactions, v, volume, volumeNativeToken } }, r15 { t, token { buyVolume, buyers, buys, c, h, l, liquidity, o, sellVolume, sellers, sells, t, traders, transactions, v, volume, volumeNativeToken }, usd { buyVolume, buyers, buys, c, h, l, liquidity, o, sellVolume, sellers, sells, t, traders, transactions, v, volume, volumeNativeToken } }, r15S { t, token { buyVolume, buyers, buys, c, h, l, liquidity, o, sellVolume, sellers, sells, t, traders, transactions, v, volume, volumeNativeToken }, usd { buyVolume, buyers, buys, c, h, l, liquidity, o, sellVolume, sellers, sells, t, traders, transactions, v, volume, volumeNativeToken } }, r30 { t, token { buyVolume, buyers, buys, c, h, l, liquidity, o, sellVolume, sellers, sells, t, traders, transactions, v, volume, volumeNativeToken }, usd { buyVolume, buyers, buys, c, h, l, liquidity, o, sellVolume, sellers, sells, t, traders, transactions, v, volume, volumeNativeToken } }, r30S { t, token { buyVolume, buyers, buys, c, h, l, liquidity, o, sellVolume, sellers, sells, t, traders, transactions, v, volume, volumeNativeToken }, usd { buyVolume, buyers, buys, c, h, l, liquidity, o, sellVolume, sellers, sells, t, traders, transactions, v, volume, volumeNativeToken } }, r60 { t, token { buyVolume, buyers, buys, c, h, l, liquidity, o, sellVolume, sellers, sells, t, traders, transactions, v, volume, volumeNativeToken }, usd { buyVolume, buyers, buys, c, h, l, liquidity, o, sellVolume, sellers, sells, t, traders, transactions, v, volume, volumeNativeToken } }, r240 { t, token { buyVolume, buyers, buys, c, h, l, liquidity, o, sellVolume, sellers, sells, t, traders, transactions, v, volume, volumeNativeToken }, usd { buyVolume, buyers, buys, c, h, l, liquidity, o, sellVolume, sellers, sells, t, traders, transactions, v, volume, volumeNativeToken } }, r720 { t, token { buyVolume, buyers, buys, c, h, l, liquidity, o, sellVolume, sellers, sells, t, traders, transactions, v, volume, volumeNativeToken }, usd { buyVolume, buyers, buys, c, h, l, liquidity, o, sellVolume, sellers, sells, t, traders, transactions, v, volume, volumeNativeToken } } }, eventSortKey, networkId, pairAddress, pairId, quoteToken, quoteTokenAddress, statsType, timestamp
   }
 }`,
       vars,
       sink,
     );
-  onLatestTokens = async (
+  onLatestTokens = (
     vars: OnLatestTokensSubscriptionVariables,
     sink: Sink<ExecutionResult<OnLatestTokensSubscription>>,
   ) =>
@@ -81,33 +79,20 @@ export class Subscribe {
       vars,
       sink,
     );
-  onDetailedStatsUpdated = async (
+  onDetailedStatsUpdated = (
     vars: OnDetailedStatsUpdatedSubscriptionVariables,
     sink: Sink<ExecutionResult<OnDetailedStatsUpdatedSubscription>>,
   ) =>
     this.sdk.subscribe(
-      `subscription OnDetailedStatsUpdated($pairId: String, $statsType: TokenPairStatisticsType, $tokenOfInterest: TokenOfInterest) {
-  onDetailedStatsUpdated (pairId: $pairId, statsType: $statsType, tokenOfInterest: $tokenOfInterest) {
+      `subscription OnDetailedStatsUpdated($pairId: String, $tokenOfInterest: TokenOfInterest) {
+  onDetailedStatsUpdated (pairId: $pairId, tokenOfInterest: $tokenOfInterest) {
     bucketCount, pairId, queryTimestamp, statsType, stats_day1 { buckets { end, start }, buyVolume { buckets, change, currentValue, previousValue }, buyers { buckets, change, currentValue, previousValue }, buys { buckets, change, currentValue, previousValue }, endTimestamp, sellVolume { buckets, change, currentValue, previousValue }, sellers { buckets, change, currentValue, previousValue }, sells { buckets, change, currentValue, previousValue }, timestamp, traders { buckets, change, currentValue, previousValue }, transactions { buckets, change, currentValue, previousValue }, volume { buckets, change, currentValue, previousValue }, windowSize }, stats_hour1 { buckets { end, start }, buyVolume { buckets, change, currentValue, previousValue }, buyers { buckets, change, currentValue, previousValue }, buys { buckets, change, currentValue, previousValue }, endTimestamp, sellVolume { buckets, change, currentValue, previousValue }, sellers { buckets, change, currentValue, previousValue }, sells { buckets, change, currentValue, previousValue }, timestamp, traders { buckets, change, currentValue, previousValue }, transactions { buckets, change, currentValue, previousValue }, volume { buckets, change, currentValue, previousValue }, windowSize }, stats_hour4 { buckets { end, start }, buyVolume { buckets, change, currentValue, previousValue }, buyers { buckets, change, currentValue, previousValue }, buys { buckets, change, currentValue, previousValue }, endTimestamp, sellVolume { buckets, change, currentValue, previousValue }, sellers { buckets, change, currentValue, previousValue }, sells { buckets, change, currentValue, previousValue }, timestamp, traders { buckets, change, currentValue, previousValue }, transactions { buckets, change, currentValue, previousValue }, volume { buckets, change, currentValue, previousValue }, windowSize }, stats_hour12 { buckets { end, start }, buyVolume { buckets, change, currentValue, previousValue }, buyers { buckets, change, currentValue, previousValue }, buys { buckets, change, currentValue, previousValue }, endTimestamp, sellVolume { buckets, change, currentValue, previousValue }, sellers { buckets, change, currentValue, previousValue }, sells { buckets, change, currentValue, previousValue }, timestamp, traders { buckets, change, currentValue, previousValue }, transactions { buckets, change, currentValue, previousValue }, volume { buckets, change, currentValue, previousValue }, windowSize }, stats_min5 { buckets { end, start }, buyVolume { buckets, change, currentValue, previousValue }, buyers { buckets, change, currentValue, previousValue }, buys { buckets, change, currentValue, previousValue }, endTimestamp, sellVolume { buckets, change, currentValue, previousValue }, sellers { buckets, change, currentValue, previousValue }, sells { buckets, change, currentValue, previousValue }, timestamp, traders { buckets, change, currentValue, previousValue }, transactions { buckets, change, currentValue, previousValue }, volume { buckets, change, currentValue, previousValue }, windowSize }, tokenOfInterest
   }
 }`,
       vars,
       sink,
     );
-  onSimulateTokenContract = async (
-    vars: OnSimulateTokenContractSubscriptionVariables,
-    sink: Sink<ExecutionResult<OnSimulateTokenContractSubscription>>,
-  ) =>
-    this.sdk.subscribe(
-      `subscription OnSimulateTokenContract($contractAddress: String, $networkId: Int!, $simulationId: String) {
-  onSimulateTokenContract (contractAddress: $contractAddress, networkId: $networkId, simulationId: $simulationId) {
-    analysisType, blockNumber, contractBalance { tokenContractEthBalance, tokenContractTokenBalance }, contractHashKey, creator { creatorAddress, creatorEthBalance, creatorTokenBalance }, deploy { deploySuccess, tokenMintedToDeployer }, errors { contractBalanceErrors { tokenContractEthBalanceError, tokenContractTokenBalanceError }, creatorErrors { creatorEthBalanceError, creatorTokenBalanceError }, deployErrors { deployError, tokenMintedToDeployerError }, liquidityErrors { addLiquidityError, lpTotalSupplyError, postLiquidityEnableTradingError, preLiquidityEnableTradingError }, ownerErrors { ownerAddressError, ownerEthBalanceError, ownerTokenBalanceError }, simulatorError, swapErrors { buyError, buyErrorEnum, sellError, sellErrorEnum }, tokenErrors { canRenounceOwnershipError, canTransferOwnershipError, decimalsError, tokenNameError, tokenSymbolError, totalSupplyError }, transferErrors { tokenContractApprovalError, tokenTransferredToContractError, userApprovalError } }, id, liquidity { addLiquiditySuccess, liquiditySetByPreLiquidityOpenTradingCall, lpTotalSupply, pairAddress, postLiquidityEnableTradingCall, postLiquidityEnableTradingSuccess, preLiquidityEnableTradingCall, preLiquidityEnableTradingSuccess, preLiquidityEnableTradingSupportsTransfer }, networkId, owner { ownerAddress, ownerEthBalance, ownerTokenBalance }, sortKey, status, swap { buyGasUsed, buySuccess, buyTax, maxBuyAmount, maxSellAmount, sellGasUsed, sellSuccess, sellTax }, timestamp, token { canRenounceOwnership, canTransferOwnership, contractAddress, decimals, isOwnerRenounced, tokenName, tokenSymbol, totalSupply }, transfer { tokenContractApprovalSuccess, tokenTransferredToContractSuccess, userApprovalSuccess }, uuid, uuidHashKey
-  }
-}`,
-      vars,
-      sink,
-    );
-  onNftEventsCreated = async (
+  onNftEventsCreated = (
     vars: OnNftEventsCreatedSubscriptionVariables,
     sink: Sink<ExecutionResult<OnNftEventsCreatedSubscription>>,
   ) =>
@@ -120,20 +105,20 @@ export class Subscribe {
       vars,
       sink,
     );
-  onEventsCreated = async (
+  onEventsCreated = (
     vars: OnEventsCreatedSubscriptionVariables,
     sink: Sink<ExecutionResult<OnEventsCreatedSubscription>>,
   ) =>
     this.sdk.subscribe(
-      `subscription OnEventsCreated($address: String, $id: String, $maker: String, $networkId: Int, $quoteToken: QuoteToken) {
-  onEventsCreated (address: $address, id: $id, maker: $maker, networkId: $networkId, quoteToken: $quoteToken) {
+      `subscription OnEventsCreated($address: String, $id: String, $networkId: Int, $quoteToken: QuoteToken) {
+  onEventsCreated (address: $address, id: $id, networkId: $networkId, quoteToken: $quoteToken) {
     address, events { address, baseTokenPrice, blockHash, blockNumber, data { ... on BurnEventData { amount0, amount0Shifted, amount1, amount1Shifted, tickLower, tickUpper, type }, ... on MintEventData { amount0, amount0Shifted, amount1, amount1Shifted, tickLower, tickUpper, type }, ... on PoolBalanceChangedEventData { amount0, amount0Shifted, amount1, amount1Shifted, liquidity0, liquidity1, protocolFeeAmount0, protocolFeeAmount1, sender, token0, token1, type }, ... on SwapEventData { amount0, amount0In, amount0Out, amount1, amount1In, amount1Out, amountNonLiquidityToken, priceBaseToken, priceBaseTokenTotal, priceUsd, priceUsdTotal, tick, type } }, eventDisplayType, eventType, id, labels { sandwich { label, sandwichType, token0DrainedAmount, token1DrainedAmount }, washtrade { label } }, liquidityToken, logIndex, maker, networkId, quoteToken, timestamp, token0Address, token0PoolValueUsd, token0SwapValueUsd, token0ValueBase, token1Address, token1PoolValueUsd, token1SwapValueUsd, token1ValueBase, transactionHash, transactionIndex, walletAge, walletLabels }, id, networkId, quoteToken
   }
 }`,
       vars,
       sink,
     );
-  onNftPoolEventsCreated = async (
+  onNftPoolEventsCreated = (
     vars: OnNftPoolEventsCreatedSubscriptionVariables,
     sink: Sink<ExecutionResult<OnNftPoolEventsCreatedSubscription>>,
   ) =>
@@ -146,7 +131,7 @@ export class Subscribe {
       vars,
       sink,
     );
-  onEventsCreatedByMaker = async (
+  onEventsCreatedByMaker = (
     vars: OnEventsCreatedByMakerSubscriptionVariables,
     sink: Sink<ExecutionResult<OnEventsCreatedByMakerSubscription>>,
   ) =>
@@ -159,7 +144,7 @@ export class Subscribe {
       vars,
       sink,
     );
-  onPricesUpdated = async (
+  onPricesUpdated = (
     vars: OnPricesUpdatedSubscriptionVariables,
     sink: Sink<ExecutionResult<OnPricesUpdatedSubscription>>,
   ) =>
@@ -172,7 +157,7 @@ export class Subscribe {
       vars,
       sink,
     );
-  onEventLabelCreated = async (
+  onEventLabelCreated = (
     vars: OnEventLabelCreatedSubscriptionVariables,
     sink: Sink<ExecutionResult<OnEventLabelCreatedSubscription>>,
   ) =>
@@ -203,7 +188,7 @@ export class Subscribe {
       vars,
       sink,
     );
-  onTokenLifecycleEventsCreated = async (
+  onTokenLifecycleEventsCreated = (
     vars: OnTokenLifecycleEventsCreatedSubscriptionVariables,
     sink: Sink<ExecutionResult<OnTokenLifecycleEventsCreatedSubscription>>,
   ) =>
@@ -216,7 +201,7 @@ export class Subscribe {
       vars,
       sink,
     );
-  onNftAssetsCreated = async (
+  onNftAssetsCreated = (
     vars: OnNftAssetsCreatedSubscriptionVariables,
     sink: Sink<ExecutionResult<OnNftAssetsCreatedSubscription>>,
   ) =>
@@ -229,7 +214,7 @@ export class Subscribe {
       vars,
       sink,
     );
-  onPriceUpdated = async (
+  onPriceUpdated = (
     vars: OnPriceUpdatedSubscriptionVariables,
     sink: Sink<ExecutionResult<OnPriceUpdatedSubscription>>,
   ) =>
@@ -242,20 +227,20 @@ export class Subscribe {
       vars,
       sink,
     );
-  onPairMetadataUpdated = async (
+  onPairMetadataUpdated = (
     vars: OnPairMetadataUpdatedSubscriptionVariables,
     sink: Sink<ExecutionResult<OnPairMetadataUpdatedSubscription>>,
   ) =>
     this.sdk.subscribe(
-      `subscription OnPairMetadataUpdated($id: String, $quoteToken: QuoteToken, $statsType: TokenPairStatisticsType) {
-  onPairMetadataUpdated (id: $id, quoteToken: $quoteToken, statsType: $statsType) {
+      `subscription OnPairMetadataUpdated($id: String, $quoteToken: QuoteToken) {
+  onPairMetadataUpdated (id: $id, quoteToken: $quoteToken) {
     createdAt, enhancedToken0 { address, cmcId, createBlockNumber, createTransactionHash, createdAt, creatorAddress, decimals, exchanges { address, color, exchangeVersion, iconUrl, id, name, networkId, tradeUrl }, freezable, id, info { address, circulatingSupply, cmcId, description, id, imageBannerUrl, imageLargeUrl, imageSmallUrl, imageThumbUrl, isScam, name, networkId, symbol, totalSupply }, isScam, launchpad { completed, completedAt, completedSlot, graduationPercent, launchpadName, launchpadProtocol, migrated, migratedAt, migratedPoolAddress, migratedSlot, poolAddress }, mintable, name, networkId, socialLinks { bitcointalk, blog, coingecko, coinmarketcap, discord, email, facebook, github, instagram, linkedin, reddit, slack, telegram, twitch, twitter, website, wechat, whitepaper, youtube }, symbol }, enhancedToken1 { address, cmcId, createBlockNumber, createTransactionHash, createdAt, creatorAddress, decimals, exchanges { address, color, exchangeVersion, iconUrl, id, name, networkId, tradeUrl }, freezable, id, info { address, circulatingSupply, cmcId, description, id, imageBannerUrl, imageLargeUrl, imageSmallUrl, imageThumbUrl, isScam, name, networkId, symbol, totalSupply }, isScam, launchpad { completed, completedAt, completedSlot, graduationPercent, launchpadName, launchpadProtocol, migrated, migratedAt, migratedPoolAddress, migratedSlot, poolAddress }, mintable, name, networkId, socialLinks { bitcointalk, blog, coingecko, coinmarketcap, discord, email, facebook, github, instagram, linkedin, reddit, slack, telegram, twitch, twitter, website, wechat, whitepaper, youtube }, symbol }, exchangeId, fee, highPrice1, highPrice1w, highPrice4, highPrice5m, highPrice12, highPrice24, id, liquidity, liquidityToken, lowPrice1, lowPrice1w, lowPrice4, lowPrice5m, lowPrice12, lowPrice24, networkId, nonLiquidityToken, pairAddress, price, priceChange1, priceChange1w, priceChange4, priceChange5m, priceChange12, priceChange24, quoteToken, statsType, tickSpacing, token0 { address, decimals, labels { createdAt, subType, type }, name, networkId, pooled, price, symbol }, token1 { address, decimals, labels { createdAt, subType, type }, name, networkId, pooled, price, symbol }, volume1, volume1w, volume4, volume5m, volume12, volume24
   }
 }`,
       vars,
       sink,
     );
-  onLatestPairUpdated = async (
+  onLatestPairUpdated = (
     vars: OnLatestPairUpdatedSubscriptionVariables,
     sink: Sink<ExecutionResult<OnLatestPairUpdatedSubscription>>,
   ) =>
@@ -268,7 +253,7 @@ export class Subscribe {
       vars,
       sink,
     );
-  onLaunchpadTokenEvent = async (
+  onLaunchpadTokenEvent = (
     vars: OnLaunchpadTokenEventSubscriptionVariables,
     sink: Sink<ExecutionResult<OnLaunchpadTokenEventSubscription>>,
   ) =>
@@ -281,7 +266,7 @@ export class Subscribe {
       vars,
       sink,
     );
-  onHoldersUpdated = async (
+  onHoldersUpdated = (
     vars: OnHoldersUpdatedSubscriptionVariables,
     sink: Sink<ExecutionResult<OnHoldersUpdatedSubscription>>,
   ) =>
@@ -294,7 +279,7 @@ export class Subscribe {
       vars,
       sink,
     );
-  onUnconfirmedEventsCreated = async (
+  onUnconfirmedEventsCreated = (
     vars: OnUnconfirmedEventsCreatedSubscriptionVariables,
     sink: Sink<ExecutionResult<OnUnconfirmedEventsCreatedSubscription>>,
   ) =>
@@ -307,7 +292,7 @@ export class Subscribe {
       vars,
       sink,
     );
-  onTokenEventsCreated = async (
+  onTokenEventsCreated = (
     vars: OnTokenEventsCreatedSubscriptionVariables,
     sink: Sink<ExecutionResult<OnTokenEventsCreatedSubscription>>,
   ) =>
@@ -320,7 +305,7 @@ export class Subscribe {
       vars,
       sink,
     );
-  onUnconfirmedEventsCreatedByMaker = async (
+  onUnconfirmedEventsCreatedByMaker = (
     vars: OnUnconfirmedEventsCreatedByMakerSubscriptionVariables,
     sink: Sink<ExecutionResult<OnUnconfirmedEventsCreatedByMakerSubscription>>,
   ) =>
@@ -333,20 +318,20 @@ export class Subscribe {
       vars,
       sink,
     );
-  onTokenBarsUpdated = async (
+  onTokenBarsUpdated = (
     vars: OnTokenBarsUpdatedSubscriptionVariables,
     sink: Sink<ExecutionResult<OnTokenBarsUpdatedSubscription>>,
   ) =>
     this.sdk.subscribe(
-      `subscription OnTokenBarsUpdated($networkId: Int, $statsType: TokenPairStatisticsType, $tokenId: String) {
-  onTokenBarsUpdated (networkId: $networkId, statsType: $statsType, tokenId: $tokenId) {
+      `subscription OnTokenBarsUpdated($networkId: Int, $tokenId: String) {
+  onTokenBarsUpdated (networkId: $networkId, tokenId: $tokenId) {
     aggregates { r1 { t, token { buyVolume, buyers, buys, c, h, l, liquidity, o, sellVolume, sellers, sells, t, traders, transactions, v, volume, volumeNativeToken }, usd { buyVolume, buyers, buys, c, h, l, liquidity, o, sellVolume, sellers, sells, t, traders, transactions, v, volume, volumeNativeToken } }, r1D { t, token { buyVolume, buyers, buys, c, h, l, liquidity, o, sellVolume, sellers, sells, t, traders, transactions, v, volume, volumeNativeToken }, usd { buyVolume, buyers, buys, c, h, l, liquidity, o, sellVolume, sellers, sells, t, traders, transactions, v, volume, volumeNativeToken } }, r1S { t, token { buyVolume, buyers, buys, c, h, l, liquidity, o, sellVolume, sellers, sells, t, traders, transactions, v, volume, volumeNativeToken }, usd { buyVolume, buyers, buys, c, h, l, liquidity, o, sellVolume, sellers, sells, t, traders, transactions, v, volume, volumeNativeToken } }, r5 { t, token { buyVolume, buyers, buys, c, h, l, liquidity, o, sellVolume, sellers, sells, t, traders, transactions, v, volume, volumeNativeToken }, usd { buyVolume, buyers, buys, c, h, l, liquidity, o, sellVolume, sellers, sells, t, traders, transactions, v, volume, volumeNativeToken } }, r5S { t, token { buyVolume, buyers, buys, c, h, l, liquidity, o, sellVolume, sellers, sells, t, traders, transactions, v, volume, volumeNativeToken }, usd { buyVolume, buyers, buys, c, h, l, liquidity, o, sellVolume, sellers, sells, t, traders, transactions, v, volume, volumeNativeToken } }, r7D { t, token { buyVolume, buyers, buys, c, h, l, liquidity, o, sellVolume, sellers, sells, t, traders, transactions, v, volume, volumeNativeToken }, usd { buyVolume, buyers, buys, c, h, l, liquidity, o, sellVolume, sellers, sells, t, traders, transactions, v, volume, volumeNativeToken } }, r15 { t, token { buyVolume, buyers, buys, c, h, l, liquidity, o, sellVolume, sellers, sells, t, traders, transactions, v, volume, volumeNativeToken }, usd { buyVolume, buyers, buys, c, h, l, liquidity, o, sellVolume, sellers, sells, t, traders, transactions, v, volume, volumeNativeToken } }, r15S { t, token { buyVolume, buyers, buys, c, h, l, liquidity, o, sellVolume, sellers, sells, t, traders, transactions, v, volume, volumeNativeToken }, usd { buyVolume, buyers, buys, c, h, l, liquidity, o, sellVolume, sellers, sells, t, traders, transactions, v, volume, volumeNativeToken } }, r30 { t, token { buyVolume, buyers, buys, c, h, l, liquidity, o, sellVolume, sellers, sells, t, traders, transactions, v, volume, volumeNativeToken }, usd { buyVolume, buyers, buys, c, h, l, liquidity, o, sellVolume, sellers, sells, t, traders, transactions, v, volume, volumeNativeToken } }, r30S { t, token { buyVolume, buyers, buys, c, h, l, liquidity, o, sellVolume, sellers, sells, t, traders, transactions, v, volume, volumeNativeToken }, usd { buyVolume, buyers, buys, c, h, l, liquidity, o, sellVolume, sellers, sells, t, traders, transactions, v, volume, volumeNativeToken } }, r60 { t, token { buyVolume, buyers, buys, c, h, l, liquidity, o, sellVolume, sellers, sells, t, traders, transactions, v, volume, volumeNativeToken }, usd { buyVolume, buyers, buys, c, h, l, liquidity, o, sellVolume, sellers, sells, t, traders, transactions, v, volume, volumeNativeToken } }, r240 { t, token { buyVolume, buyers, buys, c, h, l, liquidity, o, sellVolume, sellers, sells, t, traders, transactions, v, volume, volumeNativeToken }, usd { buyVolume, buyers, buys, c, h, l, liquidity, o, sellVolume, sellers, sells, t, traders, transactions, v, volume, volumeNativeToken } }, r720 { t, token { buyVolume, buyers, buys, c, h, l, liquidity, o, sellVolume, sellers, sells, t, traders, transactions, v, volume, volumeNativeToken }, usd { buyVolume, buyers, buys, c, h, l, liquidity, o, sellVolume, sellers, sells, t, traders, transactions, v, volume, volumeNativeToken } } }, eventSortKey, networkId, pairAddress, pairId, quoteToken, statsType, timestamp, tokenAddress, tokenId
   }
 }`,
       vars,
       sink,
     );
-  onBalanceUpdated = async (
+  onBalanceUpdated = (
     vars: OnBalanceUpdatedSubscriptionVariables,
     sink: Sink<ExecutionResult<OnBalanceUpdatedSubscription>>,
   ) =>
@@ -359,7 +344,7 @@ export class Subscribe {
       vars,
       sink,
     );
-  onUnconfirmedBarsUpdated = async (
+  onUnconfirmedBarsUpdated = (
     vars: OnUnconfirmedBarsUpdatedSubscriptionVariables,
     sink: Sink<ExecutionResult<OnUnconfirmedBarsUpdatedSubscription>>,
   ) =>
@@ -372,7 +357,7 @@ export class Subscribe {
       vars,
       sink,
     );
-  onLaunchpadTokenEventBatch = async (
+  onLaunchpadTokenEventBatch = (
     vars: OnLaunchpadTokenEventBatchSubscriptionVariables,
     sink: Sink<ExecutionResult<OnLaunchpadTokenEventBatchSubscription>>,
   ) =>
