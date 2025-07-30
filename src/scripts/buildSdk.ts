@@ -34,7 +34,7 @@ class Subscription {
       ),
       "utf8",
     );
-    return `${camelCase(this.subscriptionName)} = async (vars: ${
+    return `${camelCase(this.subscriptionName)} = (vars: ${
       this.subscriptionName
     }SubscriptionVariables, sink: Sink<ExecutionResult<${
       this.subscriptionName
