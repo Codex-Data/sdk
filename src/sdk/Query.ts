@@ -42,8 +42,6 @@ import {
   GetEventLabelsQueryVariables,
   GetExchangesDocument,
   GetExchangesQueryVariables,
-  GetLatestTokensDocument,
-  GetLatestTokensQueryVariables,
   GetNetworksDocument,
   GetNetworksQueryVariables,
   GetNetworkStatsDocument,
@@ -80,8 +78,6 @@ import {
   GetPrimePoolEventsQueryVariables,
   GetPrimePoolsDocument,
   GetPrimePoolsQueryVariables,
-  GetSimulateTokenContractResultsDocument,
-  GetSimulateTokenContractResultsQueryVariables,
   GetSymbolDocument,
   GetSymbolQueryVariables,
   GetTokenEventsDocument,
@@ -104,8 +100,6 @@ import {
   ListPairsForTokenQueryVariables,
   ListPairsWithMetadataForTokenDocument,
   ListPairsWithMetadataForTokenQueryVariables,
-  ListTopTokensDocument,
-  ListTopTokensQueryVariables,
   NftHoldersDocument,
   NftHoldersQueryVariables,
   PairMetadataDocument,
@@ -218,17 +212,12 @@ export class Query {
     this.sdk.query(FilterExchangesDocument, vars);
   getNetworkStats = async (vars: GetNetworkStatsQueryVariables) =>
     this.sdk.query(GetNetworkStatsDocument, vars);
-  getSimulateTokenContractResults = async (
-    vars: GetSimulateTokenContractResultsQueryVariables,
-  ) => this.sdk.query(GetSimulateTokenContractResultsDocument, vars);
   detailedWalletStats = async (vars: DetailedWalletStatsQueryVariables) =>
     this.sdk.query(DetailedWalletStatsDocument, vars);
   walletNftCollections = async (vars: WalletNftCollectionsQueryVariables) =>
     this.sdk.query(WalletNftCollectionsDocument, vars);
   getDetailedNftStats = async (vars: GetDetailedNftStatsQueryVariables) =>
     this.sdk.query(GetDetailedNftStatsDocument, vars);
-  listTopTokens = async (vars: ListTopTokensQueryVariables) =>
-    this.sdk.query(ListTopTokensDocument, vars);
   getDetailedPairStats = async (vars: GetDetailedPairStatsQueryVariables) =>
     this.sdk.query(GetDetailedPairStatsDocument, vars);
   getNftPoolEvents = async (vars: GetNftPoolEventsQueryVariables) =>
@@ -261,8 +250,6 @@ export class Query {
   getNftPoolsByCollectionAndExchange = async (
     vars: GetNftPoolsByCollectionAndExchangeQueryVariables,
   ) => this.sdk.query(GetNftPoolsByCollectionAndExchangeDocument, vars);
-  getLatestTokens = async (vars: GetLatestTokensQueryVariables) =>
-    this.sdk.query(GetLatestTokensDocument, vars);
   apiTokens = async (vars: ApiTokensQueryVariables) =>
     this.sdk.query(ApiTokensDocument, vars);
   searchNfts = async (vars: SearchNftsQueryVariables) =>

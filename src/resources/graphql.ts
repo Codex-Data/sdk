@@ -82,11 +82,7 @@ export type AddTokenLifecycleEventsOutput = {
   id: Scalars['String']['output'];
 };
 
-export type AddTrackedWalletEventsOutput = {
-  __typename?: 'AddTrackedWalletEventsOutput';
-  userId: Scalars['String']['output'];
-};
-
+/** Response returned by `onUnconfirmedEventsCreatedByMaker`. */
 export type AddUnconfirmedEventsByMakerOutput = {
   __typename?: 'AddUnconfirmedEventsByMakerOutput';
   /** A list of transactions for the maker. */
@@ -110,17 +106,6 @@ export type AddUnconfirmedEventsOutput = {
   quoteToken?: Maybe<QuoteToken>;
 };
 
-export type AddUserAchievementInput = {
-  quantity: Scalars['Int']['input'];
-  userId: Scalars['String']['input'];
-};
-
-export enum AddressType {
-  Evm = 'EVM',
-  Sol = 'SOL',
-  Tron = 'TRON'
-}
-
 /** The recurrence of the webhook. Can be `INDEFINITE` or `ONCE`. */
 export enum AlertRecurrence {
   Indefinite = 'INDEFINITE',
@@ -141,24 +126,11 @@ export type ApiToken = {
   token: Scalars['String']['output'];
 };
 
-export type AptosNetworkConfig = {
-  __typename?: 'AptosNetworkConfig';
-  baseTokenAddress: Scalars['String']['output'];
-  baseTokenSymbol: Scalars['String']['output'];
-  color?: Maybe<Scalars['String']['output']>;
-  defaultPairAddress: Scalars['String']['output'];
-  defaultPairQuoteToken: QuoteToken;
-  enabled: Scalars['Boolean']['output'];
-  id: Scalars['ID']['output'];
-  mainnet: Scalars['Boolean']['output'];
-  name: Scalars['String']['output'];
-  networkIconUrl: Scalars['String']['output'];
-  networkId: Scalars['Int']['output'];
-  networkName: Scalars['String']['output'];
-  networkShortName: Scalars['String']['output'];
-  newTokensEnabled?: Maybe<Scalars['Boolean']['output']>;
-  stableCoinAddresses?: Maybe<Array<Scalars['String']['output']>>;
-  wrappedBaseTokenSymbol: Scalars['String']['output'];
+export type ArenaTradeData = {
+  __typename?: 'ArenaTradeData';
+  /** Protocol specific token ID */
+  tokenId?: Maybe<Scalars['String']['output']>;
+  type: Scalars['String']['output'];
 };
 
 /** Wallet balance of a token. */
@@ -196,7 +168,7 @@ export type BalancesInput = {
    * @deprecated Use tokens list instead
    */
   filterToken?: InputMaybe<Scalars['String']['input']>;
-  /** Whether to include native network balances in the response (ID will be native:<networkId>). Requires a list of `networks`. Does not apply when using `tokens`. */
+  /** Whether to include native network balances in the response (ID will be native:&lt;networkId&gt;). Requires a list of `networks`. Does not apply when using `tokens`. */
   includeNative?: InputMaybe<Scalars['Boolean']['input']>;
   /** The maximum number of holdings to return. Does not apply when using `tokens`. */
   limit?: InputMaybe<Scalars['Int']['input']>;
@@ -358,6 +330,8 @@ export type CommunityNote = {
   /** The unix timestamp of when the community note was created. */
   proposedAt: Scalars['Int']['output'];
   sortKey: Scalars['String']['output'];
+  /** The status of the community note. */
+  status: ContractProposalStatus;
 };
 
 /** Type of the community gathered note. */
@@ -391,7 +365,7 @@ export type CommunityNotesInput = {
   limit?: InputMaybe<Scalars['Int']['input']>;
 };
 
-/** Community notes data */
+/** Community notes data. */
 export type CommunityNotesResponse = {
   __typename?: 'CommunityNotesResponse';
   /** The number of community notes returned. */
@@ -456,13 +430,17 @@ export enum ContractLabelType {
   Verified = 'Verified'
 }
 
+export enum ContractProposalStatus {
+  Accepted = 'ACCEPTED',
+  Pending = 'PENDING',
+  Rejected = 'REJECTED',
+  Reverted = 'REVERTED'
+}
+
+/** Type of the contract. */
 export enum ContractType {
   Nft = 'NFT',
   Token = 'TOKEN'
-}
-
-export enum CostBasisMethod {
-  Fifo = 'FIFO'
 }
 
 export type CreateApiTokensInput = {
@@ -662,12 +640,6 @@ export type CreateWebhooksOutput = {
   /** The list of token pair event webhooks that were created. */
   tokenPairEventWebhooks: Array<Maybe<Webhook>>;
 };
-
-export enum CreationContext {
-  Mobile = 'MOBILE',
-  Telegram = 'TELEGRAM',
-  Web = 'WEB'
-}
 
 /** Price data for a bar at a specific resolution. */
 export type CurrencyBarData = {
@@ -1061,13 +1033,6 @@ export type EnhancedToken = {
   totalSupply?: Maybe<Scalars['String']['output']>;
 };
 
-export enum Entitlement {
-  BalanceFeed = 'BalanceFeed',
-  PriceFeed = 'PriceFeed',
-  TopTraders = 'TopTraders',
-  WalletStats = 'WalletStats'
-}
-
 /** A token transaction. */
 export type Event = {
   __typename?: 'Event';
@@ -1323,6 +1288,8 @@ export type ExchangeFilters = {
   txnCount12?: InputMaybe<StringFilter>;
   /** The number of transactions on the exchange in the past 24 hours. */
   txnCount24?: InputMaybe<StringFilter>;
+  /** Scope to only verified exchanges */
+  verified?: InputMaybe<Scalars['Boolean']['input']>;
   /** The trade volume in the network's base token in the past hour. */
   volumeNBT1?: InputMaybe<StringFilter>;
   /** The trade volume in the network's base token in the past 4 hours. */
@@ -1384,12 +1351,6 @@ export type ExplorerTokenData = {
   tokenType?: Maybe<Scalars['String']['output']>;
 };
 
-export type Feature = {
-  __typename?: 'Feature';
-  enabled: Scalars['Boolean']['output'];
-  name: Scalars['String']['output'];
-};
-
 /** Filter for fillsource based NFT stats. */
 export type FillsourceStatsFilter = {
   /** The percent change between the `current` and `previous`. */
@@ -1423,11 +1384,11 @@ export type FilterExchange = {
 
 /** The input for filtering wallets for a network. */
 export type FilterNetworkWalletsInput = {
-  /** Exclude wallets with these labels. */
+  /** Exclude wallets with these labels. See [`WalletLabel`](/api-reference/enums/index#walletlabel) for possible values. */
   excludeLabels?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
   /** A set of filters to apply. */
   filters?: InputMaybe<WalletNetworkFilters>;
-  /** Include wallets with these labels. */
+  /** Include wallets with these labels. See [`WalletLabel`](/api-reference/enums/index#walletlabel) for possible values. */
   includeLabels?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
   /** The maximum number of wallets to return. */
   limit?: InputMaybe<Scalars['Int']['input']>;
@@ -1443,7 +1404,7 @@ export type FilterNetworkWalletsInput = {
 
 /** The input for filtering wallets for a token. */
 export type FilterTokenWalletsInput = {
-  /** Exclude wallets with these labels. */
+  /** Exclude wallets with these labels. See [`WalletLabel`](/api-reference/enums/index#walletlabel) for possible values. */
   excludeLabels?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
   /**
    * A set of filters to apply
@@ -1452,7 +1413,7 @@ export type FilterTokenWalletsInput = {
   filters?: InputMaybe<WalletTokenFilters>;
   /** A set of filters to apply */
   filtersV2?: InputMaybe<WalletTokenFiltersV2>;
-  /** Include wallets with these labels. */
+  /** Include wallets with these labels. See [`WalletLabel`](/api-reference/enums/index#walletlabel) for possible values. */
   includeLabels?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
   /** The maximum number of wallets to return */
   limit?: InputMaybe<Scalars['Int']['input']>;
@@ -1477,11 +1438,11 @@ export type FilterTokenWalletsInput = {
 
 /** The input for filtering wallets. */
 export type FilterWalletsInput = {
-  /** Exclude wallets with these labels. */
+  /** Exclude wallets with these labels. See [`WalletLabel`](/api-reference/enums/index#walletlabel) for possible values. */
   excludeLabels?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
   /** A set of filters to apply. */
   filters?: InputMaybe<WalletFilters>;
-  /** Include wallets with these labels. */
+  /** Include wallets with these labels. See [`WalletLabel`](/api-reference/enums/index#walletlabel) for possible values. */
   includeLabels?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
   /** The maximum number of wallets to return. */
   limit?: InputMaybe<Scalars['Int']['input']>;
@@ -1504,37 +1465,9 @@ export type FrontRunLabelData = {
   token1DrainedAmount: Scalars['String']['output'];
 };
 
-export type GasEstimate = {
-  __typename?: 'GasEstimate';
-  error?: Maybe<Scalars['String']['output']>;
-  errorReason?: Maybe<Scalars['String']['output']>;
-  gasLimitEstimate?: Maybe<Scalars['String']['output']>;
-  gasPrice?: Maybe<Scalars['String']['output']>;
-  totalFee?: Maybe<Scalars['String']['output']>;
-};
-
-export type GasFee = {
-  __typename?: 'GasFee';
-  confirmationTime: Scalars['Float']['output'];
-  gasPrice: Scalars['String']['output'];
-};
-
-export type GasFees = {
-  __typename?: 'GasFees';
-  high?: Maybe<GasFee>;
-  low?: Maybe<GasFee>;
-  medium?: Maybe<GasFee>;
-};
-
-export enum GasPrice {
-  High = 'HIGH',
-  Low = 'LOW',
-  Medium = 'MEDIUM'
-}
-
 /** Input type of `getDetailedPairsStats`. */
 export type GetDetailedPairsStatsInput = {
-  /** The number of aggregated values to receive. Note: Each duration has predetermined bucket sizes.<br>  The first n-1 buckets are historical. The last bucket is a snapshot of current data.<br> duration `day1`: 6 buckets (4 hours each) plus 1 partial bucket<br> duration `hour12`: 12 buckets (1 hour each) plus 1 partial bucket<br> duration `hour4`: 8 buckets (30 min each) plus 1 partial bucket<br> duration `hour1`: 12 buckets (5 min each) plus 1 partial bucket<br> duration `min5`: 5 buckets (1 min each) plus 1 partial bucket<br> For example, requesting 11 buckets for a `min5` duration will return the last 10 minutes worth of data plus a snapshot for the current minute. */
+  /** The number of aggregated values to receive. Note: Each duration has predetermined bucket sizes. The first n-1 buckets are historical. The last bucket is a snapshot of current data. duration `day1`: 6 buckets (4 hours each) plus 1 partial bucket duration `hour12`: 12 buckets (1 hour each) plus 1 partial bucket duration `hour4`: 8 buckets (30 min each) plus 1 partial bucket duration `hour1`: 12 buckets (5 min each) plus 1 partial bucket duration `min5`: 5 buckets (1 min each) plus 1 partial bucket For example, requesting 11 buckets for a `min5` duration will return the last 10 minutes worth of data plus a snapshot for the current minute. */
   bucketCount?: InputMaybe<Scalars['Int']['input']>;
   /** The list of durations to get detailed pair stats for. */
   durations?: InputMaybe<Array<InputMaybe<DetailedPairStatsDuration>>>;
@@ -1548,21 +1481,6 @@ export type GetDetailedPairsStatsInput = {
   timestamp?: InputMaybe<Scalars['Int']['input']>;
   /** The token of interest used to calculate token-specific stats for the pair. Can be `token0` or `token1`. */
   tokenOfInterest?: InputMaybe<TokenOfInterest>;
-};
-
-export type GetGasEstimateInput = {
-  customGas?: InputMaybe<Scalars['String']['input']>;
-  exchangeAddress: Scalars['String']['input'];
-  gasPrice?: InputMaybe<GasPrice>;
-  inputTokenAddress: Scalars['String']['input'];
-  inputTokenAmount: Scalars['String']['input'];
-  networkId: Scalars['Int']['input'];
-  outputTokenAddress: Scalars['String']['input'];
-  poolAddress: Scalars['String']['input'];
-  sendWithPrivateRpc?: InputMaybe<Scalars['Boolean']['input']>;
-  slippage?: InputMaybe<Scalars['Float']['input']>;
-  userId?: InputMaybe<Scalars['Int']['input']>;
-  walletId?: InputMaybe<Scalars['Int']['input']>;
 };
 
 /** Response returned by `getNetworkStats`. */
@@ -1637,24 +1555,6 @@ export type GetPriceInput = {
   timestamp?: InputMaybe<Scalars['Int']['input']>;
 };
 
-export type GetQuoteInput = {
-  customGas?: InputMaybe<Scalars['String']['input']>;
-  exchangeAddress: Scalars['String']['input'];
-  inputTokenAddress: Scalars['String']['input'];
-  inputTokenAmount: Scalars['String']['input'];
-  networkId: Scalars['Int']['input'];
-  outputTokenAddress: Scalars['String']['input'];
-  poolAddress: Scalars['String']['input'];
-  slippage?: InputMaybe<Scalars['Float']['input']>;
-  userId?: InputMaybe<Scalars['Int']['input']>;
-};
-
-export type GetSimulateTokenContractResultsConnection = {
-  __typename?: 'GetSimulateTokenContractResultsConnection';
-  cursor?: Maybe<Scalars['String']['output']>;
-  results: Array<SimulateTokenContractResult>;
-};
-
 /** Input type of `getTokensInfo`. */
 export type GetTokensInfoInput = {
   /** The contract address of the token. */
@@ -1681,6 +1581,8 @@ export enum GraphQlNftPoolVariant {
 export type HoldersInput = {
   /** A cursor for use in pagination. */
   cursor?: InputMaybe<Scalars['String']['input']>;
+  /** The maximum number of holders to return. Default is 50, maximum is 200. */
+  limit?: InputMaybe<Scalars['Int']['input']>;
   /** The attribute to sort the list on */
   sort?: InputMaybe<HoldersInputSort>;
   /** The ID of the token (`tokenAddress:networkId`). */
@@ -1733,16 +1635,6 @@ export type HoldersUpdate = {
   /** The ID of the token (`tokenAddress:networkId`). */
   tokenId: Scalars['String']['output'];
 };
-
-export type IndexerStateInput = {
-  /** The network ID to check the state of. */
-  networkId: Scalars['Int']['input'];
-};
-
-export enum IndexerStatus {
-  Behind = 'Behind',
-  Normal = 'Normal'
-}
 
 /** Bar chart data. */
 export type IndividualBarData = {
@@ -1918,6 +1810,7 @@ export type LatestTokenConnection = {
   items: Array<LatestToken>;
 };
 
+/** Metadata for a newly created token. */
 export type LatestTokenSimResults = {
   __typename?: 'LatestTokenSimResults';
   /** Gas used for a buy transaction during simulation. */
@@ -1956,9 +1849,11 @@ export type LaunchpadData = {
   completedSlot?: Maybe<Scalars['Int']['output']>;
   /** The percentage of the pool that was sold to the public. */
   graduationPercent?: Maybe<Scalars['Float']['output']>;
-  /** The name of the launchpad. */
+  /** The icon URL of the launchpad. */
+  launchpadIconUrl?: Maybe<Scalars['String']['output']>;
+  /** The name of the launchpad. One of the following: Pump.fun, Bonk, Baseapp, Zora, Zora Creator, Four.meme, Believe, Moonshot, Jupiter Studio, boop, ArenaTrade, Moonit, LaunchLab, MeteoraDBC, Vertigo, Cooking.City, time.fun, BAGS, Circus, Dealr, OhFuckFun, PrintFun, Trend, shout.fun, xApple, Sendshot, DubDub, cults. */
   launchpadName?: Maybe<Scalars['String']['output']>;
-  /** The launchpad protocol */
+  /** The launchpad protocol. */
   launchpadProtocol?: Maybe<Scalars['String']['output']>;
   /** Indicates if the launchpad was migrated. */
   migrated?: Maybe<Scalars['Boolean']['output']>;
@@ -1988,6 +1883,10 @@ export type LaunchpadTokenEventOutput = {
   eventType: LaunchpadTokenEventType;
   /** The number of holders. */
   holders?: Maybe<Scalars['Int']['output']>;
+  /** The name of the launchpad. One of the following: Pump.fun, Bonk, Baseapp, Zora, Zora Creator, Four.meme, Believe, Moonshot, Jupiter Studio, boop, ArenaTrade, Moonit, LaunchLab, MeteoraDBC, Vertigo, Cooking.City, time.fun, BAGS, Circus, Dealr, OhFuckFun, PrintFun, Trend, shout.fun, xApple, Sendshot, DubDub, cults. */
+  launchpadName: Scalars['String']['output'];
+  /** The liquidity of the token's top pair. */
+  liquidity?: Maybe<Scalars['String']['output']>;
   /** The market cap of the token. */
   marketCap?: Maybe<Scalars['String']['output']>;
   /** The network ID that the token is deployed on. */
@@ -2016,23 +1915,45 @@ export enum LaunchpadTokenEventType {
   Deployed = 'Deployed',
   /** The token has been migrated */
   Migrated = 'Migrated',
+  /** The token has been discovered (not finalized) */
+  UnconfirmedDeployed = 'UnconfirmedDeployed',
+  /** The token's metadata has been processed (not finalized) */
+  UnconfirmedMetadata = 'UnconfirmedMetadata',
   /** The token's statistics have been updated */
   Updated = 'Updated'
 }
 
 /** The protocol of the token. */
 export enum LaunchpadTokenProtocol {
+  /** Protocol name for ArenaTrade. */
   ArenaTrade = 'ArenaTrade',
+  /** Protocol name for Baseapp. */
+  Baseapp = 'Baseapp',
+  /** Protocol name for boop.fun. */
   BoopFun = 'BoopFun',
+  /** Protocol name for EgoTech. */
   EgoTech = 'EgoTech',
+  /** Protocol name for Four.meme. */
   FourMeme = 'FourMeme',
+  /** Protocol name for MeteoraDBC. */
+  MeteoraDbc = 'MeteoraDBC',
+  /** Protocol name for Moonit (formerly Moonshot). */
   Moonit = 'Moonit',
+  /** Protocol name for Pump.fun. */
   Pump = 'Pump',
+  /** Protocol name for Rainbow. */
   Rainbow = 'Rainbow',
+  /** Protocol name for LaunchLab and Bonk. */
   RaydiumLaunchpad = 'RaydiumLaunchpad',
-  Vertigo = 'Vertigo'
+  /** Protocol name for Vertigo. */
+  Vertigo = 'Vertigo',
+  /** Protocol name for ZoraCreator. */
+  ZoraCreatorV4 = 'ZoraCreatorV4',
+  /** Protocol name for Zora. */
+  ZoraV4 = 'ZoraV4'
 }
 
+/** Data about liquidity in a pair. */
 export type LiquidityData = {
   __typename?: 'LiquidityData';
   /** The active liquidity in the pair. */
@@ -2041,7 +1962,7 @@ export type LiquidityData = {
   inactive: Scalars['String']['output'];
 };
 
-/** A record of locked liquidity */
+/** A record of locked liquidity. */
 export type LiquidityLock = {
   __typename?: 'LiquidityLock';
   /** The unix timestamp for when the lock was created. */
@@ -2088,6 +2009,7 @@ export type LiquidityLockBreakdownForToken = {
   lockProtocol: LiquidityLockProtocol;
 };
 
+/** Response returned by `liquidityLocks`. */
 export type LiquidityLockConnection = {
   __typename?: 'LiquidityLockConnection';
   /** A cursor for use in pagination. */
@@ -2096,7 +2018,7 @@ export type LiquidityLockConnection = {
   items: Array<LiquidityLock>;
 };
 
-/** Protocols that can lock liquidity */
+/** Protocols that can lock liquidity. */
 export enum LiquidityLockProtocol {
   BasecampV1 = 'BASECAMP_V1',
   Bitbond = 'BITBOND',
@@ -2139,7 +2061,7 @@ export type LiquidityMetadataByToken = {
   totalTokenLiquidityShifted: Scalars['String']['output'];
 };
 
-/** Liquidity NFT position data */
+/** Liquidity NFT position data. */
 export type LiquidityNftData = {
   __typename?: 'LiquidityNftData';
   /** The address of the nft position manager contract. */
@@ -2148,7 +2070,7 @@ export type LiquidityNftData = {
   nftTokenId: Scalars['String']['output'];
 };
 
-/** Protocols that create trading pairs */
+/** Protocols that create trading pairs. */
 export enum LiquidityProtocol {
   PumpV1 = 'PUMP_V1',
   RaydiumV4 = 'RAYDIUM_V4',
@@ -2223,11 +2145,6 @@ export type MakerEventsQueryInput = {
   networkId?: InputMaybe<Scalars['Int']['input']>;
   /** The total amount of `quoteToken` involved in the swap in USD (`amountNonLiquidityToken` x `priceUsd`). */
   priceUsdTotal?: InputMaybe<NumberFilter>;
-  /**
-   * docs: hide
-   * @deprecated Not used
-   */
-  quoteToken?: InputMaybe<QuoteToken>;
   /** The time range to filter by. */
   timestamp?: InputMaybe<EventQueryTimestampInput>;
   /** The token involved in the event. */
@@ -2276,18 +2193,6 @@ export type MetadataResponse = {
   networkName: Scalars['String']['output'];
 };
 
-export type MigrateTrackedWalletsInput = {
-  fromUserId: Scalars['String']['input'];
-  toUserId: Scalars['String']['input'];
-};
-
-export type MigrateTrackedWalletsOutput = {
-  __typename?: 'MigrateTrackedWalletsOutput';
-  fromUserId: Scalars['String']['output'];
-  status: Scalars['String']['output'];
-  toUserId: Scalars['String']['output'];
-};
-
 /** Event data for a token mint event. */
 export type MintEventData = {
   __typename?: 'MintEventData';
@@ -2309,6 +2214,8 @@ export type MintEventData = {
 
 export type Mutation = {
   __typename?: 'Mutation';
+  /** Backfill wallet aggregates (trading stats) for a given wallet. This is the data used in the filterWallet/filterTokenWallets and detailedWalletStats queries. */
+  backfillWalletAggregates: WalletAggregateBackfillStateResponse;
   /** Create a new set of short-lived api access tokens */
   createApiTokens: Array<ApiToken>;
   /** Create price, raw transaction, token/pair event, and NFT event webhooks. */
@@ -2317,6 +2224,11 @@ export type Mutation = {
   deleteApiToken: Scalars['String']['output'];
   /** Delete multiple webhooks. */
   deleteWebhooks?: Maybe<DeleteWebhooksOutput>;
+};
+
+
+export type MutationBackfillWalletAggregatesArgs = {
+  input: WalletAggregateBackfillInput;
 };
 
 
@@ -2366,6 +2278,7 @@ export type NetworkBreakdown = {
   statsYear1?: Maybe<WindowedWalletStats>;
 };
 
+/** A connection of wallets matching a filter on a specific network. */
 export type NetworkWalletFilterConnection = {
   __typename?: 'NetworkWalletFilterConnection';
   /** The number of wallets returned. */
@@ -2376,6 +2289,7 @@ export type NetworkWalletFilterConnection = {
   results: Array<NetworkWalletFilterResult>;
 };
 
+/** A wallet matching a filter on a specific network. */
 export type NetworkWalletFilterResult = {
   __typename?: 'NetworkWalletFilterResult';
   /** The wallet address */
@@ -2396,6 +2310,8 @@ export type NetworkWalletFilterResult = {
   averageSwapAmountUsd1y: Scalars['String']['output'];
   /** Average swap amount in USD in the past 30 days */
   averageSwapAmountUsd30d: Scalars['String']['output'];
+  /** The backfill state of the wallet. */
+  backfillState?: Maybe<WalletAggregateBackfillState>;
   /** The bot score for the wallet. */
   botScore?: Maybe<Scalars['Int']['output']>;
   /** The unix timestamp for the first transaction from this wallet */
@@ -2646,6 +2562,7 @@ export enum NftAssetAttributeType {
   String = 'String'
 }
 
+/** An NFT asset error. */
 export type NftAssetError = {
   __typename?: 'NftAssetError';
   /** The contract address of the NFT collection. */
@@ -2662,6 +2579,7 @@ export type NftAssetError = {
   tokenId: Scalars['String']['output'];
 };
 
+/** The status of an NFT asset error. */
 export enum NftAssetErrorStatus {
   IndexingInProgress = 'INDEXING_IN_PROGRESS',
   NotFound = 'NOT_FOUND'
@@ -3526,9 +3444,9 @@ export type NftEvent = {
   __typename?: 'NftEvent';
   /** The contract address of the marketplace aggregator that routed the transaction. */
   aggregatorAddress?: Maybe<Scalars['String']['output']>;
-  /** @deprecated Field no longer supported */
+  /** @deprecated No longer supported */
   baseTokenAddress: Scalars['String']['output'];
-  /** @deprecated Field no longer supported */
+  /** @deprecated No longer supported */
   baseTokenPrice?: Maybe<Scalars['String']['output']>;
   /** The block number for the transaction. */
   blockNumber: Scalars['Int']['output'];
@@ -3542,9 +3460,9 @@ export type NftEvent = {
   fillSource?: Maybe<Scalars['String']['output']>;
   /** The ID of the NFT event (`contractAddress`:`tokenId`:`networkId`). */
   id: Scalars['String']['output'];
-  /** @deprecated Field no longer supported */
+  /** @deprecated No longer supported */
   individualBaseTokenPrice?: Maybe<Scalars['String']['output']>;
-  /** @deprecated Field no longer supported */
+  /** @deprecated No longer supported */
   individualNetworkBaseTokenPrice?: Maybe<Scalars['String']['output']>;
   /** @deprecated Some events may lack this value - use the nullable individualTradePrice. individualPrice will return null values as an empty string. */
   individualPrice?: Maybe<Scalars['String']['output']>;
@@ -3560,7 +3478,7 @@ export type NftEvent = {
   logIndex: Scalars['Int']['output'];
   /** The wallet address of the buyer. */
   maker: Scalars['String']['output'];
-  /** @deprecated Field no longer supported */
+  /** @deprecated No longer supported */
   networkBaseTokenPrice?: Maybe<Scalars['String']['output']>;
   /** The network ID the NFT collection is deployed on. */
   networkId: Scalars['Int']['output'];
@@ -3616,7 +3534,7 @@ export type NftEventFillSourceConditionInput = {
 };
 
 /** Details for an NFT offered or received as part of an nft trade. */
-export type NftEventNftTradeItem = NftEventTradeItemBase & {
+export type NftEventNftTradeItem = {
   __typename?: 'NftEventNftTradeItem';
   /** The contract address for the NFT. */
   address: Scalars['String']['output'];
@@ -3638,7 +3556,7 @@ export enum NftEventOrderDirection {
 }
 
 /** Details for a token(s) offered or received as part of an nft trade. */
-export type NftEventTokenTradeItem = NftEventTradeItemBase & {
+export type NftEventTokenTradeItem = {
   __typename?: 'NftEventTokenTradeItem';
   /** The contract address for the token. */
   address: Scalars['String']['output'];
@@ -4671,6 +4589,7 @@ export type NftPoolNumberFilter = {
   lte?: InputMaybe<Scalars['String']['input']>;
 };
 
+/** Event data for transferring ownership of a pool. */
 export type NftPoolOwnershipTransferredEventDataV2 = {
   __typename?: 'NftPoolOwnershipTransferredEventDataV2';
   /** The new owner of the pool. */
@@ -5084,10 +5003,7 @@ export type OnBarsUpdatedResponse = {
   __typename?: 'OnBarsUpdatedResponse';
   /** Price data broken down by resolution. */
   aggregates: ResolutionBarData;
-  /**
-   * The sortKey for the bar (`blockNumber`#`transactionIndex`#`logIndex`, zero padded).
-   * For example, `0000000016414564#00000224#00000413`.
-   */
+  /** The sortKey for the bar (`blockNumber`#`transactionIndex`#`logIndex`, zero padded). For example, `0000000016414564#00000224#00000413`. */
   eventSortKey: Scalars['String']['output'];
   /** The network ID the pair is deployed on. */
   networkId: Scalars['Int']['output'];
@@ -5111,13 +5027,26 @@ export type OnEventsCreatedByMakerInput = {
   makerAddress: Scalars['String']['input'];
 };
 
+export type OnLaunchpadTokenEventBatchInput = {
+  /** The type of event. */
+  eventType?: InputMaybe<LaunchpadTokenEventType>;
+  /** The name of the launchpad. One of the following: Pump.fun, Bonk, Baseapp, Zora, Zora Creator, Four.meme, Believe, Moonshot, Jupiter Studio, boop, ArenaTrade, Moonit, LaunchLab, MeteoraDBC, Vertigo, Cooking.City, time.fun, BAGS, Circus, Dealr, OhFuckFun, PrintFun, Trend, shout.fun, xApple, Sendshot, DubDub, cults. */
+  launchpadName?: InputMaybe<Scalars['String']['input']>;
+  /** The network ID that the token is deployed on. */
+  networkId?: InputMaybe<Scalars['Int']['input']>;
+  /** The protocol of the token. */
+  protocol?: InputMaybe<LaunchpadTokenProtocol>;
+};
+
 /** Input for `onLaunchpadTokenEvent`. */
 export type OnLaunchpadTokenEventInput = {
-  /** The contract address of the token. Required when `networkId` is provided. */
+  /** The contract address of the token. Requires `networkId`. */
   address?: InputMaybe<Scalars['String']['input']>;
   /** The type of event. */
   eventType?: InputMaybe<LaunchpadTokenEventType>;
-  /** The network ID that the token is deployed on. Required when `address` is provided. */
+  /** The name of the launchpad. One of the following: Pump.fun, Bonk, Baseapp, Zora, Zora Creator, Four.meme, Believe, Moonshot, Jupiter Studio, boop, ArenaTrade, Moonit, LaunchLab, MeteoraDBC, Vertigo, Cooking.City, time.fun, BAGS, Circus, Dealr, OhFuckFun, PrintFun, Trend, shout.fun, xApple, Sendshot, DubDub, cults. */
+  launchpadName?: InputMaybe<Scalars['String']['input']>;
+  /** The network ID that the token is deployed on. */
   networkId?: InputMaybe<Scalars['Int']['input']>;
   /** The protocol of the token. */
   protocol?: InputMaybe<LaunchpadTokenProtocol>;
@@ -5134,10 +5063,7 @@ export type OnTokenBarsUpdatedResponse = {
   __typename?: 'OnTokenBarsUpdatedResponse';
   /** Price data broken down by resolution. */
   aggregates: ResolutionBarData;
-  /**
-   * The sortKey for the bar (`blockNumber`#`transactionIndex`#`logIndex`, zero padded).
-   * For example, `0000000016414564#00000224#00000413`.
-   */
+  /** The sortKey for the bar (`blockNumber`#`transactionIndex`#`logIndex`, zero padded). For example, `0000000016414564#00000224#00000413`. */
   eventSortKey: Scalars['String']['output'];
   /** The network ID the pair is deployed on. */
   networkId: Scalars['Int']['output'];
@@ -5169,10 +5095,7 @@ export type OnUnconfirmedBarsUpdated = {
   __typename?: 'OnUnconfirmedBarsUpdated';
   /** Price data broken down by resolution. */
   aggregates: UnconfirmedResolutionBarData;
-  /**
-   * The sortKey for the bar (`blockNumber`#`transactionIndex`#`logIndex`, zero padded).
-   * For example, `0000000016414564#00000224#00000413`.
-   */
+  /** The sortKey for the bar (`blockNumber`#`transactionIndex`#`logIndex`, zero padded). For example, `0000000016414564#00000224#00000413`. */
   eventSortKey: Scalars['String']['output'];
   /** The network ID the pair is deployed on. */
   networkId: Scalars['Int']['output'];
@@ -5207,20 +5130,6 @@ export type OneOfNumberConditionInput = {
   oneOf: Array<Scalars['Int']['input']>;
 };
 
-export enum OrderState {
-  Completed = 'COMPLETED',
-  Created = 'CREATED',
-  Expired = 'EXPIRED',
-  Failed = 'FAILED',
-  Pending = 'PENDING'
-}
-
-export enum OrderType {
-  Limit = 'LIMIT',
-  LimitStrategy = 'LIMIT_STRATEGY',
-  Manual = 'MANUAL'
-}
-
 /** Metadata for a token pair. */
 export type Pair = {
   __typename?: 'Pair';
@@ -5238,6 +5147,13 @@ export type Pair = {
   networkId: Scalars['Int']['output'];
   /** The pooled amounts of each token in the pair. */
   pooled?: Maybe<PooledTokenValues>;
+  /**
+   * The per-protocol data for the pair, if applicable
+   * @deprecated Use protocolData instead
+   */
+  protocolCustomData?: Maybe<PairProtocolCustomData>;
+  /** Custom data for the pair, only certain protocols have this. (uniswapv4, arenatrade for example) */
+  protocolData?: Maybe<ProtocolData>;
   /** The amount of required tick separation. Only applicable for pairs on UniswapV3. */
   tickSpacing?: Maybe<Scalars['Int']['output']>;
   /** The contract address of `token0`. */
@@ -5468,6 +5384,8 @@ export type PairFilters = {
   highPrice12?: InputMaybe<NumberFilter>;
   /** The highest price in USD in the past 24 hours. */
   highPrice24?: InputMaybe<NumberFilter>;
+  /** The address of the hook contract for applicable protocols. */
+  hookAddress?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
   /** Whether to filter for pairs on testnet networks. Use `true` for testnet pairs only, `false` for mainnet pairs only and `undefined` (default) for both. */
   isTestnet?: InputMaybe<Scalars['Boolean']['input']>;
   /** The unix timestamp for the last transaction to happen on the pair. */
@@ -5662,6 +5580,7 @@ export type PairMetadata = {
   volume24?: Maybe<Scalars['String']['output']>;
 };
 
+/** Metadata for a token in a pair. */
 export type PairMetadataToken = {
   __typename?: 'PairMetadataToken';
   address: Scalars['String']['output'];
@@ -5672,6 +5591,12 @@ export type PairMetadataToken = {
   pooled: Scalars['String']['output'];
   price: Scalars['String']['output'];
   symbol: Scalars['String']['output'];
+};
+
+export type PairProtocolCustomData = {
+  __typename?: 'PairProtocolCustomData';
+  /** The address of the hook contract for Uniswap V4 pools. */
+  uniswapV4HookAddress?: Maybe<Scalars['String']['output']>;
 };
 
 /** Input type of `PairRanking`. */
@@ -6014,13 +5939,6 @@ export type ParallelCardChangesConnection = {
   /** A list of tracked changes made to a Parallel card. */
   items?: Maybe<Array<Maybe<ParallelCardChange>>>;
 };
-
-export enum Plan {
-  Defined = 'DEFINED',
-  Enterprise = 'ENTERPRISE',
-  Free = 'FREE',
-  Standard = 'STANDARD'
-}
 
 /** Event data for a BalancerV2 Pool Balance Changed event. */
 export type PoolBalanceChangedEventData = {
@@ -6600,6 +6518,9 @@ export type PrimePoolWithdrawData = {
   userPrimeRewardDebt: Scalars['String']['output'];
 };
 
+export type ProtocolData = ArenaTradeData | UniswapV4Data;
+
+/** The type of publishing for the webhook. If not set, it defaults to `SINGLE`. */
 export enum PublishingType {
   Batch = 'BATCH',
   Single = 'SINGLE'
@@ -6611,7 +6532,7 @@ export type Query = {
   apiToken: ApiToken;
   /** Get all active short-lived api tokens for this api key */
   apiTokens: Array<ApiToken>;
-  /** Returns list of token balances that a wallet has */
+  /** Returns list of token balances that a wallet has. */
   balances: BalancesResponse;
   /** Returns a URL for a pair chart. */
   chartUrls?: Maybe<ChartUrlsResponse>;
@@ -6664,7 +6585,10 @@ export type Query = {
    * @deprecated This query is longer supported. Instead use filterPairs with sort order on createdAt DESC
    */
   getLatestPairs?: Maybe<LatestPairConnection>;
-  /** @deprecated This query is no longer supported. Use `filterTokens` with a createdAt: DESC filter instead. */
+  /**
+   * Returns a list of latest tokens.
+   * @deprecated This query is no longer supported. Use `filterTokens` with a createdAt: DESC filter instead.
+   */
   getLatestTokens?: Maybe<LatestTokenConnection>;
   /** Returns metadata for a given network supported on Codex. */
   getNetworkStats?: Maybe<GetNetworkStatsResponse>;
@@ -6702,7 +6626,6 @@ export type Query = {
   getPrimePoolEvents?: Maybe<PrimePoolEventConnection>;
   /** Returns a list of Prime pools. */
   getPrimePools?: Maybe<PrimePoolConnection>;
-  getSimulateTokenContractResults: GetSimulateTokenContractResultsConnection;
   /** Returns charting metadata for a given pair. Used for implementing a Trading View datafeed. */
   getSymbol?: Maybe<SymbolResponse>;
   /** Returns transactions for a pair. */
@@ -6713,7 +6636,7 @@ export type Query = {
   getTokenPrices?: Maybe<Array<Maybe<Price>>>;
   /** Returns a user's list of webhooks. */
   getWebhooks?: Maybe<GetWebhooksResponse>;
-  /** Returns list of wallets that hold a given token, ordered by holdings descending. Also has the unique count of holders for that token */
+  /** Returns list of wallets that hold a given token, ordered by holdings descending. Also has the unique count of holders for that token. */
   holders: HoldersResponse;
   /** Returns liquidity locks for a given pair. */
   liquidityLocks?: Maybe<LiquidityLockConnection>;
@@ -6730,7 +6653,7 @@ export type Query = {
    * @deprecated This query is no longer supported and will not return up to date data. Use `filterTokens` instead.
    */
   listTopTokens?: Maybe<Array<TokenWithMetadata>>;
-  /** Returns list of wallets that hold a given collection, ordered by holdings descending. Also has the unique count of holders for that collection */
+  /** Returns list of wallets that hold a given collection, ordered by holdings descending. Also has the unique count of holders for that collection. */
   nftHolders: NftHoldersResponse;
   /** Returns metadata for a pair of tokens. */
   pairMetadata: PairMetadata;
@@ -6755,6 +6678,8 @@ export type Query = {
   tokens: Array<Maybe<EnhancedToken>>;
   /** Returns the percentage of a token's total supply held collectively by its top 10 holders. */
   top10HoldersPercent?: Maybe<Scalars['Float']['output']>;
+  /** Once a wallet backfill has been triggered, this query can be used to check the status of the backfill. */
+  walletAggregateBackfillState: WalletAggregateBackfillStateResponse;
   /** Returns a chart of a wallet's activity. */
   walletChart?: Maybe<WalletChartResponse>;
   /** Returns list of NFT assets held by a given wallet for a single collection. */
@@ -7100,15 +7025,6 @@ export type QueryGetPrimePoolsArgs = {
 };
 
 
-export type QueryGetSimulateTokenContractResultsArgs = {
-  contractAddress: Scalars['String']['input'];
-  cursor?: InputMaybe<Scalars['String']['input']>;
-  limit?: InputMaybe<Scalars['Int']['input']>;
-  networkId: Scalars['Int']['input'];
-  simulationId?: InputMaybe<Scalars['String']['input']>;
-};
-
-
 export type QueryGetSymbolArgs = {
   currencyCode?: InputMaybe<Scalars['String']['input']>;
   symbol: Scalars['String']['input'];
@@ -7259,6 +7175,11 @@ export type QueryTop10HoldersPercentArgs = {
 };
 
 
+export type QueryWalletAggregateBackfillStateArgs = {
+  input: WalletAggregateBackfillStateInput;
+};
+
+
 export type QueryWalletChartArgs = {
   input: WalletChartInput;
 };
@@ -7273,44 +7194,15 @@ export type QueryWalletNftCollectionsArgs = {
   input: WalletNftCollectionsInput;
 };
 
-export type Quote = {
-  __typename?: 'Quote';
-  exchange: QuoteExchange;
-  outputAmountMin?: Maybe<Scalars['String']['output']>;
-  poolFee?: Maybe<Scalars['String']['output']>;
-  poolFeeBps?: Maybe<Scalars['Float']['output']>;
-  quoteType: QuoteType;
-  quotedAmount: Scalars['String']['output'];
-  tradeFee: Scalars['String']['output'];
-  tradeFeeBps: Scalars['Float']['output'];
-};
-
 export enum QuoteCurrency {
   Token = 'TOKEN',
   Usd = 'USD'
 }
 
-export type QuoteExchange = {
-  __typename?: 'QuoteExchange';
-  factory: Scalars['String']['output'];
-  id: Scalars['Int']['output'];
-  name: Scalars['String']['output'];
-  networkId: Scalars['Int']['output'];
-  protocol: Scalars['String']['output'];
-  quoter?: Maybe<Scalars['String']['output']>;
-  quoterInterface?: Maybe<Scalars['String']['output']>;
-  router: Scalars['String']['output'];
-};
-
 /** The quote token within the pair. */
 export enum QuoteToken {
   Token0 = 'token0',
   Token1 = 'token1'
-}
-
-export enum QuoteType {
-  Input = 'INPUT',
-  Output = 'OUTPUT'
 }
 
 /** The range of time for a chart. */
@@ -7325,6 +7217,7 @@ export enum RankingDirection {
   Desc = 'DESC'
 }
 
+/** Raw NFT asset data. */
 export type RawNftAssetData = {
   __typename?: 'RawNftAssetData';
   /** An optional image field that may or may not be present on the requested NFT asset smart contract. */
@@ -7346,7 +7239,7 @@ export type RawTransactionWebhookCondition = {
   ignoreNftEvents?: Maybe<Scalars['Boolean']['output']>;
   /** Do not trigger the webhook if the raw transaction is handled by the TokenPairEvent webhook. */
   ignoreTokenPairEvents?: Maybe<Scalars['Boolean']['output']>;
-  /** Trigger the webhook if the  contains or doesn't contain the specified string. */
+  /** Trigger the webhook if the contains or doesn't contain the specified string. */
   input?: Maybe<StringContainsCondition>;
   /** A list of network IDs to listen on. */
   networkId?: Maybe<OneOfNumberCondition>;
@@ -7372,38 +7265,6 @@ export type RawTransactionWebhookConditionInput = {
   to?: InputMaybe<StringEqualsConditionInput>;
   /** Trigger the webhook if either the to or the from address matches. */
   toOrFrom?: InputMaybe<StringEqualsConditionInput>;
-};
-
-export type ReferralEventData = ReferralsEventPayoutData | ReferralsEventRewardData;
-
-export type ReferralsEventPayoutData = {
-  __typename?: 'ReferralsEventPayoutData';
-  payouts: Array<ReferralsPayoutData>;
-};
-
-export type ReferralsEventRewardData = {
-  __typename?: 'ReferralsEventRewardData';
-  inputTokenAddress: Scalars['String']['output'];
-  networkId: Scalars['Int']['output'];
-  outputTokenAddress: Scalars['String']['output'];
-  payoutPercent: Scalars['Float']['output'];
-  referralUserId: Scalars['String']['output'];
-  rewardTokenAddress?: Maybe<Scalars['String']['output']>;
-  rewardTokenAmount?: Maybe<Scalars['String']['output']>;
-  transactionFee: Scalars['String']['output'];
-  transactionId: Scalars['String']['output'];
-  transactionTokenAddress: Scalars['String']['output'];
-  transactionTokenAmount: Scalars['String']['output'];
-};
-
-export type ReferralsPayoutData = {
-  __typename?: 'ReferralsPayoutData';
-  tokenAddressNetworkIdPaid: Scalars['String']['output'];
-  tokenAmountPaid: Scalars['String']['output'];
-};
-
-export type RemoveUserAchievementInput = {
-  userId: Scalars['String']['input'];
 };
 
 /** Price data for each supported resolution. */
@@ -7437,7 +7298,7 @@ export type ResolutionBarData = {
   r720?: Maybe<CurrencyBarData>;
 };
 
-/** Config for retrying failed webhook messages */
+/** Config for retrying failed webhook messages. */
 export type RetrySettings = {
   __typename?: 'RetrySettings';
   /** The maximum number of times the webhook will retry sending a message */
@@ -7450,7 +7311,7 @@ export type RetrySettings = {
   minRetryDelay?: Maybe<Scalars['Int']['output']>;
 };
 
-/** Config input for retrying failed webhook messages */
+/** Config input for retrying failed webhook messages. */
 export type RetrySettingsInput = {
   /** The maximum number of times the webhook will retry sending a message */
   maxRetries?: InputMaybe<Scalars['Int']['input']>;
@@ -7491,235 +7352,7 @@ export type SandwichedLabelData = {
   token1DrainedAmount?: Maybe<Scalars['String']['output']>;
 };
 
-export type SessionMetadata = {
-  shouldNotify?: InputMaybe<Scalars['Boolean']['input']>;
-};
-
-export type SimulateContractBalanceErrorsType = {
-  __typename?: 'SimulateContractBalanceErrorsType';
-  tokenContractEthBalanceError?: Maybe<Scalars['String']['output']>;
-  tokenContractTokenBalanceError?: Maybe<Scalars['String']['output']>;
-};
-
-export type SimulateContractBalanceType = {
-  __typename?: 'SimulateContractBalanceType';
-  tokenContractEthBalance?: Maybe<Scalars['String']['output']>;
-  tokenContractTokenBalance?: Maybe<Scalars['String']['output']>;
-};
-
-export type SimulateCreateTransactionInput = {
-  /** The block number to simulate the contract at. */
-  blockNumber: Scalars['Int']['input'];
-  /** The contract address of the token. */
-  contractAddress: Scalars['String']['input'];
-  /** The contract creation transaction hash from the live network. */
-  createTransactionHash: Scalars['String']['input'];
-  /** The network ID the token is deployed on. Currently only supports 1 (mainnet). */
-  networkId: Scalars['Int']['input'];
-};
-
-export type SimulateCreatorErrorsType = {
-  __typename?: 'SimulateCreatorErrorsType';
-  creatorEthBalanceError?: Maybe<Scalars['String']['output']>;
-  creatorTokenBalanceError?: Maybe<Scalars['String']['output']>;
-};
-
-export type SimulateCreatorType = {
-  __typename?: 'SimulateCreatorType';
-  creatorAddress?: Maybe<Scalars['String']['output']>;
-  creatorEthBalance?: Maybe<Scalars['String']['output']>;
-  creatorTokenBalance?: Maybe<Scalars['String']['output']>;
-};
-
-export type SimulateDeployErrorsType = {
-  __typename?: 'SimulateDeployErrorsType';
-  deployError?: Maybe<Scalars['String']['output']>;
-  tokenMintedToDeployerError?: Maybe<Scalars['String']['output']>;
-};
-
-export type SimulateDeployInput = {
-  /** The block number to simulate the contract at. */
-  blockNumber: Scalars['Int']['input'];
-  /** The contract address of the token. */
-  contractAddress: Scalars['String']['input'];
-  /** The contract creation transaction input to simulate. */
-  contractInput: Scalars['String']['input'];
-  /** The network ID the token is deployed on. Currently only supports 1 (mainnet). */
-  networkId: Scalars['Int']['input'];
-};
-
-export type SimulateDeployType = {
-  __typename?: 'SimulateDeployType';
-  deploySuccess?: Maybe<Scalars['Boolean']['output']>;
-  tokenMintedToDeployer?: Maybe<Scalars['String']['output']>;
-};
-
-export type SimulateLiquidityErrorsType = {
-  __typename?: 'SimulateLiquidityErrorsType';
-  addLiquidityError?: Maybe<Scalars['String']['output']>;
-  lpTotalSupplyError?: Maybe<Scalars['String']['output']>;
-  postLiquidityEnableTradingError?: Maybe<Scalars['String']['output']>;
-  preLiquidityEnableTradingError?: Maybe<Scalars['String']['output']>;
-};
-
-export type SimulateLiquidityType = {
-  __typename?: 'SimulateLiquidityType';
-  addLiquiditySuccess?: Maybe<Scalars['Boolean']['output']>;
-  liquiditySetByPreLiquidityOpenTradingCall?: Maybe<Scalars['Boolean']['output']>;
-  lpTotalSupply?: Maybe<Scalars['String']['output']>;
-  pairAddress?: Maybe<Scalars['String']['output']>;
-  postLiquidityEnableTradingCall?: Maybe<Scalars['String']['output']>;
-  postLiquidityEnableTradingSuccess?: Maybe<Scalars['Boolean']['output']>;
-  preLiquidityEnableTradingCall?: Maybe<Scalars['String']['output']>;
-  preLiquidityEnableTradingSuccess?: Maybe<Scalars['Boolean']['output']>;
-  preLiquidityEnableTradingSupportsTransfer?: Maybe<Scalars['Boolean']['output']>;
-};
-
-export type SimulateLiveContractInput = {
-  /** The block number to simulate the contract at. */
-  blockNumber?: InputMaybe<Scalars['Int']['input']>;
-  /** The contract address of the token. */
-  contractAddress: Scalars['String']['input'];
-  /** The network ID the token is deployed on. Currently only supports 1 (mainnet). */
-  networkId: Scalars['Int']['input'];
-};
-
-export type SimulateOwnerErrorsType = {
-  __typename?: 'SimulateOwnerErrorsType';
-  ownerAddressError?: Maybe<Scalars['String']['output']>;
-  ownerEthBalanceError?: Maybe<Scalars['String']['output']>;
-  ownerTokenBalanceError?: Maybe<Scalars['String']['output']>;
-};
-
-export type SimulateOwnerType = {
-  __typename?: 'SimulateOwnerType';
-  ownerAddress?: Maybe<Scalars['String']['output']>;
-  ownerEthBalance?: Maybe<Scalars['String']['output']>;
-  ownerTokenBalance?: Maybe<Scalars['String']['output']>;
-};
-
-export type SimulateSwapErrorsType = {
-  __typename?: 'SimulateSwapErrorsType';
-  buyError?: Maybe<Scalars['String']['output']>;
-  buyErrorEnum?: Maybe<SimulateTokenContractBuySellErrorEnum>;
-  sellError?: Maybe<Scalars['String']['output']>;
-  sellErrorEnum?: Maybe<SimulateTokenContractBuySellErrorEnum>;
-};
-
-export type SimulateSwapType = {
-  __typename?: 'SimulateSwapType';
-  buyGasUsed?: Maybe<Scalars['String']['output']>;
-  buySuccess?: Maybe<Scalars['Boolean']['output']>;
-  buyTax?: Maybe<Scalars['String']['output']>;
-  maxBuyAmount?: Maybe<Scalars['String']['output']>;
-  maxSellAmount?: Maybe<Scalars['String']['output']>;
-  sellGasUsed?: Maybe<Scalars['String']['output']>;
-  sellSuccess?: Maybe<Scalars['Boolean']['output']>;
-  sellTax?: Maybe<Scalars['String']['output']>;
-};
-
-export enum SimulateTokenContractBuySellErrorEnum {
-  InsufficientLiquidity = 'INSUFFICIENT_LIQUIDITY',
-  InsufficientOutputAmount = 'INSUFFICIENT_OUTPUT_AMOUNT',
-  TransferFailed = 'TRANSFER_FAILED',
-  UnknownError = 'UNKNOWN_ERROR'
-}
-
-export type SimulateTokenContractErrors = {
-  __typename?: 'SimulateTokenContractErrors';
-  contractBalanceErrors: SimulateContractBalanceErrorsType;
-  creatorErrors: SimulateCreatorErrorsType;
-  deployErrors: SimulateDeployErrorsType;
-  liquidityErrors: SimulateLiquidityErrorsType;
-  ownerErrors: SimulateOwnerErrorsType;
-  simulatorError?: Maybe<Scalars['String']['output']>;
-  swapErrors: SimulateSwapErrorsType;
-  tokenErrors: SimulateTokenErrorsType;
-  transferErrors: SimulateTransferErrorsType;
-};
-
-export type SimulateTokenContractInput = {
-  /** Input for a token contract create transaction simulation. */
-  simulateCreateTransactionInput?: InputMaybe<SimulateCreateTransactionInput>;
-  /** Input for a token contract deploy simulation. */
-  simulateDeployInput?: InputMaybe<SimulateDeployInput>;
-  /** Input for a live token contract simulation. */
-  simulateLiveContractInput?: InputMaybe<SimulateLiveContractInput>;
-};
-
-export type SimulateTokenContractResponse = {
-  __typename?: 'SimulateTokenContractResponse';
-  error?: Maybe<Scalars['String']['output']>;
-  result: Scalars['Boolean']['output'];
-  simulationId?: Maybe<Scalars['String']['output']>;
-};
-
-export type SimulateTokenContractResult = {
-  __typename?: 'SimulateTokenContractResult';
-  analysisType: Scalars['Int']['output'];
-  blockNumber: Scalars['String']['output'];
-  contractBalance: SimulateContractBalanceType;
-  contractHashKey: Scalars['String']['output'];
-  creator: SimulateCreatorType;
-  deploy: SimulateDeployType;
-  errors: SimulateTokenContractErrors;
-  id: Scalars['String']['output'];
-  liquidity: SimulateLiquidityType;
-  networkId: Scalars['Int']['output'];
-  owner: SimulateOwnerType;
-  sortKey: Scalars['String']['output'];
-  status: SimulateTokenContractResultStatusEnum;
-  swap: SimulateSwapType;
-  timestamp: Scalars['Int']['output'];
-  token: SimulateTokenType;
-  transfer: SimulateTransferType;
-  uuid: Scalars['String']['output'];
-  uuidHashKey: Scalars['String']['output'];
-};
-
-export enum SimulateTokenContractResultStatusEnum {
-  Failure = 'FAILURE',
-  Pending = 'PENDING',
-  Success = 'SUCCESS'
-}
-
-export type SimulateTokenErrorsType = {
-  __typename?: 'SimulateTokenErrorsType';
-  canRenounceOwnershipError?: Maybe<Scalars['String']['output']>;
-  canTransferOwnershipError?: Maybe<Scalars['String']['output']>;
-  decimalsError?: Maybe<Scalars['String']['output']>;
-  tokenNameError?: Maybe<Scalars['String']['output']>;
-  tokenSymbolError?: Maybe<Scalars['String']['output']>;
-  totalSupplyError?: Maybe<Scalars['String']['output']>;
-};
-
-export type SimulateTokenType = {
-  __typename?: 'SimulateTokenType';
-  canRenounceOwnership?: Maybe<Scalars['Boolean']['output']>;
-  canTransferOwnership?: Maybe<Scalars['Boolean']['output']>;
-  contractAddress: Scalars['String']['output'];
-  decimals?: Maybe<Scalars['Int']['output']>;
-  isOwnerRenounced?: Maybe<Scalars['Boolean']['output']>;
-  tokenName?: Maybe<Scalars['String']['output']>;
-  tokenSymbol?: Maybe<Scalars['String']['output']>;
-  totalSupply?: Maybe<Scalars['String']['output']>;
-};
-
-export type SimulateTransferErrorsType = {
-  __typename?: 'SimulateTransferErrorsType';
-  tokenContractApprovalError?: Maybe<Scalars['String']['output']>;
-  tokenTransferredToContractError?: Maybe<Scalars['String']['output']>;
-  userApprovalError?: Maybe<Scalars['String']['output']>;
-};
-
-export type SimulateTransferType = {
-  __typename?: 'SimulateTransferType';
-  tokenContractApprovalSuccess?: Maybe<Scalars['Boolean']['output']>;
-  tokenTransferredToContractSuccess?: Maybe<Scalars['Boolean']['output']>;
-  userApprovalSuccess?: Maybe<Scalars['Boolean']['output']>;
-};
-
-/** Community gathered social links of tokens/NFTs. */
+/** Social links for a token. */
 export type SocialLinks = {
   __typename?: 'SocialLinks';
   bitcointalk?: Maybe<Scalars['String']['output']>;
@@ -7747,30 +7380,11 @@ export enum SparklineAttribute {
   Price = 'PRICE'
 }
 
+/** A value in a sparkline. */
 export type SparklineValue = {
   __typename?: 'SparklineValue';
   timestamp: Scalars['Int']['output'];
   value: Scalars['Float']['output'];
-};
-
-export type StarknetNetworkConfig = {
-  __typename?: 'StarknetNetworkConfig';
-  baseTokenAddress: Scalars['String']['output'];
-  baseTokenSymbol: Scalars['String']['output'];
-  color?: Maybe<Scalars['String']['output']>;
-  defaultPairAddress: Scalars['String']['output'];
-  defaultPairQuoteToken: QuoteToken;
-  enabled: Scalars['Boolean']['output'];
-  id: Scalars['ID']['output'];
-  mainnet: Scalars['Boolean']['output'];
-  name: Scalars['String']['output'];
-  networkIconUrl: Scalars['String']['output'];
-  networkId: Scalars['Int']['output'];
-  networkName: Scalars['String']['output'];
-  networkShortName: Scalars['String']['output'];
-  newTokensEnabled?: Maybe<Scalars['Boolean']['output']>;
-  stableCoinAddresses?: Maybe<Array<Scalars['String']['output']>>;
-  wrappedBaseTokenSymbol: Scalars['String']['output'];
 };
 
 /** Filter for NFT stats. */
@@ -7841,10 +7455,19 @@ export type Subscription = {
   onEventsCreatedByMaker?: Maybe<AddEventsByMakerOutput>;
   /** Live-streamed list of wallets that hold a given token. Also has the unique count of holders for that token. */
   onHoldersUpdated?: Maybe<HoldersUpdate>;
-  /** Live-streamed updates for newly listed pairs. */
+  /**
+   * Live-streamed updates for newly listed pairs.
+   * @deprecated No longer supported
+   */
   onLatestPairUpdated?: Maybe<LatestPair>;
+  /**
+   * Live-streamed updates for newly listed tokens.
+   * @deprecated No longer supported
+   */
   onLatestTokens?: Maybe<LatestToken>;
+  /** Live-streamed launchpad token event. */
   onLaunchpadTokenEvent: LaunchpadTokenEventOutput;
+  /** Live-streamed launchpad token events batched (more efficient). */
   onLaunchpadTokenEventBatch: Array<LaunchpadTokenEventOutput>;
   /** Live-streamed transactions for an NFT asset. */
   onNftAssetsCreated?: Maybe<NftAsset>;
@@ -7858,7 +7481,6 @@ export type Subscription = {
   onPriceUpdated?: Maybe<Price>;
   /** Live-streamed price updates for multiple tokens. */
   onPricesUpdated: Price;
-  onSimulateTokenContract: SimulateTokenContractResult;
   /** Live-streamed bar chart data to track price changes over time for a token. */
   onTokenBarsUpdated?: Maybe<OnTokenBarsUpdatedResponse>;
   /** Live-streamed events for a given token across all it's pools */
@@ -7882,13 +7504,11 @@ export type SubscriptionOnBalanceUpdatedArgs = {
 export type SubscriptionOnBarsUpdatedArgs = {
   pairId?: InputMaybe<Scalars['String']['input']>;
   quoteToken?: InputMaybe<QuoteToken>;
-  statsType?: InputMaybe<TokenPairStatisticsType>;
 };
 
 
 export type SubscriptionOnDetailedStatsUpdatedArgs = {
   pairId?: InputMaybe<Scalars['String']['input']>;
-  statsType?: InputMaybe<TokenPairStatisticsType>;
   tokenOfInterest?: InputMaybe<TokenOfInterest>;
 };
 
@@ -7901,7 +7521,6 @@ export type SubscriptionOnEventLabelCreatedArgs = {
 export type SubscriptionOnEventsCreatedArgs = {
   address?: InputMaybe<Scalars['String']['input']>;
   id?: InputMaybe<Scalars['String']['input']>;
-  maker?: InputMaybe<Scalars['String']['input']>;
   networkId?: InputMaybe<Scalars['Int']['input']>;
   quoteToken?: InputMaybe<QuoteToken>;
 };
@@ -7935,6 +7554,11 @@ export type SubscriptionOnLaunchpadTokenEventArgs = {
 };
 
 
+export type SubscriptionOnLaunchpadTokenEventBatchArgs = {
+  input?: InputMaybe<OnLaunchpadTokenEventBatchInput>;
+};
+
+
 export type SubscriptionOnNftAssetsCreatedArgs = {
   address?: InputMaybe<Scalars['String']['input']>;
   networkId?: InputMaybe<Scalars['Int']['input']>;
@@ -7959,7 +7583,6 @@ export type SubscriptionOnNftPoolEventsCreatedArgs = {
 export type SubscriptionOnPairMetadataUpdatedArgs = {
   id?: InputMaybe<Scalars['String']['input']>;
   quoteToken?: InputMaybe<QuoteToken>;
-  statsType?: InputMaybe<TokenPairStatisticsType>;
 };
 
 
@@ -7975,16 +7598,8 @@ export type SubscriptionOnPricesUpdatedArgs = {
 };
 
 
-export type SubscriptionOnSimulateTokenContractArgs = {
-  contractAddress?: InputMaybe<Scalars['String']['input']>;
-  networkId: Scalars['Int']['input'];
-  simulationId?: InputMaybe<Scalars['String']['input']>;
-};
-
-
 export type SubscriptionOnTokenBarsUpdatedArgs = {
   networkId?: InputMaybe<Scalars['Int']['input']>;
-  statsType?: InputMaybe<TokenPairStatisticsType>;
   tokenId?: InputMaybe<Scalars['String']['input']>;
 };
 
@@ -8015,26 +7630,6 @@ export type SubscriptionOnUnconfirmedEventsCreatedArgs = {
 
 export type SubscriptionOnUnconfirmedEventsCreatedByMakerArgs = {
   input: OnUnconfirmedEventsCreatedByMakerInput;
-};
-
-export type SuiNetworkConfig = {
-  __typename?: 'SuiNetworkConfig';
-  baseTokenAddress: Scalars['String']['output'];
-  baseTokenSymbol: Scalars['String']['output'];
-  color?: Maybe<Scalars['String']['output']>;
-  defaultPairAddress: Scalars['String']['output'];
-  defaultPairQuoteToken: QuoteToken;
-  enabled: Scalars['Boolean']['output'];
-  id: Scalars['ID']['output'];
-  mainnet: Scalars['Boolean']['output'];
-  name: Scalars['String']['output'];
-  networkIconUrl: Scalars['String']['output'];
-  networkId: Scalars['Int']['output'];
-  networkName: Scalars['String']['output'];
-  networkShortName: Scalars['String']['output'];
-  newTokensEnabled?: Maybe<Scalars['Boolean']['output']>;
-  stableCoinAddresses?: Maybe<Array<Scalars['String']['output']>>;
-  wrappedBaseTokenSymbol: Scalars['String']['output'];
 };
 
 /** Event data for a token swap event. */
@@ -8495,7 +8090,7 @@ export type TokenFilters = {
   launchpadMigrated?: InputMaybe<Scalars['Boolean']['input']>;
   /** The timestamp when the launchpad was migrated */
   launchpadMigratedAt?: InputMaybe<NumberFilter>;
-  /** The name of the launchpad */
+  /** The name of the launchpad. One of the following: Pump.fun, Bonk, Baseapp, Zora, Zora Creator, Four.meme, Believe, Moonshot, Jupiter Studio, boop, ArenaTrade, Moonit, LaunchLab, MeteoraDBC, Vertigo, Cooking.City, time.fun, BAGS, Circus, Dealr, OhFuckFun, PrintFun, Trend, shout.fun, xApple, Sendshot, DubDub, cults. */
   launchpadName?: InputMaybe<Scalars['String']['input']>;
   /** The launchpad protocol */
   launchpadProtocol?: InputMaybe<Scalars['String']['input']>;
@@ -8517,8 +8112,6 @@ export type TokenFilters = {
   mintable?: InputMaybe<Scalars['Boolean']['input']>;
   /** The list of network IDs to filter by. Applied in conjunction with `exchangeId` filter using an OR condition. When used together, the query returns results that match either the specified exchanges or the specified network. */
   network?: InputMaybe<Array<InputMaybe<Scalars['Int']['input']>>>;
-  /** docs: hide */
-  notableHolderCount?: InputMaybe<NumberFilter>;
   /** Filter potential Scams */
   potentialScam?: InputMaybe<Scalars['Boolean']['input']>;
   /** The token price in USD. */
@@ -8547,7 +8140,7 @@ export type TokenFilters = {
   swapPct1dOldWallet?: InputMaybe<NumberFilter>;
   /** The percentage of wallets that are less than 7d old that have traded in the last 24h */
   swapPct7dOldWallet?: InputMaybe<NumberFilter>;
-  /** Whether to ignore pairs/tokens not relevant to trending */
+  /** Whether to ignore pairs/tokens not relevant to trending. This is done checking against a few factors and ignoring uninteresting tokens like stables / network tokens. If you want all tokens regardless of these checks, then don't include this field. (default) If you want only tokens that fail the trending ignore checks, then set it to `true`. (i.e. stablecoins, rugs, network base tokens) If you want only tokens that pass the trending ignore checks, then set it to `false`. */
   trendingIgnored?: InputMaybe<Scalars['Boolean']['input']>;
   /** The number of transactions in the past hour. */
   txnCount1?: InputMaybe<NumberFilter>;
@@ -8790,7 +8383,7 @@ export type TokenPairEventWebhookConditionInput = {
   tokenAddress?: InputMaybe<StringEqualsConditionInput>;
 };
 
-/** The type of statistics returned. Can be `FILTERED` or `UNFILTERED` */
+/** The type of statistics returned. Can be `FILTERED` or `UNFILTERED`. */
 export enum TokenPairStatisticsType {
   Filtered = 'FILTERED',
   Unfiltered = 'UNFILTERED'
@@ -8901,12 +8494,13 @@ export type TokenSearchResponse = {
   __typename?: 'TokenSearchResponse';
   /** The number of additional high volume results found. Only used if `lowVolumeFilter` is set to `true`. */
   hasMore?: Maybe<Scalars['Int']['output']>;
-  /** If `lowVolumeFilter` is set to `true`, the number of additional low volume results found.  <br>If `lowVolumeFilter` is set to `false`, the number of additional high and low volume results found. */
+  /** If `lowVolumeFilter` is set to `true`, the number of additional low volume results found. If `lowVolumeFilter` is set to `false`, the number of additional high and low volume results found. */
   hasMoreLowVolume?: Maybe<Scalars['Int']['output']>;
   /** A list of tokens. */
   tokens?: Maybe<Array<TokenWithMetadata>>;
 };
 
+/** A sparkline for a token. */
 export type TokenSparkline = {
   __typename?: 'TokenSparkline';
   /** Which attribute the sparkline is charting. Defaults to `PRICE` */
@@ -8917,6 +8511,7 @@ export type TokenSparkline = {
   sparkline: Array<SparklineValue>;
 };
 
+/** Input type of `tokenSparkline`. */
 export type TokenSparklineInput = {
   /** The contract address & networkId of the token, joined by a colon. ex: 0xbe042e9d09cb588331ff911c2b46fd833a3e5bd6:1 */
   ids: Array<Scalars['String']['input']>;
@@ -8988,6 +8583,7 @@ export type TokenTopTradersInput = {
   tradingPeriod: TradingPeriod;
 };
 
+/** A connection of wallets matching a filter on a specific token. */
 export type TokenWalletFilterConnection = {
   __typename?: 'TokenWalletFilterConnection';
   /** The number of wallets returned. */
@@ -9027,6 +8623,8 @@ export type TokenWalletFilterResult = {
   amountSoldUsdAll1y: Scalars['String']['output'];
   /** Amount sold USD all in the past 30 days */
   amountSoldUsdAll30d: Scalars['String']['output'];
+  /** The backfill state of the wallet. */
+  backfillState?: Maybe<WalletAggregateBackfillState>;
   /** The bot score for the wallet. */
   botScore?: Maybe<Scalars['Int']['output']>;
   /** Number of buys in the past day */
@@ -9260,6 +8858,7 @@ export type UnconfirmedIndividualBarData = {
   volume: Scalars['String']['output'];
 };
 
+/** Event data for a token liquidity change event. */
 export type UnconfirmedLiquidityChangeEventData = {
   __typename?: 'UnconfirmedLiquidityChangeEventData';
   /** The amount of `token0` added or removed from the pair. */
@@ -9291,6 +8890,7 @@ export type UnconfirmedResolutionBarData = {
   r15S?: Maybe<UnconfirmedIndividualBarData>;
 };
 
+/** Event data for a token swap event. */
 export type UnconfirmedSwapEventData = {
   __typename?: 'UnconfirmedSwapEventData';
   /** The amount of `baseToken` involved in the swap */
@@ -9307,6 +8907,46 @@ export type UnconfirmedSwapEventData = {
   priceUsdTotal?: Maybe<Scalars['String']['output']>;
   /** The type of token event, `Swap`. */
   type: EventType;
+};
+
+export type UniswapV4Data = {
+  __typename?: 'UniswapV4Data';
+  type: Scalars['String']['output'];
+  /** The address of the hook contract for Uniswap V4 pools. */
+  uniswapV4HookAddress?: Maybe<Scalars['String']['output']>;
+};
+
+/** Input arguments for the `backfillWalletAggregates` mutation. */
+export type WalletAggregateBackfillInput = {
+  walletAddress: Scalars['String']['input'];
+};
+
+/** The state of the wallet backfill. */
+export enum WalletAggregateBackfillState {
+  /** Historical stats calculations have been blocked for this wallet. It may have been flagged as a bot */
+  BackfillBlocked = 'BackfillBlocked',
+  /** Historical stats calculations were started, then canceled for this wallet. It may have been flagged as a bot */
+  BackfillCanceled = 'BackfillCanceled',
+  /** Historical stats calculations for this wallet have been successfully processed */
+  BackfillComplete = 'BackfillComplete',
+  /** Historical stats calculations for this wallet are being processed */
+  BackfillInProgress = 'BackfillInProgress',
+  /** Historical stats calculations for this wallet have not been started, nor attempted */
+  BackfillNotFound = 'BackfillNotFound',
+  /** Historical stats calculations for this wallet are queued and will be processed soon */
+  BackfillRequestReceived = 'BackfillRequestReceived'
+}
+
+/** Input arguments for the `walletAggregateBackfillState` mutation. */
+export type WalletAggregateBackfillStateInput = {
+  walletAddress: Scalars['String']['input'];
+};
+
+/** The response for the `walletAggregateBackfillState` mutation. */
+export type WalletAggregateBackfillStateResponse = {
+  __typename?: 'WalletAggregateBackfillStateResponse';
+  status: WalletAggregateBackfillState;
+  walletAddress: Scalars['String']['output'];
 };
 
 /** The data for a chart of a wallet's activity. */
@@ -9332,7 +8972,7 @@ export type WalletChartInput = {
   networkId?: InputMaybe<Scalars['Int']['input']>;
   /** The range of time for the chart */
   range: RangeInput;
-  /** The resolution of the chart */
+  /** The time frame for each candle. Available options are `1S`, `5S`, `15S`, `30S`, `1`, `5`, `15`, `30`, `60`, `240`, `720`, `1D`, `7D`. */
   resolution: Scalars['String']['input'];
   /** The wallet address */
   walletAddress: Scalars['String']['input'];
@@ -9348,6 +8988,8 @@ export type WalletChartRange = {
 /** The response for a chart of a wallet's activity. */
 export type WalletChartResponse = {
   __typename?: 'WalletChartResponse';
+  /** The backfill state of the wallet. */
+  backfillState?: Maybe<WalletAggregateBackfillState>;
   /** The data for the chart */
   data: Array<WalletChartData>;
   /** The network ID */
@@ -9360,6 +9002,7 @@ export type WalletChartResponse = {
   walletAddress: Scalars['String']['output'];
 };
 
+/** A connection of wallets matching a filter. */
 export type WalletFilterConnection = {
   __typename?: 'WalletFilterConnection';
   /** The number of wallets returned. */
@@ -9370,6 +9013,7 @@ export type WalletFilterConnection = {
   results: Array<WalletFilterResult>;
 };
 
+/** A wallet matching a filter. */
 export type WalletFilterResult = {
   __typename?: 'WalletFilterResult';
   /** The wallet address */
@@ -9390,6 +9034,8 @@ export type WalletFilterResult = {
   averageSwapAmountUsd1y: Scalars['String']['output'];
   /** Average swap amount in USD in the past 30 days */
   averageSwapAmountUsd30d: Scalars['String']['output'];
+  /** The backfill state of the wallet. */
+  backfillState?: Maybe<WalletAggregateBackfillState>;
   /** The bot score for the wallet. */
   botScore?: Maybe<Scalars['Int']['output']>;
   /** The unix timestamp for the first transaction from this wallet */
@@ -9470,6 +9116,7 @@ export type WalletFilterResult = {
   winRate30d: Scalars['Float']['output'];
 };
 
+/** Filters for a wallet. */
 export type WalletFilters = {
   /** Average profit in USD per trade in the past day */
   averageProfitUsdPerTrade1d?: InputMaybe<NumberFilter>;
@@ -9565,6 +9212,25 @@ export type WalletFilters = {
   winRate30d?: InputMaybe<NumberFilter>;
 };
 
+/** Wallet labels. Used for filtering wallets with `includeLabels` and `excludeLabels`. */
+export enum WalletLabel {
+  /** Wallet is interesting (based on a number of factors). */
+  Interesting = 'INTERESTING',
+  /** Wallet holds $5M+ in assets. */
+  MediumWealthy = 'MEDIUM_WEALTHY',
+  /** Wallet holds $10M+ in assets. */
+  MegaWealthy = 'MEGA_WEALTHY',
+  /** Wallet has made over $7.5K profit in the last 90 days trading tokens that are older than 2 days. */
+  SmartTraderTokensOverTwoDaysOld = 'SMART_TRADER_TOKENS_OVER_TWO_DAYS_OLD',
+  /** Wallet has made over $5K profit in the last 90 days trading tokens that are between 1 hour and 2 days old. */
+  SmartTraderTokensUnderTwoDaysOld = 'SMART_TRADER_TOKENS_UNDER_TWO_DAYS_OLD',
+  /** Wallet has made over $3K profit in the last 90 days trading tokens that were launched within their first hour. */
+  Sniper = 'SNIPER',
+  /** Wallet holds $1M+ in assets. */
+  Wealthy = 'WEALTHY'
+}
+
+/** Filters for a wallet on a specific network. */
 export type WalletNetworkFilters = {
   /** Average profit in USD per trade in the past day */
   averageProfitUsdPerTrade1d?: InputMaybe<NumberFilter>;
@@ -9658,6 +9324,7 @@ export type WalletNetworkFilters = {
   winRate30d?: InputMaybe<NumberFilter>;
 };
 
+/** A wallet ranking on a specific network. */
 export type WalletNetworkRanking = {
   /** The attribute to rank wallets by. */
   attribute?: InputMaybe<WalletNetworkRankingAttribute>;
@@ -9665,6 +9332,7 @@ export type WalletNetworkRanking = {
   direction?: InputMaybe<RankingDirection>;
 };
 
+/** Attributes for a wallet ranking on a specific network. */
 export enum WalletNetworkRankingAttribute {
   AverageProfitUsdPerTrade1d = 'averageProfitUsdPerTrade1d',
   AverageProfitUsdPerTrade1w = 'averageProfitUsdPerTrade1w',
@@ -9767,6 +9435,7 @@ export type WalletNftCollectionsResponse = {
   items: Array<WalletNftCollection>;
 };
 
+/** A wallet ranking. */
 export type WalletRanking = {
   /** The attribute to rank wallets by. */
   attribute?: InputMaybe<WalletRankingAttribute>;
@@ -9774,6 +9443,7 @@ export type WalletRanking = {
   direction?: InputMaybe<RankingDirection>;
 };
 
+/** Attributes for a wallet ranking. */
 export enum WalletRankingAttribute {
   AverageProfitUsdPerTrade1d = 'averageProfitUsdPerTrade1d',
   AverageProfitUsdPerTrade1w = 'averageProfitUsdPerTrade1w',
@@ -9830,6 +9500,7 @@ export enum WalletStatsDuration {
   Year1 = 'year1'
 }
 
+/** A range for a wallet token filter. */
 export type WalletTokenFilterRange = {
   /** The maximum value (inclusive) */
   max?: InputMaybe<Scalars['String']['input']>;
@@ -9837,6 +9508,7 @@ export type WalletTokenFilterRange = {
   min?: InputMaybe<Scalars['String']['input']>;
 };
 
+/** Filters for a wallet on a specific token. */
 export type WalletTokenFilters = {
   /** Filter by amount bought in USD in the past day */
   amountBoughtUsd1d?: InputMaybe<WalletTokenFilterRange>;
@@ -9918,6 +9590,7 @@ export type WalletTokenFilters = {
   tokenBalance?: InputMaybe<WalletTokenFilterRange>;
 };
 
+/** Filters for a wallet on a specific token. */
 export type WalletTokenFiltersV2 = {
   /** Filter by amount bought in USD in the past day */
   amountBoughtUsd1d?: InputMaybe<NumberFilter>;
@@ -9999,6 +9672,7 @@ export type WalletTokenFiltersV2 = {
   tokenBalance?: InputMaybe<NumberFilter>;
 };
 
+/** A wallet ranking on a specific token. */
 export type WalletTokenRanking = {
   /** The attribute to rank wallets by */
   attribute: WalletTokenRankingAttribute;
@@ -10006,6 +9680,7 @@ export type WalletTokenRanking = {
   direction: RankingDirection;
 };
 
+/** Attributes for a wallet ranking on a specific token. */
 export enum WalletTokenRankingAttribute {
   /** Amount bought in USD in the past day */
   AmountBoughtUsd1d = 'amountBoughtUsd1d',
