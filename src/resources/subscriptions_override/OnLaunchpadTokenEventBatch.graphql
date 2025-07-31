@@ -1,5 +1,5 @@
-subscription OnLaunchpadTokenEventBatch {
-  onLaunchpadTokenEventBatch {
+subscription OnLaunchpadTokenEventBatch($input: OnLaunchpadTokenEventBatchInput) {
+  onLaunchpadTokenEventBatch(input: $input) {
     address
     buyCount1
     eventType
@@ -87,5 +87,6 @@ subscription OnLaunchpadTokenEventBatch {
     }
     transactions1
     volume1
+    liquidity
   }
 }
