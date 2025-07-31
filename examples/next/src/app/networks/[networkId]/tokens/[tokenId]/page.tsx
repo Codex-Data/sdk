@@ -3,8 +3,8 @@ import Link from "next/link";
 import React, { Suspense } from "react";
 import { TokenChart, ChartDataPoint } from "@/components/TokenChart";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import Image from "next/image";
+import { TokenTransactions } from "@/components/TokenTransactions";
 
 // --- Type Definitions ---
 // Add nested info object for icon URL
@@ -129,10 +129,14 @@ async function getTokenPageData(networkIdNum: number, tokenId: string): Promise<
 
 // --- Page Component ---
 export default async function TokenPage({ params }: TokenPageProps) {
-  const { networkId, tokenId } = await params;
-  const networkIdNum = parseInt(networkId, 10);
+  // Extract raw params
+  const { networkId: rawNetworkId, tokenId: rawTokenId } = await params;
 
-  if (isNaN(networkIdNum) || !tokenId) {
+  // Parse networkId
+  const networkIdNum = parseInt(rawNetworkId, 10);
+
+  // Validate networkId and rawTokenId presence
+  if (isNaN(networkIdNum) || !rawTokenId) {
     return (
       <main className="flex min-h-screen flex-col items-center p-12 md:p-24">
         <h1 className="text-2xl font-bold text-destructive">Invalid Network or Token ID</h1>
@@ -141,8 +145,13 @@ export default async function TokenPage({ params }: TokenPageProps) {
     );
   }
 
+  // Decode the token ID
+  const tokenId = decodeURIComponent(rawTokenId);
+
+  // Fetch data using the decoded token ID
   const { details, bars, events } = await getTokenPageData(networkIdNum, tokenId);
 
+  // Use the decoded tokenId for display if name is missing
   const tokenName = details?.name || tokenId;
   const tokenSymbol = details?.symbol ? `(${details.symbol})` : '';
 
@@ -153,7 +162,7 @@ export default async function TokenPage({ params }: TokenPageProps) {
         <h1 className="text-2xl md:text-3xl font-bold truncate pr-4">
           {tokenName} {tokenSymbol}
         </h1>
-        <Link href={`/networks/${networkId}`} className="text-sm hover:underline whitespace-nowrap">
+        <Link href={`/networks/${rawNetworkId}`} className="text-sm hover:underline whitespace-nowrap">
           &lt; Back to Network
         </Link>
       </div>
@@ -168,40 +177,12 @@ export default async function TokenPage({ params }: TokenPageProps) {
              <TokenChart data={bars} title={`${tokenSymbol || 'Token'} Price Chart`} />
           </Suspense>
 
-          {/* Transactions Table - Takes 2 columns */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Recent Transactions</CardTitle>
-            </CardHeader>
-            <CardContent>
-              {events.length > 0 ? (
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>Type</TableHead>
-                      <TableHead>Time</TableHead>
-                      <TableHead>Value (USD)</TableHead>
-                      <TableHead>Tx Hash</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {events.map((event) => (
-                      <TableRow key={event.uniqueId || event.id}>
-                        <TableCell>{event.eventDisplayType || 'N/A'}</TableCell>
-                        <TableCell>{new Date(event.timestamp * 1000).toLocaleString()}</TableCell>
-                        <TableCell>{event.amountUsd ? `$${event.amountUsd.toFixed(2)}` : 'N/A'}</TableCell>
-                        <TableCell className="truncate">
-                          <span title={event.transactionHash}>{event.transactionHash.substring(0, 8)}...</span>
-                        </TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-              ) : (
-                <p className="text-muted-foreground">No recent transaction data available.</p>
-              )}
-            </CardContent>
-          </Card>
+          {/* Transactions Table - Replace with Client Component */}
+          <TokenTransactions
+              networkId={networkIdNum}
+              tokenId={tokenId}
+              initialEvents={events}
+          />
         </div>
 
         {/* Right Area (Info Panel) - Takes 1 column */}
@@ -231,7 +212,7 @@ export default async function TokenPage({ params }: TokenPageProps) {
                 <>
                   <p className="text-sm">
                     <strong className="text-muted-foreground">Address:</strong>
-                    <span className="font-mono block break-all" title={details.address}>{details.address}</span>
+                    <span className="font-mono block break-all" title={tokenId}>{tokenId}</span>
                   </p>
                   {details.description && (
                      <p className="text-sm">
