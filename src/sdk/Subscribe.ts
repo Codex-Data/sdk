@@ -363,10 +363,98 @@ export class Subscribe {
   ) =>
     this.sdk.subscribe(
       `subscription OnLaunchpadTokenEventBatch($input: OnLaunchpadTokenEventBatchInput) {
-  onLaunchpadTokenEventBatch (input: $input) {
-    address, buyCount1, eventType, holders, marketCap, networkId, price, protocol, sellCount1, token { address, cmcId, createBlockNumber, createTransactionHash, createdAt, creatorAddress, decimals, exchanges { address, color, exchangeVersion, iconUrl, id, name, networkId, tradeUrl }, freezable, id, info { address, circulatingSupply, cmcId, description, id, imageBannerUrl, imageLargeUrl, imageSmallUrl, imageThumbUrl, isScam, name, networkId, symbol, totalSupply }, isScam, launchpad { completed, completedAt, completedSlot, graduationPercent, launchpadName, launchpadProtocol, migrated, migratedAt, migratedPoolAddress, migratedSlot, poolAddress }, mintable, name, networkId, socialLinks { bitcointalk, blog, coingecko, coinmarketcap, discord, email, facebook, github, instagram, linkedin, reddit, slack, telegram, twitch, twitter, website, wechat, whitepaper, youtube }, symbol }, transactions1, volume1
+  onLaunchpadTokenEventBatch(input: $input) {
+    address
+    buyCount1
+    eventType
+    holders
+    marketCap
+    networkId
+    price
+    protocol
+    sellCount1
+    token {
+      address
+      cmcId
+      createBlockNumber
+      createTransactionHash
+      createdAt
+      creatorAddress
+      decimals
+      exchanges {
+        address
+        color
+        exchangeVersion
+        iconUrl
+        id
+        name
+        networkId
+        tradeUrl
+      }
+      freezable
+      id
+      info {
+        address
+        circulatingSupply
+        cmcId
+        description
+        id
+        imageBannerUrl
+        imageLargeUrl
+        imageSmallUrl
+        imageThumbUrl
+        isScam
+        name
+        networkId
+        symbol
+        totalSupply
+      }
+      isScam
+      launchpad {
+        completed
+        completedAt
+        completedSlot
+        graduationPercent
+        launchpadProtocol
+        migrated
+        migratedAt
+        migratedPoolAddress
+        migratedSlot
+        name
+        poolAddress
+      }
+      mintable
+      name
+      networkId
+      socialLinks {
+        bitcointalk
+        blog
+        coingecko
+        coinmarketcap
+        discord
+        email
+        facebook
+        github
+        instagram
+        linkedin
+        reddit
+        slack
+        telegram
+        twitch
+        twitter
+        website
+        wechat
+        whitepaper
+        youtube
+      }
+      symbol
+    }
+    transactions1
+    volume1
+    liquidity
   }
-}`,
+}
+`,
       vars,
       sink,
     );
