@@ -362,8 +362,8 @@ export class Subscribe {
     sink: Sink<ExecutionResult<OnLaunchpadTokenEventBatchSubscription>>,
   ) =>
     this.sdk.subscribe(
-      `subscription OnLaunchpadTokenEventBatch {
-  onLaunchpadTokenEventBatch {
+      `subscription OnLaunchpadTokenEventBatch($input: OnLaunchpadTokenEventBatchInput) {
+  onLaunchpadTokenEventBatch(input: $input) {
     address
     buyCount1
     eventType
@@ -451,6 +451,7 @@ export class Subscribe {
     }
     transactions1
     volume1
+    liquidity
   }
 }
 `,
