@@ -41167,7 +41167,7 @@
           },
           {
             "name": "getTokenEventsForMaker",
-            "description": "Returns a list of token events for a given maker.",
+            "description": "Returns a list of token events for a given maker across all pairs.",
             "args": [
               {
                 "name": "cursor",
@@ -46405,6 +46405,30 @@
             "deprecationReason": null
           },
           {
+            "name": "liquidPair",
+            "description": "Metadata for the token's most liquid pair",
+            "args": [],
+            "type": {
+              "kind": "OBJECT",
+              "name": "Pair",
+              "ofType": null
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "liquidPairLiquidity",
+            "description": "The liquidity of the token's most liquid pair",
+            "args": [],
+            "type": {
+              "kind": "SCALAR",
+              "name": "String",
+              "ofType": null
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
             "name": "liquidity",
             "description": "Amount of liquidity in the token's top pair.",
             "args": [],
@@ -48347,6 +48371,18 @@
           {
             "name": "imageSmallUrl",
             "description": "The small token logo URL.",
+            "args": [],
+            "type": {
+              "kind": "SCALAR",
+              "name": "String",
+              "ofType": null
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "imageThumbHash",
+            "description": "The thumbhash of the token logo.",
             "args": [],
             "type": {
               "kind": "SCALAR",

@@ -362,7 +362,9 @@ export class Subscribe {
     sink: Sink<ExecutionResult<OnLaunchpadTokenEventBatchSubscription>>,
   ) =>
     this.sdk.subscribe(
-      `subscription OnLaunchpadTokenEventBatch($input: OnLaunchpadTokenEventBatchInput) {
+      `subscription OnLaunchpadTokenEventBatch(
+  $input: OnLaunchpadTokenEventBatchInput
+) {
   onLaunchpadTokenEventBatch(input: $input) {
     address
     buyCount1
@@ -421,6 +423,7 @@ export class Subscribe {
         migratedPoolAddress
         migratedSlot
         name
+        launchpadName
         poolAddress
       }
       mintable

@@ -59,6 +59,7 @@ subscription OnLaunchpadTokenEventBatch(
         migratedPoolAddress
         migratedSlot
         name
+        launchpadName
         poolAddress
       }
       mintable
