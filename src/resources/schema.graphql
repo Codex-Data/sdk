@@ -435,7 +435,7 @@ type Query {
     """The order to receive the token events. Can be `DESC` (default) or `ASC`."""
     direction: RankingDirection
   ): EventConnection
-  """Returns a list of token events for a given maker."""
+  """Returns a list of token events for a given maker across all pairs."""
   getTokenEventsForMaker(
     """The maximum number of events to return."""
     limit: Int
@@ -7559,6 +7559,10 @@ type TokenFilterResult {
   circulatingMarketCap: String
   """Metadata for the token's top pair."""
   pair: Pair
+  """Metadata for the token's most liquid pair"""
+  liquidPair: Pair
+  """The liquidity of the token's most liquid pair"""
+  liquidPairLiquidity: String
   """The token price in USD."""
   priceUSD: String
   """The number of sells in the past 5 minutes."""
@@ -7871,6 +7875,8 @@ type TokenInfo {
   symbol: String!
   """The total supply of the token."""
   totalSupply: String
+  """The thumbhash of the token logo."""
+  imageThumbHash: String
   """The thumbnail token logo URL."""
   imageThumbUrl: String
   """The small token logo URL."""

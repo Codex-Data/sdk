@@ -6630,7 +6630,7 @@ export type Query = {
   getSymbol?: Maybe<SymbolResponse>;
   /** Returns transactions for a pair. */
   getTokenEvents?: Maybe<EventConnection>;
-  /** Returns a list of token events for a given maker. */
+  /** Returns a list of token events for a given maker across all pairs. */
   getTokenEventsForMaker?: Maybe<MakerEventConnection>;
   /** Returns real-time or historical prices for a list of tokens, fetched in batches. */
   getTokenPrices?: Maybe<Array<Maybe<Price>>>;
@@ -7900,6 +7900,10 @@ export type TokenFilterResult = {
   isScam?: Maybe<Scalars['Boolean']['output']>;
   /** The unix timestamp for the token's last transaction. */
   lastTransaction?: Maybe<Scalars['Int']['output']>;
+  /** Metadata for the token's most liquid pair */
+  liquidPair?: Maybe<Pair>;
+  /** The liquidity of the token's most liquid pair */
+  liquidPairLiquidity?: Maybe<Scalars['String']['output']>;
   /** Amount of liquidity in the token's top pair. */
   liquidity?: Maybe<Scalars['String']['output']>;
   /** The lowest price in USD in the past hour. */
@@ -8227,6 +8231,8 @@ export type TokenInfo = {
   imageLargeUrl?: Maybe<Scalars['String']['output']>;
   /** The small token logo URL. */
   imageSmallUrl?: Maybe<Scalars['String']['output']>;
+  /** The thumbhash of the token logo. */
+  imageThumbHash?: Maybe<Scalars['String']['output']>;
   /** The thumbnail token logo URL. */
   imageThumbUrl?: Maybe<Scalars['String']['output']>;
   /** Whether the token has been flagged as a scam. */
