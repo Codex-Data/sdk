@@ -375,6 +375,7 @@ export class Subscribe {
     price
     protocol
     sellCount1
+    launchpadName
     token {
       address
       cmcId
