@@ -120,6 +120,8 @@ import {
   TokenTopTradersQueryVariables,
   Top10HoldersPercentDocument,
   Top10HoldersPercentQueryVariables,
+  WalletAggregateBackfillStateDocument,
+  WalletAggregateBackfillStateQueryVariables,
   WalletChartDocument,
   WalletChartQueryVariables,
   WalletNftCollectionAssetsDocument,
@@ -158,6 +160,9 @@ export class Query {
     this.sdk.query(FilterWalletsDocument, vars);
   liquidityMetadata = async (vars: LiquidityMetadataQueryVariables) =>
     this.sdk.query(LiquidityMetadataDocument, vars);
+  walletAggregateBackfillState = async (
+    vars: WalletAggregateBackfillStateQueryVariables,
+  ) => this.sdk.query(WalletAggregateBackfillStateDocument, vars);
   walletNftCollectionAssets = async (
     vars: WalletNftCollectionAssetsQueryVariables,
   ) => this.sdk.query(WalletNftCollectionAssetsDocument, vars);
