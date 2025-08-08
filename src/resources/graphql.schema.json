@@ -2679,8 +2679,8 @@
               "ofType": null
             },
             "defaultValue": null,
-            "isDeprecated": false,
-            "deprecationReason": null
+            "isDeprecated": true,
+            "deprecationReason": "GroupId is deprecated and will be removed in the future. Messages will be grouped by webhookId"
           },
           {
             "name": "name",
@@ -2879,8 +2879,8 @@
               "ofType": null
             },
             "defaultValue": null,
-            "isDeprecated": false,
-            "deprecationReason": null
+            "isDeprecated": true,
+            "deprecationReason": "GroupId is deprecated and will be removed in the future. Messages will be grouped by webhookId"
           },
           {
             "name": "name",
@@ -3079,8 +3079,8 @@
               "ofType": null
             },
             "defaultValue": null,
-            "isDeprecated": false,
-            "deprecationReason": null
+            "isDeprecated": true,
+            "deprecationReason": "GroupId is deprecated and will be removed in the future. Messages will be grouped by webhookId"
           },
           {
             "name": "name",
@@ -3279,8 +3279,8 @@
               "ofType": null
             },
             "defaultValue": null,
-            "isDeprecated": false,
-            "deprecationReason": null
+            "isDeprecated": true,
+            "deprecationReason": "GroupId is deprecated and will be removed in the future. Messages will be grouped by webhookId"
           },
           {
             "name": "name",
@@ -3479,8 +3479,8 @@
               "ofType": null
             },
             "defaultValue": null,
-            "isDeprecated": false,
-            "deprecationReason": null
+            "isDeprecated": true,
+            "deprecationReason": "GroupId is deprecated and will be removed in the future. Messages will be grouped by webhookId"
           },
           {
             "name": "name",
@@ -10722,7 +10722,7 @@
           },
           {
             "name": "launchpadName",
-            "description": "The name of the launchpad. One of the following: Pump.fun, Bonk, Baseapp, Zora, Zora Creator, Four.meme, Believe, Moonshot, Jupiter Studio, boop, ArenaTrade, Moonit, LaunchLab, MeteoraDBC, Vertigo, Cooking.City, time.fun, BAGS, Circus, Dealr, OhFuckFun, PrintFun, Trend, shout.fun, xApple, Sendshot, DubDub, cults.",
+            "description": "The name of the launchpad.",
             "args": [],
             "type": {
               "kind": "SCALAR",
@@ -10886,7 +10886,7 @@
           },
           {
             "name": "launchpadName",
-            "description": "The name of the launchpad. One of the following: Pump.fun, Bonk, Baseapp, Zora, Zora Creator, Four.meme, Believe, Moonshot, Jupiter Studio, boop, ArenaTrade, Moonit, LaunchLab, MeteoraDBC, Vertigo, Cooking.City, time.fun, BAGS, Circus, Dealr, OhFuckFun, PrintFun, Trend, shout.fun, xApple, Sendshot, DubDub, cults.",
+            "description": "The name of the launchpad.",
             "args": [],
             "type": {
               "kind": "NON_NULL",
@@ -11108,6 +11108,12 @@
             "deprecationReason": null
           },
           {
+            "name": "Clanker",
+            "description": "Protocol name for Clanker.",
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
             "name": "EgoTech",
             "description": "Protocol name for EgoTech.",
             "isDeprecated": false,
@@ -11152,6 +11158,12 @@
           {
             "name": "Vertigo",
             "description": "Protocol name for Vertigo.",
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "Virtuals",
+            "description": "Protocol name for Virtuals.",
             "isDeprecated": false,
             "deprecationReason": null
           },
@@ -12337,6 +12349,18 @@
             "deprecationReason": null
           },
           {
+            "name": "liquidityUsd",
+            "description": "The liquidity condition (for the source pair) that must be met in order for the webhook to send.",
+            "args": [],
+            "type": {
+              "kind": "OBJECT",
+              "name": "ComparisonOperator",
+              "ofType": null
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
             "name": "networkId",
             "description": "The network ID the webhook is listening on.",
             "args": [],
@@ -12379,6 +12403,18 @@
             },
             "isDeprecated": false,
             "deprecationReason": null
+          },
+          {
+            "name": "volumeUsd",
+            "description": "The volume condition (for the source pair) that must be met in order for the webhook to send.",
+            "args": [],
+            "type": {
+              "kind": "OBJECT",
+              "name": "ComparisonOperator",
+              "ofType": null
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
           }
         ],
         "inputFields": null,
@@ -12408,6 +12444,18 @@
           {
             "name": "fdvMarketCapUsd",
             "description": "The price conditions to listen for.",
+            "type": {
+              "kind": "INPUT_OBJECT",
+              "name": "ComparisonOperatorInput",
+              "ofType": null
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "liquidityUsd",
+            "description": "The liquidity conditions to listen for.",
             "type": {
               "kind": "INPUT_OBJECT",
               "name": "ComparisonOperatorInput",
@@ -12456,6 +12504,18 @@
                 "name": "StringEqualsConditionInput",
                 "ofType": null
               }
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "volumeUsd",
+            "description": "The volume conditions to listen for.",
+            "type": {
+              "kind": "INPUT_OBJECT",
+              "name": "ComparisonOperatorInput",
+              "ofType": null
             },
             "defaultValue": null,
             "isDeprecated": false,
@@ -29270,11 +29330,31 @@
           },
           {
             "name": "launchpadName",
-            "description": "The name of the launchpad. One of the following: Pump.fun, Bonk, Baseapp, Zora, Zora Creator, Four.meme, Believe, Moonshot, Jupiter Studio, boop, ArenaTrade, Moonit, LaunchLab, MeteoraDBC, Vertigo, Cooking.City, time.fun, BAGS, Circus, Dealr, OhFuckFun, PrintFun, Trend, shout.fun, xApple, Sendshot, DubDub, cults.",
+            "description": "The name of the launchpad. One of the following: Pump.fun, Bonk, Baseapp, Zora, Zora Creator, Four.meme, Believe, Moonshot, Jupiter Studio, boop, Virtuals, Clanker, ArenaTrade, Moonit, LaunchLab, MeteoraDBC, Vertigo, Cooking.City, time.fun, BAGS, Circus, Dealr, OhFuckFun, PrintFun, Trend, shout.fun, xApple, Sendshot, DubDub, cults.",
             "type": {
               "kind": "SCALAR",
               "name": "String",
               "ofType": null
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "launchpadNames",
+            "description": "A list of launchpad names. Any of the following: Pump.fun, Bonk, Baseapp, Zora, Zora Creator, Four.meme, Believe, Moonshot, Jupiter Studio, boop, Virtuals, Clanker, ArenaTrade, Moonit, LaunchLab, MeteoraDBC, Vertigo, Cooking.City, time.fun, BAGS, Circus, Dealr, OhFuckFun, PrintFun, Trend, shout.fun, xApple, Sendshot, DubDub, cults.",
+            "type": {
+              "kind": "LIST",
+              "name": null,
+              "ofType": {
+                "kind": "NON_NULL",
+                "name": null,
+                "ofType": {
+                  "kind": "SCALAR",
+                  "name": "String",
+                  "ofType": null
+                }
+              }
             },
             "defaultValue": null,
             "isDeprecated": false,
@@ -29294,11 +29374,31 @@
           },
           {
             "name": "protocol",
-            "description": "The protocol of the token.",
+            "description": "The launchpad protocol.",
             "type": {
               "kind": "ENUM",
               "name": "LaunchpadTokenProtocol",
               "ofType": null
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "protocols",
+            "description": "A list of launchpad protocols.",
+            "type": {
+              "kind": "LIST",
+              "name": null,
+              "ofType": {
+                "kind": "NON_NULL",
+                "name": null,
+                "ofType": {
+                  "kind": "ENUM",
+                  "name": "LaunchpadTokenProtocol",
+                  "ofType": null
+                }
+              }
             },
             "defaultValue": null,
             "isDeprecated": false,
@@ -29342,11 +29442,31 @@
           },
           {
             "name": "launchpadName",
-            "description": "The name of the launchpad. One of the following: Pump.fun, Bonk, Baseapp, Zora, Zora Creator, Four.meme, Believe, Moonshot, Jupiter Studio, boop, ArenaTrade, Moonit, LaunchLab, MeteoraDBC, Vertigo, Cooking.City, time.fun, BAGS, Circus, Dealr, OhFuckFun, PrintFun, Trend, shout.fun, xApple, Sendshot, DubDub, cults.",
+            "description": "The name of the launchpad. One of the following: Pump.fun, Bonk, Baseapp, Zora, Zora Creator, Four.meme, Believe, Moonshot, Jupiter Studio, boop, Virtuals, Clanker, ArenaTrade, Moonit, LaunchLab, MeteoraDBC, Vertigo, Cooking.City, time.fun, BAGS, Circus, Dealr, OhFuckFun, PrintFun, Trend, shout.fun, xApple, Sendshot, DubDub, cults.",
             "type": {
               "kind": "SCALAR",
               "name": "String",
               "ofType": null
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "launchpadNames",
+            "description": "A list of launchpad names. Any of the following: Pump.fun, Bonk, Baseapp, Zora, Zora Creator, Four.meme, Believe, Moonshot, Jupiter Studio, boop, Virtuals, Clanker, ArenaTrade, Moonit, LaunchLab, MeteoraDBC, Vertigo, Cooking.City, time.fun, BAGS, Circus, Dealr, OhFuckFun, PrintFun, Trend, shout.fun, xApple, Sendshot, DubDub, cults.",
+            "type": {
+              "kind": "LIST",
+              "name": null,
+              "ofType": {
+                "kind": "NON_NULL",
+                "name": null,
+                "ofType": {
+                  "kind": "SCALAR",
+                  "name": "String",
+                  "ofType": null
+                }
+              }
             },
             "defaultValue": null,
             "isDeprecated": false,
@@ -29366,11 +29486,31 @@
           },
           {
             "name": "protocol",
-            "description": "The protocol of the token.",
+            "description": "The launchpad protocol.",
             "type": {
               "kind": "ENUM",
               "name": "LaunchpadTokenProtocol",
               "ofType": null
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "protocols",
+            "description": "A list of launchpad protocols.",
+            "type": {
+              "kind": "LIST",
+              "name": null,
+              "ofType": {
+                "kind": "NON_NULL",
+                "name": null,
+                "ofType": {
+                  "kind": "ENUM",
+                  "name": "LaunchpadTokenProtocol",
+                  "ofType": null
+                }
+              }
             },
             "defaultValue": null,
             "isDeprecated": false,
@@ -34886,6 +35026,18 @@
         "isOneOf": null,
         "fields": [
           {
+            "name": "liquidityUsd",
+            "description": "The liquidity condition (for the source pair) that must be met in order for the webhook to send.",
+            "args": [],
+            "type": {
+              "kind": "OBJECT",
+              "name": "ComparisonOperator",
+              "ofType": null
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
             "name": "networkId",
             "description": "The network ID the webhook is listening on.",
             "args": [],
@@ -34944,6 +35096,18 @@
             },
             "isDeprecated": false,
             "deprecationReason": null
+          },
+          {
+            "name": "volumeUsd",
+            "description": "The volume condition (for the source pair) that must be met in order for the webhook to send.",
+            "args": [],
+            "type": {
+              "kind": "OBJECT",
+              "name": "ComparisonOperator",
+              "ofType": null
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
           }
         ],
         "inputFields": null,
@@ -34958,6 +35122,18 @@
         "isOneOf": false,
         "fields": null,
         "inputFields": [
+          {
+            "name": "liquidityUsd",
+            "description": "The liquidity conditions to listen for.",
+            "type": {
+              "kind": "INPUT_OBJECT",
+              "name": "ComparisonOperatorInput",
+              "ofType": null
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
           {
             "name": "networkId",
             "description": "The network ID to listen on.",
@@ -35013,6 +35189,18 @@
                 "name": "StringEqualsConditionInput",
                 "ofType": null
               }
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "volumeUsd",
+            "description": "The volume conditions to listen for.",
+            "type": {
+              "kind": "INPUT_OBJECT",
+              "name": "ComparisonOperatorInput",
+              "ofType": null
             },
             "defaultValue": null,
             "isDeprecated": false,
@@ -47319,7 +47507,7 @@
           },
           {
             "name": "creatorAddress",
-            "description": "The address of the creator of the token",
+            "description": "The address of the creator of the token.",
             "type": {
               "kind": "SCALAR",
               "name": "String",
@@ -47567,11 +47755,19 @@
           },
           {
             "name": "launchpadName",
-            "description": "The name of the launchpad. One of the following: Pump.fun, Bonk, Baseapp, Zora, Zora Creator, Four.meme, Believe, Moonshot, Jupiter Studio, boop, ArenaTrade, Moonit, LaunchLab, MeteoraDBC, Vertigo, Cooking.City, time.fun, BAGS, Circus, Dealr, OhFuckFun, PrintFun, Trend, shout.fun, xApple, Sendshot, DubDub, cults.",
+            "description": "A list of launchpad names. Any of the following: Pump.fun, Bonk, Baseapp, Zora, Zora Creator, Four.meme, Believe, Moonshot, Jupiter Studio, boop, Virtuals, Clanker, ArenaTrade, Moonit, LaunchLab, MeteoraDBC, Vertigo, Cooking.City, time.fun, BAGS, Circus, Dealr, OhFuckFun, PrintFun, Trend, shout.fun, xApple, Sendshot, DubDub, cults.",
             "type": {
-              "kind": "SCALAR",
-              "name": "String",
-              "ofType": null
+              "kind": "LIST",
+              "name": null,
+              "ofType": {
+                "kind": "NON_NULL",
+                "name": null,
+                "ofType": {
+                  "kind": "SCALAR",
+                  "name": "String",
+                  "ofType": null
+                }
+              }
             },
             "defaultValue": null,
             "isDeprecated": false,
@@ -47579,11 +47775,19 @@
           },
           {
             "name": "launchpadProtocol",
-            "description": "The launchpad protocol",
+            "description": "A list of launchpad protocols.",
             "type": {
-              "kind": "SCALAR",
-              "name": "String",
-              "ofType": null
+              "kind": "LIST",
+              "name": null,
+              "ofType": {
+                "kind": "NON_NULL",
+                "name": null,
+                "ofType": {
+                  "kind": "SCALAR",
+                  "name": "String",
+                  "ofType": null
+                }
+              }
             },
             "defaultValue": null,
             "isDeprecated": false,
@@ -57586,8 +57790,8 @@
               "name": "String",
               "ofType": null
             },
-            "isDeprecated": false,
-            "deprecationReason": null
+            "isDeprecated": true,
+            "deprecationReason": "GroupId is deprecated and will be removed in the future. Messages will be grouped by webhookId"
           },
           {
             "name": "id",

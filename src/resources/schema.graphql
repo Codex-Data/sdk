@@ -1253,7 +1253,7 @@ input CreateMarketCapWebhookArgs {
   """The recurrence of the webhook. Can be `INDEFINITE` or `ONCE`."""
   alertRecurrence: AlertRecurrence!
   """A webhook group ID (max 64 characters). Can be used to group webhooks so that their messages are kept in order as a group rather than by individual webhook."""
-  groupId: String
+  groupId: String @deprecated(reason: "GroupId is deprecated and will be removed in the future. Messages will be grouped by webhookId")
   """The conditions which must be met in order for the webhook to send a message."""
   conditions: MarketCapEventWebhookConditionInput!
   """The settings for retrying failed webhook messages."""
@@ -1285,7 +1285,7 @@ input CreateNftEventWebhookArgs {
   """The recurrence of the webhook. Can be `INDEFINITE` or `ONCE`."""
   alertRecurrence: AlertRecurrence!
   """A webhook group ID (max 64 characters). Can be used to group webhooks so that their messages are kept in order as a group rather than by individual webhook."""
-  groupId: String
+  groupId: String @deprecated(reason: "GroupId is deprecated and will be removed in the future. Messages will be grouped by webhookId")
   """The conditions which must be met in order for the webhook to send a message."""
   conditions: NftEventWebhookConditionInput!
   """The settings for retrying failed webhook messages."""
@@ -1317,7 +1317,7 @@ input CreatePriceWebhookArgs {
   """The recurrence of the webhook. Can be `INDEFINITE` or `ONCE`."""
   alertRecurrence: AlertRecurrence!
   """A webhook group ID (max 64 characters). Can be used to group webhooks so that their messages are kept in order as a group rather than by individual webhook."""
-  groupId: String
+  groupId: String @deprecated(reason: "GroupId is deprecated and will be removed in the future. Messages will be grouped by webhookId")
   """The conditions which must be met in order for the webhook to send a message."""
   conditions: PriceEventWebhookConditionInput!
   """The settings for retrying failed webhook messages."""
@@ -1349,7 +1349,7 @@ input CreateRawTransactionWebhookArgs {
   """The recurrence of the webhook. Can be `INDEFINITE` or `ONCE`."""
   alertRecurrence: AlertRecurrence!
   """A webhook group ID (max 64 characters). Can be used to group webhooks so that their messages are kept in order as a group rather than by individual webhook."""
-  groupId: String
+  groupId: String @deprecated(reason: "GroupId is deprecated and will be removed in the future. Messages will be grouped by webhookId")
   """The conditions which must be met in order for the webhook to send a message."""
   conditions: RawTransactionWebhookConditionInput!
   """The settings for retrying failed webhook messages."""
@@ -1381,7 +1381,7 @@ input CreateTokenPairEventWebhookArgs {
   """The recurrence of the webhook. Can be `INDEFINITE` or `ONCE`."""
   alertRecurrence: AlertRecurrence!
   """A webhook group ID (max 64 characters). Can be used to group webhooks so that their messages are kept in order as a group rather than by individual webhook."""
-  groupId: String
+  groupId: String @deprecated(reason: "GroupId is deprecated and will be removed in the future. Messages will be grouped by webhookId")
   """The conditions which must be met in order for the webhook to send a message."""
   conditions: TokenPairEventWebhookConditionInput!
   """The settings for retrying failed webhook messages."""
@@ -2569,7 +2569,7 @@ type LatestTokenSimResults {
 type LaunchpadData {
   """The name of the launchpad."""
   name: String @deprecated(reason: "Use launchpadName instead")
-  """The name of the launchpad. One of the following: Pump.fun, Bonk, Baseapp, Zora, Zora Creator, Four.meme, Believe, Moonshot, Jupiter Studio, boop, ArenaTrade, Moonit, LaunchLab, MeteoraDBC, Vertigo, Cooking.City, time.fun, BAGS, Circus, Dealr, OhFuckFun, PrintFun, Trend, shout.fun, xApple, Sendshot, DubDub, cults."""
+  """The name of the launchpad."""
   launchpadName: String
   """The percentage of the pool that was sold to the public."""
   graduationPercent: Float
@@ -2603,7 +2603,7 @@ type LaunchpadTokenEventOutput {
   networkId: Int!
   """The protocol of the token."""
   protocol: String!
-  """The name of the launchpad. One of the following: Pump.fun, Bonk, Baseapp, Zora, Zora Creator, Four.meme, Believe, Moonshot, Jupiter Studio, boop, ArenaTrade, Moonit, LaunchLab, MeteoraDBC, Vertigo, Cooking.City, time.fun, BAGS, Circus, Dealr, OhFuckFun, PrintFun, Trend, shout.fun, xApple, Sendshot, DubDub, cults."""
+  """The name of the launchpad."""
   launchpadName: String!
   """Metadata for the token."""
   token: EnhancedToken!
@@ -2673,6 +2673,10 @@ enum LaunchpadTokenProtocol {
   ZoraV4
   """Protocol name for ZoraCreator."""
   ZoraCreatorV4
+  """Protocol name for Virtuals."""
+  Virtuals
+  """Protocol name for Clanker."""
+  Clanker
 }
 
 scalar link__Import
@@ -2879,6 +2883,10 @@ type MarketCapEventWebhookCondition {
   circulatingMarketCapUsd: ComparisonOperator
   """The pair contract address the webhook is listening for."""
   pairAddress: StringEqualsCondition
+  """The liquidity condition (for the source pair) that must be met in order for the webhook to send."""
+  liquidityUsd: ComparisonOperator
+  """The volume condition (for the source pair) that must be met in order for the webhook to send."""
+  volumeUsd: ComparisonOperator
 }
 
 """Input conditions for a market cap event webhook."""
@@ -2893,6 +2901,10 @@ input MarketCapEventWebhookConditionInput {
   circulatingMarketCapUsd: ComparisonOperatorInput
   """The contract address of the pair to listen for."""
   pairAddress: StringEqualsConditionInput
+  """The volume conditions to listen for."""
+  volumeUsd: ComparisonOperatorInput
+  """The liquidity conditions to listen for."""
+  liquidityUsd: ComparisonOperatorInput
 }
 
 """The status for a network supported on Defined."""
@@ -5577,22 +5589,30 @@ input OnEventsCreatedByMakerInput {
 }
 
 input OnLaunchpadTokenEventBatchInput {
-  """The protocol of the token."""
+  """The launchpad protocol."""
   protocol: LaunchpadTokenProtocol
+  """A list of launchpad protocols."""
+  protocols: [LaunchpadTokenProtocol!]
   """The network ID that the token is deployed on."""
   networkId: Int
-  """The name of the launchpad. One of the following: Pump.fun, Bonk, Baseapp, Zora, Zora Creator, Four.meme, Believe, Moonshot, Jupiter Studio, boop, ArenaTrade, Moonit, LaunchLab, MeteoraDBC, Vertigo, Cooking.City, time.fun, BAGS, Circus, Dealr, OhFuckFun, PrintFun, Trend, shout.fun, xApple, Sendshot, DubDub, cults."""
+  """The name of the launchpad. One of the following: Pump.fun, Bonk, Baseapp, Zora, Zora Creator, Four.meme, Believe, Moonshot, Jupiter Studio, boop, Virtuals, Clanker, ArenaTrade, Moonit, LaunchLab, MeteoraDBC, Vertigo, Cooking.City, time.fun, BAGS, Circus, Dealr, OhFuckFun, PrintFun, Trend, shout.fun, xApple, Sendshot, DubDub, cults."""
   launchpadName: String
+  """A list of launchpad names. Any of the following: Pump.fun, Bonk, Baseapp, Zora, Zora Creator, Four.meme, Believe, Moonshot, Jupiter Studio, boop, Virtuals, Clanker, ArenaTrade, Moonit, LaunchLab, MeteoraDBC, Vertigo, Cooking.City, time.fun, BAGS, Circus, Dealr, OhFuckFun, PrintFun, Trend, shout.fun, xApple, Sendshot, DubDub, cults."""
+  launchpadNames: [String!]
   """The type of event."""
   eventType: LaunchpadTokenEventType
 }
 
 """Input for `onLaunchpadTokenEvent`."""
 input OnLaunchpadTokenEventInput {
-  """The protocol of the token."""
+  """The launchpad protocol."""
   protocol: LaunchpadTokenProtocol
-  """The name of the launchpad. One of the following: Pump.fun, Bonk, Baseapp, Zora, Zora Creator, Four.meme, Believe, Moonshot, Jupiter Studio, boop, ArenaTrade, Moonit, LaunchLab, MeteoraDBC, Vertigo, Cooking.City, time.fun, BAGS, Circus, Dealr, OhFuckFun, PrintFun, Trend, shout.fun, xApple, Sendshot, DubDub, cults."""
+  """A list of launchpad protocols."""
+  protocols: [LaunchpadTokenProtocol!]
+  """The name of the launchpad. One of the following: Pump.fun, Bonk, Baseapp, Zora, Zora Creator, Four.meme, Believe, Moonshot, Jupiter Studio, boop, Virtuals, Clanker, ArenaTrade, Moonit, LaunchLab, MeteoraDBC, Vertigo, Cooking.City, time.fun, BAGS, Circus, Dealr, OhFuckFun, PrintFun, Trend, shout.fun, xApple, Sendshot, DubDub, cults."""
   launchpadName: String
+  """A list of launchpad names. Any of the following: Pump.fun, Bonk, Baseapp, Zora, Zora Creator, Four.meme, Believe, Moonshot, Jupiter Studio, boop, Virtuals, Clanker, ArenaTrade, Moonit, LaunchLab, MeteoraDBC, Vertigo, Cooking.City, time.fun, BAGS, Circus, Dealr, OhFuckFun, PrintFun, Trend, shout.fun, xApple, Sendshot, DubDub, cults."""
+  launchpadNames: [String!]
   """The type of event."""
   eventType: LaunchpadTokenEventType
   """The contract address of the token. Requires `networkId`."""
@@ -6524,6 +6544,10 @@ type PriceEventWebhookCondition {
   priceUsd: ComparisonOperator!
   """The pair contract address the webhook is listening for."""
   pairAddress: StringEqualsCondition
+  """The liquidity condition (for the source pair) that must be met in order for the webhook to send."""
+  liquidityUsd: ComparisonOperator
+  """The volume condition (for the source pair) that must be met in order for the webhook to send."""
+  volumeUsd: ComparisonOperator
 }
 
 """Input conditions for a price event webhook."""
@@ -6536,6 +6560,10 @@ input PriceEventWebhookConditionInput {
   priceUsd: ComparisonOperatorInput!
   """The contract address of the pair to listen for."""
   pairAddress: StringEqualsConditionInput
+  """The volume conditions to listen for."""
+  volumeUsd: ComparisonOperatorInput
+  """The liquidity conditions to listen for."""
+  liquidityUsd: ComparisonOperatorInput
 }
 
 """Response returned by `primeHolders`."""
@@ -7825,12 +7853,12 @@ input TokenFilters {
   potentialScam: Boolean
   """Whether to ignore pairs/tokens not relevant to trending. This is done checking against a few factors and ignoring uninteresting tokens like stables / network tokens. If you want all tokens regardless of these checks, then don't include this field. (default) If you want only tokens that fail the trending ignore checks, then set it to `true`. (i.e. stablecoins, rugs, network base tokens) If you want only tokens that pass the trending ignore checks, then set it to `false`."""
   trendingIgnored: Boolean
-  """The address of the creator of the token"""
+  """The address of the creator of the token."""
   creatorAddress: String
-  """The launchpad protocol"""
-  launchpadProtocol: String
-  """The name of the launchpad. One of the following: Pump.fun, Bonk, Baseapp, Zora, Zora Creator, Four.meme, Believe, Moonshot, Jupiter Studio, boop, ArenaTrade, Moonit, LaunchLab, MeteoraDBC, Vertigo, Cooking.City, time.fun, BAGS, Circus, Dealr, OhFuckFun, PrintFun, Trend, shout.fun, xApple, Sendshot, DubDub, cults."""
-  launchpadName: String
+  """A list of launchpad protocols."""
+  launchpadProtocol: [String!]
+  """A list of launchpad names. Any of the following: Pump.fun, Bonk, Baseapp, Zora, Zora Creator, Four.meme, Believe, Moonshot, Jupiter Studio, boop, Virtuals, Clanker, ArenaTrade, Moonit, LaunchLab, MeteoraDBC, Vertigo, Cooking.City, time.fun, BAGS, Circus, Dealr, OhFuckFun, PrintFun, Trend, shout.fun, xApple, Sendshot, DubDub, cults."""
+  launchpadName: [String!]
   """Indicates if the launchpad is completed"""
   launchpadCompleted: Boolean
   """Indicates if the launchpad has migrated"""
@@ -9406,7 +9434,7 @@ type Webhook {
   """The status of the webhook. Can be `ACTIVE` or `INACTIVE`."""
   status: String!
   """The webhook group ID used to group webhooks together for ordered message sending."""
-  groupId: String
+  groupId: String @deprecated(reason: "GroupId is deprecated and will be removed in the future. Messages will be grouped by webhookId")
   """The conditions which must be met in order for the webhook to send a message."""
   conditions: WebhookCondition!
   """The settings for retrying failed webhook messages."""

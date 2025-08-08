@@ -466,7 +466,10 @@ export type CreateMarketCapWebhookArgs = {
   conditions: MarketCapEventWebhookConditionInput;
   /** If enabled, new webhooks won't be created if a webhook with the same parameters already exists. If callbackUrl, conditions, publishingType, and alertRecurrence all match, then we return the existing webhook. */
   deduplicate?: InputMaybe<Scalars['Boolean']['input']>;
-  /** A webhook group ID (max 64 characters). Can be used to group webhooks so that their messages are kept in order as a group rather than by individual webhook. */
+  /**
+   * A webhook group ID (max 64 characters). Can be used to group webhooks so that their messages are kept in order as a group rather than by individual webhook.
+   * @deprecated GroupId is deprecated and will be removed in the future. Messages will be grouped by webhookId
+   */
   groupId?: InputMaybe<Scalars['String']['input']>;
   /** The name of the webhook (max 128 characters). */
   name: Scalars['String']['input'];
@@ -498,7 +501,10 @@ export type CreateNftEventWebhookArgs = {
   conditions: NftEventWebhookConditionInput;
   /** If enabled, new webhooks won't be created if a webhook with the same parameters already exists. If callbackUrl, conditions, publishingType, and alertRecurrence all match, then we return the existing webhook. */
   deduplicate?: InputMaybe<Scalars['Boolean']['input']>;
-  /** A webhook group ID (max 64 characters). Can be used to group webhooks so that their messages are kept in order as a group rather than by individual webhook. */
+  /**
+   * A webhook group ID (max 64 characters). Can be used to group webhooks so that their messages are kept in order as a group rather than by individual webhook.
+   * @deprecated GroupId is deprecated and will be removed in the future. Messages will be grouped by webhookId
+   */
   groupId?: InputMaybe<Scalars['String']['input']>;
   /** The name of the webhook (max 128 characters). */
   name: Scalars['String']['input'];
@@ -530,7 +536,10 @@ export type CreatePriceWebhookArgs = {
   conditions: PriceEventWebhookConditionInput;
   /** If enabled, new webhooks won't be created if a webhook with the same parameters already exists. If callbackUrl, conditions, publishingType, and alertRecurrence all match, then we return the existing webhook. */
   deduplicate?: InputMaybe<Scalars['Boolean']['input']>;
-  /** A webhook group ID (max 64 characters). Can be used to group webhooks so that their messages are kept in order as a group rather than by individual webhook. */
+  /**
+   * A webhook group ID (max 64 characters). Can be used to group webhooks so that their messages are kept in order as a group rather than by individual webhook.
+   * @deprecated GroupId is deprecated and will be removed in the future. Messages will be grouped by webhookId
+   */
   groupId?: InputMaybe<Scalars['String']['input']>;
   /** The name of the webhook (max 128 characters). */
   name: Scalars['String']['input'];
@@ -562,7 +571,10 @@ export type CreateRawTransactionWebhookArgs = {
   conditions: RawTransactionWebhookConditionInput;
   /** If enabled, new webhooks won't be created if a webhook with the same parameters already exists. If callbackUrl, conditions, publishingType, and alertRecurrence all match, then we return the existing webhook. */
   deduplicate?: InputMaybe<Scalars['Boolean']['input']>;
-  /** A webhook group ID (max 64 characters). Can be used to group webhooks so that their messages are kept in order as a group rather than by individual webhook. */
+  /**
+   * A webhook group ID (max 64 characters). Can be used to group webhooks so that their messages are kept in order as a group rather than by individual webhook.
+   * @deprecated GroupId is deprecated and will be removed in the future. Messages will be grouped by webhookId
+   */
   groupId?: InputMaybe<Scalars['String']['input']>;
   /** The name of the webhook (max 128 characters). */
   name: Scalars['String']['input'];
@@ -594,7 +606,10 @@ export type CreateTokenPairEventWebhookArgs = {
   conditions: TokenPairEventWebhookConditionInput;
   /** If enabled, new webhooks won't be created if a webhook with the same parameters already exists. If callbackUrl, conditions, publishingType, and alertRecurrence all match, then we return the existing webhook. */
   deduplicate?: InputMaybe<Scalars['Boolean']['input']>;
-  /** A webhook group ID (max 64 characters). Can be used to group webhooks so that their messages are kept in order as a group rather than by individual webhook. */
+  /**
+   * A webhook group ID (max 64 characters). Can be used to group webhooks so that their messages are kept in order as a group rather than by individual webhook.
+   * @deprecated GroupId is deprecated and will be removed in the future. Messages will be grouped by webhookId
+   */
   groupId?: InputMaybe<Scalars['String']['input']>;
   /** The name of the webhook (max 128 characters). */
   name: Scalars['String']['input'];
@@ -1851,7 +1866,7 @@ export type LaunchpadData = {
   graduationPercent?: Maybe<Scalars['Float']['output']>;
   /** The icon URL of the launchpad. */
   launchpadIconUrl?: Maybe<Scalars['String']['output']>;
-  /** The name of the launchpad. One of the following: Pump.fun, Bonk, Baseapp, Zora, Zora Creator, Four.meme, Believe, Moonshot, Jupiter Studio, boop, ArenaTrade, Moonit, LaunchLab, MeteoraDBC, Vertigo, Cooking.City, time.fun, BAGS, Circus, Dealr, OhFuckFun, PrintFun, Trend, shout.fun, xApple, Sendshot, DubDub, cults. */
+  /** The name of the launchpad. */
   launchpadName?: Maybe<Scalars['String']['output']>;
   /** The launchpad protocol. */
   launchpadProtocol?: Maybe<Scalars['String']['output']>;
@@ -1883,7 +1898,7 @@ export type LaunchpadTokenEventOutput = {
   eventType: LaunchpadTokenEventType;
   /** The number of holders. */
   holders?: Maybe<Scalars['Int']['output']>;
-  /** The name of the launchpad. One of the following: Pump.fun, Bonk, Baseapp, Zora, Zora Creator, Four.meme, Believe, Moonshot, Jupiter Studio, boop, ArenaTrade, Moonit, LaunchLab, MeteoraDBC, Vertigo, Cooking.City, time.fun, BAGS, Circus, Dealr, OhFuckFun, PrintFun, Trend, shout.fun, xApple, Sendshot, DubDub, cults. */
+  /** The name of the launchpad. */
   launchpadName: Scalars['String']['output'];
   /** The liquidity of the token's top pair. */
   liquidity?: Maybe<Scalars['String']['output']>;
@@ -1931,6 +1946,8 @@ export enum LaunchpadTokenProtocol {
   Baseapp = 'Baseapp',
   /** Protocol name for boop.fun. */
   BoopFun = 'BoopFun',
+  /** Protocol name for Clanker. */
+  Clanker = 'Clanker',
   /** Protocol name for EgoTech. */
   EgoTech = 'EgoTech',
   /** Protocol name for Four.meme. */
@@ -1947,6 +1964,8 @@ export enum LaunchpadTokenProtocol {
   RaydiumLaunchpad = 'RaydiumLaunchpad',
   /** Protocol name for Vertigo. */
   Vertigo = 'Vertigo',
+  /** Protocol name for Virtuals. */
+  Virtuals = 'Virtuals',
   /** Protocol name for ZoraCreator. */
   ZoraCreatorV4 = 'ZoraCreatorV4',
   /** Protocol name for Zora. */
@@ -2158,12 +2177,16 @@ export type MarketCapEventWebhookCondition = {
   circulatingMarketCapUsd?: Maybe<ComparisonOperator>;
   /** The market cap condition that must be met in order for the webhook to send. */
   fdvMarketCapUsd?: Maybe<ComparisonOperator>;
+  /** The liquidity condition (for the source pair) that must be met in order for the webhook to send. */
+  liquidityUsd?: Maybe<ComparisonOperator>;
   /** The network ID the webhook is listening on. */
   networkId: IntEqualsCondition;
   /** The pair contract address the webhook is listening for. */
   pairAddress?: Maybe<StringEqualsCondition>;
   /** The token contract address the webhook is listening for. */
   tokenAddress: StringEqualsCondition;
+  /** The volume condition (for the source pair) that must be met in order for the webhook to send. */
+  volumeUsd?: Maybe<ComparisonOperator>;
 };
 
 /** Input conditions for a market cap event webhook. */
@@ -2172,12 +2195,16 @@ export type MarketCapEventWebhookConditionInput = {
   circulatingMarketCapUsd?: InputMaybe<ComparisonOperatorInput>;
   /** The price conditions to listen for. */
   fdvMarketCapUsd?: InputMaybe<ComparisonOperatorInput>;
+  /** The liquidity conditions to listen for. */
+  liquidityUsd?: InputMaybe<ComparisonOperatorInput>;
   /** The network ID to listen on. */
   networkId: IntEqualsConditionInput;
   /** The contract address of the pair to listen for. */
   pairAddress?: InputMaybe<StringEqualsConditionInput>;
   /** The contract address of the token to listen for. */
   tokenAddress: StringEqualsConditionInput;
+  /** The volume conditions to listen for. */
+  volumeUsd?: InputMaybe<ComparisonOperatorInput>;
 };
 
 /** The status for a network supported on Defined. */
@@ -5030,12 +5057,16 @@ export type OnEventsCreatedByMakerInput = {
 export type OnLaunchpadTokenEventBatchInput = {
   /** The type of event. */
   eventType?: InputMaybe<LaunchpadTokenEventType>;
-  /** The name of the launchpad. One of the following: Pump.fun, Bonk, Baseapp, Zora, Zora Creator, Four.meme, Believe, Moonshot, Jupiter Studio, boop, ArenaTrade, Moonit, LaunchLab, MeteoraDBC, Vertigo, Cooking.City, time.fun, BAGS, Circus, Dealr, OhFuckFun, PrintFun, Trend, shout.fun, xApple, Sendshot, DubDub, cults. */
+  /** The name of the launchpad. One of the following: Pump.fun, Bonk, Baseapp, Zora, Zora Creator, Four.meme, Believe, Moonshot, Jupiter Studio, boop, Virtuals, Clanker, ArenaTrade, Moonit, LaunchLab, MeteoraDBC, Vertigo, Cooking.City, time.fun, BAGS, Circus, Dealr, OhFuckFun, PrintFun, Trend, shout.fun, xApple, Sendshot, DubDub, cults. */
   launchpadName?: InputMaybe<Scalars['String']['input']>;
+  /** A list of launchpad names. Any of the following: Pump.fun, Bonk, Baseapp, Zora, Zora Creator, Four.meme, Believe, Moonshot, Jupiter Studio, boop, Virtuals, Clanker, ArenaTrade, Moonit, LaunchLab, MeteoraDBC, Vertigo, Cooking.City, time.fun, BAGS, Circus, Dealr, OhFuckFun, PrintFun, Trend, shout.fun, xApple, Sendshot, DubDub, cults. */
+  launchpadNames?: InputMaybe<Array<Scalars['String']['input']>>;
   /** The network ID that the token is deployed on. */
   networkId?: InputMaybe<Scalars['Int']['input']>;
-  /** The protocol of the token. */
+  /** The launchpad protocol. */
   protocol?: InputMaybe<LaunchpadTokenProtocol>;
+  /** A list of launchpad protocols. */
+  protocols?: InputMaybe<Array<LaunchpadTokenProtocol>>;
 };
 
 /** Input for `onLaunchpadTokenEvent`. */
@@ -5044,12 +5075,16 @@ export type OnLaunchpadTokenEventInput = {
   address?: InputMaybe<Scalars['String']['input']>;
   /** The type of event. */
   eventType?: InputMaybe<LaunchpadTokenEventType>;
-  /** The name of the launchpad. One of the following: Pump.fun, Bonk, Baseapp, Zora, Zora Creator, Four.meme, Believe, Moonshot, Jupiter Studio, boop, ArenaTrade, Moonit, LaunchLab, MeteoraDBC, Vertigo, Cooking.City, time.fun, BAGS, Circus, Dealr, OhFuckFun, PrintFun, Trend, shout.fun, xApple, Sendshot, DubDub, cults. */
+  /** The name of the launchpad. One of the following: Pump.fun, Bonk, Baseapp, Zora, Zora Creator, Four.meme, Believe, Moonshot, Jupiter Studio, boop, Virtuals, Clanker, ArenaTrade, Moonit, LaunchLab, MeteoraDBC, Vertigo, Cooking.City, time.fun, BAGS, Circus, Dealr, OhFuckFun, PrintFun, Trend, shout.fun, xApple, Sendshot, DubDub, cults. */
   launchpadName?: InputMaybe<Scalars['String']['input']>;
+  /** A list of launchpad names. Any of the following: Pump.fun, Bonk, Baseapp, Zora, Zora Creator, Four.meme, Believe, Moonshot, Jupiter Studio, boop, Virtuals, Clanker, ArenaTrade, Moonit, LaunchLab, MeteoraDBC, Vertigo, Cooking.City, time.fun, BAGS, Circus, Dealr, OhFuckFun, PrintFun, Trend, shout.fun, xApple, Sendshot, DubDub, cults. */
+  launchpadNames?: InputMaybe<Array<Scalars['String']['input']>>;
   /** The network ID that the token is deployed on. */
   networkId?: InputMaybe<Scalars['Int']['input']>;
-  /** The protocol of the token. */
+  /** The launchpad protocol. */
   protocol?: InputMaybe<LaunchpadTokenProtocol>;
+  /** A list of launchpad protocols. */
+  protocols?: InputMaybe<Array<LaunchpadTokenProtocol>>;
 };
 
 export type OnPricesUpdatedInput = {
@@ -6003,6 +6038,8 @@ export type Price = {
 /** Webhook conditions for a price event. */
 export type PriceEventWebhookCondition = {
   __typename?: 'PriceEventWebhookCondition';
+  /** The liquidity condition (for the source pair) that must be met in order for the webhook to send. */
+  liquidityUsd?: Maybe<ComparisonOperator>;
   /** The network ID the webhook is listening on. */
   networkId: IntEqualsCondition;
   /** The pair contract address the webhook is listening for. */
@@ -6011,10 +6048,14 @@ export type PriceEventWebhookCondition = {
   priceUsd: ComparisonOperator;
   /** The token contract address the webhook is listening for. */
   tokenAddress: StringEqualsCondition;
+  /** The volume condition (for the source pair) that must be met in order for the webhook to send. */
+  volumeUsd?: Maybe<ComparisonOperator>;
 };
 
 /** Input conditions for a price event webhook. */
 export type PriceEventWebhookConditionInput = {
+  /** The liquidity conditions to listen for. */
+  liquidityUsd?: InputMaybe<ComparisonOperatorInput>;
   /** The network ID to listen on. */
   networkId: IntEqualsConditionInput;
   /** The contract address of the pair to listen for. */
@@ -6023,6 +6064,8 @@ export type PriceEventWebhookConditionInput = {
   priceUsd: ComparisonOperatorInput;
   /** The contract address of the token to listen for. */
   tokenAddress: StringEqualsConditionInput;
+  /** The volume conditions to listen for. */
+  volumeUsd?: InputMaybe<ComparisonOperatorInput>;
 };
 
 /** Response returned by `primeHolders`. */
@@ -8054,7 +8097,7 @@ export type TokenFilters = {
   circulatingMarketCap?: InputMaybe<NumberFilter>;
   /** The unix timestamp for the creation of the token's first pair. */
   createdAt?: InputMaybe<NumberFilter>;
-  /** The address of the creator of the token */
+  /** The address of the creator of the token. */
   creatorAddress?: InputMaybe<Scalars['String']['input']>;
   /** The list of exchange contract addresses to filter by. */
   exchangeAddress?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
@@ -8094,10 +8137,10 @@ export type TokenFilters = {
   launchpadMigrated?: InputMaybe<Scalars['Boolean']['input']>;
   /** The timestamp when the launchpad was migrated */
   launchpadMigratedAt?: InputMaybe<NumberFilter>;
-  /** The name of the launchpad. One of the following: Pump.fun, Bonk, Baseapp, Zora, Zora Creator, Four.meme, Believe, Moonshot, Jupiter Studio, boop, ArenaTrade, Moonit, LaunchLab, MeteoraDBC, Vertigo, Cooking.City, time.fun, BAGS, Circus, Dealr, OhFuckFun, PrintFun, Trend, shout.fun, xApple, Sendshot, DubDub, cults. */
-  launchpadName?: InputMaybe<Scalars['String']['input']>;
-  /** The launchpad protocol */
-  launchpadProtocol?: InputMaybe<Scalars['String']['input']>;
+  /** A list of launchpad names. Any of the following: Pump.fun, Bonk, Baseapp, Zora, Zora Creator, Four.meme, Believe, Moonshot, Jupiter Studio, boop, Virtuals, Clanker, ArenaTrade, Moonit, LaunchLab, MeteoraDBC, Vertigo, Cooking.City, time.fun, BAGS, Circus, Dealr, OhFuckFun, PrintFun, Trend, shout.fun, xApple, Sendshot, DubDub, cults. */
+  launchpadName?: InputMaybe<Array<Scalars['String']['input']>>;
+  /** A list of launchpad protocols. */
+  launchpadProtocol?: InputMaybe<Array<Scalars['String']['input']>>;
   /** The amount of liquidity in the token's top pair. */
   liquidity?: InputMaybe<NumberFilter>;
   /** The lowest price in USD in the past hour. */
@@ -9790,7 +9833,10 @@ export type Webhook = {
   conditions: WebhookCondition;
   /** The unix timestamp for the time the webhook was created. */
   created: Scalars['Int']['output'];
-  /** The webhook group ID used to group webhooks together for ordered message sending. */
+  /**
+   * The webhook group ID used to group webhooks together for ordered message sending.
+   * @deprecated GroupId is deprecated and will be removed in the future. Messages will be grouped by webhookId
+   */
   groupId?: Maybe<Scalars['String']['output']>;
   /** The ID of the webhook. */
   id: Scalars['String']['output'];
