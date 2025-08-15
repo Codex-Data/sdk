@@ -5802,6 +5802,18 @@
             "deprecationReason": null
           },
           {
+            "name": "pairId",
+            "description": "The pair that the token is contained in",
+            "args": [],
+            "type": {
+              "kind": "SCALAR",
+              "name": "String",
+              "ofType": null
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
             "name": "pooled",
             "description": "The amount of this token in the pair.",
             "args": [],
@@ -9146,6 +9158,18 @@
                 "name": "HoldersStatus",
                 "ofType": null
               }
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "tokenId",
+            "description": "the token Id",
+            "args": [],
+            "type": {
+              "kind": "SCALAR",
+              "name": "String",
+              "ofType": null
             },
             "isDeprecated": false,
             "deprecationReason": null
@@ -46617,6 +46641,18 @@
             "deprecationReason": null
           },
           {
+            "name": "liquidPairPriceUSD",
+            "description": "The liquid pairs price in USD.",
+            "args": [],
+            "type": {
+              "kind": "SCALAR",
+              "name": "String",
+              "ofType": null
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
             "name": "liquidity",
             "description": "Amount of liquidity in the token's top pair.",
             "args": [],
@@ -50145,6 +50181,22 @@
             "deprecationReason": null
           },
           {
+            "name": "resolution",
+            "description": "The timeframe of the sparkline.",
+            "args": [],
+            "type": {
+              "kind": "NON_NULL",
+              "name": null,
+              "ofType": {
+                "kind": "SCALAR",
+                "name": "String",
+                "ofType": null
+              }
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
             "name": "sparkline",
             "description": "List of sparkline values to chart",
             "args": [],
@@ -50182,6 +50234,30 @@
         "fields": null,
         "inputFields": [
           {
+            "name": "fillMissingBars",
+            "description": "Whether to add empty bars to the response, populated with the previous bar's value. Default is `false`",
+            "type": {
+              "kind": "SCALAR",
+              "name": "Boolean",
+              "ofType": null
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "from",
+            "description": "The unix timestamp for the start of the requested range. Defaults to 1 week ago.",
+            "type": {
+              "kind": "SCALAR",
+              "name": "Int",
+              "ofType": null
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
             "name": "ids",
             "description": "The contract address & networkId of the token, joined by a colon. ex: 0xbe042e9d09cb588331ff911c2b46fd833a3e5bd6:1",
             "type": {
@@ -50200,6 +50276,30 @@
                   }
                 }
               }
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "resolution",
+            "description": "The time frame for each candle. Available options are `1S`, `5S`, `15S`, `30S`, `1`, `5`, `15`, `30`, `60`, `240`, `720`, `1D`, `7D`. Defaults to `60` (1 hour)",
+            "type": {
+              "kind": "SCALAR",
+              "name": "String",
+              "ofType": null
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "to",
+            "description": "The unix timestamp for the end of the requested range. Defaults to current time.",
+            "type": {
+              "kind": "SCALAR",
+              "name": "Int",
+              "ofType": null
             },
             "defaultValue": null,
             "isDeprecated": false,
@@ -52663,6 +52763,18 @@
             "deprecationReason": null
           },
           {
+            "name": "r1D",
+            "description": "1 day resolution.",
+            "args": [],
+            "type": {
+              "kind": "OBJECT",
+              "name": "UnconfirmedIndividualBarData",
+              "ofType": null
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
             "name": "r1S",
             "description": "1 second resolution.",
             "args": [],
@@ -52699,6 +52811,18 @@
             "deprecationReason": null
           },
           {
+            "name": "r7D",
+            "description": "1 week resolution.",
+            "args": [],
+            "type": {
+              "kind": "OBJECT",
+              "name": "UnconfirmedIndividualBarData",
+              "ofType": null
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
             "name": "r15",
             "description": "15 minute resolution.",
             "args": [],
@@ -52713,6 +52837,42 @@
           {
             "name": "r15S",
             "description": "15 second resolution.",
+            "args": [],
+            "type": {
+              "kind": "OBJECT",
+              "name": "UnconfirmedIndividualBarData",
+              "ofType": null
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "r60",
+            "description": "60 minute resolution.",
+            "args": [],
+            "type": {
+              "kind": "OBJECT",
+              "name": "UnconfirmedIndividualBarData",
+              "ofType": null
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "r240",
+            "description": "4 hour resolution.",
+            "args": [],
+            "type": {
+              "kind": "OBJECT",
+              "name": "UnconfirmedIndividualBarData",
+              "ofType": null
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "r720",
+            "description": "12 hour resolution.",
             "args": [],
             "type": {
               "kind": "OBJECT",

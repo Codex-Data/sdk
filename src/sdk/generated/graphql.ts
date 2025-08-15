@@ -1034,6 +1034,8 @@ export type EnhancedToken = {
   name?: Maybe<Scalars['String']['output']>;
   /** The network ID the token is deployed on. */
   networkId: Scalars['Int']['output'];
+  /** The pair that the token is contained in */
+  pairId?: Maybe<Scalars['String']['output']>;
   /**
    * The amount of this token in the pair.
    * @deprecated Pooled can be found on the pair instead
@@ -1624,6 +1626,8 @@ export type HoldersResponse = {
   items: Array<Balance>;
   /** Status of holder. Disabled if on unsupported network or there is insufficient holder data. */
   status: HoldersStatus;
+  /** the token Id */
+  tokenId?: Maybe<Scalars['String']['output']>;
   /** What percentage of the total supply do the top 10 holders hold. */
   top10HoldersPercent?: Maybe<Scalars['Float']['output']>;
 };
@@ -7949,6 +7953,8 @@ export type TokenFilterResult = {
   liquidPair?: Maybe<Pair>;
   /** The liquidity of the token's most liquid pair */
   liquidPairLiquidity?: Maybe<Scalars['String']['output']>;
+  /** The liquid pairs price in USD. */
+  liquidPairPriceUSD?: Maybe<Scalars['String']['output']>;
   /** Amount of liquidity in the token's top pair. */
   liquidity?: Maybe<Scalars['String']['output']>;
   /** The lowest price in USD in the past hour. */
@@ -8558,14 +8564,24 @@ export type TokenSparkline = {
   attribute?: Maybe<SparklineAttribute>;
   /** The token id */
   id: Scalars['String']['output'];
+  /** The timeframe of the sparkline. */
+  resolution: Scalars['String']['output'];
   /** List of sparkline values to chart */
   sparkline: Array<SparklineValue>;
 };
 
 /** Input type of `tokenSparkline`. */
 export type TokenSparklineInput = {
+  /** Whether to add empty bars to the response, populated with the previous bar's value. Default is `false` */
+  fillMissingBars?: InputMaybe<Scalars['Boolean']['input']>;
+  /** The unix timestamp for the start of the requested range. Defaults to 1 week ago. */
+  from?: InputMaybe<Scalars['Int']['input']>;
   /** The contract address & networkId of the token, joined by a colon. ex: 0xbe042e9d09cb588331ff911c2b46fd833a3e5bd6:1 */
   ids: Array<Scalars['String']['input']>;
+  /** The time frame for each candle. Available options are `1S`, `5S`, `15S`, `30S`, `1`, `5`, `15`, `30`, `60`, `240`, `720`, `1D`, `7D`. Defaults to `60` (1 hour) */
+  resolution?: InputMaybe<Scalars['String']['input']>;
+  /** The unix timestamp for the end of the requested range. Defaults to current time. */
+  to?: InputMaybe<Scalars['Int']['input']>;
 };
 
 /** A top trader for a token. */
@@ -8929,16 +8945,26 @@ export type UnconfirmedResolutionBarData = {
   __typename?: 'UnconfirmedResolutionBarData';
   /** 1 minute resolution. */
   r1?: Maybe<UnconfirmedIndividualBarData>;
+  /** 1 day resolution. */
+  r1D?: Maybe<UnconfirmedIndividualBarData>;
   /** 1 second resolution. */
   r1S?: Maybe<UnconfirmedIndividualBarData>;
   /** 5 minute resolution. */
   r5?: Maybe<UnconfirmedIndividualBarData>;
   /** 5 second resolution. */
   r5S?: Maybe<UnconfirmedIndividualBarData>;
+  /** 1 week resolution. */
+  r7D?: Maybe<UnconfirmedIndividualBarData>;
   /** 15 minute resolution. */
   r15?: Maybe<UnconfirmedIndividualBarData>;
   /** 15 second resolution. */
   r15S?: Maybe<UnconfirmedIndividualBarData>;
+  /** 60 minute resolution. */
+  r60?: Maybe<UnconfirmedIndividualBarData>;
+  /** 4 hour resolution. */
+  r240?: Maybe<UnconfirmedIndividualBarData>;
+  /** 12 hour resolution. */
+  r720?: Maybe<UnconfirmedIndividualBarData>;
 };
 
 /** Event data for a token swap event. */

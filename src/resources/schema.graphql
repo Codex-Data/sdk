@@ -1779,6 +1779,8 @@ type EnhancedToken {
   freezable: String
   """The launchpad data for the token, if applicable."""
   launchpad: LaunchpadData
+  """The pair that the token is contained in"""
+  pairId: String
 }
 
 """A token transaction."""
@@ -2333,6 +2335,8 @@ type HoldersResponse {
   status: HoldersStatus!
   """What percentage of the total supply do the top 10 holders hold."""
   top10HoldersPercent: Float
+  """the token Id"""
+  tokenId: String
 }
 
 enum HoldersSortAttribute {
@@ -7591,6 +7595,8 @@ type TokenFilterResult {
   liquidPair: Pair
   """The liquidity of the token's most liquid pair"""
   liquidPairLiquidity: String
+  """The liquid pairs price in USD."""
+  liquidPairPriceUSD: String
   """The token price in USD."""
   priceUSD: String
   """The number of sells in the past 5 minutes."""
@@ -8173,6 +8179,8 @@ type TokenSearchResponse {
 type TokenSparkline {
   """The token id"""
   id: String!
+  """The timeframe of the sparkline."""
+  resolution: String!
   """Which attribute the sparkline is charting. Defaults to `PRICE`"""
   attribute: SparklineAttribute
   """List of sparkline values to chart"""
@@ -8183,6 +8191,14 @@ type TokenSparkline {
 input TokenSparklineInput {
   """The contract address & networkId of the token, joined by a colon. ex: 0xbe042e9d09cb588331ff911c2b46fd833a3e5bd6:1"""
   ids: [String!]!
+  """The unix timestamp for the start of the requested range. Defaults to 1 week ago."""
+  from: Int
+  """The unix timestamp for the end of the requested range. Defaults to current time."""
+  to: Int
+  """The time frame for each candle. Available options are `1S`, `5S`, `15S`, `30S`, `1`, `5`, `15`, `30`, `60`, `240`, `720`, `1D`, `7D`. Defaults to `60` (1 hour)"""
+  resolution: String
+  """Whether to add empty bars to the response, populated with the previous bar's value. Default is `false`"""
+  fillMissingBars: Boolean
 }
 
 """A top trader for a token."""
@@ -8547,6 +8563,16 @@ type UnconfirmedResolutionBarData {
   r5: UnconfirmedIndividualBarData
   """15 minute resolution."""
   r15: UnconfirmedIndividualBarData
+  """60 minute resolution."""
+  r60: UnconfirmedIndividualBarData
+  """4 hour resolution."""
+  r240: UnconfirmedIndividualBarData
+  """12 hour resolution."""
+  r720: UnconfirmedIndividualBarData
+  """1 day resolution."""
+  r1D: UnconfirmedIndividualBarData
+  """1 week resolution."""
+  r7D: UnconfirmedIndividualBarData
 }
 
 """Event data for a token swap event."""
