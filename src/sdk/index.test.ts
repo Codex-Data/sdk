@@ -230,6 +230,31 @@ describe("Codex", () => {
     });
   });
 
+  describe("fetch override", () => {
+    it("should use the fetch override", async () => {
+      const fetchMock = jest.fn((input, init) => {
+        console.log("fetchMock", input, init);
+        return Promise.resolve(
+          new Response(
+            JSON.stringify({
+              data: { getNetworks: [] },
+            }),
+            {
+              status: 200,
+              headers: new Headers({
+                "Content-Type": "application/json",
+              }),
+            },
+          ),
+        );
+      });
+
+      const sdkWithFetch = new Codex("test-key", { fetch: fetchMock });
+      await sdkWithFetch.query(getNetworksDocument, {});
+      expect(fetchMock).toHaveBeenCalled();
+    });
+  });
+
   describe("dispose", () => {
     it("should dispose websocket client when it exists", async () => {
       const mockDispose = jest.fn();
