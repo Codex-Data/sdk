@@ -33,6 +33,9 @@ export type ApiConfig = {
 
   // Use this to apply dynamic headers to the requests
   applyHeaders?: () => Promise<Record<string, string>>;
+
+  // Use this to override the default fetch implementation.
+  fetch?: (input: RequestInfo | URL, init?: RequestInit) => Promise<Response>;
 };
 
 const defaultConfig: ApiConfig = {
@@ -83,6 +86,7 @@ export class Codex {
         "X-Apollo-Operation-Name": "query",
         ...config.headers,
       }),
+      fetch: config.fetch,
     });
   }
 
