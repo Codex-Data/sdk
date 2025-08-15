@@ -18,6 +18,8 @@ jobs:
           bun-version: latest
       - run: bun i
       - run: bun run build
+        env:
+          CODEX_API_KEY: ${{ secrets.CODEX_API_KEY }}
       - run: npm publish --access public
         env:
           NPM_TOKEN: ${{secrets.CODEX_SDK_NPM_TOKEN}}
