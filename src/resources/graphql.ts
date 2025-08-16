@@ -126,6 +126,28 @@ export type ApiToken = {
   token: Scalars['String']['output'];
 };
 
+export type AptosNetworkConfig = {
+  __typename?: 'AptosNetworkConfig';
+  baseTokenAddress: Scalars['String']['output'];
+  baseTokenSymbol: Scalars['String']['output'];
+  color?: Maybe<Scalars['String']['output']>;
+  defaultPairAddress: Scalars['String']['output'];
+  defaultPairQuoteToken: QuoteToken;
+  enabled: Scalars['Boolean']['output'];
+  explorer: ExplorerConfig;
+  id: Scalars['ID']['output'];
+  mainnet: Scalars['Boolean']['output'];
+  name: Scalars['String']['output'];
+  networkIconUrl: Scalars['String']['output'];
+  networkId: Scalars['Int']['output'];
+  networkName: Scalars['String']['output'];
+  networkShortName: Scalars['String']['output'];
+  networkType: NetworkConfigType;
+  newTokensEnabled?: Maybe<Scalars['Boolean']['output']>;
+  stableCoinAddresses?: Maybe<Array<Scalars['String']['output']>>;
+  wrappedBaseTokenSymbol: Scalars['String']['output'];
+};
+
 export type ArenaTradeData = {
   __typename?: 'ArenaTradeData';
   /** Protocol specific token ID */
@@ -1220,6 +1242,28 @@ export type EventsQueryInput = {
   timestamp?: InputMaybe<EventQueryTimestampInput>;
 };
 
+export type EvmNetworkConfig = {
+  __typename?: 'EvmNetworkConfig';
+  baseTokenAddress: Scalars['String']['output'];
+  baseTokenSymbol: Scalars['String']['output'];
+  color?: Maybe<Scalars['String']['output']>;
+  defaultPairAddress: Scalars['String']['output'];
+  defaultPairQuoteToken: QuoteToken;
+  enabled: Scalars['Boolean']['output'];
+  explorer: ExplorerConfig;
+  id: Scalars['ID']['output'];
+  mainnet: Scalars['Boolean']['output'];
+  name: Scalars['String']['output'];
+  networkIconUrl: Scalars['String']['output'];
+  networkId: Scalars['Int']['output'];
+  networkName: Scalars['String']['output'];
+  networkShortName: Scalars['String']['output'];
+  networkType: NetworkConfigType;
+  newTokensEnabled?: Maybe<Scalars['Boolean']['output']>;
+  stableCoinAddresses?: Maybe<Array<Scalars['String']['output']>>;
+  wrappedBaseTokenSymbol: Scalars['String']['output'];
+};
+
 /** Metadata for a decentralized exchange. */
 export type Exchange = {
   __typename?: 'Exchange';
@@ -1350,6 +1394,14 @@ export enum ExchangeRankingAttribute {
   VolumeUsd12 = 'volumeUSD12',
   VolumeUsd24 = 'volumeUSD24'
 }
+
+export type ExplorerConfig = {
+  __typename?: 'ExplorerConfig';
+  checksummed: Scalars['Boolean']['output'];
+  icon: Scalars['String']['output'];
+  name: Scalars['String']['output'];
+  url: Scalars['String']['output'];
+};
 
 /** Third party token data sourced from off chain. */
 export type ExplorerTokenData = {
@@ -2310,6 +2362,37 @@ export type NetworkBreakdown = {
   /** The stats for the last year */
   statsYear1?: Maybe<WindowedWalletStats>;
 };
+
+export type NetworkConfig = AptosNetworkConfig | EvmNetworkConfig | SolanaNetworkConfig | StarknetNetworkConfig | SuiNetworkConfig;
+
+export type NetworkConfigBase = {
+  baseTokenAddress: Scalars['String']['output'];
+  baseTokenSymbol: Scalars['String']['output'];
+  color?: Maybe<Scalars['String']['output']>;
+  defaultPairAddress: Scalars['String']['output'];
+  defaultPairQuoteToken: QuoteToken;
+  enabled: Scalars['Boolean']['output'];
+  explorer: ExplorerConfig;
+  id: Scalars['ID']['output'];
+  mainnet: Scalars['Boolean']['output'];
+  name: Scalars['String']['output'];
+  networkIconUrl: Scalars['String']['output'];
+  networkId: Scalars['Int']['output'];
+  networkName: Scalars['String']['output'];
+  networkShortName: Scalars['String']['output'];
+  networkType: NetworkConfigType;
+  newTokensEnabled?: Maybe<Scalars['Boolean']['output']>;
+  stableCoinAddresses?: Maybe<Array<Scalars['String']['output']>>;
+  wrappedBaseTokenSymbol: Scalars['String']['output'];
+};
+
+export enum NetworkConfigType {
+  Aptos = 'APTOS',
+  Evm = 'EVM',
+  Solana = 'SOLANA',
+  Starknet = 'STARKNET',
+  Sui = 'SUI'
+}
 
 /** A connection of wallets matching a filter on a specific network. */
 export type NetworkWalletFilterConnection = {
@@ -6639,6 +6722,7 @@ export type Query = {
    * @deprecated This query is no longer supported. Use `filterTokens` with a createdAt: DESC filter instead.
    */
   getLatestTokens?: Maybe<LatestTokenConnection>;
+  getNetworkConfigs: Array<NetworkConfig>;
   /** Returns metadata for a given network supported on Codex. */
   getNetworkStats?: Maybe<GetNetworkStatsResponse>;
   /** Returns the status of a list of networks supported on Codex. */
@@ -6926,6 +7010,11 @@ export type QueryGetLatestTokensArgs = {
   limit?: InputMaybe<Scalars['Int']['input']>;
   networkFilter?: InputMaybe<Array<Scalars['Int']['input']>>;
   offset?: InputMaybe<Scalars['Int']['input']>;
+};
+
+
+export type QueryGetNetworkConfigsArgs = {
+  networkIds?: InputMaybe<Array<Scalars['Int']['input']>>;
 };
 
 
@@ -7425,6 +7514,28 @@ export type SocialLinks = {
   youtube?: Maybe<Scalars['String']['output']>;
 };
 
+export type SolanaNetworkConfig = {
+  __typename?: 'SolanaNetworkConfig';
+  baseTokenAddress: Scalars['String']['output'];
+  baseTokenSymbol: Scalars['String']['output'];
+  color?: Maybe<Scalars['String']['output']>;
+  defaultPairAddress: Scalars['String']['output'];
+  defaultPairQuoteToken: QuoteToken;
+  enabled: Scalars['Boolean']['output'];
+  explorer: ExplorerConfig;
+  id: Scalars['ID']['output'];
+  mainnet: Scalars['Boolean']['output'];
+  name: Scalars['String']['output'];
+  networkIconUrl: Scalars['String']['output'];
+  networkId: Scalars['Int']['output'];
+  networkName: Scalars['String']['output'];
+  networkShortName: Scalars['String']['output'];
+  networkType: NetworkConfigType;
+  newTokensEnabled?: Maybe<Scalars['Boolean']['output']>;
+  stableCoinAddresses?: Maybe<Array<Scalars['String']['output']>>;
+  wrappedBaseTokenSymbol: Scalars['String']['output'];
+};
+
 export enum SparklineAttribute {
   Price = 'PRICE'
 }
@@ -7434,6 +7545,28 @@ export type SparklineValue = {
   __typename?: 'SparklineValue';
   timestamp: Scalars['Int']['output'];
   value: Scalars['Float']['output'];
+};
+
+export type StarknetNetworkConfig = {
+  __typename?: 'StarknetNetworkConfig';
+  baseTokenAddress: Scalars['String']['output'];
+  baseTokenSymbol: Scalars['String']['output'];
+  color?: Maybe<Scalars['String']['output']>;
+  defaultPairAddress: Scalars['String']['output'];
+  defaultPairQuoteToken: QuoteToken;
+  enabled: Scalars['Boolean']['output'];
+  explorer: ExplorerConfig;
+  id: Scalars['ID']['output'];
+  mainnet: Scalars['Boolean']['output'];
+  name: Scalars['String']['output'];
+  networkIconUrl: Scalars['String']['output'];
+  networkId: Scalars['Int']['output'];
+  networkName: Scalars['String']['output'];
+  networkShortName: Scalars['String']['output'];
+  networkType: NetworkConfigType;
+  newTokensEnabled?: Maybe<Scalars['Boolean']['output']>;
+  stableCoinAddresses?: Maybe<Array<Scalars['String']['output']>>;
+  wrappedBaseTokenSymbol: Scalars['String']['output'];
 };
 
 /** Filter for NFT stats. */
@@ -7679,6 +7812,28 @@ export type SubscriptionOnUnconfirmedEventsCreatedArgs = {
 
 export type SubscriptionOnUnconfirmedEventsCreatedByMakerArgs = {
   input: OnUnconfirmedEventsCreatedByMakerInput;
+};
+
+export type SuiNetworkConfig = {
+  __typename?: 'SuiNetworkConfig';
+  baseTokenAddress: Scalars['String']['output'];
+  baseTokenSymbol: Scalars['String']['output'];
+  color?: Maybe<Scalars['String']['output']>;
+  defaultPairAddress: Scalars['String']['output'];
+  defaultPairQuoteToken: QuoteToken;
+  enabled: Scalars['Boolean']['output'];
+  explorer: ExplorerConfig;
+  id: Scalars['ID']['output'];
+  mainnet: Scalars['Boolean']['output'];
+  name: Scalars['String']['output'];
+  networkIconUrl: Scalars['String']['output'];
+  networkId: Scalars['Int']['output'];
+  networkName: Scalars['String']['output'];
+  networkShortName: Scalars['String']['output'];
+  networkType: NetworkConfigType;
+  newTokensEnabled?: Maybe<Scalars['Boolean']['output']>;
+  stableCoinAddresses?: Maybe<Array<Scalars['String']['output']>>;
+  wrappedBaseTokenSymbol: Scalars['String']['output'];
 };
 
 /** Event data for a token swap event. */

@@ -25,6 +25,9 @@ type Query {
     """limit: The maximum number of webhooks to return."""
     limit: Int
   ): GetWebhooksResponse
+  getNetworkConfigs(
+    networkIds: [Int!]
+  ): [NetworkConfig!]!
   """Returns an NFT pool."""
   getNftPool(
     """The contract address of the NFT pool."""
@@ -934,6 +937,27 @@ type ApiToken {
   requestLimit: String!
   """Approximate number of remaining resolutions before this token is rate limited"""
   remaining: String
+}
+
+type AptosNetworkConfig {
+  id: ID!
+  networkId: Int!
+  baseTokenAddress: String!
+  baseTokenSymbol: String!
+  color: String
+  defaultPairAddress: String!
+  defaultPairQuoteToken: QuoteToken!
+  enabled: Boolean!
+  newTokensEnabled: Boolean
+  explorer: ExplorerConfig!
+  mainnet: Boolean!
+  name: String!
+  networkIconUrl: String!
+  networkName: String!
+  networkShortName: String!
+  networkType: NetworkConfigType!
+  stableCoinAddresses: [String!]
+  wrappedBaseTokenSymbol: String!
 }
 
 type ArenaTradeData {
@@ -1949,6 +1973,27 @@ enum EventType {
   PoolBalanceChanged
 }
 
+type EvmNetworkConfig {
+  id: ID!
+  networkId: Int!
+  baseTokenAddress: String!
+  baseTokenSymbol: String!
+  color: String
+  defaultPairAddress: String!
+  defaultPairQuoteToken: QuoteToken!
+  enabled: Boolean!
+  newTokensEnabled: Boolean
+  explorer: ExplorerConfig!
+  mainnet: Boolean!
+  name: String!
+  networkIconUrl: String!
+  networkName: String!
+  networkShortName: String!
+  networkType: NetworkConfigType!
+  stableCoinAddresses: [String!]
+  wrappedBaseTokenSymbol: String!
+}
+
 """Metadata for a decentralized exchange."""
 type Exchange {
   """The contract address of the exchange."""
@@ -2075,6 +2120,13 @@ enum ExchangeRankingAttribute {
   volumeNBT24
   dailyActiveUsers
   monthlyActiveUsers
+}
+
+type ExplorerConfig {
+  checksummed: Boolean!
+  icon: String!
+  name: String!
+  url: String!
 }
 
 """Third party token data sourced from off chain."""
@@ -2966,6 +3018,37 @@ type NetworkBreakdown {
   statsDay30: WindowedWalletStats
   """The stats for the last year"""
   statsYear1: WindowedWalletStats
+}
+
+union NetworkConfig = EvmNetworkConfig | SolanaNetworkConfig | SuiNetworkConfig | AptosNetworkConfig | StarknetNetworkConfig
+
+interface NetworkConfigBase {
+  id: ID!
+  networkId: Int!
+  baseTokenAddress: String!
+  baseTokenSymbol: String!
+  color: String
+  defaultPairAddress: String!
+  defaultPairQuoteToken: QuoteToken!
+  enabled: Boolean!
+  newTokensEnabled: Boolean
+  explorer: ExplorerConfig!
+  mainnet: Boolean!
+  name: String!
+  networkIconUrl: String!
+  networkName: String!
+  networkShortName: String!
+  networkType: NetworkConfigType!
+  wrappedBaseTokenSymbol: String!
+  stableCoinAddresses: [String!]
+}
+
+enum NetworkConfigType {
+  SOLANA
+  EVM
+  SUI
+  APTOS
+  STARKNET
 }
 
 """A connection of wallets matching a filter on a specific network."""
@@ -7222,6 +7305,27 @@ type SocialLinks {
   youtube: String
 }
 
+type SolanaNetworkConfig {
+  id: ID!
+  networkId: Int!
+  baseTokenAddress: String!
+  baseTokenSymbol: String!
+  color: String
+  defaultPairAddress: String!
+  defaultPairQuoteToken: QuoteToken!
+  enabled: Boolean!
+  newTokensEnabled: Boolean
+  explorer: ExplorerConfig!
+  mainnet: Boolean!
+  name: String!
+  networkIconUrl: String!
+  networkName: String!
+  networkShortName: String!
+  networkType: NetworkConfigType!
+  stableCoinAddresses: [String!]
+  wrappedBaseTokenSymbol: String!
+}
+
 enum SparklineAttribute {
   PRICE
 }
@@ -7230,6 +7334,27 @@ enum SparklineAttribute {
 type SparklineValue {
   timestamp: Int!
   value: Float!
+}
+
+type StarknetNetworkConfig {
+  id: ID!
+  networkId: Int!
+  baseTokenAddress: String!
+  baseTokenSymbol: String!
+  color: String
+  defaultPairAddress: String!
+  defaultPairQuoteToken: QuoteToken!
+  enabled: Boolean!
+  newTokensEnabled: Boolean
+  explorer: ExplorerConfig!
+  mainnet: Boolean!
+  name: String!
+  networkIconUrl: String!
+  networkName: String!
+  networkShortName: String!
+  networkType: NetworkConfigType!
+  stableCoinAddresses: [String!]
+  wrappedBaseTokenSymbol: String!
 }
 
 """Currency stats."""
@@ -7320,6 +7445,27 @@ input StringFilter {
   lte: String
   """Less than."""
   lt: String
+}
+
+type SuiNetworkConfig {
+  id: ID!
+  networkId: Int!
+  baseTokenAddress: String!
+  baseTokenSymbol: String!
+  color: String
+  defaultPairAddress: String!
+  defaultPairQuoteToken: QuoteToken!
+  enabled: Boolean!
+  newTokensEnabled: Boolean
+  explorer: ExplorerConfig!
+  mainnet: Boolean!
+  name: String!
+  networkIconUrl: String!
+  networkName: String!
+  networkShortName: String!
+  networkType: NetworkConfigType!
+  stableCoinAddresses: [String!]
+  wrappedBaseTokenSymbol: String!
 }
 
 """Event data for a token swap event."""
