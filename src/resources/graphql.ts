@@ -263,19 +263,6 @@ export type BarsResponse = {
   volumeNativeToken?: Maybe<Array<Maybe<Scalars['String']['output']>>>;
 };
 
-export type Block = {
-  __typename?: 'Block';
-  blockNumber: Scalars['Int']['output'];
-  hash: Scalars['String']['output'];
-  timestamp: Scalars['Int']['output'];
-};
-
-export type BlocksInput = {
-  blockNumbers?: InputMaybe<Array<Scalars['Int']['input']>>;
-  networkId: Scalars['Int']['input'];
-  timestamps?: InputMaybe<Array<Scalars['Int']['input']>>;
-};
-
 /** The mathematical formula that defines how the prices of NFTs change after each buy or sell within a pool. */
 export enum BondingCurveType {
   Exponential = 'EXPONENTIAL',
@@ -2033,8 +2020,6 @@ export enum LaunchpadTokenProtocol {
   Rainbow = 'Rainbow',
   /** Protocol name for LaunchLab and Bonk. */
   RaydiumLaunchpad = 'RaydiumLaunchpad',
-  /** Protocol name for TokenMill V2. */
-  TokenMillV2 = 'TokenMillV2',
   /** Protocol name for Vertigo. */
   Vertigo = 'Vertigo',
   /** Protocol name for Virtuals. */
@@ -5161,9 +5146,9 @@ export type OnEventsCreatedByMakerInput = {
 export type OnLaunchpadTokenEventBatchInput = {
   /** The type of event. */
   eventType?: InputMaybe<LaunchpadTokenEventType>;
-  /** The name of the launchpad. One of the following: Pump.fun, Bonk, Baseapp, Zora, Zora Creator, Four.meme, Believe, Moonshot, Jupiter Studio, boop, Heaven, TokenMill V2, Virtuals, Clanker, ArenaTrade, Moonit, LaunchLab, MeteoraDBC, Vertigo, Cooking.City, time.fun, BAGS, Circus, Dealr, OhFuckFun, PrintFun, Trend, shout.fun, xApple, Sendshot, DubDub, cults. */
+  /** The name of the launchpad. One of the following: Pump.fun, Bonk, Baseapp, Zora, Zora Creator, Four.meme, Believe, Moonshot, Jupiter Studio, boop, Heaven, Virtuals, Clanker, ArenaTrade, Moonit, LaunchLab, MeteoraDBC, Vertigo, Cooking.City, time.fun, BAGS, Circus, Dealr, OhFuckFun, PrintFun, Trend, shout.fun, xApple, Sendshot, DubDub, cults. */
   launchpadName?: InputMaybe<Scalars['String']['input']>;
-  /** A list of launchpad names. Any of the following: Pump.fun, Bonk, Baseapp, Zora, Zora Creator, Four.meme, Believe, Moonshot, Jupiter Studio, boop, Heaven, TokenMill V2, Virtuals, Clanker, ArenaTrade, Moonit, LaunchLab, MeteoraDBC, Vertigo, Cooking.City, time.fun, BAGS, Circus, Dealr, OhFuckFun, PrintFun, Trend, shout.fun, xApple, Sendshot, DubDub, cults. */
+  /** A list of launchpad names. Any of the following: Pump.fun, Bonk, Baseapp, Zora, Zora Creator, Four.meme, Believe, Moonshot, Jupiter Studio, boop, Heaven, Virtuals, Clanker, ArenaTrade, Moonit, LaunchLab, MeteoraDBC, Vertigo, Cooking.City, time.fun, BAGS, Circus, Dealr, OhFuckFun, PrintFun, Trend, shout.fun, xApple, Sendshot, DubDub, cults. */
   launchpadNames?: InputMaybe<Array<Scalars['String']['input']>>;
   /** The network ID that the token is deployed on. */
   networkId?: InputMaybe<Scalars['Int']['input']>;
@@ -5179,9 +5164,9 @@ export type OnLaunchpadTokenEventInput = {
   address?: InputMaybe<Scalars['String']['input']>;
   /** The type of event. */
   eventType?: InputMaybe<LaunchpadTokenEventType>;
-  /** The name of the launchpad. One of the following: Pump.fun, Bonk, Baseapp, Zora, Zora Creator, Four.meme, Believe, Moonshot, Jupiter Studio, boop, Heaven, TokenMill V2, Virtuals, Clanker, ArenaTrade, Moonit, LaunchLab, MeteoraDBC, Vertigo, Cooking.City, time.fun, BAGS, Circus, Dealr, OhFuckFun, PrintFun, Trend, shout.fun, xApple, Sendshot, DubDub, cults. */
+  /** The name of the launchpad. One of the following: Pump.fun, Bonk, Baseapp, Zora, Zora Creator, Four.meme, Believe, Moonshot, Jupiter Studio, boop, Heaven, Virtuals, Clanker, ArenaTrade, Moonit, LaunchLab, MeteoraDBC, Vertigo, Cooking.City, time.fun, BAGS, Circus, Dealr, OhFuckFun, PrintFun, Trend, shout.fun, xApple, Sendshot, DubDub, cults. */
   launchpadName?: InputMaybe<Scalars['String']['input']>;
-  /** A list of launchpad names. Any of the following: Pump.fun, Bonk, Baseapp, Zora, Zora Creator, Four.meme, Believe, Moonshot, Jupiter Studio, boop, Heaven, TokenMill V2, Virtuals, Clanker, ArenaTrade, Moonit, LaunchLab, MeteoraDBC, Vertigo, Cooking.City, time.fun, BAGS, Circus, Dealr, OhFuckFun, PrintFun, Trend, shout.fun, xApple, Sendshot, DubDub, cults. */
+  /** A list of launchpad names. Any of the following: Pump.fun, Bonk, Baseapp, Zora, Zora Creator, Four.meme, Believe, Moonshot, Jupiter Studio, boop, Heaven, Virtuals, Clanker, ArenaTrade, Moonit, LaunchLab, MeteoraDBC, Vertigo, Cooking.City, time.fun, BAGS, Circus, Dealr, OhFuckFun, PrintFun, Trend, shout.fun, xApple, Sendshot, DubDub, cults. */
   launchpadNames?: InputMaybe<Array<Scalars['String']['input']>>;
   /** The network ID that the token is deployed on. */
   networkId?: InputMaybe<Scalars['Int']['input']>;
@@ -6129,8 +6114,6 @@ export type Price = {
   address: Scalars['String']['output'];
   /** Ratio of how confident we are in the price */
   confidence?: Maybe<Scalars['Float']['output']>;
-  /** The internal pool address for the price */
-  internalPoolAddress?: Maybe<Scalars['String']['output']>;
   /** The network ID the token is deployed on. */
   networkId: Scalars['Int']['output'];
   /** The pool that emitted the swap generating this price */
@@ -6683,8 +6666,6 @@ export type Query = {
   apiTokens: Array<ApiToken>;
   /** Returns list of token balances that a wallet has. */
   balances: BalancesResponse;
-  /** Returns block data for the input blockNumbers or timestamps, maximum 25 inputs. */
-  blocks: Array<Block>;
   /** Returns a URL for a pair chart. */
   chartUrls?: Maybe<ChartUrlsResponse>;
   /** Returns detailed stats for a wallet. */
@@ -6848,11 +6829,6 @@ export type QueryApiTokenArgs = {
 
 export type QueryBalancesArgs = {
   input: BalancesInput;
-};
-
-
-export type QueryBlocksArgs = {
-  input: BlocksInput;
 };
 
 
@@ -8314,17 +8290,17 @@ export type TokenFilters = {
   isVerified?: InputMaybe<Scalars['Boolean']['input']>;
   /** The unix timestamp for the token's last transaction. */
   lastTransaction?: InputMaybe<NumberFilter>;
-  /** Indicates if the launchpad is completed. */
+  /** Indicates if the launchpad is completed */
   launchpadCompleted?: InputMaybe<Scalars['Boolean']['input']>;
-  /** The timestamp when the launchpad was completed. */
+  /** The timestamp when the launchpad was completed */
   launchpadCompletedAt?: InputMaybe<NumberFilter>;
-  /** The graduation percentage. */
+  /** The graduation percentage */
   launchpadGraduationPercent?: InputMaybe<NumberFilter>;
-  /** Indicates if the launchpad has migrated. */
+  /** Indicates if the launchpad has migrated */
   launchpadMigrated?: InputMaybe<Scalars['Boolean']['input']>;
   /** The timestamp when the launchpad was migrated */
   launchpadMigratedAt?: InputMaybe<NumberFilter>;
-  /** A list of launchpad names. Any of the following: Pump.fun, Bonk, Baseapp, Zora, Zora Creator, Four.meme, Believe, Moonshot, Jupiter Studio, boop, Heaven, TokenMill V2, Virtuals, Clanker, ArenaTrade, Moonit, LaunchLab, MeteoraDBC, Vertigo, Cooking.City, time.fun, BAGS, Circus, Dealr, OhFuckFun, PrintFun, Trend, shout.fun, xApple, Sendshot, DubDub, cults. */
+  /** A list of launchpad names. Any of the following: Pump.fun, Bonk, Baseapp, Zora, Zora Creator, Four.meme, Believe, Moonshot, Jupiter Studio, boop, Heaven, Virtuals, Clanker, ArenaTrade, Moonit, LaunchLab, MeteoraDBC, Vertigo, Cooking.City, time.fun, BAGS, Circus, Dealr, OhFuckFun, PrintFun, Trend, shout.fun, xApple, Sendshot, DubDub, cults. */
   launchpadName?: InputMaybe<Array<Scalars['String']['input']>>;
   /** A list of launchpad protocols. */
   launchpadProtocol?: InputMaybe<Array<Scalars['String']['input']>>;
