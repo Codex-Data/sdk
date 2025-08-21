@@ -5,6 +5,10 @@ type Query {
   apiToken(
     token: String!
   ): ApiToken!
+  """Returns block data for the input blockNumbers or timestamps, maximum 25 inputs."""
+  blocks(
+    input: BlocksInput!
+  ): [Block!]!
   """Returns a list of all networks supported on Codex."""
   getNetworks: [Network!]!
   """Returns the status of a list of networks supported on Codex."""
@@ -1060,6 +1064,18 @@ type BarsResponse {
   transactions: [Int]!
   """The pair that is being returned"""
   pair: Pair!
+}
+
+type Block {
+  blockNumber: Int!
+  timestamp: Int!
+  hash: String!
+}
+
+input BlocksInput {
+  networkId: Int!
+  blockNumbers: [Int!]
+  timestamps: [Int!]
 }
 
 """The mathematical formula that defines how the prices of NFTs change after each buy or sell within a pool."""
@@ -2735,6 +2751,8 @@ enum LaunchpadTokenProtocol {
   Clanker
   """Protocol name for Heaven."""
   HeavenAMM
+  """Protocol name for TokenMill V2."""
+  TokenMillV2
 }
 
 scalar link__Import
@@ -5684,9 +5702,9 @@ input OnLaunchpadTokenEventBatchInput {
   protocols: [LaunchpadTokenProtocol!]
   """The network ID that the token is deployed on."""
   networkId: Int
-  """The name of the launchpad. One of the following: Pump.fun, Bonk, Baseapp, Zora, Zora Creator, Four.meme, Believe, Moonshot, Jupiter Studio, boop, Heaven, Virtuals, Clanker, ArenaTrade, Moonit, LaunchLab, MeteoraDBC, Vertigo, Cooking.City, time.fun, BAGS, Circus, Dealr, OhFuckFun, PrintFun, Trend, shout.fun, xApple, Sendshot, DubDub, cults."""
+  """The name of the launchpad. One of the following: Pump.fun, Bonk, Baseapp, Zora, Zora Creator, Four.meme, Believe, Moonshot, Jupiter Studio, boop, Heaven, TokenMill V2, Virtuals, Clanker, ArenaTrade, Moonit, LaunchLab, MeteoraDBC, Vertigo, Cooking.City, time.fun, BAGS, Circus, Dealr, OhFuckFun, PrintFun, Trend, shout.fun, xApple, Sendshot, DubDub, cults."""
   launchpadName: String
-  """A list of launchpad names. Any of the following: Pump.fun, Bonk, Baseapp, Zora, Zora Creator, Four.meme, Believe, Moonshot, Jupiter Studio, boop, Heaven, Virtuals, Clanker, ArenaTrade, Moonit, LaunchLab, MeteoraDBC, Vertigo, Cooking.City, time.fun, BAGS, Circus, Dealr, OhFuckFun, PrintFun, Trend, shout.fun, xApple, Sendshot, DubDub, cults."""
+  """A list of launchpad names. Any of the following: Pump.fun, Bonk, Baseapp, Zora, Zora Creator, Four.meme, Believe, Moonshot, Jupiter Studio, boop, Heaven, TokenMill V2, Virtuals, Clanker, ArenaTrade, Moonit, LaunchLab, MeteoraDBC, Vertigo, Cooking.City, time.fun, BAGS, Circus, Dealr, OhFuckFun, PrintFun, Trend, shout.fun, xApple, Sendshot, DubDub, cults."""
   launchpadNames: [String!]
   """The type of event."""
   eventType: LaunchpadTokenEventType
@@ -5698,9 +5716,9 @@ input OnLaunchpadTokenEventInput {
   protocol: LaunchpadTokenProtocol
   """A list of launchpad protocols."""
   protocols: [LaunchpadTokenProtocol!]
-  """The name of the launchpad. One of the following: Pump.fun, Bonk, Baseapp, Zora, Zora Creator, Four.meme, Believe, Moonshot, Jupiter Studio, boop, Heaven, Virtuals, Clanker, ArenaTrade, Moonit, LaunchLab, MeteoraDBC, Vertigo, Cooking.City, time.fun, BAGS, Circus, Dealr, OhFuckFun, PrintFun, Trend, shout.fun, xApple, Sendshot, DubDub, cults."""
+  """The name of the launchpad. One of the following: Pump.fun, Bonk, Baseapp, Zora, Zora Creator, Four.meme, Believe, Moonshot, Jupiter Studio, boop, Heaven, TokenMill V2, Virtuals, Clanker, ArenaTrade, Moonit, LaunchLab, MeteoraDBC, Vertigo, Cooking.City, time.fun, BAGS, Circus, Dealr, OhFuckFun, PrintFun, Trend, shout.fun, xApple, Sendshot, DubDub, cults."""
   launchpadName: String
-  """A list of launchpad names. Any of the following: Pump.fun, Bonk, Baseapp, Zora, Zora Creator, Four.meme, Believe, Moonshot, Jupiter Studio, boop, Heaven, Virtuals, Clanker, ArenaTrade, Moonit, LaunchLab, MeteoraDBC, Vertigo, Cooking.City, time.fun, BAGS, Circus, Dealr, OhFuckFun, PrintFun, Trend, shout.fun, xApple, Sendshot, DubDub, cults."""
+  """A list of launchpad names. Any of the following: Pump.fun, Bonk, Baseapp, Zora, Zora Creator, Four.meme, Believe, Moonshot, Jupiter Studio, boop, Heaven, TokenMill V2, Virtuals, Clanker, ArenaTrade, Moonit, LaunchLab, MeteoraDBC, Vertigo, Cooking.City, time.fun, BAGS, Circus, Dealr, OhFuckFun, PrintFun, Trend, shout.fun, xApple, Sendshot, DubDub, cults."""
   launchpadNames: [String!]
   """The type of event."""
   eventType: LaunchpadTokenEventType
@@ -6621,6 +6639,8 @@ type Price {
   poolAddress: String!
   """Ratio of how confident we are in the price"""
   confidence: Float
+  """The internal pool address for the price"""
+  internalPoolAddress: String
 }
 
 """Webhook conditions for a price event."""
@@ -8011,15 +8031,15 @@ input TokenFilters {
   creatorAddress: String
   """A list of launchpad protocols."""
   launchpadProtocol: [String!]
-  """A list of launchpad names. Any of the following: Pump.fun, Bonk, Baseapp, Zora, Zora Creator, Four.meme, Believe, Moonshot, Jupiter Studio, boop, Heaven, Virtuals, Clanker, ArenaTrade, Moonit, LaunchLab, MeteoraDBC, Vertigo, Cooking.City, time.fun, BAGS, Circus, Dealr, OhFuckFun, PrintFun, Trend, shout.fun, xApple, Sendshot, DubDub, cults."""
+  """A list of launchpad names. Any of the following: Pump.fun, Bonk, Baseapp, Zora, Zora Creator, Four.meme, Believe, Moonshot, Jupiter Studio, boop, Heaven, TokenMill V2, Virtuals, Clanker, ArenaTrade, Moonit, LaunchLab, MeteoraDBC, Vertigo, Cooking.City, time.fun, BAGS, Circus, Dealr, OhFuckFun, PrintFun, Trend, shout.fun, xApple, Sendshot, DubDub, cults."""
   launchpadName: [String!]
-  """Indicates if the launchpad is completed"""
+  """Indicates if the launchpad is completed."""
   launchpadCompleted: Boolean
-  """Indicates if the launchpad has migrated"""
+  """Indicates if the launchpad has migrated."""
   launchpadMigrated: Boolean
-  """The graduation percentage"""
+  """The graduation percentage."""
   launchpadGraduationPercent: NumberFilter
-  """The timestamp when the launchpad was completed"""
+  """The timestamp when the launchpad was completed."""
   launchpadCompletedAt: NumberFilter
   """The timestamp when the launchpad was migrated"""
   launchpadMigratedAt: NumberFilter
