@@ -5,6 +5,10 @@ type Query {
   apiToken(
     token: String!
   ): ApiToken!
+  """Returns block data for the input blockNumbers or timestamps, maximum 25 inputs."""
+  blocks(
+    input: BlocksInput!
+  ): [Block!]!
   """Returns a list of all networks supported on Codex."""
   getNetworks: [Network!]!
   """Returns the status of a list of networks supported on Codex."""
@@ -1060,6 +1064,18 @@ type BarsResponse {
   transactions: [Int]!
   """The pair that is being returned"""
   pair: Pair!
+}
+
+type Block {
+  blockNumber: Int!
+  timestamp: Int!
+  hash: String!
+}
+
+input BlocksInput {
+  networkId: Int!
+  blockNumbers: [Int!]
+  timestamps: [Int!]
 }
 
 """The mathematical formula that defines how the prices of NFTs change after each buy or sell within a pool."""
@@ -6621,6 +6637,8 @@ type Price {
   poolAddress: String!
   """Ratio of how confident we are in the price"""
   confidence: Float
+  """The internal pool address for the price"""
+  internalPoolAddress: String
 }
 
 """Webhook conditions for a price event."""

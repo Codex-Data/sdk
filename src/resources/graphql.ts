@@ -263,6 +263,19 @@ export type BarsResponse = {
   volumeNativeToken?: Maybe<Array<Maybe<Scalars['String']['output']>>>;
 };
 
+export type Block = {
+  __typename?: 'Block';
+  blockNumber: Scalars['Int']['output'];
+  hash: Scalars['String']['output'];
+  timestamp: Scalars['Int']['output'];
+};
+
+export type BlocksInput = {
+  blockNumbers?: InputMaybe<Array<Scalars['Int']['input']>>;
+  networkId: Scalars['Int']['input'];
+  timestamps?: InputMaybe<Array<Scalars['Int']['input']>>;
+};
+
 /** The mathematical formula that defines how the prices of NFTs change after each buy or sell within a pool. */
 export enum BondingCurveType {
   Exponential = 'EXPONENTIAL',
@@ -6114,6 +6127,8 @@ export type Price = {
   address: Scalars['String']['output'];
   /** Ratio of how confident we are in the price */
   confidence?: Maybe<Scalars['Float']['output']>;
+  /** The internal pool address for the price */
+  internalPoolAddress?: Maybe<Scalars['String']['output']>;
   /** The network ID the token is deployed on. */
   networkId: Scalars['Int']['output'];
   /** The pool that emitted the swap generating this price */
@@ -6666,6 +6681,8 @@ export type Query = {
   apiTokens: Array<ApiToken>;
   /** Returns list of token balances that a wallet has. */
   balances: BalancesResponse;
+  /** Returns block data for the input blockNumbers or timestamps, maximum 25 inputs. */
+  blocks: Array<Block>;
   /** Returns a URL for a pair chart. */
   chartUrls?: Maybe<ChartUrlsResponse>;
   /** Returns detailed stats for a wallet. */
@@ -6829,6 +6846,11 @@ export type QueryApiTokenArgs = {
 
 export type QueryBalancesArgs = {
   input: BalancesInput;
+};
+
+
+export type QueryBlocksArgs = {
+  input: BlocksInput;
 };
 
 
