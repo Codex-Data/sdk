@@ -11993,6 +11993,12 @@
             "deprecationReason": null
           },
           {
+            "name": "TokenMillV2",
+            "description": "Protocol name for TokenMill V2.",
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
             "name": "Vertigo",
             "description": "Protocol name for Vertigo.",
             "isDeprecated": false,
@@ -30542,7 +30548,7 @@
           },
           {
             "name": "launchpadName",
-            "description": "The name of the launchpad. One of the following: Pump.fun, Bonk, Baseapp, Zora, Zora Creator, Four.meme, Believe, Moonshot, Jupiter Studio, boop, Heaven, Virtuals, Clanker, ArenaTrade, Moonit, LaunchLab, MeteoraDBC, Vertigo, Cooking.City, time.fun, BAGS, Circus, Dealr, OhFuckFun, PrintFun, Trend, shout.fun, xApple, Sendshot, DubDub, cults.",
+            "description": "The name of the launchpad. One of the following: Pump.fun, Bonk, Baseapp, Zora, Zora Creator, Four.meme, Believe, Moonshot, Jupiter Studio, boop, Heaven, TokenMill V2, Virtuals, Clanker, ArenaTrade, Moonit, LaunchLab, MeteoraDBC, Vertigo, Cooking.City, time.fun, BAGS, Circus, Dealr, OhFuckFun, PrintFun, Trend, shout.fun, xApple, Sendshot, DubDub, cults.",
             "type": {
               "kind": "SCALAR",
               "name": "String",
@@ -30554,7 +30560,7 @@
           },
           {
             "name": "launchpadNames",
-            "description": "A list of launchpad names. Any of the following: Pump.fun, Bonk, Baseapp, Zora, Zora Creator, Four.meme, Believe, Moonshot, Jupiter Studio, boop, Heaven, Virtuals, Clanker, ArenaTrade, Moonit, LaunchLab, MeteoraDBC, Vertigo, Cooking.City, time.fun, BAGS, Circus, Dealr, OhFuckFun, PrintFun, Trend, shout.fun, xApple, Sendshot, DubDub, cults.",
+            "description": "A list of launchpad names. Any of the following: Pump.fun, Bonk, Baseapp, Zora, Zora Creator, Four.meme, Believe, Moonshot, Jupiter Studio, boop, Heaven, TokenMill V2, Virtuals, Clanker, ArenaTrade, Moonit, LaunchLab, MeteoraDBC, Vertigo, Cooking.City, time.fun, BAGS, Circus, Dealr, OhFuckFun, PrintFun, Trend, shout.fun, xApple, Sendshot, DubDub, cults.",
             "type": {
               "kind": "LIST",
               "name": null,
@@ -30654,7 +30660,7 @@
           },
           {
             "name": "launchpadName",
-            "description": "The name of the launchpad. One of the following: Pump.fun, Bonk, Baseapp, Zora, Zora Creator, Four.meme, Believe, Moonshot, Jupiter Studio, boop, Heaven, Virtuals, Clanker, ArenaTrade, Moonit, LaunchLab, MeteoraDBC, Vertigo, Cooking.City, time.fun, BAGS, Circus, Dealr, OhFuckFun, PrintFun, Trend, shout.fun, xApple, Sendshot, DubDub, cults.",
+            "description": "The name of the launchpad. One of the following: Pump.fun, Bonk, Baseapp, Zora, Zora Creator, Four.meme, Believe, Moonshot, Jupiter Studio, boop, Heaven, TokenMill V2, Virtuals, Clanker, ArenaTrade, Moonit, LaunchLab, MeteoraDBC, Vertigo, Cooking.City, time.fun, BAGS, Circus, Dealr, OhFuckFun, PrintFun, Trend, shout.fun, xApple, Sendshot, DubDub, cults.",
             "type": {
               "kind": "SCALAR",
               "name": "String",
@@ -30666,7 +30672,7 @@
           },
           {
             "name": "launchpadNames",
-            "description": "A list of launchpad names. Any of the following: Pump.fun, Bonk, Baseapp, Zora, Zora Creator, Four.meme, Believe, Moonshot, Jupiter Studio, boop, Heaven, Virtuals, Clanker, ArenaTrade, Moonit, LaunchLab, MeteoraDBC, Vertigo, Cooking.City, time.fun, BAGS, Circus, Dealr, OhFuckFun, PrintFun, Trend, shout.fun, xApple, Sendshot, DubDub, cults.",
+            "description": "A list of launchpad names. Any of the following: Pump.fun, Bonk, Baseapp, Zora, Zora Creator, Four.meme, Believe, Moonshot, Jupiter Studio, boop, Heaven, TokenMill V2, Virtuals, Clanker, ArenaTrade, Moonit, LaunchLab, MeteoraDBC, Vertigo, Cooking.City, time.fun, BAGS, Circus, Dealr, OhFuckFun, PrintFun, Trend, shout.fun, xApple, Sendshot, DubDub, cults.",
             "type": {
               "kind": "LIST",
               "name": null,
@@ -49905,7 +49911,7 @@
           },
           {
             "name": "launchpadCompleted",
-            "description": "Indicates if the launchpad is completed",
+            "description": "Indicates if the launchpad is completed.",
             "type": {
               "kind": "SCALAR",
               "name": "Boolean",
@@ -49917,7 +49923,7 @@
           },
           {
             "name": "launchpadCompletedAt",
-            "description": "The timestamp when the launchpad was completed",
+            "description": "The timestamp when the launchpad was completed.",
             "type": {
               "kind": "INPUT_OBJECT",
               "name": "NumberFilter",
@@ -49929,7 +49935,7 @@
           },
           {
             "name": "launchpadGraduationPercent",
-            "description": "The graduation percentage",
+            "description": "The graduation percentage.",
             "type": {
               "kind": "INPUT_OBJECT",
               "name": "NumberFilter",
@@ -49941,7 +49947,7 @@
           },
           {
             "name": "launchpadMigrated",
-            "description": "Indicates if the launchpad has migrated",
+            "description": "Indicates if the launchpad has migrated.",
             "type": {
               "kind": "SCALAR",
               "name": "Boolean",
@@ -49965,7 +49971,7 @@
           },
           {
             "name": "launchpadName",
-            "description": "A list of launchpad names. Any of the following: Pump.fun, Bonk, Baseapp, Zora, Zora Creator, Four.meme, Believe, Moonshot, Jupiter Studio, boop, Heaven, Virtuals, Clanker, ArenaTrade, Moonit, LaunchLab, MeteoraDBC, Vertigo, Cooking.City, time.fun, BAGS, Circus, Dealr, OhFuckFun, PrintFun, Trend, shout.fun, xApple, Sendshot, DubDub, cults.",
+            "description": "A list of launchpad names. Any of the following: Pump.fun, Bonk, Baseapp, Zora, Zora Creator, Four.meme, Believe, Moonshot, Jupiter Studio, boop, Heaven, TokenMill V2, Virtuals, Clanker, ArenaTrade, Moonit, LaunchLab, MeteoraDBC, Vertigo, Cooking.City, time.fun, BAGS, Circus, Dealr, OhFuckFun, PrintFun, Trend, shout.fun, xApple, Sendshot, DubDub, cults.",
             "type": {
               "kind": "LIST",
               "name": null,
