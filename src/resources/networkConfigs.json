@@ -583,7 +583,7 @@
     "networkType": "EVM",
     "networkId": 7700,
     "name": "canto",
-    "enabled": false,
+    "enabled": true,
     "newTokensEnabled": null,
     "mainnet": true,
     "wrappedBaseTokenSymbol": "WCANTO",
