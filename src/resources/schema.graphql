@@ -459,6 +459,27 @@ type Query {
     inputs: [GetPriceInput]
   ): [Price]
   """Returns bar chart data to track price changes over time."""
+  getTokenBars(
+    """The ID of the pair or token (`pairAddress:networkId` or `tokenAddress:networkId`). If a token contract address is provided, the token's top pair is used. For example, `0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2:1` returns WETH's top pair on Ethereum."""
+    symbol: String!
+    """The unix timestamp for the start of the requested range."""
+    from: Int!
+    """The unix timestamp for the end of the requested range."""
+    to: Int!
+    """The time frame for each candle. Available options are `1S`, `5S`, `15S`, `30S`, `1`, `5`, `15`, `30`, `60`, `240`, `720`, `1D`, `7D`. Resolutions lower than 1 minute are only updated for the last 24 hours due to the volume of data produced."""
+    resolution: String!
+    """The currency to use for the response. Can be `USD` or `TOKEN`. Default is `USD`. Use `currencyCode: TOKEN` for native token pricing."""
+    currencyCode: QuoteCurrency
+    """Whether to remove leading null values from the response. Default is `false`. To fetch a token's entire history, set resolution to `1D`, `from` value to `0` and `removeLeadingNullValues` to `true`."""
+    removeLeadingNullValues: Boolean
+    """Whether to remove empty bars from the response. This is useful for eliminating gaps in low-activity tokens. Default is `false`."""
+    removeEmptyBars: Boolean
+    """The token of interest within the token's top pair. Can be `token0` or `token1`. If omitted, the base token is inferred automatically. You can invert the pair by quoting the other token."""
+    statsType: TokenPairStatisticsType
+    """Guarantees number of bars returned is at most this number. Use `countback: 1500` with `from: 0` for maximum results."""
+    countback: Int
+  ): TokenBarsResponse
+  """Returns bar chart data to track price changes over time."""
   getBars(
     """The ID of the pair or token (`pairAddress:networkId` or `tokenAddress:networkId`). If a token contract address is provided, the token's top pair is used. For example, `0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2:1` returns WETH's top pair on Ethereum."""
     symbol: String!
@@ -2753,6 +2774,8 @@ enum LaunchpadTokenProtocol {
   HeavenAMM
   """Protocol name for TokenMill V2."""
   TokenMillV2
+  """Protocol name for Clanker V4."""
+  ClankerV4
 }
 
 scalar link__Import
@@ -5702,9 +5725,9 @@ input OnLaunchpadTokenEventBatchInput {
   protocols: [LaunchpadTokenProtocol!]
   """The network ID that the token is deployed on."""
   networkId: Int
-  """The name of the launchpad. One of the following: Pump.fun, Bonk, Baseapp, Zora, Zora Creator, Four.meme, Believe, Moonshot, Jupiter Studio, boop, Heaven, TokenMill V2, Virtuals, Clanker, ArenaTrade, Moonit, LaunchLab, MeteoraDBC, Vertigo, Cooking.City, time.fun, BAGS, Circus, Dealr, OhFuckFun, PrintFun, Trend, shout.fun, xApple, Sendshot, DubDub, cults."""
+  """The name of the launchpad. One of the following: Pump.fun, Bonk, Baseapp, Zora, Zora Creator, Four.meme, Believe, Moonshot, Jupiter Studio, boop, Heaven, TokenMill V2, Virtuals, Clanker, Clanker V4, ArenaTrade, Moonit, LaunchLab, MeteoraDBC, Vertigo, Cooking.City, time.fun, BAGS, Circus, Dealr, OhFuckFun, PrintFun, Trend, shout.fun, xApple, Sendshot, DubDub, cults."""
   launchpadName: String
-  """A list of launchpad names. Any of the following: Pump.fun, Bonk, Baseapp, Zora, Zora Creator, Four.meme, Believe, Moonshot, Jupiter Studio, boop, Heaven, TokenMill V2, Virtuals, Clanker, ArenaTrade, Moonit, LaunchLab, MeteoraDBC, Vertigo, Cooking.City, time.fun, BAGS, Circus, Dealr, OhFuckFun, PrintFun, Trend, shout.fun, xApple, Sendshot, DubDub, cults."""
+  """A list of launchpad names. Any of the following: Pump.fun, Bonk, Baseapp, Zora, Zora Creator, Four.meme, Believe, Moonshot, Jupiter Studio, boop, Heaven, TokenMill V2, Virtuals, Clanker, Clanker V4, ArenaTrade, Moonit, LaunchLab, MeteoraDBC, Vertigo, Cooking.City, time.fun, BAGS, Circus, Dealr, OhFuckFun, PrintFun, Trend, shout.fun, xApple, Sendshot, DubDub, cults."""
   launchpadNames: [String!]
   """The type of event."""
   eventType: LaunchpadTokenEventType
@@ -5716,9 +5739,9 @@ input OnLaunchpadTokenEventInput {
   protocol: LaunchpadTokenProtocol
   """A list of launchpad protocols."""
   protocols: [LaunchpadTokenProtocol!]
-  """The name of the launchpad. One of the following: Pump.fun, Bonk, Baseapp, Zora, Zora Creator, Four.meme, Believe, Moonshot, Jupiter Studio, boop, Heaven, TokenMill V2, Virtuals, Clanker, ArenaTrade, Moonit, LaunchLab, MeteoraDBC, Vertigo, Cooking.City, time.fun, BAGS, Circus, Dealr, OhFuckFun, PrintFun, Trend, shout.fun, xApple, Sendshot, DubDub, cults."""
+  """The name of the launchpad. One of the following: Pump.fun, Bonk, Baseapp, Zora, Zora Creator, Four.meme, Believe, Moonshot, Jupiter Studio, boop, Heaven, TokenMill V2, Virtuals, Clanker, Clanker V4, ArenaTrade, Moonit, LaunchLab, MeteoraDBC, Vertigo, Cooking.City, time.fun, BAGS, Circus, Dealr, OhFuckFun, PrintFun, Trend, shout.fun, xApple, Sendshot, DubDub, cults."""
   launchpadName: String
-  """A list of launchpad names. Any of the following: Pump.fun, Bonk, Baseapp, Zora, Zora Creator, Four.meme, Believe, Moonshot, Jupiter Studio, boop, Heaven, TokenMill V2, Virtuals, Clanker, ArenaTrade, Moonit, LaunchLab, MeteoraDBC, Vertigo, Cooking.City, time.fun, BAGS, Circus, Dealr, OhFuckFun, PrintFun, Trend, shout.fun, xApple, Sendshot, DubDub, cults."""
+  """A list of launchpad names. Any of the following: Pump.fun, Bonk, Baseapp, Zora, Zora Creator, Four.meme, Believe, Moonshot, Jupiter Studio, boop, Heaven, TokenMill V2, Virtuals, Clanker, Clanker V4, ArenaTrade, Moonit, LaunchLab, MeteoraDBC, Vertigo, Cooking.City, time.fun, BAGS, Circus, Dealr, OhFuckFun, PrintFun, Trend, shout.fun, xApple, Sendshot, DubDub, cults."""
   launchpadNames: [String!]
   """The type of event."""
   eventType: LaunchpadTokenEventType
@@ -5737,11 +5760,11 @@ input OnPricesUpdatedInput {
 """Response returned by `onBarsUpdated`."""
 type OnTokenBarsUpdatedResponse {
   """The contract address for the pair."""
-  pairAddress: String!
+  pairAddress: String @deprecated(reason: "pairs are no longer used for pricing")
   """The network ID the pair is deployed on."""
   networkId: Int!
   """The ID for the pair (`pairAddress`:`networkId`)."""
-  pairId: String!
+  pairId: String @deprecated(reason: "pairs are no longer used for pricing")
   """The unix timestamp for the new bar."""
   timestamp: Int!
   """The type of statistics used. Can be `Filtered` or `Unfiltered`."""
@@ -5751,7 +5774,7 @@ type OnTokenBarsUpdatedResponse {
   """Price data broken down by resolution."""
   aggregates: ResolutionBarData!
   """The quote token within the pair."""
-  quoteToken: QuoteToken
+  quoteToken: QuoteToken @deprecated(reason: "pairs are no longer used for pricing")
   """The address of the token being quoted"""
   tokenAddress: String!
   """The address of the token being quoted"""
@@ -7669,6 +7692,46 @@ enum SymbolType {
   POOL
 }
 
+"""Bar chart data to track price changes over time."""
+type TokenBarsResponse {
+  """The opening price."""
+  o: [Float]!
+  """The high price."""
+  h: [Float]!
+  """The low price."""
+  l: [Float]!
+  """The closing price."""
+  c: [Float]!
+  """The timestamp for the bar."""
+  t: [Int!]!
+  """The status code for the batch: `ok` for successful data retrieval and `no_data` for empty responses signaling the end of server data."""
+  s: String!
+  """The volume with higher precision."""
+  volume: [String]
+  """The volume in the native token for the network"""
+  volumeNativeToken: [String]
+  """The number of unique buyers"""
+  buyers: [Int]!
+  """The number of buys"""
+  buys: [Int]!
+  """The buy volume in USD"""
+  buyVolume: [String]!
+  """The number of unique sellers"""
+  sellers: [Int]!
+  """The number of sells"""
+  sells: [Int]!
+  """The sell volume in USD"""
+  sellVolume: [String]!
+  """Liquidity in USD"""
+  liquidity: [String]!
+  """The number of traders"""
+  traders: [Int]!
+  """The number of transactions"""
+  transactions: [Int]!
+  """The token that is being returned"""
+  token: EnhancedToken!
+}
+
 """Token burn event data."""
 type TokenBurnEventData {
   """The amount of tokens burned."""
@@ -8031,7 +8094,7 @@ input TokenFilters {
   creatorAddress: String
   """A list of launchpad protocols."""
   launchpadProtocol: [String!]
-  """A list of launchpad names. Any of the following: Pump.fun, Bonk, Baseapp, Zora, Zora Creator, Four.meme, Believe, Moonshot, Jupiter Studio, boop, Heaven, TokenMill V2, Virtuals, Clanker, ArenaTrade, Moonit, LaunchLab, MeteoraDBC, Vertigo, Cooking.City, time.fun, BAGS, Circus, Dealr, OhFuckFun, PrintFun, Trend, shout.fun, xApple, Sendshot, DubDub, cults."""
+  """A list of launchpad names. Any of the following: Pump.fun, Bonk, Baseapp, Zora, Zora Creator, Four.meme, Believe, Moonshot, Jupiter Studio, boop, Heaven, TokenMill V2, Virtuals, Clanker, Clanker V4, ArenaTrade, Moonit, LaunchLab, MeteoraDBC, Vertigo, Cooking.City, time.fun, BAGS, Circus, Dealr, OhFuckFun, PrintFun, Trend, shout.fun, xApple, Sendshot, DubDub, cults."""
   launchpadName: [String!]
   """Indicates if the launchpad is completed."""
   launchpadCompleted: Boolean
