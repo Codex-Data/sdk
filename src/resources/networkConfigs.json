@@ -2821,6 +2821,39 @@
   },
   {
     "__typename": "EvmNetworkConfig",
+    "id": "5031",
+    "networkType": "EVM",
+    "networkId": 5031,
+    "name": "Somnia",
+    "enabled": false,
+    "newTokensEnabled": true,
+    "mainnet": true,
+    "wrappedBaseTokenSymbol": "WSOMI",
+    "baseTokenSymbol": "SOMI",
+    "baseTokenAddress": "0x046ede9564a72571df6f5e44d0405360c0f4dcab",
+    "defaultPairAddress": "0xe5467be8b8db6b074904134e8c1a581f5565e2c3",
+    "defaultPairQuoteToken": "token0",
+    "stableCoinAddresses": [
+      "0x28bec7e30e6faee657a03e19bf1128aad7632a00",
+      "0x67b302e35aef5eee8c32d934f5856869ef428330",
+      "0x3243f9acb8c3bc6945131db91c5f678faf9093f1",
+      "0x43cce55ffb83c2bfd2454964a6dfae20bd01adb9",
+      "0x0827c58e2a44e94ab97a6a9fab1b8364328c1a4b"
+    ],
+    "networkIconUrl": "https://icons.defined.fi/networks/somnia.png",
+    "color": "#9c3381",
+    "networkShortName": "somnia",
+    "networkName": "Somnia",
+    "explorer": {
+      "name": "Somnia Explorer",
+      "url": "https://explorer.somnia.network/",
+      "checksummed": false,
+      "icon": "https://icons.defined.fi/networks/somnia.png"
+    },
+    "baseTokenName": "SOMI"
+  },
+  {
+    "__typename": "EvmNetworkConfig",
     "id": "50312",
     "networkType": "EVM",
     "networkId": 50312,
