@@ -760,7 +760,7 @@ type Subscription {
     """The networkId to use when getting all bars per network"""
     networkId: Int
   ): OnTokenBarsUpdatedResponse
-  """Live-streamed transactions for a token."""
+  """Live-streamed transactions for a pair."""
   onEventsCreated(
     """The pair contract address."""
     address: String
@@ -1299,7 +1299,7 @@ input CreateApiTokensInput {
   count: Int
   """Number of requests allowed per token, represented as a string, default is 5000"""
   requestLimit: String
-  """Number of seconds until the token expires, defaults to 1 hour (3600)"""
+  """Number of milliseconds until the token expires, defaults to 1 hour (3600000)"""
   expiresIn: Int
 }
 
@@ -6195,6 +6195,8 @@ type PairMetadata {
   statsType: TokenPairStatisticsType!
   """The quote token price in USD."""
   price: String!
+  """The non-quote token price in USD."""
+  priceNonQuoteToken: String!
   """The percent price change in the past 5 minutes. Decimal format."""
   priceChange5m: Float
   """The percent price change in the past hour. Decimal format."""
@@ -8612,8 +8614,12 @@ type TokenWalletFilterResult {
   purchasedTokenBalance: String!
   """The token acquisition cost in USD"""
   tokenAcquisitionCostUsd: String!
-  """The current token balance"""
+  """The token balance in the wallet. This value does not update with every transfer and can be slightly stale. Use tokenBalanceLive for live data."""
   tokenBalance: String!
+  """The current token balance in the wallet."""
+  tokenBalanceLive: String
+  """The current USD value of the token balance."""
+  tokenBalanceLiveUsd: String
   """The token metadata"""
   token: EnhancedToken!
   """The scammer score for the wallet."""
@@ -8827,6 +8833,8 @@ type UnconfirmedSwapEventData {
 type UniswapV4Data {
   """The address of the hook contract for Uniswap V4 pools."""
   uniswapV4HookAddress: String
+  """Whether the token is the network token for the Uniswap V4 pool."""
+  isToken0NetworkToken: Boolean
   type: String!
 }
 

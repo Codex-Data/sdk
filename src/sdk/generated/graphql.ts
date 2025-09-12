@@ -483,7 +483,7 @@ export enum ContractType {
 export type CreateApiTokensInput = {
   /** Number of tokens to create, default is 1 */
   count?: InputMaybe<Scalars['Int']['input']>;
-  /** Number of seconds until the token expires, defaults to 1 hour (3600) */
+  /** Number of milliseconds until the token expires, defaults to 1 hour (3600000) */
   expiresIn?: InputMaybe<Scalars['Int']['input']>;
   /** Number of requests allowed per token, represented as a string, default is 5000 */
   requestLimit?: InputMaybe<Scalars['String']['input']>;
@@ -2019,6 +2019,8 @@ export enum LaunchpadTokenProtocol {
   BoopFun = 'BoopFun',
   /** Protocol name for Clanker. */
   Clanker = 'Clanker',
+  /** Protocol name for Clanker V4. */
+  ClankerV4 = 'ClankerV4',
   /** Protocol name for EgoTech. */
   EgoTech = 'EgoTech',
   /** Protocol name for Four.meme. */
@@ -5163,9 +5165,9 @@ export type OnEventsCreatedByMakerInput = {
 export type OnLaunchpadTokenEventBatchInput = {
   /** The type of event. */
   eventType?: InputMaybe<LaunchpadTokenEventType>;
-  /** The name of the launchpad. One of the following: Pump.fun, Bonk, Baseapp, Zora, Zora Creator, Four.meme, Believe, Moonshot, Jupiter Studio, boop, Heaven, TokenMill V2, Virtuals, Clanker, ArenaTrade, Moonit, LaunchLab, MeteoraDBC, Vertigo, Cooking.City, time.fun, BAGS, Circus, Dealr, OhFuckFun, PrintFun, Trend, shout.fun, xApple, Sendshot, DubDub, cults. */
+  /** The name of the launchpad. One of the following: Pump.fun, Bonk, Baseapp, Zora, Zora Creator, Four.meme, Believe, Moonshot, Jupiter Studio, boop, Heaven, TokenMill V2, Virtuals, Clanker, Clanker V4, ArenaTrade, Moonit, LaunchLab, MeteoraDBC, Vertigo, Cooking.City, time.fun, BAGS, Circus, Dealr, OhFuckFun, PrintFun, Trend, shout.fun, xApple, Sendshot, DubDub, cults. */
   launchpadName?: InputMaybe<Scalars['String']['input']>;
-  /** A list of launchpad names. Any of the following: Pump.fun, Bonk, Baseapp, Zora, Zora Creator, Four.meme, Believe, Moonshot, Jupiter Studio, boop, Heaven, TokenMill V2, Virtuals, Clanker, ArenaTrade, Moonit, LaunchLab, MeteoraDBC, Vertigo, Cooking.City, time.fun, BAGS, Circus, Dealr, OhFuckFun, PrintFun, Trend, shout.fun, xApple, Sendshot, DubDub, cults. */
+  /** A list of launchpad names. Any of the following: Pump.fun, Bonk, Baseapp, Zora, Zora Creator, Four.meme, Believe, Moonshot, Jupiter Studio, boop, Heaven, TokenMill V2, Virtuals, Clanker, Clanker V4, ArenaTrade, Moonit, LaunchLab, MeteoraDBC, Vertigo, Cooking.City, time.fun, BAGS, Circus, Dealr, OhFuckFun, PrintFun, Trend, shout.fun, xApple, Sendshot, DubDub, cults. */
   launchpadNames?: InputMaybe<Array<Scalars['String']['input']>>;
   /** The network ID that the token is deployed on. */
   networkId?: InputMaybe<Scalars['Int']['input']>;
@@ -5181,9 +5183,9 @@ export type OnLaunchpadTokenEventInput = {
   address?: InputMaybe<Scalars['String']['input']>;
   /** The type of event. */
   eventType?: InputMaybe<LaunchpadTokenEventType>;
-  /** The name of the launchpad. One of the following: Pump.fun, Bonk, Baseapp, Zora, Zora Creator, Four.meme, Believe, Moonshot, Jupiter Studio, boop, Heaven, TokenMill V2, Virtuals, Clanker, ArenaTrade, Moonit, LaunchLab, MeteoraDBC, Vertigo, Cooking.City, time.fun, BAGS, Circus, Dealr, OhFuckFun, PrintFun, Trend, shout.fun, xApple, Sendshot, DubDub, cults. */
+  /** The name of the launchpad. One of the following: Pump.fun, Bonk, Baseapp, Zora, Zora Creator, Four.meme, Believe, Moonshot, Jupiter Studio, boop, Heaven, TokenMill V2, Virtuals, Clanker, Clanker V4, ArenaTrade, Moonit, LaunchLab, MeteoraDBC, Vertigo, Cooking.City, time.fun, BAGS, Circus, Dealr, OhFuckFun, PrintFun, Trend, shout.fun, xApple, Sendshot, DubDub, cults. */
   launchpadName?: InputMaybe<Scalars['String']['input']>;
-  /** A list of launchpad names. Any of the following: Pump.fun, Bonk, Baseapp, Zora, Zora Creator, Four.meme, Believe, Moonshot, Jupiter Studio, boop, Heaven, TokenMill V2, Virtuals, Clanker, ArenaTrade, Moonit, LaunchLab, MeteoraDBC, Vertigo, Cooking.City, time.fun, BAGS, Circus, Dealr, OhFuckFun, PrintFun, Trend, shout.fun, xApple, Sendshot, DubDub, cults. */
+  /** A list of launchpad names. Any of the following: Pump.fun, Bonk, Baseapp, Zora, Zora Creator, Four.meme, Believe, Moonshot, Jupiter Studio, boop, Heaven, TokenMill V2, Virtuals, Clanker, Clanker V4, ArenaTrade, Moonit, LaunchLab, MeteoraDBC, Vertigo, Cooking.City, time.fun, BAGS, Circus, Dealr, OhFuckFun, PrintFun, Trend, shout.fun, xApple, Sendshot, DubDub, cults. */
   launchpadNames?: InputMaybe<Array<Scalars['String']['input']>>;
   /** The network ID that the token is deployed on. */
   networkId?: InputMaybe<Scalars['Int']['input']>;
@@ -5208,11 +5210,20 @@ export type OnTokenBarsUpdatedResponse = {
   eventSortKey: Scalars['String']['output'];
   /** The network ID the pair is deployed on. */
   networkId: Scalars['Int']['output'];
-  /** The contract address for the pair. */
-  pairAddress: Scalars['String']['output'];
-  /** The ID for the pair (`pairAddress`:`networkId`). */
-  pairId: Scalars['String']['output'];
-  /** The quote token within the pair. */
+  /**
+   * The contract address for the pair.
+   * @deprecated pairs are no longer used for pricing
+   */
+  pairAddress?: Maybe<Scalars['String']['output']>;
+  /**
+   * The ID for the pair (`pairAddress`:`networkId`).
+   * @deprecated pairs are no longer used for pricing
+   */
+  pairId?: Maybe<Scalars['String']['output']>;
+  /**
+   * The quote token within the pair.
+   * @deprecated pairs are no longer used for pricing
+   */
   quoteToken?: Maybe<QuoteToken>;
   /** The type of statistics used. Can be `Filtered` or `Unfiltered`. */
   statsType: TokenPairStatisticsType;
@@ -5697,6 +5708,8 @@ export type PairMetadata = {
   priceChange12?: Maybe<Scalars['Float']['output']>;
   /** The percent price change in the past 24 hours. Decimal format. */
   priceChange24?: Maybe<Scalars['Float']['output']>;
+  /** The non-quote token price in USD. */
+  priceNonQuoteToken: Scalars['String']['output'];
   /** The token of interest within the pair. Can be `token0` or `token1`. */
   quoteToken?: Maybe<QuoteToken>;
   /** The type of statistics returned. Can be `FILTERED` or `UNFILTERED` */
@@ -6782,6 +6795,8 @@ export type Query = {
   getPrimePools?: Maybe<PrimePoolConnection>;
   /** Returns charting metadata for a given pair. Used for implementing a Trading View datafeed. */
   getSymbol?: Maybe<SymbolResponse>;
+  /** Returns bar chart data to track price changes over time. */
+  getTokenBars?: Maybe<TokenBarsResponse>;
   /** Returns transactions for a pair. */
   getTokenEvents?: Maybe<EventConnection>;
   /** Returns a list of token events for a given maker across all pairs. */
@@ -7192,6 +7207,19 @@ export type QueryGetPrimePoolsArgs = {
 export type QueryGetSymbolArgs = {
   currencyCode?: InputMaybe<Scalars['String']['input']>;
   symbol: Scalars['String']['input'];
+};
+
+
+export type QueryGetTokenBarsArgs = {
+  countback?: InputMaybe<Scalars['Int']['input']>;
+  currencyCode?: InputMaybe<QuoteCurrency>;
+  from: Scalars['Int']['input'];
+  removeEmptyBars?: InputMaybe<Scalars['Boolean']['input']>;
+  removeLeadingNullValues?: InputMaybe<Scalars['Boolean']['input']>;
+  resolution: Scalars['String']['input'];
+  statsType?: InputMaybe<TokenPairStatisticsType>;
+  symbol: Scalars['String']['input'];
+  to: Scalars['Int']['input'];
 };
 
 
@@ -7657,7 +7685,7 @@ export type Subscription = {
   onDetailedStatsUpdated?: Maybe<DetailedStats>;
   /** Live-streamed event labels for a token. */
   onEventLabelCreated?: Maybe<EventLabel>;
-  /** Live-streamed transactions for a token. */
+  /** Live-streamed transactions for a pair. */
   onEventsCreated?: Maybe<AddEventsOutput>;
   /** Live-streamed transactions for a maker. */
   onEventsCreatedByMaker?: Maybe<AddEventsByMakerOutput>;
@@ -8049,6 +8077,47 @@ export enum SymbolType {
   Token = 'TOKEN'
 }
 
+/** Bar chart data to track price changes over time. */
+export type TokenBarsResponse = {
+  __typename?: 'TokenBarsResponse';
+  /** The buy volume in USD */
+  buyVolume: Array<Maybe<Scalars['String']['output']>>;
+  /** The number of unique buyers */
+  buyers: Array<Maybe<Scalars['Int']['output']>>;
+  /** The number of buys */
+  buys: Array<Maybe<Scalars['Int']['output']>>;
+  /** The closing price. */
+  c: Array<Maybe<Scalars['Float']['output']>>;
+  /** The high price. */
+  h: Array<Maybe<Scalars['Float']['output']>>;
+  /** The low price. */
+  l: Array<Maybe<Scalars['Float']['output']>>;
+  /** Liquidity in USD */
+  liquidity: Array<Maybe<Scalars['String']['output']>>;
+  /** The opening price. */
+  o: Array<Maybe<Scalars['Float']['output']>>;
+  /** The status code for the batch: `ok` for successful data retrieval and `no_data` for empty responses signaling the end of server data. */
+  s: Scalars['String']['output'];
+  /** The sell volume in USD */
+  sellVolume: Array<Maybe<Scalars['String']['output']>>;
+  /** The number of unique sellers */
+  sellers: Array<Maybe<Scalars['Int']['output']>>;
+  /** The number of sells */
+  sells: Array<Maybe<Scalars['Int']['output']>>;
+  /** The timestamp for the bar. */
+  t: Array<Scalars['Int']['output']>;
+  /** The token that is being returned */
+  token: EnhancedToken;
+  /** The number of traders */
+  traders: Array<Maybe<Scalars['Int']['output']>>;
+  /** The number of transactions */
+  transactions: Array<Maybe<Scalars['Int']['output']>>;
+  /** The volume with higher precision. */
+  volume?: Maybe<Array<Maybe<Scalars['String']['output']>>>;
+  /** The volume in the native token for the network */
+  volumeNativeToken?: Maybe<Array<Maybe<Scalars['String']['output']>>>;
+};
+
 /** Token burn event data. */
 export type TokenBurnEventData = {
   __typename?: 'TokenBurnEventData';
@@ -8326,7 +8395,7 @@ export type TokenFilters = {
   launchpadMigrated?: InputMaybe<Scalars['Boolean']['input']>;
   /** The timestamp when the launchpad was migrated */
   launchpadMigratedAt?: InputMaybe<NumberFilter>;
-  /** A list of launchpad names. Any of the following: Pump.fun, Bonk, Baseapp, Zora, Zora Creator, Four.meme, Believe, Moonshot, Jupiter Studio, boop, Heaven, TokenMill V2, Virtuals, Clanker, ArenaTrade, Moonit, LaunchLab, MeteoraDBC, Vertigo, Cooking.City, time.fun, BAGS, Circus, Dealr, OhFuckFun, PrintFun, Trend, shout.fun, xApple, Sendshot, DubDub, cults. */
+  /** A list of launchpad names. Any of the following: Pump.fun, Bonk, Baseapp, Zora, Zora Creator, Four.meme, Believe, Moonshot, Jupiter Studio, boop, Heaven, TokenMill V2, Virtuals, Clanker, Clanker V4, ArenaTrade, Moonit, LaunchLab, MeteoraDBC, Vertigo, Cooking.City, time.fun, BAGS, Circus, Dealr, OhFuckFun, PrintFun, Trend, shout.fun, xApple, Sendshot, DubDub, cults. */
   launchpadName?: InputMaybe<Array<Scalars['String']['input']>>;
   /** A list of launchpad protocols. */
   launchpadProtocol?: InputMaybe<Array<Scalars['String']['input']>>;
@@ -8957,8 +9026,12 @@ export type TokenWalletFilterResult = {
   tokenAmountSoldAll1y: Scalars['String']['output'];
   /** Token amount sold all in the past 30 days */
   tokenAmountSoldAll30d: Scalars['String']['output'];
-  /** The current token balance */
+  /** The token balance in the wallet. This value does not update with every transfer and can be slightly stale. Use tokenBalanceLive for live data. */
   tokenBalance: Scalars['String']['output'];
+  /** The current token balance in the wallet. */
+  tokenBalanceLive?: Maybe<Scalars['String']['output']>;
+  /** The current USD value of the token balance. */
+  tokenBalanceLiveUsd?: Maybe<Scalars['String']['output']>;
 };
 
 /** A token with metadata. */
@@ -9169,6 +9242,8 @@ export type UnconfirmedSwapEventData = {
 
 export type UniswapV4Data = {
   __typename?: 'UniswapV4Data';
+  /** Whether the token is the network token for the Uniswap V4 pool. */
+  isToken0NetworkToken?: Maybe<Scalars['Boolean']['output']>;
   type: Scalars['String']['output'];
   /** The address of the hook contract for Uniswap V4 pools. */
   uniswapV4HookAddress?: Maybe<Scalars['String']['output']>;
@@ -11121,7 +11196,7 @@ export type OnTokenBarsUpdatedSubscriptionVariables = Exact<{
 }>;
 
 
-export type OnTokenBarsUpdatedSubscription = { __typename?: 'Subscription', onTokenBarsUpdated?: { __typename?: 'OnTokenBarsUpdatedResponse', eventSortKey: string, networkId: number, pairAddress: string, pairId: string, quoteToken?: QuoteToken | null, statsType: TokenPairStatisticsType, timestamp: number, tokenAddress: string, tokenId: string, aggregates: { __typename?: 'ResolutionBarData', r1?: { __typename?: 'CurrencyBarData', t: number, token: { __typename?: 'IndividualBarData', buyVolume: string, buyers: number, buys: number, c: number, h: number, l: number, liquidity: string, o: number, sellVolume: string, sellers: number, sells: number, t: number, traders: number, transactions: number, v?: number | null, volume: string, volumeNativeToken: string }, usd: { __typename?: 'IndividualBarData', buyVolume: string, buyers: number, buys: number, c: number, h: number, l: number, liquidity: string, o: number, sellVolume: string, sellers: number, sells: number, t: number, traders: number, transactions: number, v?: number | null, volume: string, volumeNativeToken: string } } | null, r1D?: { __typename?: 'CurrencyBarData', t: number, token: { __typename?: 'IndividualBarData', buyVolume: string, buyers: number, buys: number, c: number, h: number, l: number, liquidity: string, o: number, sellVolume: string, sellers: number, sells: number, t: number, traders: number, transactions: number, v?: number | null, volume: string, volumeNativeToken: string }, usd: { __typename?: 'IndividualBarData', buyVolume: string, buyers: number, buys: number, c: number, h: number, l: number, liquidity: string, o: number, sellVolume: string, sellers: number, sells: number, t: number, traders: number, transactions: number, v?: number | null, volume: string, volumeNativeToken: string } } | null, r1S?: { __typename?: 'CurrencyBarData', t: number, token: { __typename?: 'IndividualBarData', buyVolume: string, buyers: number, buys: number, c: number, h: number, l: number, liquidity: string, o: number, sellVolume: string, sellers: number, sells: number, t: number, traders: number, transactions: number, v?: number | null, volume: string, volumeNativeToken: string }, usd: { __typename?: 'IndividualBarData', buyVolume: string, buyers: number, buys: number, c: number, h: number, l: number, liquidity: string, o: number, sellVolume: string, sellers: number, sells: number, t: number, traders: number, transactions: number, v?: number | null, volume: string, volumeNativeToken: string } } | null, r5?: { __typename?: 'CurrencyBarData', t: number, token: { __typename?: 'IndividualBarData', buyVolume: string, buyers: number, buys: number, c: number, h: number, l: number, liquidity: string, o: number, sellVolume: string, sellers: number, sells: number, t: number, traders: number, transactions: number, v?: number | null, volume: string, volumeNativeToken: string }, usd: { __typename?: 'IndividualBarData', buyVolume: string, buyers: number, buys: number, c: number, h: number, l: number, liquidity: string, o: number, sellVolume: string, sellers: number, sells: number, t: number, traders: number, transactions: number, v?: number | null, volume: string, volumeNativeToken: string } } | null, r5S?: { __typename?: 'CurrencyBarData', t: number, token: { __typename?: 'IndividualBarData', buyVolume: string, buyers: number, buys: number, c: number, h: number, l: number, liquidity: string, o: number, sellVolume: string, sellers: number, sells: number, t: number, traders: number, transactions: number, v?: number | null, volume: string, volumeNativeToken: string }, usd: { __typename?: 'IndividualBarData', buyVolume: string, buyers: number, buys: number, c: number, h: number, l: number, liquidity: string, o: number, sellVolume: string, sellers: number, sells: number, t: number, traders: number, transactions: number, v?: number | null, volume: string, volumeNativeToken: string } } | null, r7D?: { __typename?: 'CurrencyBarData', t: number, token: { __typename?: 'IndividualBarData', buyVolume: string, buyers: number, buys: number, c: number, h: number, l: number, liquidity: string, o: number, sellVolume: string, sellers: number, sells: number, t: number, traders: number, transactions: number, v?: number | null, volume: string, volumeNativeToken: string }, usd: { __typename?: 'IndividualBarData', buyVolume: string, buyers: number, buys: number, c: number, h: number, l: number, liquidity: string, o: number, sellVolume: string, sellers: number, sells: number, t: number, traders: number, transactions: number, v?: number | null, volume: string, volumeNativeToken: string } } | null, r15?: { __typename?: 'CurrencyBarData', t: number, token: { __typename?: 'IndividualBarData', buyVolume: string, buyers: number, buys: number, c: number, h: number, l: number, liquidity: string, o: number, sellVolume: string, sellers: number, sells: number, t: number, traders: number, transactions: number, v?: number | null, volume: string, volumeNativeToken: string }, usd: { __typename?: 'IndividualBarData', buyVolume: string, buyers: number, buys: number, c: number, h: number, l: number, liquidity: string, o: number, sellVolume: string, sellers: number, sells: number, t: number, traders: number, transactions: number, v?: number | null, volume: string, volumeNativeToken: string } } | null, r15S?: { __typename?: 'CurrencyBarData', t: number, token: { __typename?: 'IndividualBarData', buyVolume: string, buyers: number, buys: number, c: number, h: number, l: number, liquidity: string, o: number, sellVolume: string, sellers: number, sells: number, t: number, traders: number, transactions: number, v?: number | null, volume: string, volumeNativeToken: string }, usd: { __typename?: 'IndividualBarData', buyVolume: string, buyers: number, buys: number, c: number, h: number, l: number, liquidity: string, o: number, sellVolume: string, sellers: number, sells: number, t: number, traders: number, transactions: number, v?: number | null, volume: string, volumeNativeToken: string } } | null, r30?: { __typename?: 'CurrencyBarData', t: number, token: { __typename?: 'IndividualBarData', buyVolume: string, buyers: number, buys: number, c: number, h: number, l: number, liquidity: string, o: number, sellVolume: string, sellers: number, sells: number, t: number, traders: number, transactions: number, v?: number | null, volume: string, volumeNativeToken: string }, usd: { __typename?: 'IndividualBarData', buyVolume: string, buyers: number, buys: number, c: number, h: number, l: number, liquidity: string, o: number, sellVolume: string, sellers: number, sells: number, t: number, traders: number, transactions: number, v?: number | null, volume: string, volumeNativeToken: string } } | null, r30S?: { __typename?: 'CurrencyBarData', t: number, token: { __typename?: 'IndividualBarData', buyVolume: string, buyers: number, buys: number, c: number, h: number, l: number, liquidity: string, o: number, sellVolume: string, sellers: number, sells: number, t: number, traders: number, transactions: number, v?: number | null, volume: string, volumeNativeToken: string }, usd: { __typename?: 'IndividualBarData', buyVolume: string, buyers: number, buys: number, c: number, h: number, l: number, liquidity: string, o: number, sellVolume: string, sellers: number, sells: number, t: number, traders: number, transactions: number, v?: number | null, volume: string, volumeNativeToken: string } } | null, r60?: { __typename?: 'CurrencyBarData', t: number, token: { __typename?: 'IndividualBarData', buyVolume: string, buyers: number, buys: number, c: number, h: number, l: number, liquidity: string, o: number, sellVolume: string, sellers: number, sells: number, t: number, traders: number, transactions: number, v?: number | null, volume: string, volumeNativeToken: string }, usd: { __typename?: 'IndividualBarData', buyVolume: string, buyers: number, buys: number, c: number, h: number, l: number, liquidity: string, o: number, sellVolume: string, sellers: number, sells: number, t: number, traders: number, transactions: number, v?: number | null, volume: string, volumeNativeToken: string } } | null, r240?: { __typename?: 'CurrencyBarData', t: number, token: { __typename?: 'IndividualBarData', buyVolume: string, buyers: number, buys: number, c: number, h: number, l: number, liquidity: string, o: number, sellVolume: string, sellers: number, sells: number, t: number, traders: number, transactions: number, v?: number | null, volume: string, volumeNativeToken: string }, usd: { __typename?: 'IndividualBarData', buyVolume: string, buyers: number, buys: number, c: number, h: number, l: number, liquidity: string, o: number, sellVolume: string, sellers: number, sells: number, t: number, traders: number, transactions: number, v?: number | null, volume: string, volumeNativeToken: string } } | null, r720?: { __typename?: 'CurrencyBarData', t: number, token: { __typename?: 'IndividualBarData', buyVolume: string, buyers: number, buys: number, c: number, h: number, l: number, liquidity: string, o: number, sellVolume: string, sellers: number, sells: number, t: number, traders: number, transactions: number, v?: number | null, volume: string, volumeNativeToken: string }, usd: { __typename?: 'IndividualBarData', buyVolume: string, buyers: number, buys: number, c: number, h: number, l: number, liquidity: string, o: number, sellVolume: string, sellers: number, sells: number, t: number, traders: number, transactions: number, v?: number | null, volume: string, volumeNativeToken: string } } | null } } | null };
+export type OnTokenBarsUpdatedSubscription = { __typename?: 'Subscription', onTokenBarsUpdated?: { __typename?: 'OnTokenBarsUpdatedResponse', eventSortKey: string, networkId: number, pairAddress?: string | null, pairId?: string | null, quoteToken?: QuoteToken | null, statsType: TokenPairStatisticsType, timestamp: number, tokenAddress: string, tokenId: string, aggregates: { __typename?: 'ResolutionBarData', r1?: { __typename?: 'CurrencyBarData', t: number, token: { __typename?: 'IndividualBarData', buyVolume: string, buyers: number, buys: number, c: number, h: number, l: number, liquidity: string, o: number, sellVolume: string, sellers: number, sells: number, t: number, traders: number, transactions: number, v?: number | null, volume: string, volumeNativeToken: string }, usd: { __typename?: 'IndividualBarData', buyVolume: string, buyers: number, buys: number, c: number, h: number, l: number, liquidity: string, o: number, sellVolume: string, sellers: number, sells: number, t: number, traders: number, transactions: number, v?: number | null, volume: string, volumeNativeToken: string } } | null, r1D?: { __typename?: 'CurrencyBarData', t: number, token: { __typename?: 'IndividualBarData', buyVolume: string, buyers: number, buys: number, c: number, h: number, l: number, liquidity: string, o: number, sellVolume: string, sellers: number, sells: number, t: number, traders: number, transactions: number, v?: number | null, volume: string, volumeNativeToken: string }, usd: { __typename?: 'IndividualBarData', buyVolume: string, buyers: number, buys: number, c: number, h: number, l: number, liquidity: string, o: number, sellVolume: string, sellers: number, sells: number, t: number, traders: number, transactions: number, v?: number | null, volume: string, volumeNativeToken: string } } | null, r1S?: { __typename?: 'CurrencyBarData', t: number, token: { __typename?: 'IndividualBarData', buyVolume: string, buyers: number, buys: number, c: number, h: number, l: number, liquidity: string, o: number, sellVolume: string, sellers: number, sells: number, t: number, traders: number, transactions: number, v?: number | null, volume: string, volumeNativeToken: string }, usd: { __typename?: 'IndividualBarData', buyVolume: string, buyers: number, buys: number, c: number, h: number, l: number, liquidity: string, o: number, sellVolume: string, sellers: number, sells: number, t: number, traders: number, transactions: number, v?: number | null, volume: string, volumeNativeToken: string } } | null, r5?: { __typename?: 'CurrencyBarData', t: number, token: { __typename?: 'IndividualBarData', buyVolume: string, buyers: number, buys: number, c: number, h: number, l: number, liquidity: string, o: number, sellVolume: string, sellers: number, sells: number, t: number, traders: number, transactions: number, v?: number | null, volume: string, volumeNativeToken: string }, usd: { __typename?: 'IndividualBarData', buyVolume: string, buyers: number, buys: number, c: number, h: number, l: number, liquidity: string, o: number, sellVolume: string, sellers: number, sells: number, t: number, traders: number, transactions: number, v?: number | null, volume: string, volumeNativeToken: string } } | null, r5S?: { __typename?: 'CurrencyBarData', t: number, token: { __typename?: 'IndividualBarData', buyVolume: string, buyers: number, buys: number, c: number, h: number, l: number, liquidity: string, o: number, sellVolume: string, sellers: number, sells: number, t: number, traders: number, transactions: number, v?: number | null, volume: string, volumeNativeToken: string }, usd: { __typename?: 'IndividualBarData', buyVolume: string, buyers: number, buys: number, c: number, h: number, l: number, liquidity: string, o: number, sellVolume: string, sellers: number, sells: number, t: number, traders: number, transactions: number, v?: number | null, volume: string, volumeNativeToken: string } } | null, r7D?: { __typename?: 'CurrencyBarData', t: number, token: { __typename?: 'IndividualBarData', buyVolume: string, buyers: number, buys: number, c: number, h: number, l: number, liquidity: string, o: number, sellVolume: string, sellers: number, sells: number, t: number, traders: number, transactions: number, v?: number | null, volume: string, volumeNativeToken: string }, usd: { __typename?: 'IndividualBarData', buyVolume: string, buyers: number, buys: number, c: number, h: number, l: number, liquidity: string, o: number, sellVolume: string, sellers: number, sells: number, t: number, traders: number, transactions: number, v?: number | null, volume: string, volumeNativeToken: string } } | null, r15?: { __typename?: 'CurrencyBarData', t: number, token: { __typename?: 'IndividualBarData', buyVolume: string, buyers: number, buys: number, c: number, h: number, l: number, liquidity: string, o: number, sellVolume: string, sellers: number, sells: number, t: number, traders: number, transactions: number, v?: number | null, volume: string, volumeNativeToken: string }, usd: { __typename?: 'IndividualBarData', buyVolume: string, buyers: number, buys: number, c: number, h: number, l: number, liquidity: string, o: number, sellVolume: string, sellers: number, sells: number, t: number, traders: number, transactions: number, v?: number | null, volume: string, volumeNativeToken: string } } | null, r15S?: { __typename?: 'CurrencyBarData', t: number, token: { __typename?: 'IndividualBarData', buyVolume: string, buyers: number, buys: number, c: number, h: number, l: number, liquidity: string, o: number, sellVolume: string, sellers: number, sells: number, t: number, traders: number, transactions: number, v?: number | null, volume: string, volumeNativeToken: string }, usd: { __typename?: 'IndividualBarData', buyVolume: string, buyers: number, buys: number, c: number, h: number, l: number, liquidity: string, o: number, sellVolume: string, sellers: number, sells: number, t: number, traders: number, transactions: number, v?: number | null, volume: string, volumeNativeToken: string } } | null, r30?: { __typename?: 'CurrencyBarData', t: number, token: { __typename?: 'IndividualBarData', buyVolume: string, buyers: number, buys: number, c: number, h: number, l: number, liquidity: string, o: number, sellVolume: string, sellers: number, sells: number, t: number, traders: number, transactions: number, v?: number | null, volume: string, volumeNativeToken: string }, usd: { __typename?: 'IndividualBarData', buyVolume: string, buyers: number, buys: number, c: number, h: number, l: number, liquidity: string, o: number, sellVolume: string, sellers: number, sells: number, t: number, traders: number, transactions: number, v?: number | null, volume: string, volumeNativeToken: string } } | null, r30S?: { __typename?: 'CurrencyBarData', t: number, token: { __typename?: 'IndividualBarData', buyVolume: string, buyers: number, buys: number, c: number, h: number, l: number, liquidity: string, o: number, sellVolume: string, sellers: number, sells: number, t: number, traders: number, transactions: number, v?: number | null, volume: string, volumeNativeToken: string }, usd: { __typename?: 'IndividualBarData', buyVolume: string, buyers: number, buys: number, c: number, h: number, l: number, liquidity: string, o: number, sellVolume: string, sellers: number, sells: number, t: number, traders: number, transactions: number, v?: number | null, volume: string, volumeNativeToken: string } } | null, r60?: { __typename?: 'CurrencyBarData', t: number, token: { __typename?: 'IndividualBarData', buyVolume: string, buyers: number, buys: number, c: number, h: number, l: number, liquidity: string, o: number, sellVolume: string, sellers: number, sells: number, t: number, traders: number, transactions: number, v?: number | null, volume: string, volumeNativeToken: string }, usd: { __typename?: 'IndividualBarData', buyVolume: string, buyers: number, buys: number, c: number, h: number, l: number, liquidity: string, o: number, sellVolume: string, sellers: number, sells: number, t: number, traders: number, transactions: number, v?: number | null, volume: string, volumeNativeToken: string } } | null, r240?: { __typename?: 'CurrencyBarData', t: number, token: { __typename?: 'IndividualBarData', buyVolume: string, buyers: number, buys: number, c: number, h: number, l: number, liquidity: string, o: number, sellVolume: string, sellers: number, sells: number, t: number, traders: number, transactions: number, v?: number | null, volume: string, volumeNativeToken: string }, usd: { __typename?: 'IndividualBarData', buyVolume: string, buyers: number, buys: number, c: number, h: number, l: number, liquidity: string, o: number, sellVolume: string, sellers: number, sells: number, t: number, traders: number, transactions: number, v?: number | null, volume: string, volumeNativeToken: string } } | null, r720?: { __typename?: 'CurrencyBarData', t: number, token: { __typename?: 'IndividualBarData', buyVolume: string, buyers: number, buys: number, c: number, h: number, l: number, liquidity: string, o: number, sellVolume: string, sellers: number, sells: number, t: number, traders: number, transactions: number, v?: number | null, volume: string, volumeNativeToken: string }, usd: { __typename?: 'IndividualBarData', buyVolume: string, buyers: number, buys: number, c: number, h: number, l: number, liquidity: string, o: number, sellVolume: string, sellers: number, sells: number, t: number, traders: number, transactions: number, v?: number | null, volume: string, volumeNativeToken: string } } | null } } | null };
 
 export type OnTokenEventsCreatedSubscriptionVariables = Exact<{
   input: OnTokenEventsCreatedInput;
