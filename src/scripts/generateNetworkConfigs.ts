@@ -198,19 +198,13 @@ async function main() {
   const tokenNameMap = new Map(
     tokenData.filterTokens.results
       .filter((result) => result !== null)
-      .map((result) => [
-        result.token.id,
-        result.token.name,
-      ]),
+      .map((result) => [result.token.id, result.token.name]),
   );
   // Create a map of address:networkId -> decimals
   const tokenDecimalsMap = new Map(
     tokenData.filterTokens.results
       .filter((result) => result !== null)
-      .map((result) => [
-        result.token.id,
-        result.token.decimals,
-      ]),
+      .map((result) => [result.token.id, result.token.decimals]),
   );
 
   // Add baseTokenName to each network config

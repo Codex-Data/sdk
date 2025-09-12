@@ -50,8 +50,9 @@ export const getLeafType = (
 
   if (type.kind === "UNION") {
     // Find all the possible types
-    const possibleTypes = allTypes.find((t) => t.name === type.name)
-      ?.possibleTypes;
+    const possibleTypes = allTypes.find(
+      (t) => t.name === type.name,
+    )?.possibleTypes;
 
     // For each of the possible types, treat it as a sub object with a set of fields
     const possibleTypeLeaves = possibleTypes
