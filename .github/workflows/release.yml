@@ -29,9 +29,5 @@ jobs:
         with:
           webhook_url: ${{secrets.DISCORD_WEBHOOK_URL}}
           color: "2105893"
-          username: "Codex SDK Release"
           avatar_url: "https://avatars.githubusercontent.com/u/175457154?s=200&v=4"
           content: "🚀 New SDK release is now available!"
-          footer_title: "Codex SDK Changelog"
-          reduce_headings: true
-          remove_github_reference_links: false
