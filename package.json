@@ -65,5 +65,8 @@
     "merge": "^2.1.1",
     "prettier": "^3.0.3",
     "ts-jest": "^29.1.1"
+  },
+  "resolutions": {
+    "graphql": "^16.9.0"
   }
 }
