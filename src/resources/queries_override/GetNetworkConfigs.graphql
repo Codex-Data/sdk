@@ -1,0 +1,129 @@
+query GetNetworkConfigs($networkIds: [Int!]) {
+  getNetworkConfigs(networkIds: $networkIds) {
+    ... on AptosNetworkConfig {
+      baseTokenAddress
+      baseTokenSymbol
+      color
+      defaultPairAddress
+      defaultPairQuoteToken
+      enabled
+      explorer {
+        checksummed
+        icon
+        name
+        url
+      }
+      id
+      mainnet
+      name
+      networkIconUrl
+      networkId
+      networkName
+      networkShortName
+      networkType
+      newTokensEnabled
+      stableCoinAddresses
+      wrappedBaseTokenSymbol
+    }
+    ... on EvmNetworkConfig {
+      baseTokenAddress
+      baseTokenSymbol
+      color
+      defaultPairAddress
+      defaultPairQuoteToken
+      enabled
+      explorer {
+        checksummed
+        icon
+        name
+        url
+      }
+      id
+      mainnet
+      name
+      networkIconUrl
+      networkId
+      networkName
+      networkShortName
+      networkType
+      newTokensEnabled
+      stableCoinAddresses
+      wrappedBaseTokenSymbol
+    }
+    ... on SolanaNetworkConfig {
+      baseTokenAddress
+      baseTokenSymbol
+      color
+      defaultPairAddress
+      defaultPairQuoteToken
+      enabled
+      explorer {
+        checksummed
+        icon
+        name
+        url
+      }
+      id
+      mainnet
+      name
+      networkIconUrl
+      networkId
+      networkName
+      networkShortName
+      networkType
+      newTokensEnabled
+      stableCoinAddresses
+      wrappedBaseTokenSymbol
+    }
+    ... on StarknetNetworkConfig {
+      baseTokenAddress
+      baseTokenSymbol
+      color
+      defaultPairAddress
+      defaultPairQuoteToken
+      enabled
+      explorer {
+        checksummed
+        icon
+        name
+        url
+      }
+      id
+      mainnet
+      name
+      networkIconUrl
+      networkId
+      networkName
+      networkShortName
+      networkType
+      newTokensEnabled
+      stableCoinAddresses
+      wrappedBaseTokenSymbol
+    }
+    ... on SuiNetworkConfig {
+      baseTokenAddress
+      baseTokenSymbol
+      color
+      defaultPairAddress
+      defaultPairQuoteToken
+      enabled
+      explorer {
+        checksummed
+        icon
+        name
+        url
+      }
+      id
+      mainnet
+      name
+      networkIconUrl
+      networkId
+      networkName
+      networkShortName
+      networkType
+      newTokensEnabled
+      stableCoinAddresses
+      wrappedBaseTokenSymbol
+    }
+  }
+}

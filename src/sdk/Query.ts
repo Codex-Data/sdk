@@ -6,6 +6,8 @@ import {
   ApiTokensQueryVariables,
   BalancesDocument,
   BalancesQueryVariables,
+  BlocksDocument,
+  BlocksQueryVariables,
   ChartUrlsDocument,
   ChartUrlsQueryVariables,
   DetailedWalletStatsDocument,
@@ -42,6 +44,8 @@ import {
   GetEventLabelsQueryVariables,
   GetExchangesDocument,
   GetExchangesQueryVariables,
+  GetNetworkConfigsDocument,
+  GetNetworkConfigsQueryVariables,
   GetNetworksDocument,
   GetNetworksQueryVariables,
   GetNetworkStatsDocument,
@@ -80,6 +84,8 @@ import {
   GetPrimePoolsQueryVariables,
   GetSymbolDocument,
   GetSymbolQueryVariables,
+  GetTokenBarsDocument,
+  GetTokenBarsQueryVariables,
   GetTokenEventsDocument,
   GetTokenEventsForMakerDocument,
   GetTokenEventsForMakerQueryVariables,
@@ -146,6 +152,8 @@ export class Query {
   filterNftParallelAssets = async (
     vars: FilterNftParallelAssetsQueryVariables,
   ) => this.sdk.query(FilterNftParallelAssetsDocument, vars);
+  getTokenBars = async (vars: GetTokenBarsQueryVariables) =>
+    this.sdk.query(GetTokenBarsDocument, vars);
   getSymbol = async (vars: GetSymbolQueryVariables) =>
     this.sdk.query(GetSymbolDocument, vars);
   getNftEvents = async (vars: GetNftEventsQueryVariables) =>
@@ -178,6 +186,8 @@ export class Query {
   ) => this.sdk.query(LiquidityMetadataByTokenDocument, vars);
   primeHolders = async (vars: PrimeHoldersQueryVariables) =>
     this.sdk.query(PrimeHoldersDocument, vars);
+  blocks = async (vars: BlocksQueryVariables) =>
+    this.sdk.query(BlocksDocument, vars);
   balances = async (vars: BalancesQueryVariables) =>
     this.sdk.query(BalancesDocument, vars);
   filterNftPools = async (vars: FilterNftPoolsQueryVariables) =>
@@ -242,6 +252,8 @@ export class Query {
     this.sdk.query(TokenDocument, vars);
   tokenLifecycleEvents = async (vars: TokenLifecycleEventsQueryVariables) =>
     this.sdk.query(TokenLifecycleEventsDocument, vars);
+  getNetworkConfigs = async (vars: GetNetworkConfigsQueryVariables) =>
+    this.sdk.query(GetNetworkConfigsDocument, vars);
   apiToken = async (vars: ApiTokenQueryVariables) =>
     this.sdk.query(ApiTokenDocument, vars);
   getCommunityNotes = async (vars: GetCommunityNotesQueryVariables) =>
