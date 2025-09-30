@@ -2270,6 +2270,36 @@
   },
   {
     "__typename": "EvmNetworkConfig",
+    "id": "9745",
+    "networkType": "EVM",
+    "networkId": 9745,
+    "name": "plasma",
+    "enabled": true,
+    "newTokensEnabled": false,
+    "mainnet": true,
+    "wrappedBaseTokenSymbol": "WXPL",
+    "baseTokenSymbol": "XPL",
+    "baseTokenAddress": "0x6100e367285b01f48d07953803a2d8dca5d19873",
+    "defaultPairAddress": "0xb4afac168ca0cce40c5b4d4e8e49a1e18a630b40",
+    "defaultPairQuoteToken": "token0",
+    "stableCoinAddresses": [
+      "0xb8ce59fc3717ada4c02eadf9682a9e934f625ebb"
+    ],
+    "networkIconUrl": "https://icons.defined.fi/networks/plasma.png",
+    "color": "#162F29",
+    "networkShortName": "plasma",
+    "networkName": "Plasma",
+    "explorer": {
+      "name": "Plasma Explorer",
+      "url": "https://plasmascan.to/${type}/${input}",
+      "checksummed": true,
+      "icon": "https://icons.defined.fi/networks/plasma.png"
+    },
+    "baseTokenName": "Wrapped XPL",
+    "baseTokenDecimals": 18
+  },
+  {
+    "__typename": "EvmNetworkConfig",
     "id": "98866",
     "networkType": "EVM",
     "networkId": 98866,
@@ -2704,7 +2734,7 @@
     "networkType": "EVM",
     "networkId": 109,
     "name": "shibarium",
-    "enabled": true,
+    "enabled": false,
     "newTokensEnabled": null,
     "mainnet": true,
     "wrappedBaseTokenSymbol": "WBONE",
@@ -2825,7 +2855,7 @@
     "networkType": "EVM",
     "networkId": 5031,
     "name": "Somnia",
-    "enabled": false,
+    "enabled": true,
     "newTokensEnabled": true,
     "mainnet": true,
     "wrappedBaseTokenSymbol": "WSOMI",
@@ -2850,7 +2880,8 @@
       "checksummed": false,
       "icon": "https://icons.defined.fi/networks/somnia.png"
     },
-    "baseTokenName": "SOMI"
+    "baseTokenName": "Wrapped SOMI",
+    "baseTokenDecimals": 18
   },
   {
     "__typename": "EvmNetworkConfig",
