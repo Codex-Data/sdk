@@ -325,7 +325,7 @@ type Query {
   filterTokens(
     """A set of filters to apply."""
     filters: TokenFilters
-    """The type of statistics returned. Can be `FILTERED` or `UNFILTERED`"""
+    """The type of statistics returned. Can be `FILTERED` or `UNFILTERED`. Default is `UNFILTERED`."""
     statsType: TokenPairStatisticsType
     """A phrase to search for. Can match a token contract address or partially match a token's name or symbol."""
     phrase: String
@@ -344,7 +344,7 @@ type Query {
   filterPairs(
     """A set of filters to apply."""
     filters: PairFilters
-    """The type of statistics returned. Can be `FILTERED` or `UNFILTERED`"""
+    """The type of statistics returned. Can be `FILTERED` or `UNFILTERED`. Default is `UNFILTERED`."""
     statsType: TokenPairStatisticsType
     """A phrase to search for. Can match a token or pair contract address or ID (`address:networkId`), or partially match a token name or symbol."""
     phrase: String
@@ -384,7 +384,7 @@ type Query {
     windowSizes: [DetailedStatsWindowSize]
     """The number of aggregated values to receive. Note: Each duration has predetermined bucket sizes. The first n-1 buckets are historical. The last bucket is a snapshot of current data. duration `day1`: 6 buckets (4 hours each) plus 1 partial bucket duration `hour12`: 12 buckets (1 hour each) plus 1 partial bucket duration `hour4`: 8 buckets (30 min each) plus 1 partial bucket duration `hour1`: 12 buckets (5 min each) plus 1 partial bucket duration `min5`: 5 buckets (1 min each) plus 1 partial bucket For example, requesting 11 buckets for a `min5` duration will return the last 10 minutes worth of data plus a snapshot for the current minute."""
     bucketCount: Int
-    """The type of statistics returned. Can be `FILTERED` or `UNFILTERED`"""
+    """The type of statistics returned. Can be `FILTERED` or `UNFILTERED`. Default is `UNFILTERED`."""
     statsType: TokenPairStatisticsType
   ): DetailedStats @deprecated(reason: "Use `getDetailedPairStats` instead, it has more resolutions and better support")
   """Returns bucketed stats for a given token within a pair."""
@@ -401,7 +401,7 @@ type Query {
     durations: [DetailedPairStatsDuration]
     """The number of aggregated values to receive. Note: Each duration has predetermined bucket sizes. The first n-1 buckets are historical. The last bucket is a snapshot of current data. duration `day1`: 6 buckets (4 hours each) plus 1 partial bucket duration `hour12`: 12 buckets (1 hour each) plus 1 partial bucket duration `hour4`: 8 buckets (30 min each) plus 1 partial bucket duration `hour1`: 12 buckets (5 min each) plus 1 partial bucket duration `min5`: 5 buckets (1 min each) plus 1 partial bucket For example, requesting 11 buckets for a `min5` duration will return the last 10 minutes worth of data plus a snapshot for the current minute."""
     bucketCount: Int
-    """The type of statistics returned. Can be `FILTERED` or `UNFILTERED`"""
+    """The type of statistics returned. Can be `FILTERED` or `UNFILTERED`. Default is `UNFILTERED`."""
     statsType: TokenPairStatisticsType
   ): DetailedPairStats
   """Returns bucketed stats for a given token within a list of pairs."""
@@ -474,7 +474,7 @@ type Query {
     removeLeadingNullValues: Boolean
     """Whether to remove empty bars from the response. This is useful for eliminating gaps in low-activity tokens. Default is `false`."""
     removeEmptyBars: Boolean
-    """The token of interest within the token's top pair. Can be `token0` or `token1`. If omitted, the base token is inferred automatically. You can invert the pair by quoting the other token."""
+    """The type of statistics returned. Can be `FILTERED` or `UNFILTERED`. Default is `UNFILTERED`."""
     statsType: TokenPairStatisticsType
     """Guarantees number of bars returned is at most this number. Use `countback: 1500` with `from: 0` for maximum results."""
     countback: Int
@@ -497,26 +497,13 @@ type Query {
     removeEmptyBars: Boolean
     """The token of interest within the token's top pair. Can be `token0` or `token1`. If omitted, the base token is inferred automatically. You can invert the pair by quoting the other token."""
     quoteToken: QuoteToken
-    """The type of statistics returned. Can be `FILTERED` or `UNFILTERED`."""
+    """The type of statistics returned. Can be `FILTERED` or `UNFILTERED`. Default is `UNFILTERED`."""
     statsType: TokenPairStatisticsType
     """Guarantees number of bars returned is at most this number. Use `countback: 1500` with `from: 0` for maximum results."""
     countback: Int
     """Specify the type of symbol you want to fetch values for. Can be `TOKEN` or `POOL`."""
     symbolType: SymbolType
   ): BarsResponse
-  """Returns a list of tokens matching a given query string."""
-  searchTokens(
-    """The maximum number of tokens to return."""
-    limit: Int
-    """Whether to filter out low volume results from the response. Low volume is less than $500 USD. This setting has no effect when only low volume results are found. Default is `true`."""
-    lowVolumeFilter: Boolean
-    """The list of network IDs to filter by."""
-    networkFilter: [Int!]
-    """The time frame to use for token metadata. Can be `60`, `240`, `720`, or `1D`."""
-    resolution: String
-    """The query string to search for. Can match a token or pair contract address or partially match a token's name or symbol. Automatically filters out tokens marked as scams."""
-    search: String!
-  ): TokenSearchResponse @deprecated(reason: "This query is no longer supported and will not return up to date data. Use `filterTokens` instead.")
   """Returns the percentage of a token's total supply held collectively by its top 10 holders."""
   top10HoldersPercent(
     tokenId: String!
@@ -567,7 +554,7 @@ type Query {
     pairId: String!
     """The token of interest within the pair. Can be `token0` or `token1`."""
     quoteToken: QuoteToken
-    """The type of statistics returned. Can be `FILTERED` or `UNFILTERED`"""
+    """The type of statistics returned. Can be `FILTERED` or `UNFILTERED`. Default is `UNFILTERED`."""
     statsType: TokenPairStatisticsType
   ): PairMetadata!
   """Returns new tokens listed over the last three days."""
@@ -755,16 +742,16 @@ type Subscription {
   ): OnUnconfirmedBarsUpdated
   """Live-streamed bar chart data to track price changes over time for a token."""
   onTokenBarsUpdated(
-    """The ID of the pair (`address`:`networkId`)."""
+    """The ID of the token (`address`:`networkId`). Required unless you are on an enterprise plan including BarFeed features."""
     tokenId: String
-    """The networkId to use when getting all bars per network"""
+    """The networkId to use when getting all bars per network."""
     networkId: Int
   ): OnTokenBarsUpdatedResponse
   """Live-streamed transactions for a pair."""
   onEventsCreated(
     """The pair contract address."""
     address: String
-    """The ID of the pair (`address`:`networkId`)."""
+    """The ID of the pair (`address`:`networkId`). Required unless you are on an enterprise plan including EventFeed features."""
     id: String
     """The token of interest within the pair. Can be `token0` or `token1`."""
     quoteToken: QuoteToken
@@ -778,7 +765,7 @@ type Subscription {
   """Live-streamed unconfirmed transactions for a token. (Solana only)"""
   onUnconfirmedEventsCreated(
     """The pair contract address."""
-    address: String
+    address: String @deprecated(reason: "Unused")
     """The ID of the pair (`address`:`networkId`)."""
     id: String
     """The token of interest within the pair. Can be `token0` or `token1`."""
@@ -790,11 +777,11 @@ type Subscription {
   ): AddUnconfirmedEventsByMakerOutput
   """Live-streamed price updates for a token."""
   onPriceUpdated(
-    """The token contract address."""
+    """The token contract address. Required unless you are on an enterprise plan including PriceFeed features."""
     address: String
     """The network ID the token is deployed on."""
     networkId: Int
-    """The pair contract address from which to get pricing"""
+    """The pair contract address from which to get pricing. Defaults to the top pair for the token."""
     sourcePairAddress: String
   ): Price
   """Live-streamed price updates for multiple tokens."""
@@ -1587,7 +1574,7 @@ type DetailedPairStats {
   tokenOfInterest: TokenOfInterest
   """The unix timestamp for the last transaction to happen on the pair."""
   lastTransaction: Int
-  """The type of statistics returned. Can be `FILTERED` or `UNFILTERED`"""
+  """The type of statistics returned. Can be `FILTERED` or `UNFILTERED`."""
   statsType: TokenPairStatisticsType!
   """The breakdown of stats over a 5 minute window."""
   stats_min5: WindowedDetailedPairStats
@@ -1662,7 +1649,7 @@ type DetailedStats {
   pairId: String!
   """The token of interest used to calculate token-specific stats."""
   tokenOfInterest: TokenOfInterest!
-  """The type of statistics returned. Can be `FILTERED` or `UNFILTERED`"""
+  """The type of statistics returned. Can be `FILTERED` or `UNFILTERED`."""
   statsType: TokenPairStatisticsType!
   """The breakdown of stats over a 5 minute window."""
   stats_min5: WindowedDetailedStats
@@ -1838,6 +1825,10 @@ type EnhancedToken {
   mintable: String
   """Whether or not the token is freezable"""
   freezable: String
+  """Determines if freezable is a valid address or null value for the authority, or if the freezable state has not yet been determined."""
+  isFreezableValid: Boolean
+  """Determines if mintable is a valid address or null value for the authority, or if the mintable state has not yet been determined."""
+  isMintableValid: Boolean
   """The launchpad data for the token, if applicable."""
   launchpad: LaunchpadData
   """The pair that the token is contained in"""
@@ -1906,7 +1897,7 @@ type Event {
 type EventConnection {
   """A list of transactions for a token's top pair."""
   items: [Event]
-  """A cursor for use in pagination."""
+  """A cursor for use in pagination. If non-null, more results are available; pages may be empty due to filtering."""
   cursor: String
 }
 
@@ -2235,7 +2226,9 @@ input FilterNetworkWalletsInput {
 """The input for filtering wallets for a token."""
 input FilterTokenWalletsInput {
   """The ID of the token to filter wallets for"""
-  tokenId: String
+  tokenId: String @deprecated(reason: "Use tokenIds instead")
+  """The IDs of the tokens to filter wallets for. Maximum 50 tokenIds. If you provide more than one tokenId, you must also provide at least one walletAddress in the wallets list."""
+  tokenIds: [String]
   """The wallet address to filter wallets for"""
   walletAddress: String @deprecated(reason: "Use wallets instead")
   """A list of wallet addresses to filter wallets for"""
@@ -2302,7 +2295,7 @@ input GetDetailedPairsStatsInput {
   durations: [DetailedPairStatsDuration]
   """The number of aggregated values to receive. Note: Each duration has predetermined bucket sizes. The first n-1 buckets are historical. The last bucket is a snapshot of current data. duration `day1`: 6 buckets (4 hours each) plus 1 partial bucket duration `hour12`: 12 buckets (1 hour each) plus 1 partial bucket duration `hour4`: 8 buckets (30 min each) plus 1 partial bucket duration `hour1`: 12 buckets (5 min each) plus 1 partial bucket duration `min5`: 5 buckets (1 min each) plus 1 partial bucket For example, requesting 11 buckets for a `min5` duration will return the last 10 minutes worth of data plus a snapshot for the current minute."""
   bucketCount: Int
-  """The type of statistics returned. Can be `FILTERED` or `UNFILTERED`"""
+  """The type of statistics returned. Can be `FILTERED` or `UNFILTERED`."""
   statsType: TokenPairStatisticsType
 }
 
@@ -2951,7 +2944,7 @@ type LockedLiquidityData {
 type MakerEventConnection {
   """A list of transactions for a token's top pair."""
   items: [Event]
-  """A cursor for use in pagination."""
+  """A cursor for use in pagination. If non-null, more results are available; pages may be empty due to filtering."""
   cursor: String
 }
 
@@ -5688,7 +5681,7 @@ type OnBarsUpdatedResponse {
   pairId: String!
   """The unix timestamp for the new bar."""
   timestamp: Int!
-  """The type of statistics used. Can be `Filtered` or `Unfiltered`."""
+  """The type of statistics used. Can be `FILTERED` or `UNFILTERED`."""
   statsType: TokenPairStatisticsType!
   """The sortKey for the bar (`blockNumber`#`transactionIndex`#`logIndex`, zero padded). For example, `0000000016414564#00000224#00000413`."""
   eventSortKey: String!
@@ -5752,8 +5745,11 @@ input OnLaunchpadTokenEventInput {
 }
 
 input OnPricesUpdatedInput {
+  """The token contract address."""
   address: String!
+  """The network ID the token is deployed on."""
   networkId: Int!
+  """The pair contract address from which to get pricing. Defaults to the top pair for the token."""
   sourcePairAddress: String
 }
 
@@ -5767,7 +5763,7 @@ type OnTokenBarsUpdatedResponse {
   pairId: String @deprecated(reason: "pairs are no longer used for pricing")
   """The unix timestamp for the new bar."""
   timestamp: Int!
-  """The type of statistics used. Can be `Filtered` or `Unfiltered`."""
+  """The type of statistics used. Only `FILTERED`."""
   statsType: TokenPairStatisticsType!
   """The sortKey for the bar (`blockNumber`#`transactionIndex`#`logIndex`, zero padded). For example, `0000000016414564#00000224#00000413`."""
   eventSortKey: String!
@@ -5782,7 +5778,7 @@ type OnTokenBarsUpdatedResponse {
 }
 
 input OnTokenEventsCreatedInput {
-  """The token address to filter by."""
+  """The token address to filter by. Required unless you are on an enterprise plan including EventFeed features."""
   tokenAddress: String
   """The network ID to filter by."""
   networkId: Int!
@@ -5826,6 +5822,8 @@ type Pair {
   id: String!
   """The network ID the pair is deployed on."""
   networkId: Int!
+  """The protocol of the pair. E.g. UniswapV4, RaydiumV4, PumpV1, etc."""
+  protocol: String
   """The amount of required tick separation. Only applicable for pairs on UniswapV3."""
   tickSpacing: Int
   """The contract address of `token0`."""
@@ -6191,7 +6189,7 @@ type PairMetadata {
   nonLiquidityToken: String
   """The contract address of the pair."""
   pairAddress: String!
-  """The type of statistics returned. Can be `FILTERED` or `UNFILTERED`"""
+  """The type of statistics returned. Can be `FILTERED` or `UNFILTERED`."""
   statsType: TokenPairStatisticsType!
   """The quote token price in USD."""
   price: String!
@@ -6208,7 +6206,7 @@ type PairMetadata {
   """The percent price change in the past 24 hours. Decimal format."""
   priceChange24: Float
   """The percent price change in the past week. Decimal format."""
-  priceChange1w: Float
+  priceChange1w: Float @deprecated(reason: "Inaccurate")
   """The amount of required tick separation. Only applicable for pairs on UniswapV3."""
   tickSpacing: Int
   """Pair metadata for the first token in the pair."""
@@ -6224,7 +6222,7 @@ type PairMetadata {
   """The trade volume in USD in the past 24 hours."""
   volume24: String
   """The trade trade volume in USD in the past week."""
-  volume1w: String
+  volume1w: String @deprecated(reason: "Inaccurate")
   """The trade volume in USD in the past 5 minutes."""
   volume5m: String
   """The highest price in USD in the past 5 minutes."""
@@ -6238,7 +6236,7 @@ type PairMetadata {
   """The highest price in USD in the past 24 hours."""
   highPrice24: String
   """The highest price in USD in the past week."""
-  highPrice1w: String
+  highPrice1w: String @deprecated(reason: "Inaccurate")
   """The lowest price in USD in the past 5 minutes."""
   lowPrice5m: String
   """The lowest price in USD in the past hour."""
@@ -6250,7 +6248,7 @@ type PairMetadata {
   """The lowest price in USD in the past 4 hours."""
   lowPrice4: String
   """The lowest price in USD in the past week."""
-  lowPrice1w: String
+  lowPrice1w: String @deprecated(reason: "Inaccurate")
   """Token metadata for the first token in the pair."""
   enhancedToken0: EnhancedToken
   """Token metadata for the second token in the pair."""
@@ -6661,9 +6659,9 @@ type Price {
   """The unix timestamp for the price."""
   timestamp: Int
   """The pool that emitted the swap generating this price"""
-  poolAddress: String!
+  poolAddress: String @deprecated(reason: "Pricing no longer based on specific pools")
   """Ratio of how confident we are in the price"""
-  confidence: Float
+  confidence: Float @deprecated(reason: "Pricing no longer based on specific pools")
   """The internal pool address for the price"""
   internalPoolAddress: String
 }
@@ -8196,7 +8194,7 @@ type TokenLifecycleEvent {
 type TokenLifecycleEventConnection {
   """A list of transactions for a token's top pair."""
   items: [TokenLifecycleEvent]!
-  """A cursor for use in pagination."""
+  """A cursor for use in pagination. If non-null, more results are available; pages may be empty due to filtering."""
   cursor: String
 }
 
@@ -8396,16 +8394,6 @@ enum TokenRankingAttribute {
   walletAgeStd
   swapPct1dOldWallet
   swapPct7dOldWallet
-}
-
-"""Response returned by `searchTokens`."""
-type TokenSearchResponse {
-  """The number of additional high volume results found. Only used if `lowVolumeFilter` is set to `true`."""
-  hasMore: Int
-  """If `lowVolumeFilter` is set to `true`, the number of additional low volume results found. If `lowVolumeFilter` is set to `false`, the number of additional high and low volume results found."""
-  hasMoreLowVolume: Int
-  """A list of tokens."""
-  tokens: [TokenWithMetadata!]
 }
 
 """A sparkline for a token."""

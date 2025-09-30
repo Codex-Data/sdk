@@ -797,7 +797,7 @@ export type DetailedPairStats = {
   pairAddress: Scalars['String']['output'];
   /** The timestamp specified as input to the query */
   queryTimestamp?: Maybe<Scalars['Int']['output']>;
-  /** The type of statistics returned. Can be `FILTERED` or `UNFILTERED` */
+  /** The type of statistics returned. Can be `FILTERED` or `UNFILTERED`. */
   statsType: TokenPairStatisticsType;
   /** The breakdown of stats over a 24 hour window. */
   stats_day1?: Maybe<WindowedDetailedPairStats>;
@@ -875,7 +875,7 @@ export type DetailedStats = {
   pairId: Scalars['String']['output'];
   /** The timestamp specified as input to the query */
   queryTimestamp?: Maybe<Scalars['Int']['output']>;
-  /** The type of statistics returned. Can be `FILTERED` or `UNFILTERED` */
+  /** The type of statistics returned. Can be `FILTERED` or `UNFILTERED`. */
   statsType: TokenPairStatisticsType;
   /** The breakdown of stats over a 24 hour window. */
   stats_day1?: Maybe<WindowedDetailedStats>;
@@ -1057,6 +1057,10 @@ export type EnhancedToken = {
   imageThumbUrl?: Maybe<Scalars['String']['output']>;
   /** More metadata about the token. */
   info?: Maybe<TokenInfo>;
+  /** Determines if freezable is a valid address or null value for the authority, or if the freezable state has not yet been determined. */
+  isFreezableValid?: Maybe<Scalars['Boolean']['output']>;
+  /** Determines if mintable is a valid address or null value for the authority, or if the mintable state has not yet been determined. */
+  isMintableValid?: Maybe<Scalars['Boolean']['output']>;
   /** Whether the token has been flagged as a scam. */
   isScam?: Maybe<Scalars['Boolean']['output']>;
   /** The launchpad data for the token, if applicable. */
@@ -1147,7 +1151,7 @@ export type Event = {
 /** Response returned by `getTokenEvents`. */
 export type EventConnection = {
   __typename?: 'EventConnection';
-  /** A cursor for use in pagination. */
+  /** A cursor for use in pagination. If non-null, more results are available; pages may be empty due to filtering. */
   cursor?: Maybe<Scalars['String']['output']>;
   /** A list of transactions for a token's top pair. */
   items?: Maybe<Array<Maybe<Event>>>;
@@ -1507,8 +1511,13 @@ export type FilterTokenWalletsInput = {
   phrase?: InputMaybe<Scalars['String']['input']>;
   /** A list of ranking attributes to apply */
   rankings?: InputMaybe<Array<InputMaybe<WalletTokenRanking>>>;
-  /** The ID of the token to filter wallets for */
+  /**
+   * The ID of the token to filter wallets for
+   * @deprecated Use tokenIds instead
+   */
   tokenId?: InputMaybe<Scalars['String']['input']>;
+  /** The IDs of the tokens to filter wallets for. Maximum 50 tokenIds. If you provide more than one tokenId, you must also provide at least one walletAddress in the wallets list. */
+  tokenIds?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
   /**
    * The wallet address to filter wallets for
    * @deprecated Use wallets instead
@@ -1557,7 +1566,7 @@ export type GetDetailedPairsStatsInput = {
   networkId: Scalars['Int']['input'];
   /** The contract address of the pair. */
   pairAddress: Scalars['String']['input'];
-  /** The type of statistics returned. Can be `FILTERED` or `UNFILTERED` */
+  /** The type of statistics returned. Can be `FILTERED` or `UNFILTERED`. */
   statsType?: InputMaybe<TokenPairStatisticsType>;
   /** The unix timestamp for the stats. Defaults to current. */
   timestamp?: InputMaybe<Scalars['Int']['input']>;
@@ -2224,7 +2233,7 @@ export type LockedLiquidityData = {
 /** Response returned by `getTokenEventsForMaker`. */
 export type MakerEventConnection = {
   __typename?: 'MakerEventConnection';
-  /** A cursor for use in pagination. */
+  /** A cursor for use in pagination. If non-null, more results are available; pages may be empty due to filtering. */
   cursor?: Maybe<Scalars['String']['output']>;
   /** A list of transactions for a token's top pair. */
   items?: Maybe<Array<Maybe<Event>>>;
@@ -5148,7 +5157,7 @@ export type OnBarsUpdatedResponse = {
   quoteToken?: Maybe<QuoteToken>;
   /** The address of the token being quoted */
   quoteTokenAddress: Scalars['String']['output'];
-  /** The type of statistics used. Can be `Filtered` or `Unfiltered`. */
+  /** The type of statistics used. Can be `FILTERED` or `UNFILTERED`. */
   statsType: TokenPairStatisticsType;
   /** The unix timestamp for the new bar. */
   timestamp: Scalars['Int']['output'];
@@ -5194,8 +5203,11 @@ export type OnLaunchpadTokenEventInput = {
 };
 
 export type OnPricesUpdatedInput = {
+  /** The token contract address. */
   address: Scalars['String']['input'];
+  /** The network ID the token is deployed on. */
   networkId: Scalars['Int']['input'];
+  /** The pair contract address from which to get pricing. Defaults to the top pair for the token. */
   sourcePairAddress?: InputMaybe<Scalars['String']['input']>;
 };
 
@@ -5223,7 +5235,7 @@ export type OnTokenBarsUpdatedResponse = {
    * @deprecated pairs are no longer used for pricing
    */
   quoteToken?: Maybe<QuoteToken>;
-  /** The type of statistics used. Can be `Filtered` or `Unfiltered`. */
+  /** The type of statistics used. Only `FILTERED`. */
   statsType: TokenPairStatisticsType;
   /** The unix timestamp for the new bar. */
   timestamp: Scalars['Int']['output'];
@@ -5236,7 +5248,7 @@ export type OnTokenBarsUpdatedResponse = {
 export type OnTokenEventsCreatedInput = {
   /** The network ID to filter by. */
   networkId: Scalars['Int']['input'];
-  /** The token address to filter by. */
+  /** The token address to filter by. Required unless you are on an enterprise plan including EventFeed features. */
   tokenAddress?: InputMaybe<Scalars['String']['input']>;
 };
 
@@ -5297,6 +5309,8 @@ export type Pair = {
   networkId: Scalars['Int']['output'];
   /** The pooled amounts of each token in the pair. */
   pooled?: Maybe<PooledTokenValues>;
+  /** The protocol of the pair. E.g. UniswapV4, RaydiumV4, PumpV1, etc. */
+  protocol?: Maybe<Scalars['String']['output']>;
   /**
    * The per-protocol data for the pair, if applicable
    * @deprecated Use protocolData instead
@@ -5658,7 +5672,10 @@ export type PairMetadata = {
   fee?: Maybe<Scalars['Int']['output']>;
   /** The highest price in USD in the past hour. */
   highPrice1?: Maybe<Scalars['String']['output']>;
-  /** The highest price in USD in the past week. */
+  /**
+   * The highest price in USD in the past week.
+   * @deprecated Inaccurate
+   */
   highPrice1w?: Maybe<Scalars['String']['output']>;
   /** The highest price in USD in the past 4 hours. */
   highPrice4?: Maybe<Scalars['String']['output']>;
@@ -5676,7 +5693,10 @@ export type PairMetadata = {
   liquidityToken?: Maybe<Scalars['String']['output']>;
   /** The lowest price in USD in the past hour. */
   lowPrice1?: Maybe<Scalars['String']['output']>;
-  /** The lowest price in USD in the past week. */
+  /**
+   * The lowest price in USD in the past week.
+   * @deprecated Inaccurate
+   */
   lowPrice1w?: Maybe<Scalars['String']['output']>;
   /** The lowest price in USD in the past 4 hours. */
   lowPrice4?: Maybe<Scalars['String']['output']>;
@@ -5696,7 +5716,10 @@ export type PairMetadata = {
   price: Scalars['String']['output'];
   /** The percent price change in the past hour. Decimal format. */
   priceChange1?: Maybe<Scalars['Float']['output']>;
-  /** The percent price change in the past week. Decimal format. */
+  /**
+   * The percent price change in the past week. Decimal format.
+   * @deprecated Inaccurate
+   */
   priceChange1w?: Maybe<Scalars['Float']['output']>;
   /** The percent price change in the past 4 hours. Decimal format. */
   priceChange4?: Maybe<Scalars['Float']['output']>;
@@ -5710,7 +5733,7 @@ export type PairMetadata = {
   priceNonQuoteToken: Scalars['String']['output'];
   /** The token of interest within the pair. Can be `token0` or `token1`. */
   quoteToken?: Maybe<QuoteToken>;
-  /** The type of statistics returned. Can be `FILTERED` or `UNFILTERED` */
+  /** The type of statistics returned. Can be `FILTERED` or `UNFILTERED`. */
   statsType: TokenPairStatisticsType;
   /** The amount of required tick separation. Only applicable for pairs on UniswapV3. */
   tickSpacing?: Maybe<Scalars['Int']['output']>;
@@ -5720,7 +5743,10 @@ export type PairMetadata = {
   token1: PairMetadataToken;
   /** The trade volume in USD in the past hour. */
   volume1?: Maybe<Scalars['String']['output']>;
-  /** The trade trade volume in USD in the past week. */
+  /**
+   * The trade trade volume in USD in the past week.
+   * @deprecated Inaccurate
+   */
   volume1w?: Maybe<Scalars['String']['output']>;
   /** The trade volume in USD in the past 4 hours. */
   volume4?: Maybe<Scalars['String']['output']>;
@@ -6140,14 +6166,20 @@ export type Price = {
   __typename?: 'Price';
   /** The contract address of the token. */
   address: Scalars['String']['output'];
-  /** Ratio of how confident we are in the price */
+  /**
+   * Ratio of how confident we are in the price
+   * @deprecated Pricing no longer based on specific pools
+   */
   confidence?: Maybe<Scalars['Float']['output']>;
   /** The internal pool address for the price */
   internalPoolAddress?: Maybe<Scalars['String']['output']>;
   /** The network ID the token is deployed on. */
   networkId: Scalars['Int']['output'];
-  /** The pool that emitted the swap generating this price */
-  poolAddress: Scalars['String']['output'];
+  /**
+   * The pool that emitted the swap generating this price
+   * @deprecated Pricing no longer based on specific pools
+   */
+  poolAddress?: Maybe<Scalars['String']['output']>;
   /** The token price in USD. */
   priceUsd: Scalars['Float']['output'];
   /** The unix timestamp for the price. */
@@ -6828,11 +6860,6 @@ export type Query = {
   primeHolders: PrimeHolders;
   /** Returns a list of NFT collections matching a given query string. */
   searchNfts?: Maybe<NftSearchResponse>;
-  /**
-   * Returns a list of tokens matching a given query string.
-   * @deprecated This query is no longer supported and will not return up to date data. Use `filterTokens` instead.
-   */
-  searchTokens?: Maybe<TokenSearchResponse>;
   /** Returns a single token by its address & network id. */
   token: EnhancedToken;
   /** Returns a list of token lifecycle events. */
@@ -7321,15 +7348,6 @@ export type QuerySearchNftsArgs = {
   networkFilter?: InputMaybe<Array<Scalars['Int']['input']>>;
   search?: InputMaybe<Scalars['String']['input']>;
   window?: InputMaybe<Scalars['String']['input']>;
-};
-
-
-export type QuerySearchTokensArgs = {
-  limit?: InputMaybe<Scalars['Int']['input']>;
-  lowVolumeFilter?: InputMaybe<Scalars['Boolean']['input']>;
-  networkFilter?: InputMaybe<Array<Scalars['Int']['input']>>;
-  resolution?: InputMaybe<Scalars['String']['input']>;
-  search: Scalars['String']['input'];
 };
 
 
@@ -8586,7 +8604,7 @@ export type TokenLifecycleEvent = {
 /** Response returned by `tokenLifecycleEvents`. */
 export type TokenLifecycleEventConnection = {
   __typename?: 'TokenLifecycleEventConnection';
-  /** A cursor for use in pagination. */
+  /** A cursor for use in pagination. If non-null, more results are available; pages may be empty due to filtering. */
   cursor?: Maybe<Scalars['String']['output']>;
   /** A list of transactions for a token's top pair. */
   items: Array<Maybe<TokenLifecycleEvent>>;
@@ -8793,17 +8811,6 @@ export enum TokenRankingAttribute {
   WalletAgeAvg = 'walletAgeAvg',
   WalletAgeStd = 'walletAgeStd'
 }
-
-/** Response returned by `searchTokens`. */
-export type TokenSearchResponse = {
-  __typename?: 'TokenSearchResponse';
-  /** The number of additional high volume results found. Only used if `lowVolumeFilter` is set to `true`. */
-  hasMore?: Maybe<Scalars['Int']['output']>;
-  /** If `lowVolumeFilter` is set to `true`, the number of additional low volume results found. If `lowVolumeFilter` is set to `false`, the number of additional high and low volume results found. */
-  hasMoreLowVolume?: Maybe<Scalars['Int']['output']>;
-  /** A list of tokens. */
-  tokens?: Maybe<Array<TokenWithMetadata>>;
-};
 
 /** A sparkline for a token. */
 export type TokenSparkline = {

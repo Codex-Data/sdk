@@ -4758,7 +4758,7 @@
           },
           {
             "name": "statsType",
-            "description": "The type of statistics returned. Can be `FILTERED` or `UNFILTERED`",
+            "description": "The type of statistics returned. Can be `FILTERED` or `UNFILTERED`.",
             "args": [],
             "type": {
               "kind": "NON_NULL",
@@ -5174,7 +5174,7 @@
           },
           {
             "name": "statsType",
-            "description": "The type of statistics returned. Can be `FILTERED` or `UNFILTERED`",
+            "description": "The type of statistics returned. Can be `FILTERED` or `UNFILTERED`.",
             "args": [],
             "type": {
               "kind": "NON_NULL",
@@ -6165,6 +6165,30 @@
             "deprecationReason": null
           },
           {
+            "name": "isFreezableValid",
+            "description": "Determines if freezable is a valid address or null value for the authority, or if the freezable state has not yet been determined.",
+            "args": [],
+            "type": {
+              "kind": "SCALAR",
+              "name": "Boolean",
+              "ofType": null
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "isMintableValid",
+            "description": "Determines if mintable is a valid address or null value for the authority, or if the mintable state has not yet been determined.",
+            "args": [],
+            "type": {
+              "kind": "SCALAR",
+              "name": "Boolean",
+              "ofType": null
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
             "name": "isScam",
             "description": "Whether the token has been flagged as a scam.",
             "args": [],
@@ -6686,7 +6710,7 @@
         "fields": [
           {
             "name": "cursor",
-            "description": "A cursor for use in pagination.",
+            "description": "A cursor for use in pagination. If non-null, more results are available; pages may be empty due to filtering.",
             "args": [],
             "type": {
               "kind": "SCALAR",
@@ -8924,6 +8948,22 @@
               "ofType": null
             },
             "defaultValue": null,
+            "isDeprecated": true,
+            "deprecationReason": "Use tokenIds instead"
+          },
+          {
+            "name": "tokenIds",
+            "description": "The IDs of the tokens to filter wallets for. Maximum 50 tokenIds. If you provide more than one tokenId, you must also provide at least one walletAddress in the wallets list.",
+            "type": {
+              "kind": "LIST",
+              "name": null,
+              "ofType": {
+                "kind": "SCALAR",
+                "name": "String",
+                "ofType": null
+              }
+            },
+            "defaultValue": null,
             "isDeprecated": false,
             "deprecationReason": null
           },
@@ -9208,7 +9248,7 @@
           },
           {
             "name": "statsType",
-            "description": "The type of statistics returned. Can be `FILTERED` or `UNFILTERED`",
+            "description": "The type of statistics returned. Can be `FILTERED` or `UNFILTERED`.",
             "type": {
               "kind": "ENUM",
               "name": "TokenPairStatisticsType",
@@ -13050,7 +13090,7 @@
         "fields": [
           {
             "name": "cursor",
-            "description": "A cursor for use in pagination.",
+            "description": "A cursor for use in pagination. If non-null, more results are available; pages may be empty due to filtering.",
             "args": [],
             "type": {
               "kind": "SCALAR",
@@ -30472,7 +30512,7 @@
           },
           {
             "name": "statsType",
-            "description": "The type of statistics used. Can be `Filtered` or `Unfiltered`.",
+            "description": "The type of statistics used. Can be `FILTERED` or `UNFILTERED`.",
             "args": [],
             "type": {
               "kind": "NON_NULL",
@@ -30757,7 +30797,7 @@
         "inputFields": [
           {
             "name": "address",
-            "description": null,
+            "description": "The token contract address.",
             "type": {
               "kind": "NON_NULL",
               "name": null,
@@ -30773,7 +30813,7 @@
           },
           {
             "name": "networkId",
-            "description": null,
+            "description": "The network ID the token is deployed on.",
             "type": {
               "kind": "NON_NULL",
               "name": null,
@@ -30789,7 +30829,7 @@
           },
           {
             "name": "sourcePairAddress",
-            "description": null,
+            "description": "The pair contract address from which to get pricing. Defaults to the top pair for the token.",
             "type": {
               "kind": "SCALAR",
               "name": "String",
@@ -30896,7 +30936,7 @@
           },
           {
             "name": "statsType",
-            "description": "The type of statistics used. Can be `Filtered` or `Unfiltered`.",
+            "description": "The type of statistics used. Only `FILTERED`.",
             "args": [],
             "type": {
               "kind": "NON_NULL",
@@ -30989,7 +31029,7 @@
           },
           {
             "name": "tokenAddress",
-            "description": "The token address to filter by.",
+            "description": "The token address to filter by. Required unless you are on an enterprise plan including EventFeed features.",
             "type": {
               "kind": "SCALAR",
               "name": "String",
@@ -31341,6 +31381,18 @@
             "type": {
               "kind": "OBJECT",
               "name": "PooledTokenValues",
+              "ofType": null
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "protocol",
+            "description": "The protocol of the pair. E.g. UniswapV4, RaydiumV4, PumpV1, etc.",
+            "args": [],
+            "type": {
+              "kind": "SCALAR",
+              "name": "String",
               "ofType": null
             },
             "isDeprecated": false,
@@ -33451,8 +33503,8 @@
               "name": "String",
               "ofType": null
             },
-            "isDeprecated": false,
-            "deprecationReason": null
+            "isDeprecated": true,
+            "deprecationReason": "Inaccurate"
           },
           {
             "name": "highPrice4",
@@ -33567,8 +33619,8 @@
               "name": "String",
               "ofType": null
             },
-            "isDeprecated": false,
-            "deprecationReason": null
+            "isDeprecated": true,
+            "deprecationReason": "Inaccurate"
           },
           {
             "name": "lowPrice4",
@@ -33695,8 +33747,8 @@
               "name": "Float",
               "ofType": null
             },
-            "isDeprecated": false,
-            "deprecationReason": null
+            "isDeprecated": true,
+            "deprecationReason": "Inaccurate"
           },
           {
             "name": "priceChange4",
@@ -33776,7 +33828,7 @@
           },
           {
             "name": "statsType",
-            "description": "The type of statistics returned. Can be `FILTERED` or `UNFILTERED`",
+            "description": "The type of statistics returned. Can be `FILTERED` or `UNFILTERED`.",
             "args": [],
             "type": {
               "kind": "NON_NULL",
@@ -33855,8 +33907,8 @@
               "name": "String",
               "ofType": null
             },
-            "isDeprecated": false,
-            "deprecationReason": null
+            "isDeprecated": true,
+            "deprecationReason": "Inaccurate"
           },
           {
             "name": "volume4",
@@ -36185,8 +36237,8 @@
               "name": "Float",
               "ofType": null
             },
-            "isDeprecated": false,
-            "deprecationReason": null
+            "isDeprecated": true,
+            "deprecationReason": "Pricing no longer based on specific pools"
           },
           {
             "name": "internalPoolAddress",
@@ -36221,16 +36273,12 @@
             "description": "The pool that emitted the swap generating this price",
             "args": [],
             "type": {
-              "kind": "NON_NULL",
-              "name": null,
-              "ofType": {
-                "kind": "SCALAR",
-                "name": "String",
-                "ofType": null
-              }
+              "kind": "SCALAR",
+              "name": "String",
+              "ofType": null
             },
-            "isDeprecated": false,
-            "deprecationReason": null
+            "isDeprecated": true,
+            "deprecationReason": "Pricing no longer based on specific pools"
           },
           {
             "name": "priceUsd",
@@ -40230,7 +40278,7 @@
               },
               {
                 "name": "statsType",
-                "description": "The type of statistics returned. Can be `FILTERED` or `UNFILTERED`",
+                "description": "The type of statistics returned. Can be `FILTERED` or `UNFILTERED`. Default is `UNFILTERED`.",
                 "type": {
                   "kind": "ENUM",
                   "name": "TokenPairStatisticsType",
@@ -40368,7 +40416,7 @@
               },
               {
                 "name": "statsType",
-                "description": "The type of statistics returned. Can be `FILTERED` or `UNFILTERED`",
+                "description": "The type of statistics returned. Can be `FILTERED` or `UNFILTERED`. Default is `UNFILTERED`.",
                 "type": {
                   "kind": "ENUM",
                   "name": "TokenPairStatisticsType",
@@ -40534,7 +40582,7 @@
               },
               {
                 "name": "statsType",
-                "description": "The type of statistics returned. Can be `FILTERED` or `UNFILTERED`.",
+                "description": "The type of statistics returned. Can be `FILTERED` or `UNFILTERED`. Default is `UNFILTERED`.",
                 "type": {
                   "kind": "ENUM",
                   "name": "TokenPairStatisticsType",
@@ -40789,7 +40837,7 @@
               },
               {
                 "name": "statsType",
-                "description": "The type of statistics returned. Can be `FILTERED` or `UNFILTERED`",
+                "description": "The type of statistics returned. Can be `FILTERED` or `UNFILTERED`. Default is `UNFILTERED`.",
                 "type": {
                   "kind": "ENUM",
                   "name": "TokenPairStatisticsType",
@@ -40907,7 +40955,7 @@
               },
               {
                 "name": "statsType",
-                "description": "The type of statistics returned. Can be `FILTERED` or `UNFILTERED`",
+                "description": "The type of statistics returned. Can be `FILTERED` or `UNFILTERED`. Default is `UNFILTERED`.",
                 "type": {
                   "kind": "ENUM",
                   "name": "TokenPairStatisticsType",
@@ -42707,7 +42755,7 @@
               },
               {
                 "name": "statsType",
-                "description": "The token of interest within the token's top pair. Can be `token0` or `token1`. If omitted, the base token is inferred automatically. You can invert the pair by quoting the other token.",
+                "description": "The type of statistics returned. Can be `FILTERED` or `UNFILTERED`. Default is `UNFILTERED`.",
                 "type": {
                   "kind": "ENUM",
                   "name": "TokenPairStatisticsType",
@@ -43444,7 +43492,7 @@
               },
               {
                 "name": "statsType",
-                "description": "The type of statistics returned. Can be `FILTERED` or `UNFILTERED`",
+                "description": "The type of statistics returned. Can be `FILTERED` or `UNFILTERED`. Default is `UNFILTERED`.",
                 "type": {
                   "kind": "ENUM",
                   "name": "TokenPairStatisticsType",
@@ -43596,91 +43644,6 @@
             },
             "isDeprecated": false,
             "deprecationReason": null
-          },
-          {
-            "name": "searchTokens",
-            "description": "Returns a list of tokens matching a given query string.",
-            "args": [
-              {
-                "name": "limit",
-                "description": "The maximum number of tokens to return.",
-                "type": {
-                  "kind": "SCALAR",
-                  "name": "Int",
-                  "ofType": null
-                },
-                "defaultValue": null,
-                "isDeprecated": false,
-                "deprecationReason": null
-              },
-              {
-                "name": "lowVolumeFilter",
-                "description": "Whether to filter out low volume results from the response. Low volume is less than $500 USD. This setting has no effect when only low volume results are found. Default is `true`.",
-                "type": {
-                  "kind": "SCALAR",
-                  "name": "Boolean",
-                  "ofType": null
-                },
-                "defaultValue": null,
-                "isDeprecated": false,
-                "deprecationReason": null
-              },
-              {
-                "name": "networkFilter",
-                "description": "The list of network IDs to filter by.",
-                "type": {
-                  "kind": "LIST",
-                  "name": null,
-                  "ofType": {
-                    "kind": "NON_NULL",
-                    "name": null,
-                    "ofType": {
-                      "kind": "SCALAR",
-                      "name": "Int",
-                      "ofType": null
-                    }
-                  }
-                },
-                "defaultValue": null,
-                "isDeprecated": false,
-                "deprecationReason": null
-              },
-              {
-                "name": "resolution",
-                "description": "The time frame to use for token metadata. Can be `60`, `240`, `720`, or `1D`.",
-                "type": {
-                  "kind": "SCALAR",
-                  "name": "String",
-                  "ofType": null
-                },
-                "defaultValue": null,
-                "isDeprecated": false,
-                "deprecationReason": null
-              },
-              {
-                "name": "search",
-                "description": "The query string to search for. Can match a token or pair contract address or partially match a token's name or symbol. Automatically filters out tokens marked as scams.",
-                "type": {
-                  "kind": "NON_NULL",
-                  "name": null,
-                  "ofType": {
-                    "kind": "SCALAR",
-                    "name": "String",
-                    "ofType": null
-                  }
-                },
-                "defaultValue": null,
-                "isDeprecated": false,
-                "deprecationReason": null
-              }
-            ],
-            "type": {
-              "kind": "OBJECT",
-              "name": "TokenSearchResponse",
-              "ofType": null
-            },
-            "isDeprecated": true,
-            "deprecationReason": "This query is no longer supported and will not return up to date data. Use `filterTokens` instead."
           },
           {
             "name": "token",
@@ -46173,7 +46136,7 @@
               },
               {
                 "name": "id",
-                "description": "The ID of the pair (`address`:`networkId`).",
+                "description": "The ID of the pair (`address`:`networkId`). Required unless you are on an enterprise plan including EventFeed features.",
                 "type": {
                   "kind": "SCALAR",
                   "name": "String",
@@ -46616,7 +46579,7 @@
             "args": [
               {
                 "name": "address",
-                "description": "The token contract address.",
+                "description": "The token contract address. Required unless you are on an enterprise plan including PriceFeed features.",
                 "type": {
                   "kind": "SCALAR",
                   "name": "String",
@@ -46640,7 +46603,7 @@
               },
               {
                 "name": "sourcePairAddress",
-                "description": "The pair contract address from which to get pricing",
+                "description": "The pair contract address from which to get pricing. Defaults to the top pair for the token.",
                 "type": {
                   "kind": "SCALAR",
                   "name": "String",
@@ -46706,7 +46669,7 @@
             "args": [
               {
                 "name": "networkId",
-                "description": "The networkId to use when getting all bars per network",
+                "description": "The networkId to use when getting all bars per network.",
                 "type": {
                   "kind": "SCALAR",
                   "name": "Int",
@@ -46718,7 +46681,7 @@
               },
               {
                 "name": "tokenId",
-                "description": "The ID of the pair (`address`:`networkId`).",
+                "description": "The ID of the token (`address`:`networkId`). Required unless you are on an enterprise plan including BarFeed features.",
                 "type": {
                   "kind": "SCALAR",
                   "name": "String",
@@ -46861,8 +46824,8 @@
                   "ofType": null
                 },
                 "defaultValue": null,
-                "isDeprecated": false,
-                "deprecationReason": null
+                "isDeprecated": true,
+                "deprecationReason": "Unused"
               },
               {
                 "name": "id",
@@ -51664,7 +51627,7 @@
         "fields": [
           {
             "name": "cursor",
-            "description": "A cursor for use in pagination.",
+            "description": "A cursor for use in pagination. If non-null, more results are available; pages may be empty due to filtering.",
             "args": [],
             "type": {
               "kind": "SCALAR",
@@ -52782,62 +52745,6 @@
             "deprecationReason": null
           }
         ],
-        "possibleTypes": null
-      },
-      {
-        "kind": "OBJECT",
-        "name": "TokenSearchResponse",
-        "description": "Response returned by `searchTokens`.",
-        "isOneOf": null,
-        "fields": [
-          {
-            "name": "hasMore",
-            "description": "The number of additional high volume results found. Only used if `lowVolumeFilter` is set to `true`.",
-            "args": [],
-            "type": {
-              "kind": "SCALAR",
-              "name": "Int",
-              "ofType": null
-            },
-            "isDeprecated": false,
-            "deprecationReason": null
-          },
-          {
-            "name": "hasMoreLowVolume",
-            "description": "If `lowVolumeFilter` is set to `true`, the number of additional low volume results found. If `lowVolumeFilter` is set to `false`, the number of additional high and low volume results found.",
-            "args": [],
-            "type": {
-              "kind": "SCALAR",
-              "name": "Int",
-              "ofType": null
-            },
-            "isDeprecated": false,
-            "deprecationReason": null
-          },
-          {
-            "name": "tokens",
-            "description": "A list of tokens.",
-            "args": [],
-            "type": {
-              "kind": "LIST",
-              "name": null,
-              "ofType": {
-                "kind": "NON_NULL",
-                "name": null,
-                "ofType": {
-                  "kind": "OBJECT",
-                  "name": "TokenWithMetadata",
-                  "ofType": null
-                }
-              }
-            },
-            "isDeprecated": false,
-            "deprecationReason": null
-          }
-        ],
-        "inputFields": null,
-        "interfaces": [],
-        "enumValues": null,
         "possibleTypes": null
       },
       {
