@@ -1,0 +1,154 @@
+query GetTokenBars(
+  $symbol: String!
+  $from: Int!
+  $to: Int!
+  $resolution: String!
+  $currencyCode: QuoteCurrency
+  $removeLeadingNullValues: Boolean
+  $removeEmptyBars: Boolean
+  $statsType: TokenPairStatisticsType
+  $countback: Int
+) {
+  getTokenBars(
+    symbol: $symbol
+    from: $from
+    to: $to
+    resolution: $resolution
+    currencyCode: $currencyCode
+    removeLeadingNullValues: $removeLeadingNullValues
+    removeEmptyBars: $removeEmptyBars
+    statsType: $statsType
+    countback: $countback
+  ) {
+    # OHLC data arrays
+    o
+    h
+    l
+    c
+
+    # Timestamp array
+    t
+
+    # Status code
+    s
+
+    # Volume data
+    volume
+    volumeNativeToken
+
+    # Trading activity metrics
+    buyers
+    buys
+    buyVolume
+    sellers
+    sells
+    sellVolume
+
+    # Liquidity data
+    liquidity
+
+    # General trading metrics
+    traders
+    transactions
+
+    # Enhanced token metadata
+    token {
+      # Basic token information
+      address
+      id
+      name
+      symbol
+      decimals
+      networkId
+
+      # Token status and validation
+      isScam
+      cmcId
+
+      # Creation information
+      createdAt
+      createBlockNumber
+      createTransactionHash
+      creatorAddress
+
+      # Token permissions
+      mintable
+      freezable
+      isMintableValid
+      isFreezableValid
+
+      # Social links
+      socialLinks {
+        website
+        twitter
+        telegram
+        discord
+        github
+        reddit
+        facebook
+        instagram
+        linkedin
+        youtube
+        blog
+        whitepaper
+        email
+        bitcointalk
+        coingecko
+        coinmarketcap
+        slack
+        wechat
+        twitch
+      }
+
+      # Enhanced token information
+      info {
+        address
+        id
+        name
+        symbol
+        description
+        networkId
+        totalSupply
+        circulatingSupply
+        cmcId
+        isScam
+        imageThumbUrl
+        imageSmallUrl
+        imageLargeUrl
+        imageBannerUrl
+        imageThumbHash
+      }
+
+      # Exchange listings
+      exchanges {
+        id
+        name
+        address
+        networkId
+        iconUrl
+        color
+        tradeUrl
+        exchangeVersion
+      }
+
+      # Launchpad information (if applicable)
+      launchpad {
+        launchpadName
+        launchpadProtocol
+        launchpadIconUrl
+        poolAddress
+        completed
+        completedAt
+        completedSlot
+        migrated
+        migratedAt
+        migratedSlot
+        migratedPoolAddress
+        graduationPercent
+      }
+
+      # Pair information
+      pairId
+    }
+  }
+}
