@@ -1661,10 +1661,6 @@ type DetailedStats {
   stats_hour12: WindowedDetailedStats
   """The breakdown of stats over a 24 hour window."""
   stats_day1: WindowedDetailedStats
-  """Number of aggregated buckets specified in input"""
-  bucketCount: Int
-  """The timestamp specified as input to the query"""
-  queryTimestamp: Int
 }
 
 """The start/end timestamp for a given bucket within the window."""
@@ -1831,8 +1827,6 @@ type EnhancedToken {
   isMintableValid: Boolean
   """The launchpad data for the token, if applicable."""
   launchpad: LaunchpadData
-  """The pair that the token is contained in"""
-  pairId: String
 }
 
 """A token transaction."""
@@ -2417,8 +2411,6 @@ type HoldersResponse {
   status: HoldersStatus!
   """What percentage of the total supply do the top 10 holders hold."""
   top10HoldersPercent: Float
-  """the token Id"""
-  tokenId: String
 }
 
 enum HoldersSortAttribute {
@@ -6662,8 +6654,6 @@ type Price {
   poolAddress: String @deprecated(reason: "Pricing no longer based on specific pools")
   """Ratio of how confident we are in the price"""
   confidence: Float @deprecated(reason: "Pricing no longer based on specific pools")
-  """The internal pool address for the price"""
-  internalPoolAddress: String
 }
 
 """Webhook conditions for a price event."""
