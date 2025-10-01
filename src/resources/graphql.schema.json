@@ -5133,18 +5133,6 @@
         "isOneOf": null,
         "fields": [
           {
-            "name": "bucketCount",
-            "description": "Number of aggregated buckets specified in input",
-            "args": [],
-            "type": {
-              "kind": "SCALAR",
-              "name": "Int",
-              "ofType": null
-            },
-            "isDeprecated": false,
-            "deprecationReason": null
-          },
-          {
             "name": "pairId",
             "description": "The ID of the pair (`pairAddress:networkId`).",
             "args": [],
@@ -5156,18 +5144,6 @@
                 "name": "String",
                 "ofType": null
               }
-            },
-            "isDeprecated": false,
-            "deprecationReason": null
-          },
-          {
-            "name": "queryTimestamp",
-            "description": "The timestamp specified as input to the query",
-            "args": [],
-            "type": {
-              "kind": "SCALAR",
-              "name": "Int",
-              "ofType": null
             },
             "isDeprecated": false,
             "deprecationReason": null
@@ -6248,18 +6224,6 @@
                 "name": "Int",
                 "ofType": null
               }
-            },
-            "isDeprecated": false,
-            "deprecationReason": null
-          },
-          {
-            "name": "pairId",
-            "description": "The pair that the token is contained in",
-            "args": [],
-            "type": {
-              "kind": "SCALAR",
-              "name": "String",
-              "ofType": null
             },
             "isDeprecated": false,
             "deprecationReason": null
@@ -9997,18 +9961,6 @@
                 "name": "HoldersStatus",
                 "ofType": null
               }
-            },
-            "isDeprecated": false,
-            "deprecationReason": null
-          },
-          {
-            "name": "tokenId",
-            "description": "the token Id",
-            "args": [],
-            "type": {
-              "kind": "SCALAR",
-              "name": "String",
-              "ofType": null
             },
             "isDeprecated": false,
             "deprecationReason": null
@@ -36239,18 +36191,6 @@
             },
             "isDeprecated": true,
             "deprecationReason": "Pricing no longer based on specific pools"
-          },
-          {
-            "name": "internalPoolAddress",
-            "description": "The internal pool address for the price",
-            "args": [],
-            "type": {
-              "kind": "SCALAR",
-              "name": "String",
-              "ofType": null
-            },
-            "isDeprecated": false,
-            "deprecationReason": null
           },
           {
             "name": "networkId",

@@ -869,12 +869,8 @@ export type DetailedPairStatsStringMetrics = {
 /** Detailed stats for a token within a pair. */
 export type DetailedStats = {
   __typename?: 'DetailedStats';
-  /** Number of aggregated buckets specified in input */
-  bucketCount?: Maybe<Scalars['Int']['output']>;
   /** The ID of the pair (`pairAddress:networkId`). */
   pairId: Scalars['String']['output'];
-  /** The timestamp specified as input to the query */
-  queryTimestamp?: Maybe<Scalars['Int']['output']>;
   /** The type of statistics returned. Can be `FILTERED` or `UNFILTERED`. */
   statsType: TokenPairStatisticsType;
   /** The breakdown of stats over a 24 hour window. */
@@ -1071,8 +1067,6 @@ export type EnhancedToken = {
   name?: Maybe<Scalars['String']['output']>;
   /** The network ID the token is deployed on. */
   networkId: Scalars['Int']['output'];
-  /** The pair that the token is contained in */
-  pairId?: Maybe<Scalars['String']['output']>;
   /**
    * The amount of this token in the pair.
    * @deprecated Pooled can be found on the pair instead
@@ -1698,8 +1692,6 @@ export type HoldersResponse = {
   items: Array<Balance>;
   /** Status of holder. Disabled if on unsupported network or there is insufficient holder data. */
   status: HoldersStatus;
-  /** the token Id */
-  tokenId?: Maybe<Scalars['String']['output']>;
   /** What percentage of the total supply do the top 10 holders hold. */
   top10HoldersPercent?: Maybe<Scalars['Float']['output']>;
 };
@@ -6171,8 +6163,6 @@ export type Price = {
    * @deprecated Pricing no longer based on specific pools
    */
   confidence?: Maybe<Scalars['Float']['output']>;
-  /** The internal pool address for the price */
-  internalPoolAddress?: Maybe<Scalars['String']['output']>;
   /** The network ID the token is deployed on. */
   networkId: Scalars['Int']['output'];
   /**
