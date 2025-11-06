@@ -9627,6 +9627,18 @@
             "deprecationReason": null
           },
           {
+            "name": "blockNumber",
+            "description": "The block number for the price. It must be provided in addition to the timestamp to get a per block breakdown at a specific timestamp.",
+            "type": {
+              "kind": "SCALAR",
+              "name": "Int",
+              "ofType": null
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
             "name": "maxDeviations",
             "description": "The maximum number of deviations from the token's Liquidity-Weighted Mean Price. This is used to mitigate low liquidity pairs producing prices that are not representative of reality. Default is `1`.",
             "type": {
@@ -11671,12 +11683,48 @@
             "deprecationReason": null
           },
           {
+            "name": "bundlerCount",
+            "description": "The number of bundlers that bought the token",
+            "args": [],
+            "type": {
+              "kind": "SCALAR",
+              "name": "Float",
+              "ofType": null
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "bundlerHeldPercentage",
+            "description": "The percentage of the token that is held by bundlers",
+            "args": [],
+            "type": {
+              "kind": "SCALAR",
+              "name": "Float",
+              "ofType": null
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
             "name": "buyCount1",
-            "description": "The number of buys in the last 24 hours.",
+            "description": "The number of buys in the last hour.",
             "args": [],
             "type": {
               "kind": "SCALAR",
               "name": "Int",
+              "ofType": null
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "devHeldPercentage",
+            "description": "The percentage of the token that is held by developers",
+            "args": [],
+            "type": {
+              "kind": "SCALAR",
+              "name": "Float",
               "ofType": null
             },
             "isDeprecated": false,
@@ -11705,6 +11753,30 @@
             "type": {
               "kind": "SCALAR",
               "name": "Int",
+              "ofType": null
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "insiderCount",
+            "description": "The number of insiders that bought the token",
+            "args": [],
+            "type": {
+              "kind": "SCALAR",
+              "name": "Float",
+              "ofType": null
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "insiderHeldPercentage",
+            "description": "The percentage of the token that is held by insiders",
+            "args": [],
+            "type": {
+              "kind": "SCALAR",
+              "name": "Float",
               "ofType": null
             },
             "isDeprecated": false,
@@ -11796,11 +11868,35 @@
           },
           {
             "name": "sellCount1",
-            "description": "The number of sells in the last 24 hours.",
+            "description": "The number of sells in the last hour.",
             "args": [],
             "type": {
               "kind": "SCALAR",
               "name": "Int",
+              "ofType": null
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "sniperCount",
+            "description": "The number of snipers that bought the token",
+            "args": [],
+            "type": {
+              "kind": "SCALAR",
+              "name": "Float",
+              "ofType": null
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "sniperHeldPercentage",
+            "description": "The percentage of the token that is held by snipers",
+            "args": [],
+            "type": {
+              "kind": "SCALAR",
+              "name": "Float",
               "ofType": null
             },
             "isDeprecated": false,
@@ -11824,7 +11920,7 @@
           },
           {
             "name": "transactions1",
-            "description": "The number of transactions in the last 24 hours.",
+            "description": "The number of transactions in the last hour.",
             "args": [],
             "type": {
               "kind": "SCALAR",
@@ -11836,7 +11932,7 @@
           },
           {
             "name": "volume1",
-            "description": "The volume of the token in the last 24 hours.",
+            "description": "The volume of the token in the last hour.",
             "args": [],
             "type": {
               "kind": "SCALAR",
@@ -11972,6 +12068,12 @@
           {
             "name": "Moonit",
             "description": "Protocol name for Moonit (formerly Moonshot).",
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "Printr",
+            "description": "Protocol name for Printr (EVM only - Printr tokens on Solana should be queried with launchpadName as Printr uses MeteoraDBC on Solana).",
             "isDeprecated": false,
             "deprecationReason": null
           },
@@ -30549,7 +30651,7 @@
           },
           {
             "name": "launchpadName",
-            "description": "The name of the launchpad. One of the following: Pump.fun, Bonk, Baseapp, Zora, Zora Creator, Four.meme, Believe, Moonshot, Jupiter Studio, boop, Heaven, TokenMill V2, Virtuals, Clanker, Clanker V4, ArenaTrade, Moonit, LaunchLab, MeteoraDBC, Vertigo, Cooking.City, time.fun, BAGS, Circus, Dealr, OhFuckFun, PrintFun, Trend, shout.fun, xApple, Sendshot, DubDub, cults.",
+            "description": "The name of the launchpad. One of the following: Pump.fun, Bonk, Baseapp, Zora, Zora Creator, Four.meme, Four.meme Fair, Believe, Moonshot, Jupiter Studio, boop, Heaven, TokenMill V2, Virtuals, Clanker, Clanker V4, ArenaTrade, Moonit, LaunchLab, MeteoraDBC, Vertigo, Cooking.City, time.fun, BAGS, Circus, Dealr, OhFuckFun, PrintFun, Trend, shout.fun, xApple, Sendshot, DubDub, cults, OpenGameProtocol, Printr.",
             "type": {
               "kind": "SCALAR",
               "name": "String",
@@ -30561,7 +30663,7 @@
           },
           {
             "name": "launchpadNames",
-            "description": "A list of launchpad names. Any of the following: Pump.fun, Bonk, Baseapp, Zora, Zora Creator, Four.meme, Believe, Moonshot, Jupiter Studio, boop, Heaven, TokenMill V2, Virtuals, Clanker, Clanker V4, ArenaTrade, Moonit, LaunchLab, MeteoraDBC, Vertigo, Cooking.City, time.fun, BAGS, Circus, Dealr, OhFuckFun, PrintFun, Trend, shout.fun, xApple, Sendshot, DubDub, cults.",
+            "description": "A list of launchpad names. Any of the following: Pump.fun, Bonk, Baseapp, Zora, Zora Creator, Four.meme, Four.meme Fair, Believe, Moonshot, Jupiter Studio, boop, Heaven, TokenMill V2, Virtuals, Clanker, Clanker V4, ArenaTrade, Moonit, LaunchLab, MeteoraDBC, Vertigo, Cooking.City, time.fun, BAGS, Circus, Dealr, OhFuckFun, PrintFun, Trend, shout.fun, xApple, Sendshot, DubDub, cults, OpenGameProtocol, Printr.",
             "type": {
               "kind": "LIST",
               "name": null,
@@ -30661,7 +30763,7 @@
           },
           {
             "name": "launchpadName",
-            "description": "The name of the launchpad. One of the following: Pump.fun, Bonk, Baseapp, Zora, Zora Creator, Four.meme, Believe, Moonshot, Jupiter Studio, boop, Heaven, TokenMill V2, Virtuals, Clanker, Clanker V4, ArenaTrade, Moonit, LaunchLab, MeteoraDBC, Vertigo, Cooking.City, time.fun, BAGS, Circus, Dealr, OhFuckFun, PrintFun, Trend, shout.fun, xApple, Sendshot, DubDub, cults.",
+            "description": "The name of the launchpad. One of the following: Pump.fun, Bonk, Baseapp, Zora, Zora Creator, Four.meme, Four.meme Fair, Believe, Moonshot, Jupiter Studio, boop, Heaven, TokenMill V2, Virtuals, Clanker, Clanker V4, ArenaTrade, Moonit, LaunchLab, MeteoraDBC, Vertigo, Cooking.City, time.fun, BAGS, Circus, Dealr, OhFuckFun, PrintFun, Trend, shout.fun, xApple, Sendshot, DubDub, cults, OpenGameProtocol, Printr.",
             "type": {
               "kind": "SCALAR",
               "name": "String",
@@ -30673,7 +30775,7 @@
           },
           {
             "name": "launchpadNames",
-            "description": "A list of launchpad names. Any of the following: Pump.fun, Bonk, Baseapp, Zora, Zora Creator, Four.meme, Believe, Moonshot, Jupiter Studio, boop, Heaven, TokenMill V2, Virtuals, Clanker, Clanker V4, ArenaTrade, Moonit, LaunchLab, MeteoraDBC, Vertigo, Cooking.City, time.fun, BAGS, Circus, Dealr, OhFuckFun, PrintFun, Trend, shout.fun, xApple, Sendshot, DubDub, cults.",
+            "description": "A list of launchpad names. Any of the following: Pump.fun, Bonk, Baseapp, Zora, Zora Creator, Four.meme, Four.meme Fair, Believe, Moonshot, Jupiter Studio, boop, Heaven, TokenMill V2, Virtuals, Clanker, Clanker V4, ArenaTrade, Moonit, LaunchLab, MeteoraDBC, Vertigo, Cooking.City, time.fun, BAGS, Circus, Dealr, OhFuckFun, PrintFun, Trend, shout.fun, xApple, Sendshot, DubDub, cults, OpenGameProtocol, Printr.",
             "type": {
               "kind": "LIST",
               "name": null,
@@ -36181,6 +36283,18 @@
             "deprecationReason": null
           },
           {
+            "name": "blockNumber",
+            "description": "The pool that emitted the swap generating this price",
+            "args": [],
+            "type": {
+              "kind": "SCALAR",
+              "name": "Int",
+              "ofType": null
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
             "name": "confidence",
             "description": "Ratio of how confident we are in the price",
             "args": [],
@@ -41204,7 +41318,7 @@
           },
           {
             "name": "getNetworkConfigs",
-            "description": null,
+            "description": "Returns a list of network configurations.",
             "args": [
               {
                 "name": "networkIds",
@@ -46494,10 +46608,22 @@
               },
               {
                 "name": "quoteToken",
-                "description": "The token of interest within the pair. Can be `token0` or `token1`.",
+                "description": "The token of interest within the pair. Can be `token0` or `token1`. If not specified, returns data for both tokens.",
                 "type": {
                   "kind": "ENUM",
                   "name": "QuoteToken",
+                  "ofType": null
+                },
+                "defaultValue": null,
+                "isDeprecated": false,
+                "deprecationReason": null
+              },
+              {
+                "name": "useNonLiquidityTokenAsQuoteToken",
+                "description": "If true, automatically selects the non-liquidity token as the quoteToken. Ignored if quoteToken is explicitly specified.",
+                "type": {
+                  "kind": "SCALAR",
+                  "name": "Boolean",
                   "ofType": null
                 },
                 "defaultValue": null,
@@ -48886,6 +49012,30 @@
             "deprecationReason": "Age isn't supported - use createdAt instead"
           },
           {
+            "name": "bundlerCount",
+            "description": "The number of wallets that have bundled the token",
+            "args": [],
+            "type": {
+              "kind": "SCALAR",
+              "name": "Int",
+              "ofType": null
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "bundlerHeldPercentage",
+            "description": "The percentage of tokens held by bundlers",
+            "args": [],
+            "type": {
+              "kind": "SCALAR",
+              "name": "Float",
+              "ofType": null
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
             "name": "buyCount1",
             "description": "The number of buys in the past hour.",
             "args": [],
@@ -49090,6 +49240,18 @@
             "deprecationReason": null
           },
           {
+            "name": "devHeldPercentage",
+            "description": "The percentage of tokens held by the dev",
+            "args": [],
+            "type": {
+              "kind": "SCALAR",
+              "name": "Float",
+              "ofType": null
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
             "name": "exchanges",
             "description": "The exchanges the token is listed on.",
             "args": [],
@@ -49184,6 +49346,30 @@
             "type": {
               "kind": "SCALAR",
               "name": "Int",
+              "ofType": null
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "insiderCount",
+            "description": "The number of wallets that have been an insider of the token",
+            "args": [],
+            "type": {
+              "kind": "SCALAR",
+              "name": "Int",
+              "ofType": null
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "insiderHeldPercentage",
+            "description": "The percentage of tokens held by insiders",
+            "args": [],
+            "type": {
+              "kind": "SCALAR",
+              "name": "Float",
               "ofType": null
             },
             "isDeprecated": false,
@@ -49484,6 +49670,30 @@
             "type": {
               "kind": "SCALAR",
               "name": "String",
+              "ofType": null
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "sniperCount",
+            "description": "The number of wallets that have sniped the token",
+            "args": [],
+            "type": {
+              "kind": "SCALAR",
+              "name": "Int",
+              "ofType": null
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "sniperHeldPercentage",
+            "description": "The percentage of tokens held by snipers",
+            "args": [],
+            "type": {
+              "kind": "SCALAR",
+              "name": "Float",
               "ofType": null
             },
             "isDeprecated": false,
@@ -49935,6 +50145,30 @@
             "deprecationReason": "Age isn't supported - use createdAt instead"
           },
           {
+            "name": "bundlerCount",
+            "description": "Filter by number of wallets that have bundled the token",
+            "type": {
+              "kind": "INPUT_OBJECT",
+              "name": "NumberFilter",
+              "ofType": null
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "bundlerHeldPercentage",
+            "description": "Filter by percentage of tokens held by bundlers",
+            "type": {
+              "kind": "INPUT_OBJECT",
+              "name": "NumberFilter",
+              "ofType": null
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
             "name": "buyCount1",
             "description": "The number of buys in the past hour.",
             "type": {
@@ -50151,6 +50385,18 @@
             "deprecationReason": null
           },
           {
+            "name": "devHeldPercentage",
+            "description": "Filter by percentage of tokens held by the dev",
+            "type": {
+              "kind": "INPUT_OBJECT",
+              "name": "NumberFilter",
+              "ofType": null
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
             "name": "exchangeAddress",
             "description": "The list of exchange contract addresses to filter by.",
             "type": {
@@ -50291,6 +50537,30 @@
             "deprecationReason": null
           },
           {
+            "name": "insiderCount",
+            "description": "Filter by number of wallets that have been an insider of the token",
+            "type": {
+              "kind": "INPUT_OBJECT",
+              "name": "NumberFilter",
+              "ofType": null
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "insiderHeldPercentage",
+            "description": "Filter by percentage of tokens held by insiders",
+            "type": {
+              "kind": "INPUT_OBJECT",
+              "name": "NumberFilter",
+              "ofType": null
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
             "name": "isTestnet",
             "description": "Whether to filter for tokens on testnet networks. Use `true` for testnet tokens only, `false` for mainnet tokens only and `undefined` (default) for both.",
             "type": {
@@ -50388,7 +50658,7 @@
           },
           {
             "name": "launchpadName",
-            "description": "A list of launchpad names. Any of the following: Pump.fun, Bonk, Baseapp, Zora, Zora Creator, Four.meme, Believe, Moonshot, Jupiter Studio, boop, Heaven, TokenMill V2, Virtuals, Clanker, Clanker V4, ArenaTrade, Moonit, LaunchLab, MeteoraDBC, Vertigo, Cooking.City, time.fun, BAGS, Circus, Dealr, OhFuckFun, PrintFun, Trend, shout.fun, xApple, Sendshot, DubDub, cults.",
+            "description": "A list of launchpad names. Any of the following: Pump.fun, Bonk, Baseapp, Zora, Zora Creator, Four.meme, Four.meme Fair, Believe, Moonshot, Jupiter Studio, boop, Heaven, TokenMill V2, Virtuals, Clanker, Clanker V4, ArenaTrade, Moonit, LaunchLab, MeteoraDBC, Vertigo, Cooking.City, time.fun, BAGS, Circus, Dealr, OhFuckFun, PrintFun, Trend, shout.fun, xApple, Sendshot, DubDub, cults, OpenGameProtocol, Printr.",
             "type": {
               "kind": "LIST",
               "name": null,
@@ -50683,6 +50953,30 @@
             "deprecationReason": null
           },
           {
+            "name": "sniperCount",
+            "description": "Filter by number of wallets that have sniped the token",
+            "type": {
+              "kind": "INPUT_OBJECT",
+              "name": "NumberFilter",
+              "ofType": null
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "sniperHeldPercentage",
+            "description": "Filter by percentage of tokens held by snipers",
+            "type": {
+              "kind": "INPUT_OBJECT",
+              "name": "NumberFilter",
+              "ofType": null
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
             "name": "swapPct1dOldWallet",
             "description": "The percentage of wallets that are less than 1d old that have traded in the last 24h",
             "type": {
@@ -50697,6 +50991,18 @@
           {
             "name": "swapPct7dOldWallet",
             "description": "The percentage of wallets that are less than 7d old that have traded in the last 24h",
+            "type": {
+              "kind": "INPUT_OBJECT",
+              "name": "NumberFilter",
+              "ofType": null
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "tokenCreatedAt",
+            "description": "The unix timestamp for the creation of the token.",
             "type": {
               "kind": "INPUT_OBJECT",
               "name": "NumberFilter",
@@ -52457,6 +52763,12 @@
             "deprecationReason": null
           },
           {
+            "name": "tokenCreatedAt",
+            "description": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
             "name": "trendingScore",
             "description": null,
             "isDeprecated": false,
@@ -53731,7 +54043,7 @@
           },
           {
             "name": "purchasedTokenBalance",
-            "description": "The purchased token balance",
+            "description": "The total balance of tokens that the user has bought or sold. This value does not include tokens acquired through external transfers or unsupported methods.",
             "args": [],
             "type": {
               "kind": "NON_NULL",
@@ -54255,7 +54567,7 @@
           },
           {
             "name": "tokenBalance",
-            "description": "The token balance in the wallet. This value does not update with every transfer and can be slightly stale. Use tokenBalanceLive for live data.",
+            "description": "The total balance of tokens held by the user, reflecting the most recent update to the record. This balance includes all tokens, even those transferred in through unsupported methods or DEXs that are not tracked by our system. This value does not update with every transfer and can be slightly stale. Use tokenBalanceLive for live data.",
             "args": [],
             "type": {
               "kind": "NON_NULL",
@@ -54271,7 +54583,7 @@
           },
           {
             "name": "tokenBalanceLive",
-            "description": "The current token balance in the wallet.",
+            "description": "The current token balance in the wallet. This value is updated with every transfer and is therefore more accurate than tokenBalance.",
             "args": [],
             "type": {
               "kind": "SCALAR",
@@ -55559,6 +55871,18 @@
         "description": null,
         "isOneOf": null,
         "fields": [
+          {
+            "name": "isDynamicFee",
+            "description": "Whether the pool uses a dynamic fee. A fee of 0x80000 is used by Uniswap V4 to indicate a dynamic pool -- in such cases, the fee percentage on the pair should be disregarded.",
+            "args": [],
+            "type": {
+              "kind": "SCALAR",
+              "name": "Boolean",
+              "ofType": null
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
           {
             "name": "isToken0NetworkToken",
             "description": "Whether the token is the network token for the Uniswap V4 pool.",
@@ -60251,7 +60575,7 @@
           },
           {
             "name": "purchasedTokenBalance",
-            "description": "Purchased token balance",
+            "description": "The total balance of tokens that the user has bought or sold. This value does not include tokens acquired through external transfers or unsupported methods.",
             "isDeprecated": false,
             "deprecationReason": null
           },
@@ -60389,7 +60713,7 @@
           },
           {
             "name": "tokenBalance",
-            "description": "Token balance",
+            "description": "The total balance of tokens held by the user, reflecting the most recent update to the record. This balance includes all tokens, even those transferred in through unsupported methods or DEXs that are not tracked by our system.",
             "isDeprecated": false,
             "deprecationReason": null
           }

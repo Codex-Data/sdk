@@ -1211,6 +1211,35 @@
     "baseTokenDecimals": 18
   },
   {
+    "__typename": "SolanaNetworkConfig",
+    "id": "150607357",
+    "networkType": "SOLANA",
+    "networkId": 150607357,
+    "name": "fogo_test",
+    "enabled": true,
+    "newTokensEnabled": null,
+    "mainnet": true,
+    "wrappedBaseTokenSymbol": "FOGO",
+    "baseTokenSymbol": "FOGO",
+    "baseTokenAddress": "So11111111111111111111111111111111111111112",
+    "defaultPairAddress": "3icrkGov4SMod4Ps8UySRwHciNFCHvwiEn1qFJcn7dyH",
+    "defaultPairQuoteToken": "token0",
+    "stableCoinAddresses": [
+      "ELNbJ1RtERV2fjtuZjbTscDekWhVzkQ1LjmiPsxp5uND"
+    ],
+    "networkIconUrl": "https://icons.defined.fi/networks/solana.png",
+    "color": "#40b9c8",
+    "networkShortName": "fogotest",
+    "networkName": "Fogo Testnet",
+    "explorer": {
+      "name": "FogoScan",
+      "url": "https://fogoscan.com/${type}/${input}",
+      "checksummed": false,
+      "icon": "https://icons.defined.fi/explorers/solscan.png"
+    },
+    "baseTokenName": "FOGO"
+  },
+  {
     "__typename": "EvmNetworkConfig",
     "id": "122",
     "networkType": "EVM",
@@ -1583,6 +1612,37 @@
   },
   {
     "__typename": "EvmNetworkConfig",
+    "id": "747474",
+    "networkType": "EVM",
+    "networkId": 747474,
+    "name": "katana",
+    "enabled": true,
+    "newTokensEnabled": false,
+    "mainnet": true,
+    "wrappedBaseTokenSymbol": "vbETH",
+    "baseTokenSymbol": "ETH",
+    "baseTokenAddress": "0xee7d8bcfb72bc1880d0cf19822eb0a2e6577ab62",
+    "defaultPairAddress": "0xdfc0ba24be7f93bf1a9401635815ece4cc579282",
+    "defaultPairQuoteToken": "token0",
+    "stableCoinAddresses": [
+      "0x203a662b0bd271a6ed5a60edfbd04bfce608fd36",
+      "0x2dca96907fde857dd3d816880a0df407eeb2d2f2"
+    ],
+    "networkIconUrl": "https://icons.defined.fi/networks/katana.png",
+    "color": "#0550DB",
+    "networkShortName": "katana",
+    "networkName": "Katana",
+    "explorer": {
+      "name": "KatanaScan",
+      "url": "https://katanascan.com/${type}/${input}",
+      "checksummed": true,
+      "icon": "https://icons.defined.fi/networks/katana.png"
+    },
+    "baseTokenName": "Vault Bridge ETH",
+    "baseTokenDecimals": 18
+  },
+  {
+    "__typename": "EvmNetworkConfig",
     "id": "321",
     "networkType": "EVM",
     "networkId": 321,
@@ -1774,6 +1834,35 @@
   },
   {
     "__typename": "EvmNetworkConfig",
+    "id": "6343",
+    "networkType": "EVM",
+    "networkId": 6343,
+    "name": "megaeth-testnet",
+    "enabled": false,
+    "newTokensEnabled": false,
+    "mainnet": false,
+    "wrappedBaseTokenSymbol": "WETH",
+    "baseTokenSymbol": "ETH",
+    "baseTokenAddress": "0x4200000000000000000000000000000000000006",
+    "defaultPairAddress": "0x0a1225c99b84f0c40734c263438d8ee45a90ade2",
+    "defaultPairQuoteToken": "token0",
+    "stableCoinAddresses": [
+      "0xd90a693cd99305db69ffeedd9c611be27554e557"
+    ],
+    "networkIconUrl": "https://icons.defined.fi/networks/megaeth.png",
+    "color": "#F5AF94",
+    "networkShortName": "mega-testnet",
+    "networkName": "MegaETH Testnet",
+    "explorer": {
+      "name": "Monad Explorer",
+      "url": "https://megaeth-testnet-v2.blockscout.com/${type}/${input}",
+      "checksummed": true,
+      "icon": "https://icons.defined.fi/networks/megaeth.png"
+    },
+    "baseTokenName": "ETH"
+  },
+  {
+    "__typename": "EvmNetworkConfig",
     "id": "333000333",
     "networkType": "EVM",
     "networkId": 333000333,
@@ -1930,6 +2019,35 @@
   },
   {
     "__typename": "EvmNetworkConfig",
+    "id": "143",
+    "networkType": "EVM",
+    "networkId": 143,
+    "name": "monad",
+    "enabled": false,
+    "newTokensEnabled": false,
+    "mainnet": true,
+    "wrappedBaseTokenSymbol": "WMON",
+    "baseTokenSymbol": "MON",
+    "baseTokenAddress": "0x3bd359c1119da7da1d913d1c4d2b7c461115433a",
+    "defaultPairAddress": "0x15c50ace7e8569e32d9dd226ce0224371ada227d",
+    "defaultPairQuoteToken": "token0",
+    "stableCoinAddresses": [
+      "0x754704bc059f8c67012fed69bc8a327a5aafb603"
+    ],
+    "networkIconUrl": "https://icons.defined.fi/networks/monad.png",
+    "color": "#836EF9",
+    "networkShortName": "mon",
+    "networkName": "Monad",
+    "explorer": {
+      "name": "MonVision",
+      "url": "https://mainnet-beta.monvision.io/${type}/${input}",
+      "checksummed": true,
+      "icon": "https://icons.defined.fi/networks/monad.png"
+    },
+    "baseTokenName": "MON"
+  },
+  {
+    "__typename": "EvmNetworkConfig",
     "id": "10143",
     "networkType": "EVM",
     "networkId": 10143,
@@ -1945,7 +2063,7 @@
     "stableCoinAddresses": [
       "0xf817257fed379853cde0fa4f97ab987181b1e5ea"
     ],
-    "networkIconUrl": "https://icons.defined.fi/networks/monad.png",
+    "networkIconUrl": "https://icons.defined.fi/networks/monad-testnet.png",
     "color": "#836ef9",
     "networkShortName": "mon-test",
     "networkName": "Monad Testnet",
@@ -1953,7 +2071,7 @@
       "name": "Monad Explorer",
       "url": "https://testnet.monadexplorer.com/${type}/${input}",
       "checksummed": true,
-      "icon": "https://icons.defined.fi/networks/monad.png"
+      "icon": "https://icons.defined.fi/networks/monad-testnet.png"
     },
     "baseTokenName": "Wrapped Monad",
     "baseTokenDecimals": 18

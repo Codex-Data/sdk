@@ -1627,6 +1627,8 @@ export type GetNftPoolsResponse = {
 export type GetPriceInput = {
   /** The contract address of the token. */
   address: Scalars['String']['input'];
+  /** The block number for the price. It must be provided in addition to the timestamp to get a per block breakdown at a specific timestamp. */
+  blockNumber?: InputMaybe<Scalars['Int']['input']>;
   /**
    * The maximum number of deviations from the token's Liquidity-Weighted Mean Price. This is used to mitigate low liquidity pairs producing prices that are not representative of reality. Default is `1`.
    * @deprecated This isn't taken into account anymore.
@@ -1962,12 +1964,22 @@ export type LaunchpadTokenEventOutput = {
   __typename?: 'LaunchpadTokenEventOutput';
   /** The contract address of the token. */
   address: Scalars['String']['output'];
-  /** The number of buys in the last 24 hours. */
+  /** The number of bundlers that bought the token */
+  bundlerCount?: Maybe<Scalars['Float']['output']>;
+  /** The percentage of the token that is held by bundlers */
+  bundlerHeldPercentage?: Maybe<Scalars['Float']['output']>;
+  /** The number of buys in the last hour. */
   buyCount1?: Maybe<Scalars['Int']['output']>;
+  /** The percentage of the token that is held by developers */
+  devHeldPercentage?: Maybe<Scalars['Float']['output']>;
   /** The type of event. */
   eventType: LaunchpadTokenEventType;
   /** The number of holders. */
   holders?: Maybe<Scalars['Int']['output']>;
+  /** The number of insiders that bought the token */
+  insiderCount?: Maybe<Scalars['Float']['output']>;
+  /** The percentage of the token that is held by insiders */
+  insiderHeldPercentage?: Maybe<Scalars['Float']['output']>;
   /** The name of the launchpad. */
   launchpadName: Scalars['String']['output'];
   /** The liquidity of the token's top pair. */
@@ -1980,13 +1992,17 @@ export type LaunchpadTokenEventOutput = {
   price?: Maybe<Scalars['Float']['output']>;
   /** The protocol of the token. */
   protocol: Scalars['String']['output'];
-  /** The number of sells in the last 24 hours. */
+  /** The number of sells in the last hour. */
   sellCount1?: Maybe<Scalars['Int']['output']>;
+  /** The number of snipers that bought the token */
+  sniperCount?: Maybe<Scalars['Float']['output']>;
+  /** The percentage of the token that is held by snipers */
+  sniperHeldPercentage?: Maybe<Scalars['Float']['output']>;
   /** Metadata for the token. */
   token: EnhancedToken;
-  /** The number of transactions in the last 24 hours. */
+  /** The number of transactions in the last hour. */
   transactions1?: Maybe<Scalars['Int']['output']>;
-  /** The volume of the token in the last 24 hours. */
+  /** The volume of the token in the last hour. */
   volume1?: Maybe<Scalars['Int']['output']>;
 };
 
@@ -2030,6 +2046,8 @@ export enum LaunchpadTokenProtocol {
   MeteoraDbc = 'MeteoraDBC',
   /** Protocol name for Moonit (formerly Moonshot). */
   Moonit = 'Moonit',
+  /** Protocol name for Printr (EVM only - Printr tokens on Solana should be queried with launchpadName as Printr uses MeteoraDBC on Solana). */
+  Printr = 'Printr',
   /** Protocol name for Pump.fun. */
   Pump = 'Pump',
   /** Protocol name for Rainbow. */
@@ -5164,9 +5182,9 @@ export type OnEventsCreatedByMakerInput = {
 export type OnLaunchpadTokenEventBatchInput = {
   /** The type of event. */
   eventType?: InputMaybe<LaunchpadTokenEventType>;
-  /** The name of the launchpad. One of the following: Pump.fun, Bonk, Baseapp, Zora, Zora Creator, Four.meme, Believe, Moonshot, Jupiter Studio, boop, Heaven, TokenMill V2, Virtuals, Clanker, Clanker V4, ArenaTrade, Moonit, LaunchLab, MeteoraDBC, Vertigo, Cooking.City, time.fun, BAGS, Circus, Dealr, OhFuckFun, PrintFun, Trend, shout.fun, xApple, Sendshot, DubDub, cults. */
+  /** The name of the launchpad. One of the following: Pump.fun, Bonk, Baseapp, Zora, Zora Creator, Four.meme, Four.meme Fair, Believe, Moonshot, Jupiter Studio, boop, Heaven, TokenMill V2, Virtuals, Clanker, Clanker V4, ArenaTrade, Moonit, LaunchLab, MeteoraDBC, Vertigo, Cooking.City, time.fun, BAGS, Circus, Dealr, OhFuckFun, PrintFun, Trend, shout.fun, xApple, Sendshot, DubDub, cults, OpenGameProtocol, Printr. */
   launchpadName?: InputMaybe<Scalars['String']['input']>;
-  /** A list of launchpad names. Any of the following: Pump.fun, Bonk, Baseapp, Zora, Zora Creator, Four.meme, Believe, Moonshot, Jupiter Studio, boop, Heaven, TokenMill V2, Virtuals, Clanker, Clanker V4, ArenaTrade, Moonit, LaunchLab, MeteoraDBC, Vertigo, Cooking.City, time.fun, BAGS, Circus, Dealr, OhFuckFun, PrintFun, Trend, shout.fun, xApple, Sendshot, DubDub, cults. */
+  /** A list of launchpad names. Any of the following: Pump.fun, Bonk, Baseapp, Zora, Zora Creator, Four.meme, Four.meme Fair, Believe, Moonshot, Jupiter Studio, boop, Heaven, TokenMill V2, Virtuals, Clanker, Clanker V4, ArenaTrade, Moonit, LaunchLab, MeteoraDBC, Vertigo, Cooking.City, time.fun, BAGS, Circus, Dealr, OhFuckFun, PrintFun, Trend, shout.fun, xApple, Sendshot, DubDub, cults, OpenGameProtocol, Printr. */
   launchpadNames?: InputMaybe<Array<Scalars['String']['input']>>;
   /** The network ID that the token is deployed on. */
   networkId?: InputMaybe<Scalars['Int']['input']>;
@@ -5182,9 +5200,9 @@ export type OnLaunchpadTokenEventInput = {
   address?: InputMaybe<Scalars['String']['input']>;
   /** The type of event. */
   eventType?: InputMaybe<LaunchpadTokenEventType>;
-  /** The name of the launchpad. One of the following: Pump.fun, Bonk, Baseapp, Zora, Zora Creator, Four.meme, Believe, Moonshot, Jupiter Studio, boop, Heaven, TokenMill V2, Virtuals, Clanker, Clanker V4, ArenaTrade, Moonit, LaunchLab, MeteoraDBC, Vertigo, Cooking.City, time.fun, BAGS, Circus, Dealr, OhFuckFun, PrintFun, Trend, shout.fun, xApple, Sendshot, DubDub, cults. */
+  /** The name of the launchpad. One of the following: Pump.fun, Bonk, Baseapp, Zora, Zora Creator, Four.meme, Four.meme Fair, Believe, Moonshot, Jupiter Studio, boop, Heaven, TokenMill V2, Virtuals, Clanker, Clanker V4, ArenaTrade, Moonit, LaunchLab, MeteoraDBC, Vertigo, Cooking.City, time.fun, BAGS, Circus, Dealr, OhFuckFun, PrintFun, Trend, shout.fun, xApple, Sendshot, DubDub, cults, OpenGameProtocol, Printr. */
   launchpadName?: InputMaybe<Scalars['String']['input']>;
-  /** A list of launchpad names. Any of the following: Pump.fun, Bonk, Baseapp, Zora, Zora Creator, Four.meme, Believe, Moonshot, Jupiter Studio, boop, Heaven, TokenMill V2, Virtuals, Clanker, Clanker V4, ArenaTrade, Moonit, LaunchLab, MeteoraDBC, Vertigo, Cooking.City, time.fun, BAGS, Circus, Dealr, OhFuckFun, PrintFun, Trend, shout.fun, xApple, Sendshot, DubDub, cults. */
+  /** A list of launchpad names. Any of the following: Pump.fun, Bonk, Baseapp, Zora, Zora Creator, Four.meme, Four.meme Fair, Believe, Moonshot, Jupiter Studio, boop, Heaven, TokenMill V2, Virtuals, Clanker, Clanker V4, ArenaTrade, Moonit, LaunchLab, MeteoraDBC, Vertigo, Cooking.City, time.fun, BAGS, Circus, Dealr, OhFuckFun, PrintFun, Trend, shout.fun, xApple, Sendshot, DubDub, cults, OpenGameProtocol, Printr. */
   launchpadNames?: InputMaybe<Array<Scalars['String']['input']>>;
   /** The network ID that the token is deployed on. */
   networkId?: InputMaybe<Scalars['Int']['input']>;
@@ -6158,6 +6176,8 @@ export type Price = {
   __typename?: 'Price';
   /** The contract address of the token. */
   address: Scalars['String']['output'];
+  /** The pool that emitted the swap generating this price */
+  blockNumber?: Maybe<Scalars['Int']['output']>;
   /**
    * Ratio of how confident we are in the price
    * @deprecated Pricing no longer based on specific pools
@@ -6776,6 +6796,7 @@ export type Query = {
    * @deprecated This query is no longer supported. Use `filterTokens` with a createdAt: DESC filter instead.
    */
   getLatestTokens?: Maybe<LatestTokenConnection>;
+  /** Returns a list of network configurations. */
   getNetworkConfigs: Array<NetworkConfig>;
   /** Returns metadata for a given network supported on Codex. */
   getNetworkStats?: Maybe<GetNetworkStatsResponse>;
@@ -7825,6 +7846,7 @@ export type SubscriptionOnNftPoolEventsCreatedArgs = {
 export type SubscriptionOnPairMetadataUpdatedArgs = {
   id?: InputMaybe<Scalars['String']['input']>;
   quoteToken?: InputMaybe<QuoteToken>;
+  useNonLiquidityTokenAsQuoteToken?: InputMaybe<Scalars['Boolean']['input']>;
 };
 
 
@@ -8151,6 +8173,10 @@ export type TokenFilterResult = {
   __typename?: 'TokenFilterResult';
   /** @deprecated Age isn't supported - use createdAt instead */
   age?: Maybe<Scalars['Int']['output']>;
+  /** The number of wallets that have bundled the token */
+  bundlerCount?: Maybe<Scalars['Int']['output']>;
+  /** The percentage of tokens held by bundlers */
+  bundlerHeldPercentage?: Maybe<Scalars['Float']['output']>;
   /** The number of buys in the past hour. */
   buyCount1?: Maybe<Scalars['Int']['output']>;
   /** The number of buys in the past 4 hours. */
@@ -8185,6 +8211,8 @@ export type TokenFilterResult = {
   circulatingMarketCap?: Maybe<Scalars['String']['output']>;
   /** The unix timestamp for the creation of the token's first pair. */
   createdAt?: Maybe<Scalars['Int']['output']>;
+  /** The percentage of tokens held by the dev */
+  devHeldPercentage?: Maybe<Scalars['Float']['output']>;
   /** The exchanges the token is listed on. */
   exchanges?: Maybe<Array<Maybe<Exchange>>>;
   /** @deprecated FDV isn't supported - use marketCap instead */
@@ -8201,6 +8229,10 @@ export type TokenFilterResult = {
   high24?: Maybe<Scalars['String']['output']>;
   /** The number of different wallets holding the token. */
   holders?: Maybe<Scalars['Int']['output']>;
+  /** The number of wallets that have been an insider of the token */
+  insiderCount?: Maybe<Scalars['Int']['output']>;
+  /** The percentage of tokens held by insiders */
+  insiderHeldPercentage?: Maybe<Scalars['Float']['output']>;
   /** Whether the token has been flagged as a scam. */
   isScam?: Maybe<Scalars['Boolean']['output']>;
   /** The unix timestamp for the token's last transaction. */
@@ -8251,6 +8283,10 @@ export type TokenFilterResult = {
   sellVolume12?: Maybe<Scalars['String']['output']>;
   /** The sell volume in USD in the past 24 hours. */
   sellVolume24?: Maybe<Scalars['String']['output']>;
+  /** The number of wallets that have sniped the token */
+  sniperCount?: Maybe<Scalars['Int']['output']>;
+  /** The percentage of tokens held by snipers */
+  sniperHeldPercentage?: Maybe<Scalars['Float']['output']>;
   /** The percentage of wallets that are less than 1d old that have traded in the last 24h */
   swapPct1dOldWallet?: Maybe<Scalars['String']['output']>;
   /** The percentage of wallets that are less than 7d old that have traded in the last 24h */
@@ -8327,6 +8363,10 @@ export type TokenFilterResult = {
 export type TokenFilters = {
   /** @deprecated Age isn't supported - use createdAt instead */
   age?: InputMaybe<NumberFilter>;
+  /** Filter by number of wallets that have bundled the token */
+  bundlerCount?: InputMaybe<NumberFilter>;
+  /** Filter by percentage of tokens held by bundlers */
+  bundlerHeldPercentage?: InputMaybe<NumberFilter>;
   /** The number of buys in the past hour. */
   buyCount1?: InputMaybe<NumberFilter>;
   /** The number of buys in the past 4 hours. */
@@ -8363,6 +8403,8 @@ export type TokenFilters = {
   createdAt?: InputMaybe<NumberFilter>;
   /** The address of the creator of the token. */
   creatorAddress?: InputMaybe<Scalars['String']['input']>;
+  /** Filter by percentage of tokens held by the dev */
+  devHeldPercentage?: InputMaybe<NumberFilter>;
   /** The list of exchange contract addresses to filter by. */
   exchangeAddress?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
   /** The list of exchange contract IDs to filter by. Applied in conjunction with `network` filter using an OR condition. When used together, the query returns results that match either the specified exchanges or the specified network. */
@@ -8385,6 +8427,10 @@ export type TokenFilters = {
   holders?: InputMaybe<NumberFilter>;
   /** Whether to include tokens that have been flagged as scams. Default: false */
   includeScams?: InputMaybe<Scalars['Boolean']['input']>;
+  /** Filter by number of wallets that have been an insider of the token */
+  insiderCount?: InputMaybe<NumberFilter>;
+  /** Filter by percentage of tokens held by insiders */
+  insiderHeldPercentage?: InputMaybe<NumberFilter>;
   /** Whether to filter for tokens on testnet networks. Use `true` for testnet tokens only, `false` for mainnet tokens only and `undefined` (default) for both. */
   isTestnet?: InputMaybe<Scalars['Boolean']['input']>;
   /** Only include verified tokens */
@@ -8401,7 +8447,7 @@ export type TokenFilters = {
   launchpadMigrated?: InputMaybe<Scalars['Boolean']['input']>;
   /** The timestamp when the launchpad was migrated */
   launchpadMigratedAt?: InputMaybe<NumberFilter>;
-  /** A list of launchpad names. Any of the following: Pump.fun, Bonk, Baseapp, Zora, Zora Creator, Four.meme, Believe, Moonshot, Jupiter Studio, boop, Heaven, TokenMill V2, Virtuals, Clanker, Clanker V4, ArenaTrade, Moonit, LaunchLab, MeteoraDBC, Vertigo, Cooking.City, time.fun, BAGS, Circus, Dealr, OhFuckFun, PrintFun, Trend, shout.fun, xApple, Sendshot, DubDub, cults. */
+  /** A list of launchpad names. Any of the following: Pump.fun, Bonk, Baseapp, Zora, Zora Creator, Four.meme, Four.meme Fair, Believe, Moonshot, Jupiter Studio, boop, Heaven, TokenMill V2, Virtuals, Clanker, Clanker V4, ArenaTrade, Moonit, LaunchLab, MeteoraDBC, Vertigo, Cooking.City, time.fun, BAGS, Circus, Dealr, OhFuckFun, PrintFun, Trend, shout.fun, xApple, Sendshot, DubDub, cults, OpenGameProtocol, Printr. */
   launchpadName?: InputMaybe<Array<Scalars['String']['input']>>;
   /** A list of launchpad protocols. */
   launchpadProtocol?: InputMaybe<Array<Scalars['String']['input']>>;
@@ -8447,10 +8493,16 @@ export type TokenFilters = {
   sellVolume12?: InputMaybe<NumberFilter>;
   /** The sell volume in USD in the past 24 hours. */
   sellVolume24?: InputMaybe<NumberFilter>;
+  /** Filter by number of wallets that have sniped the token */
+  sniperCount?: InputMaybe<NumberFilter>;
+  /** Filter by percentage of tokens held by snipers */
+  sniperHeldPercentage?: InputMaybe<NumberFilter>;
   /** The percentage of wallets that are less than 1d old that have traded in the last 24h */
   swapPct1dOldWallet?: InputMaybe<NumberFilter>;
   /** The percentage of wallets that are less than 7d old that have traded in the last 24h */
   swapPct7dOldWallet?: InputMaybe<NumberFilter>;
+  /** The unix timestamp for the creation of the token. */
+  tokenCreatedAt?: InputMaybe<NumberFilter>;
   /** Whether to ignore pairs/tokens not relevant to trending. This is done checking against a few factors and ignoring uninteresting tokens like stables / network tokens. If you want all tokens regardless of these checks, then don't include this field. (default) If you want only tokens that fail the trending ignore checks, then set it to `true`. (i.e. stablecoins, rugs, network base tokens) If you want only tokens that pass the trending ignore checks, then set it to `false`. */
   trendingIgnored?: InputMaybe<Scalars['Boolean']['input']>;
   /** The number of transactions in the past hour. */
@@ -8762,6 +8814,7 @@ export enum TokenRankingAttribute {
   SellVolume24 = 'sellVolume24',
   SwapPct1dOldWallet = 'swapPct1dOldWallet',
   SwapPct7dOldWallet = 'swapPct7dOldWallet',
+  TokenCreatedAt = 'tokenCreatedAt',
   TrendingScore = 'trendingScore',
   TrendingScore1 = 'trendingScore1',
   TrendingScore4 = 'trendingScore4',
@@ -8955,7 +9008,7 @@ export type TokenWalletFilterResult = {
   lastTransactionAt: Scalars['Int']['output'];
   /** The network ID */
   networkId: Scalars['Int']['output'];
-  /** The purchased token balance */
+  /** The total balance of tokens that the user has bought or sold. This value does not include tokens acquired through external transfers or unsupported methods. */
   purchasedTokenBalance: Scalars['String']['output'];
   /** Realized profit percentage in the past day */
   realizedProfitPercentage1d: Scalars['Float']['output'];
@@ -9021,9 +9074,9 @@ export type TokenWalletFilterResult = {
   tokenAmountSoldAll1y: Scalars['String']['output'];
   /** Token amount sold all in the past 30 days */
   tokenAmountSoldAll30d: Scalars['String']['output'];
-  /** The token balance in the wallet. This value does not update with every transfer and can be slightly stale. Use tokenBalanceLive for live data. */
+  /** The total balance of tokens held by the user, reflecting the most recent update to the record. This balance includes all tokens, even those transferred in through unsupported methods or DEXs that are not tracked by our system. This value does not update with every transfer and can be slightly stale. Use tokenBalanceLive for live data. */
   tokenBalance: Scalars['String']['output'];
-  /** The current token balance in the wallet. */
+  /** The current token balance in the wallet. This value is updated with every transfer and is therefore more accurate than tokenBalance. */
   tokenBalanceLive?: Maybe<Scalars['String']['output']>;
   /** The current USD value of the token balance. */
   tokenBalanceLiveUsd?: Maybe<Scalars['String']['output']>;
@@ -9237,6 +9290,8 @@ export type UnconfirmedSwapEventData = {
 
 export type UniswapV4Data = {
   __typename?: 'UniswapV4Data';
+  /** Whether the pool uses a dynamic fee. A fee of 0x80000 is used by Uniswap V4 to indicate a dynamic pool -- in such cases, the fee percentage on the pair should be disregarded. */
+  isDynamicFee?: Maybe<Scalars['Boolean']['output']>;
   /** Whether the token is the network token for the Uniswap V4 pool. */
   isToken0NetworkToken?: Maybe<Scalars['Boolean']['output']>;
   type: Scalars['String']['output'];
@@ -10040,7 +10095,7 @@ export enum WalletTokenRankingAttribute {
   FirstTransactionAt = 'firstTransactionAt',
   /** The last transaction timestamp */
   LastTransactionAt = 'lastTransactionAt',
-  /** Purchased token balance */
+  /** The total balance of tokens that the user has bought or sold. This value does not include tokens acquired through external transfers or unsupported methods. */
   PurchasedTokenBalance = 'purchasedTokenBalance',
   /** Realized profit percentage in the past day */
   RealizedProfitPercentage1d = 'realizedProfitPercentage1d',
@@ -10086,7 +10141,7 @@ export enum WalletTokenRankingAttribute {
   TokenAmountSold1y = 'tokenAmountSold1y',
   /** Token amount sold in the past 30 days */
   TokenAmountSold30d = 'tokenAmountSold30d',
-  /** Token balance */
+  /** The total balance of tokens held by the user, reflecting the most recent update to the record. This balance includes all tokens, even those transferred in through unsupported methods or DEXs that are not tracked by our system. */
   TokenBalance = 'tokenBalance'
 }
 

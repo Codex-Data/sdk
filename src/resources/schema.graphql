@@ -29,6 +29,7 @@ type Query {
     """limit: The maximum number of webhooks to return."""
     limit: Int
   ): GetWebhooksResponse
+  """Returns a list of network configurations."""
   getNetworkConfigs(
     networkIds: [Int!]
   ): [NetworkConfig!]!
@@ -792,8 +793,10 @@ type Subscription {
   onPairMetadataUpdated(
     """The ID of the pair (`address`:`networkId`)."""
     id: String
-    """The token of interest within the pair. Can be `token0` or `token1`."""
+    """The token of interest within the pair. Can be `token0` or `token1`. If not specified, returns data for both tokens."""
     quoteToken: QuoteToken
+    """If true, automatically selects the non-liquidity token as the quoteToken. Ignored if quoteToken is explicitly specified."""
+    useNonLiquidityTokenAsQuoteToken: Boolean
   ): PairMetadata
   """Live-streamed bucketed stats for a given token within a pair."""
   onDetailedStatsUpdated(
@@ -2355,6 +2358,8 @@ input GetPriceInput {
   timestamp: Int
   """The address of the pool, when omitted the top pool is used."""
   poolAddress: String
+  """The block number for the price. It must be provided in addition to the timestamp to get a per block breakdown at a specific timestamp."""
+  blockNumber: Int
   """The maximum number of deviations from the token's Liquidity-Weighted Mean Price. This is used to mitigate low liquidity pairs producing prices that are not representative of reality. Default is `1`."""
   maxDeviations: Float @deprecated(reason: "This isn't taken into account anymore.")
 }
@@ -2685,7 +2690,7 @@ type LaunchpadTokenEventOutput {
   launchpadName: String!
   """Metadata for the token."""
   token: EnhancedToken!
-  """The number of buys in the last 24 hours."""
+  """The number of buys in the last hour."""
   buyCount1: Int
   """The type of event."""
   eventType: LaunchpadTokenEventType!
@@ -2695,14 +2700,28 @@ type LaunchpadTokenEventOutput {
   marketCap: String
   """The price of the token."""
   price: Float
-  """The number of sells in the last 24 hours."""
+  """The number of sells in the last hour."""
   sellCount1: Int
-  """The volume of the token in the last 24 hours."""
+  """The volume of the token in the last hour."""
   volume1: Int
-  """The number of transactions in the last 24 hours."""
+  """The number of transactions in the last hour."""
   transactions1: Int
   """The liquidity of the token's top pair."""
   liquidity: String
+  """The number of snipers that bought the token"""
+  sniperCount: Float
+  """The percentage of the token that is held by snipers"""
+  sniperHeldPercentage: Float
+  """The number of bundlers that bought the token"""
+  bundlerCount: Float
+  """The percentage of the token that is held by bundlers"""
+  bundlerHeldPercentage: Float
+  """The number of insiders that bought the token"""
+  insiderCount: Float
+  """The percentage of the token that is held by insiders"""
+  insiderHeldPercentage: Float
+  """The percentage of the token that is held by developers"""
+  devHeldPercentage: Float
 }
 
 """The type of event. Note that associated statistics such as `buyCount1`, `price`, etc. are only available for `Updated` events."""
@@ -2761,6 +2780,8 @@ enum LaunchpadTokenProtocol {
   TokenMillV2
   """Protocol name for Clanker V4."""
   ClankerV4
+  """Protocol name for Printr (EVM only - Printr tokens on Solana should be queried with launchpadName as Printr uses MeteoraDBC on Solana)."""
+  Printr
 }
 
 scalar link__Import
@@ -5710,9 +5731,9 @@ input OnLaunchpadTokenEventBatchInput {
   protocols: [LaunchpadTokenProtocol!]
   """The network ID that the token is deployed on."""
   networkId: Int
-  """The name of the launchpad. One of the following: Pump.fun, Bonk, Baseapp, Zora, Zora Creator, Four.meme, Believe, Moonshot, Jupiter Studio, boop, Heaven, TokenMill V2, Virtuals, Clanker, Clanker V4, ArenaTrade, Moonit, LaunchLab, MeteoraDBC, Vertigo, Cooking.City, time.fun, BAGS, Circus, Dealr, OhFuckFun, PrintFun, Trend, shout.fun, xApple, Sendshot, DubDub, cults."""
+  """The name of the launchpad. One of the following: Pump.fun, Bonk, Baseapp, Zora, Zora Creator, Four.meme, Four.meme Fair, Believe, Moonshot, Jupiter Studio, boop, Heaven, TokenMill V2, Virtuals, Clanker, Clanker V4, ArenaTrade, Moonit, LaunchLab, MeteoraDBC, Vertigo, Cooking.City, time.fun, BAGS, Circus, Dealr, OhFuckFun, PrintFun, Trend, shout.fun, xApple, Sendshot, DubDub, cults, OpenGameProtocol, Printr."""
   launchpadName: String
-  """A list of launchpad names. Any of the following: Pump.fun, Bonk, Baseapp, Zora, Zora Creator, Four.meme, Believe, Moonshot, Jupiter Studio, boop, Heaven, TokenMill V2, Virtuals, Clanker, Clanker V4, ArenaTrade, Moonit, LaunchLab, MeteoraDBC, Vertigo, Cooking.City, time.fun, BAGS, Circus, Dealr, OhFuckFun, PrintFun, Trend, shout.fun, xApple, Sendshot, DubDub, cults."""
+  """A list of launchpad names. Any of the following: Pump.fun, Bonk, Baseapp, Zora, Zora Creator, Four.meme, Four.meme Fair, Believe, Moonshot, Jupiter Studio, boop, Heaven, TokenMill V2, Virtuals, Clanker, Clanker V4, ArenaTrade, Moonit, LaunchLab, MeteoraDBC, Vertigo, Cooking.City, time.fun, BAGS, Circus, Dealr, OhFuckFun, PrintFun, Trend, shout.fun, xApple, Sendshot, DubDub, cults, OpenGameProtocol, Printr."""
   launchpadNames: [String!]
   """The type of event."""
   eventType: LaunchpadTokenEventType
@@ -5724,9 +5745,9 @@ input OnLaunchpadTokenEventInput {
   protocol: LaunchpadTokenProtocol
   """A list of launchpad protocols."""
   protocols: [LaunchpadTokenProtocol!]
-  """The name of the launchpad. One of the following: Pump.fun, Bonk, Baseapp, Zora, Zora Creator, Four.meme, Believe, Moonshot, Jupiter Studio, boop, Heaven, TokenMill V2, Virtuals, Clanker, Clanker V4, ArenaTrade, Moonit, LaunchLab, MeteoraDBC, Vertigo, Cooking.City, time.fun, BAGS, Circus, Dealr, OhFuckFun, PrintFun, Trend, shout.fun, xApple, Sendshot, DubDub, cults."""
+  """The name of the launchpad. One of the following: Pump.fun, Bonk, Baseapp, Zora, Zora Creator, Four.meme, Four.meme Fair, Believe, Moonshot, Jupiter Studio, boop, Heaven, TokenMill V2, Virtuals, Clanker, Clanker V4, ArenaTrade, Moonit, LaunchLab, MeteoraDBC, Vertigo, Cooking.City, time.fun, BAGS, Circus, Dealr, OhFuckFun, PrintFun, Trend, shout.fun, xApple, Sendshot, DubDub, cults, OpenGameProtocol, Printr."""
   launchpadName: String
-  """A list of launchpad names. Any of the following: Pump.fun, Bonk, Baseapp, Zora, Zora Creator, Four.meme, Believe, Moonshot, Jupiter Studio, boop, Heaven, TokenMill V2, Virtuals, Clanker, Clanker V4, ArenaTrade, Moonit, LaunchLab, MeteoraDBC, Vertigo, Cooking.City, time.fun, BAGS, Circus, Dealr, OhFuckFun, PrintFun, Trend, shout.fun, xApple, Sendshot, DubDub, cults."""
+  """A list of launchpad names. Any of the following: Pump.fun, Bonk, Baseapp, Zora, Zora Creator, Four.meme, Four.meme Fair, Believe, Moonshot, Jupiter Studio, boop, Heaven, TokenMill V2, Virtuals, Clanker, Clanker V4, ArenaTrade, Moonit, LaunchLab, MeteoraDBC, Vertigo, Cooking.City, time.fun, BAGS, Circus, Dealr, OhFuckFun, PrintFun, Trend, shout.fun, xApple, Sendshot, DubDub, cults, OpenGameProtocol, Printr."""
   launchpadNames: [String!]
   """The type of event."""
   eventType: LaunchpadTokenEventType
@@ -6650,6 +6671,8 @@ type Price {
   priceUsd: Float!
   """The unix timestamp for the price."""
   timestamp: Int
+  """The pool that emitted the swap generating this price"""
+  blockNumber: Int
   """The pool that emitted the swap generating this price"""
   poolAddress: String @deprecated(reason: "Pricing no longer based on specific pools")
   """Ratio of how confident we are in the price"""
@@ -7914,12 +7937,28 @@ type TokenFilterResult {
   swapPct1dOldWallet: String
   """The percentage of wallets that are less than 7d old that have traded in the last 24h"""
   swapPct7dOldWallet: String
+  """The number of wallets that have sniped the token"""
+  sniperCount: Int
+  """The percentage of tokens held by snipers"""
+  sniperHeldPercentage: Float
+  """The number of wallets that have bundled the token"""
+  bundlerCount: Int
+  """The percentage of tokens held by bundlers"""
+  bundlerHeldPercentage: Float
+  """The number of wallets that have been an insider of the token"""
+  insiderCount: Int
+  """The percentage of tokens held by insiders"""
+  insiderHeldPercentage: Float
+  """The percentage of tokens held by the dev"""
+  devHeldPercentage: Float
 }
 
 """Input type of `TokenFilters`."""
 input TokenFilters {
   """The unix timestamp for the creation of the token's first pair."""
   createdAt: NumberFilter
+  """The unix timestamp for the creation of the token."""
+  tokenCreatedAt: NumberFilter
   """The unix timestamp for the token's last transaction."""
   lastTransaction: NumberFilter
   age: NumberFilter @deprecated(reason: "Age isn't supported - use createdAt instead")
@@ -8084,7 +8123,7 @@ input TokenFilters {
   creatorAddress: String
   """A list of launchpad protocols."""
   launchpadProtocol: [String!]
-  """A list of launchpad names. Any of the following: Pump.fun, Bonk, Baseapp, Zora, Zora Creator, Four.meme, Believe, Moonshot, Jupiter Studio, boop, Heaven, TokenMill V2, Virtuals, Clanker, Clanker V4, ArenaTrade, Moonit, LaunchLab, MeteoraDBC, Vertigo, Cooking.City, time.fun, BAGS, Circus, Dealr, OhFuckFun, PrintFun, Trend, shout.fun, xApple, Sendshot, DubDub, cults."""
+  """A list of launchpad names. Any of the following: Pump.fun, Bonk, Baseapp, Zora, Zora Creator, Four.meme, Four.meme Fair, Believe, Moonshot, Jupiter Studio, boop, Heaven, TokenMill V2, Virtuals, Clanker, Clanker V4, ArenaTrade, Moonit, LaunchLab, MeteoraDBC, Vertigo, Cooking.City, time.fun, BAGS, Circus, Dealr, OhFuckFun, PrintFun, Trend, shout.fun, xApple, Sendshot, DubDub, cults, OpenGameProtocol, Printr."""
   launchpadName: [String!]
   """Indicates if the launchpad is completed."""
   launchpadCompleted: Boolean
@@ -8108,6 +8147,20 @@ input TokenFilters {
   swapPct1dOldWallet: NumberFilter
   """The percentage of wallets that are less than 7d old that have traded in the last 24h"""
   swapPct7dOldWallet: NumberFilter
+  """Filter by number of wallets that have sniped the token"""
+  sniperCount: NumberFilter
+  """Filter by percentage of tokens held by snipers"""
+  sniperHeldPercentage: NumberFilter
+  """Filter by number of wallets that have bundled the token"""
+  bundlerCount: NumberFilter
+  """Filter by percentage of tokens held by bundlers"""
+  bundlerHeldPercentage: NumberFilter
+  """Filter by number of wallets that have been an insider of the token"""
+  insiderCount: NumberFilter
+  """Filter by percentage of tokens held by insiders"""
+  insiderHeldPercentage: NumberFilter
+  """Filter by percentage of tokens held by the dev"""
+  devHeldPercentage: NumberFilter
 }
 
 """Metadata for a token."""
@@ -8298,6 +8351,7 @@ input TokenRanking {
 """The attribute used to rank tokens."""
 enum TokenRankingAttribute {
   createdAt
+  tokenCreatedAt
   lastTransaction
   age @deprecated(reason: "Use createdAt instead")
   buyCount5m
@@ -8588,13 +8642,13 @@ type TokenWalletFilterResult {
   sells1y: Int!
   """Number of sells all in the past year"""
   sellsAll1y: Int!
-  """The purchased token balance"""
-  purchasedTokenBalance: String!
   """The token acquisition cost in USD"""
   tokenAcquisitionCostUsd: String!
-  """The token balance in the wallet. This value does not update with every transfer and can be slightly stale. Use tokenBalanceLive for live data."""
+  """The total balance of tokens that the user has bought or sold. This value does not include tokens acquired through external transfers or unsupported methods."""
+  purchasedTokenBalance: String!
+  """The total balance of tokens held by the user, reflecting the most recent update to the record. This balance includes all tokens, even those transferred in through unsupported methods or DEXs that are not tracked by our system. This value does not update with every transfer and can be slightly stale. Use tokenBalanceLive for live data."""
   tokenBalance: String!
-  """The current token balance in the wallet."""
+  """The current token balance in the wallet. This value is updated with every transfer and is therefore more accurate than tokenBalance."""
   tokenBalanceLive: String
   """The current USD value of the token balance."""
   tokenBalanceLiveUsd: String
@@ -8813,6 +8867,8 @@ type UniswapV4Data {
   uniswapV4HookAddress: String
   """Whether the token is the network token for the Uniswap V4 pool."""
   isToken0NetworkToken: Boolean
+  """Whether the pool uses a dynamic fee. A fee of 0x80000 is used by Uniswap V4 to indicate a dynamic pool -- in such cases, the fee percentage on the pair should be disregarded."""
+  isDynamicFee: Boolean
   type: String!
 }
 
@@ -9642,9 +9698,9 @@ enum WalletTokenRankingAttribute {
   buys1y
   """Number of sells in the past year"""
   sells1y
-  """Token balance"""
+  """The total balance of tokens held by the user, reflecting the most recent update to the record. This balance includes all tokens, even those transferred in through unsupported methods or DEXs that are not tracked by our system."""
   tokenBalance
-  """Purchased token balance"""
+  """The total balance of tokens that the user has bought or sold. This value does not include tokens acquired through external transfers or unsupported methods."""
   purchasedTokenBalance
   """Token acquisition cost in USD"""
   tokenAcquisitionCostUsd
