@@ -16,8 +16,7 @@
     "test": "jest"
   },
   "files": [
-    "dist",
-    "src"
+    "dist"
   ],
   "keywords": [
     "crypto",
