@@ -151,7 +151,7 @@ export class Subscribe {
     this.sdk.subscribe(
       `subscription OnPricesUpdated($input: [OnPricesUpdatedInput!]!) {
   onPricesUpdated (input: $input) {
-    address, networkId, priceUsd, timestamp
+    address, blockNumber, networkId, priceUsd, timestamp
   }
 }`,
       vars,
@@ -221,7 +221,7 @@ export class Subscribe {
     this.sdk.subscribe(
       `subscription OnPriceUpdated($address: String, $networkId: Int, $sourcePairAddress: String) {
   onPriceUpdated (address: $address, networkId: $networkId, sourcePairAddress: $sourcePairAddress) {
-    address, networkId, priceUsd, timestamp
+    address, blockNumber, networkId, priceUsd, timestamp
   }
 }`,
       vars,
@@ -232,8 +232,8 @@ export class Subscribe {
     sink: Sink<ExecutionResult<OnPairMetadataUpdatedSubscription>>,
   ) =>
     this.sdk.subscribe(
-      `subscription OnPairMetadataUpdated($id: String, $quoteToken: QuoteToken) {
-  onPairMetadataUpdated (id: $id, quoteToken: $quoteToken) {
+      `subscription OnPairMetadataUpdated($id: String, $quoteToken: QuoteToken, $useNonLiquidityTokenAsQuoteToken: Boolean) {
+  onPairMetadataUpdated (id: $id, quoteToken: $quoteToken, useNonLiquidityTokenAsQuoteToken: $useNonLiquidityTokenAsQuoteToken) {
     createdAt, enhancedToken0 { address, cmcId, createBlockNumber, createTransactionHash, createdAt, creatorAddress, decimals, exchanges { address, color, exchangeVersion, iconUrl, id, name, networkId, tradeUrl }, freezable, id, info { address, circulatingSupply, cmcId, description, id, imageBannerUrl, imageLargeUrl, imageSmallUrl, imageThumbHash, imageThumbUrl, isScam, name, networkId, symbol, totalSupply }, isFreezableValid, isMintableValid, isScam, launchpad { completed, completedAt, completedSlot, graduationPercent, launchpadIconUrl, launchpadName, launchpadProtocol, migrated, migratedAt, migratedPoolAddress, migratedSlot, poolAddress }, mintable, name, networkId, socialLinks { bitcointalk, blog, coingecko, coinmarketcap, discord, email, facebook, github, instagram, linkedin, reddit, slack, telegram, twitch, twitter, website, wechat, whitepaper, youtube }, symbol }, enhancedToken1 { address, cmcId, createBlockNumber, createTransactionHash, createdAt, creatorAddress, decimals, exchanges { address, color, exchangeVersion, iconUrl, id, name, networkId, tradeUrl }, freezable, id, info { address, circulatingSupply, cmcId, description, id, imageBannerUrl, imageLargeUrl, imageSmallUrl, imageThumbHash, imageThumbUrl, isScam, name, networkId, symbol, totalSupply }, isFreezableValid, isMintableValid, isScam, launchpad { completed, completedAt, completedSlot, graduationPercent, launchpadIconUrl, launchpadName, launchpadProtocol, migrated, migratedAt, migratedPoolAddress, migratedSlot, poolAddress }, mintable, name, networkId, socialLinks { bitcointalk, blog, coingecko, coinmarketcap, discord, email, facebook, github, instagram, linkedin, reddit, slack, telegram, twitch, twitter, website, wechat, whitepaper, youtube }, symbol }, exchangeId, fee, highPrice1, highPrice4, highPrice5m, highPrice12, highPrice24, id, liquidity, liquidityToken, lowPrice1, lowPrice4, lowPrice5m, lowPrice12, lowPrice24, networkId, nonLiquidityToken, pairAddress, price, priceChange1, priceChange4, priceChange5m, priceChange12, priceChange24, priceNonQuoteToken, quoteToken, statsType, tickSpacing, token0 { address, decimals, labels { createdAt, subType, type }, name, networkId, pooled, price, symbol }, token1 { address, decimals, labels { createdAt, subType, type }, name, networkId, pooled, price, symbol }, volume1, volume4, volume5m, volume12, volume24
   }
 }`,
@@ -260,7 +260,7 @@ export class Subscribe {
     this.sdk.subscribe(
       `subscription OnLaunchpadTokenEvent($input: OnLaunchpadTokenEventInput) {
   onLaunchpadTokenEvent (input: $input) {
-    address, buyCount1, eventType, holders, launchpadName, liquidity, marketCap, networkId, price, protocol, sellCount1, token { address, cmcId, createBlockNumber, createTransactionHash, createdAt, creatorAddress, decimals, exchanges { address, color, exchangeVersion, iconUrl, id, name, networkId, tradeUrl }, freezable, id, info { address, circulatingSupply, cmcId, description, id, imageBannerUrl, imageLargeUrl, imageSmallUrl, imageThumbHash, imageThumbUrl, isScam, name, networkId, symbol, totalSupply }, isFreezableValid, isMintableValid, isScam, launchpad { completed, completedAt, completedSlot, graduationPercent, launchpadIconUrl, launchpadName, launchpadProtocol, migrated, migratedAt, migratedPoolAddress, migratedSlot, poolAddress }, mintable, name, networkId, socialLinks { bitcointalk, blog, coingecko, coinmarketcap, discord, email, facebook, github, instagram, linkedin, reddit, slack, telegram, twitch, twitter, website, wechat, whitepaper, youtube }, symbol }, transactions1, volume1
+    address, bundlerCount, bundlerHeldPercentage, buyCount1, devHeldPercentage, eventType, holders, insiderCount, insiderHeldPercentage, launchpadName, liquidity, marketCap, networkId, price, protocol, sellCount1, sniperCount, sniperHeldPercentage, token { address, cmcId, createBlockNumber, createTransactionHash, createdAt, creatorAddress, decimals, exchanges { address, color, exchangeVersion, iconUrl, id, name, networkId, tradeUrl }, freezable, id, info { address, circulatingSupply, cmcId, description, id, imageBannerUrl, imageLargeUrl, imageSmallUrl, imageThumbHash, imageThumbUrl, isScam, name, networkId, symbol, totalSupply }, isFreezableValid, isMintableValid, isScam, launchpad { completed, completedAt, completedSlot, graduationPercent, launchpadIconUrl, launchpadName, launchpadProtocol, migrated, migratedAt, migratedPoolAddress, migratedSlot, poolAddress }, mintable, name, networkId, socialLinks { bitcointalk, blog, coingecko, coinmarketcap, discord, email, facebook, github, instagram, linkedin, reddit, slack, telegram, twitch, twitter, website, wechat, whitepaper, youtube }, symbol }, transactions1, volume1
   }
 }`,
       vars,

@@ -1583,6 +1583,37 @@
   },
   {
     "__typename": "EvmNetworkConfig",
+    "id": "747474",
+    "networkType": "EVM",
+    "networkId": 747474,
+    "name": "katana",
+    "enabled": true,
+    "newTokensEnabled": false,
+    "mainnet": true,
+    "wrappedBaseTokenSymbol": "vbETH",
+    "baseTokenSymbol": "ETH",
+    "baseTokenAddress": "0xee7d8bcfb72bc1880d0cf19822eb0a2e6577ab62",
+    "defaultPairAddress": "0xdfc0ba24be7f93bf1a9401635815ece4cc579282",
+    "defaultPairQuoteToken": "token0",
+    "stableCoinAddresses": [
+      "0x203a662b0bd271a6ed5a60edfbd04bfce608fd36",
+      "0x2dca96907fde857dd3d816880a0df407eeb2d2f2"
+    ],
+    "networkIconUrl": "https://icons.defined.fi/networks/katana.png",
+    "color": "#0550DB",
+    "networkShortName": "katana",
+    "networkName": "Katana",
+    "explorer": {
+      "name": "KatanaScan",
+      "url": "https://katanascan.com/${type}/${input}",
+      "checksummed": true,
+      "icon": "https://icons.defined.fi/networks/katana.png"
+    },
+    "baseTokenName": "Vault Bridge ETH",
+    "baseTokenDecimals": 18
+  },
+  {
+    "__typename": "EvmNetworkConfig",
     "id": "321",
     "networkType": "EVM",
     "networkId": 321,
@@ -1945,7 +1976,7 @@
     "stableCoinAddresses": [
       "0xf817257fed379853cde0fa4f97ab987181b1e5ea"
     ],
-    "networkIconUrl": "https://icons.defined.fi/networks/monad.png",
+    "networkIconUrl": "https://icons.defined.fi/networks/monad-testnet.png",
     "color": "#836ef9",
     "networkShortName": "mon-test",
     "networkName": "Monad Testnet",
@@ -1953,7 +1984,7 @@
       "name": "Monad Explorer",
       "url": "https://testnet.monadexplorer.com/${type}/${input}",
       "checksummed": true,
-      "icon": "https://icons.defined.fi/networks/monad.png"
+      "icon": "https://icons.defined.fi/networks/monad-testnet.png"
     },
     "baseTokenName": "Wrapped Monad",
     "baseTokenDecimals": 18

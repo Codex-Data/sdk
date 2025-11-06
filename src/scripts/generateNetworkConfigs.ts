@@ -167,12 +167,21 @@ const getTokensQuery = gql`
   }
 `;
 
+const EXCLUDED_NETWORK_IDS = [
+  150607357, // FOGO
+  6343, // megaeth
+  143, // monad
+];
+
 async function main() {
   // eslint-disable-next-line @typescript-eslint/ban-types, @typescript-eslint/no-explicit-any
   const data = await sdk.query<{ getNetworkConfigs: any }, {}>(
     getNetworkConfigsQuery,
   );
-  const networkConfigs = data.getNetworkConfigs;
+  const networkConfigs = data.getNetworkConfigs.filter(
+    (config: { networkId: number }) =>
+      !EXCLUDED_NETWORK_IDS.includes(config.networkId),
+  );
 
   // Get all base token addresses with their network IDs
   const tokenIds: string[] = networkConfigs.map(
