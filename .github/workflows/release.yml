@@ -9,18 +9,18 @@ jobs:
   publish:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
-      - uses: actions/setup-node@v3
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
         with:
-          node-version: 18
-      - uses: oven-sh/setup-bun@v1
+          node-version: 20
+          registry-url: 'https://registry.npmjs.org'
+      - uses: pnpm/action-setup@v4
         with:
-          bun-version: latest
-      - run: bun i
-      - run: rm -rf dist
-      - run: bun run build
+          version: 9
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm run build
         env:
           CODEX_API_KEY: ${{ secrets.CODEX_API_KEY }}
-      - run: npm publish --access public
+      - run: pnpm publish --access public --no-git-checks
         env:
-          NPM_TOKEN: ${{secrets.CODEX_SDK_NPM_TOKEN}}
+          NODE_AUTH_TOKEN: ${{secrets.CODEX_SDK_NPM_TOKEN}}

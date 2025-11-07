@@ -139,147 +139,147 @@ import { Codex } from "./index";
 
 export class Query {
   constructor(private sdk: Codex) {}
-  top10HoldersPercent = async (vars: Top10HoldersPercentQueryVariables) =>
-    this.sdk.query(Top10HoldersPercentDocument, vars);
-  getTokenEvents = async (vars: GetTokenEventsQueryVariables) =>
-    this.sdk.query(GetTokenEventsDocument, vars);
-  filterTokenWallets = async (vars: FilterTokenWalletsQueryVariables) =>
-    this.sdk.query(FilterTokenWalletsDocument, vars);
-  getNftPoolsByOwner = async (vars: GetNftPoolsByOwnerQueryVariables) =>
-    this.sdk.query(GetNftPoolsByOwnerDocument, vars);
-  getTokenEventsForMaker = async (vars: GetTokenEventsForMakerQueryVariables) =>
-    this.sdk.query(GetTokenEventsForMakerDocument, vars);
+  apiToken = async (vars: ApiTokenQueryVariables) =>
+    this.sdk.query(ApiTokenDocument, vars);
+  apiTokens = async (vars: ApiTokensQueryVariables) =>
+    this.sdk.query(ApiTokensDocument, vars);
+  balances = async (vars: BalancesQueryVariables) =>
+    this.sdk.query(BalancesDocument, vars);
+  blocks = async (vars: BlocksQueryVariables) =>
+    this.sdk.query(BlocksDocument, vars);
+  chartUrls = async (vars: ChartUrlsQueryVariables) =>
+    this.sdk.query(ChartUrlsDocument, vars);
+  detailedWalletStats = async (vars: DetailedWalletStatsQueryVariables) =>
+    this.sdk.query(DetailedWalletStatsDocument, vars);
+  filterExchanges = async (vars: FilterExchangesQueryVariables) =>
+    this.sdk.query(FilterExchangesDocument, vars);
+  filterNftCollections = async (vars: FilterNftCollectionsQueryVariables) =>
+    this.sdk.query(FilterNftCollectionsDocument, vars);
   filterNftParallelAssets = async (
     vars: FilterNftParallelAssetsQueryVariables,
   ) => this.sdk.query(FilterNftParallelAssetsDocument, vars);
-  getTokenBars = async (vars: GetTokenBarsQueryVariables) =>
-    this.sdk.query(GetTokenBarsDocument, vars);
-  getSymbol = async (vars: GetSymbolQueryVariables) =>
-    this.sdk.query(GetSymbolDocument, vars);
-  getNftEvents = async (vars: GetNftEventsQueryVariables) =>
-    this.sdk.query(GetNftEventsDocument, vars);
-  pairMetadata = async (vars: PairMetadataQueryVariables) =>
-    this.sdk.query(PairMetadataDocument, vars);
-  getNftContracts = async (vars: GetNftContractsQueryVariables) =>
-    this.sdk.query(GetNftContractsDocument, vars);
-  tokenTopTraders = async (vars: TokenTopTradersQueryVariables) =>
-    this.sdk.query(TokenTopTradersDocument, vars);
-  filterWallets = async (vars: FilterWalletsQueryVariables) =>
-    this.sdk.query(FilterWalletsDocument, vars);
-  liquidityMetadata = async (vars: LiquidityMetadataQueryVariables) =>
-    this.sdk.query(LiquidityMetadataDocument, vars);
-  walletAggregateBackfillState = async (
-    vars: WalletAggregateBackfillStateQueryVariables,
-  ) => this.sdk.query(WalletAggregateBackfillStateDocument, vars);
-  walletNftCollectionAssets = async (
-    vars: WalletNftCollectionAssetsQueryVariables,
-  ) => this.sdk.query(WalletNftCollectionAssetsDocument, vars);
-  getWebhooks = async (vars: GetWebhooksQueryVariables) =>
-    this.sdk.query(GetWebhooksDocument, vars);
   filterNftPoolCollections = async (
     vars: FilterNftPoolCollectionsQueryVariables,
   ) => this.sdk.query(FilterNftPoolCollectionsDocument, vars);
-  getPrimePools = async (vars: GetPrimePoolsQueryVariables) =>
-    this.sdk.query(GetPrimePoolsDocument, vars);
-  liquidityMetadataByToken = async (
-    vars: LiquidityMetadataByTokenQueryVariables,
-  ) => this.sdk.query(LiquidityMetadataByTokenDocument, vars);
-  primeHolders = async (vars: PrimeHoldersQueryVariables) =>
-    this.sdk.query(PrimeHoldersDocument, vars);
-  blocks = async (vars: BlocksQueryVariables) =>
-    this.sdk.query(BlocksDocument, vars);
-  balances = async (vars: BalancesQueryVariables) =>
-    this.sdk.query(BalancesDocument, vars);
   filterNftPools = async (vars: FilterNftPoolsQueryVariables) =>
     this.sdk.query(FilterNftPoolsDocument, vars);
-  filterNftCollections = async (vars: FilterNftCollectionsQueryVariables) =>
-    this.sdk.query(FilterNftCollectionsDocument, vars);
-  getNftPoolCollectionsByExchange = async (
-    vars: GetNftPoolCollectionsByExchangeQueryVariables,
-  ) => this.sdk.query(GetNftPoolCollectionsByExchangeDocument, vars);
-  getNftPoolStats = async (vars: GetNftPoolStatsQueryVariables) =>
-    this.sdk.query(GetNftPoolStatsDocument, vars);
-  tokenSparklines = async (vars: TokenSparklinesQueryVariables) =>
-    this.sdk.query(TokenSparklinesDocument, vars);
-  getPrimePoolEvents = async (vars: GetPrimePoolEventsQueryVariables) =>
-    this.sdk.query(GetPrimePoolEventsDocument, vars);
-  listPairsForToken = async (vars: ListPairsForTokenQueryVariables) =>
-    this.sdk.query(ListPairsForTokenDocument, vars);
   filterPairs = async (vars: FilterPairsQueryVariables) =>
     this.sdk.query(FilterPairsDocument, vars);
-  getEventLabels = async (vars: GetEventLabelsQueryVariables) =>
-    this.sdk.query(GetEventLabelsDocument, vars);
-  holders = async (vars: HoldersQueryVariables) =>
-    this.sdk.query(HoldersDocument, vars);
-  walletChart = async (vars: WalletChartQueryVariables) =>
-    this.sdk.query(WalletChartDocument, vars);
+  filterTokenWallets = async (vars: FilterTokenWalletsQueryVariables) =>
+    this.sdk.query(FilterTokenWalletsDocument, vars);
   filterTokens = async (vars: FilterTokensQueryVariables) =>
     this.sdk.query(FilterTokensDocument, vars);
-  nftHolders = async (vars: NftHoldersQueryVariables) =>
-    this.sdk.query(NftHoldersDocument, vars);
-  getPrimePoolAssets = async (vars: GetPrimePoolAssetsQueryVariables) =>
-    this.sdk.query(GetPrimePoolAssetsDocument, vars);
-  liquidityLocks = async (vars: LiquidityLocksQueryVariables) =>
-    this.sdk.query(LiquidityLocksDocument, vars);
-  getParallelCardChanges = async (vars: GetParallelCardChangesQueryVariables) =>
-    this.sdk.query(GetParallelCardChangesDocument, vars);
-  filterExchanges = async (vars: FilterExchangesQueryVariables) =>
-    this.sdk.query(FilterExchangesDocument, vars);
-  getNetworkStats = async (vars: GetNetworkStatsQueryVariables) =>
-    this.sdk.query(GetNetworkStatsDocument, vars);
-  detailedWalletStats = async (vars: DetailedWalletStatsQueryVariables) =>
-    this.sdk.query(DetailedWalletStatsDocument, vars);
-  walletNftCollections = async (vars: WalletNftCollectionsQueryVariables) =>
-    this.sdk.query(WalletNftCollectionsDocument, vars);
+  filterWallets = async (vars: FilterWalletsQueryVariables) =>
+    this.sdk.query(FilterWalletsDocument, vars);
+  getBars = async (vars: GetBarsQueryVariables) =>
+    this.sdk.query(GetBarsDocument, vars);
+  getCommunityNotes = async (vars: GetCommunityNotesQueryVariables) =>
+    this.sdk.query(GetCommunityNotesDocument, vars);
   getDetailedNftStats = async (vars: GetDetailedNftStatsQueryVariables) =>
     this.sdk.query(GetDetailedNftStatsDocument, vars);
   getDetailedPairStats = async (vars: GetDetailedPairStatsQueryVariables) =>
     this.sdk.query(GetDetailedPairStatsDocument, vars);
-  getNftPoolEvents = async (vars: GetNftPoolEventsQueryVariables) =>
-    this.sdk.query(GetNftPoolEventsDocument, vars);
-  getNftPoolCollection = async (vars: GetNftPoolCollectionQueryVariables) =>
-    this.sdk.query(GetNftPoolCollectionDocument, vars);
+  getDetailedPairsStats = async (vars: GetDetailedPairsStatsQueryVariables) =>
+    this.sdk.query(GetDetailedPairsStatsDocument, vars);
+  getEventLabels = async (vars: GetEventLabelsQueryVariables) =>
+    this.sdk.query(GetEventLabelsDocument, vars);
+  getExchanges = async (vars: GetExchangesQueryVariables) =>
+    this.sdk.query(GetExchangesDocument, vars);
+  getNetworkConfigs = async (vars: GetNetworkConfigsQueryVariables) =>
+    this.sdk.query(GetNetworkConfigsDocument, vars);
+  getNetworkStats = async (vars: GetNetworkStatsQueryVariables) =>
+    this.sdk.query(GetNetworkStatsDocument, vars);
+  getNetworkStatus = async (vars: GetNetworkStatusQueryVariables) =>
+    this.sdk.query(GetNetworkStatusDocument, vars);
+  getNetworks = async (vars: GetNetworksQueryVariables) =>
+    this.sdk.query(GetNetworksDocument, vars);
+  getNftAssets = async (vars: GetNftAssetsQueryVariables) =>
+    this.sdk.query(GetNftAssetsDocument, vars);
   getNftCollectionMetadata = async (
     vars: GetNftCollectionMetadataQueryVariables,
   ) => this.sdk.query(GetNftCollectionMetadataDocument, vars);
+  getNftContracts = async (vars: GetNftContractsQueryVariables) =>
+    this.sdk.query(GetNftContractsDocument, vars);
+  getNftEvents = async (vars: GetNftEventsQueryVariables) =>
+    this.sdk.query(GetNftEventsDocument, vars);
+  getNftPool = async (vars: GetNftPoolQueryVariables) =>
+    this.sdk.query(GetNftPoolDocument, vars);
+  getNftPoolCollection = async (vars: GetNftPoolCollectionQueryVariables) =>
+    this.sdk.query(GetNftPoolCollectionDocument, vars);
+  getNftPoolCollectionsByExchange = async (
+    vars: GetNftPoolCollectionsByExchangeQueryVariables,
+  ) => this.sdk.query(GetNftPoolCollectionsByExchangeDocument, vars);
+  getNftPoolEvents = async (vars: GetNftPoolEventsQueryVariables) =>
+    this.sdk.query(GetNftPoolEventsDocument, vars);
+  getNftPoolStats = async (vars: GetNftPoolStatsQueryVariables) =>
+    this.sdk.query(GetNftPoolStatsDocument, vars);
+  getNftPoolsByCollectionAndExchange = async (
+    vars: GetNftPoolsByCollectionAndExchangeQueryVariables,
+  ) => this.sdk.query(GetNftPoolsByCollectionAndExchangeDocument, vars);
+  getNftPoolsByOwner = async (vars: GetNftPoolsByOwnerQueryVariables) =>
+    this.sdk.query(GetNftPoolsByOwnerDocument, vars);
+  getParallelCardChanges = async (vars: GetParallelCardChangesQueryVariables) =>
+    this.sdk.query(GetParallelCardChangesDocument, vars);
+  getPrimePoolAssets = async (vars: GetPrimePoolAssetsQueryVariables) =>
+    this.sdk.query(GetPrimePoolAssetsDocument, vars);
+  getPrimePoolEvents = async (vars: GetPrimePoolEventsQueryVariables) =>
+    this.sdk.query(GetPrimePoolEventsDocument, vars);
+  getPrimePools = async (vars: GetPrimePoolsQueryVariables) =>
+    this.sdk.query(GetPrimePoolsDocument, vars);
+  getSymbol = async (vars: GetSymbolQueryVariables) =>
+    this.sdk.query(GetSymbolDocument, vars);
+  getTokenBars = async (vars: GetTokenBarsQueryVariables) =>
+    this.sdk.query(GetTokenBarsDocument, vars);
+  getTokenEvents = async (vars: GetTokenEventsQueryVariables) =>
+    this.sdk.query(GetTokenEventsDocument, vars);
+  getTokenEventsForMaker = async (vars: GetTokenEventsForMakerQueryVariables) =>
+    this.sdk.query(GetTokenEventsForMakerDocument, vars);
   getTokenPrices = async (vars: GetTokenPricesQueryVariables) =>
     this.sdk.query(GetTokenPricesDocument, vars);
-  chartUrls = async (vars: ChartUrlsQueryVariables) =>
-    this.sdk.query(ChartUrlsDocument, vars);
-  getExchanges = async (vars: GetExchangesQueryVariables) =>
-    this.sdk.query(GetExchangesDocument, vars);
+  getWebhooks = async (vars: GetWebhooksQueryVariables) =>
+    this.sdk.query(GetWebhooksDocument, vars);
+  holders = async (vars: HoldersQueryVariables) =>
+    this.sdk.query(HoldersDocument, vars);
+  liquidityLocks = async (vars: LiquidityLocksQueryVariables) =>
+    this.sdk.query(LiquidityLocksDocument, vars);
+  liquidityMetadata = async (vars: LiquidityMetadataQueryVariables) =>
+    this.sdk.query(LiquidityMetadataDocument, vars);
+  liquidityMetadataByToken = async (
+    vars: LiquidityMetadataByTokenQueryVariables,
+  ) => this.sdk.query(LiquidityMetadataByTokenDocument, vars);
+  listPairsForToken = async (vars: ListPairsForTokenQueryVariables) =>
+    this.sdk.query(ListPairsForTokenDocument, vars);
+  listPairsWithMetadataForToken = async (
+    vars: ListPairsWithMetadataForTokenQueryVariables,
+  ) => this.sdk.query(ListPairsWithMetadataForTokenDocument, vars);
+  nftHolders = async (vars: NftHoldersQueryVariables) =>
+    this.sdk.query(NftHoldersDocument, vars);
+  pairMetadata = async (vars: PairMetadataQueryVariables) =>
+    this.sdk.query(PairMetadataDocument, vars);
+  primeHolders = async (vars: PrimeHoldersQueryVariables) =>
+    this.sdk.query(PrimeHoldersDocument, vars);
+  searchNfts = async (vars: SearchNftsQueryVariables) =>
+    this.sdk.query(SearchNftsDocument, vars);
   token = async (vars: TokenQueryVariables) =>
     this.sdk.query(TokenDocument, vars);
   tokenLifecycleEvents = async (vars: TokenLifecycleEventsQueryVariables) =>
     this.sdk.query(TokenLifecycleEventsDocument, vars);
-  getNetworkConfigs = async (vars: GetNetworkConfigsQueryVariables) =>
-    this.sdk.query(GetNetworkConfigsDocument, vars);
-  apiToken = async (vars: ApiTokenQueryVariables) =>
-    this.sdk.query(ApiTokenDocument, vars);
-  getCommunityNotes = async (vars: GetCommunityNotesQueryVariables) =>
-    this.sdk.query(GetCommunityNotesDocument, vars);
-  getDetailedPairsStats = async (vars: GetDetailedPairsStatsQueryVariables) =>
-    this.sdk.query(GetDetailedPairsStatsDocument, vars);
-  getNftAssets = async (vars: GetNftAssetsQueryVariables) =>
-    this.sdk.query(GetNftAssetsDocument, vars);
+  tokenSparklines = async (vars: TokenSparklinesQueryVariables) =>
+    this.sdk.query(TokenSparklinesDocument, vars);
+  tokenTopTraders = async (vars: TokenTopTradersQueryVariables) =>
+    this.sdk.query(TokenTopTradersDocument, vars);
   tokens = async (vars: TokensQueryVariables) =>
     this.sdk.query(TokensDocument, vars);
-  getNftPoolsByCollectionAndExchange = async (
-    vars: GetNftPoolsByCollectionAndExchangeQueryVariables,
-  ) => this.sdk.query(GetNftPoolsByCollectionAndExchangeDocument, vars);
-  apiTokens = async (vars: ApiTokensQueryVariables) =>
-    this.sdk.query(ApiTokensDocument, vars);
-  searchNfts = async (vars: SearchNftsQueryVariables) =>
-    this.sdk.query(SearchNftsDocument, vars);
-  getBars = async (vars: GetBarsQueryVariables) =>
-    this.sdk.query(GetBarsDocument, vars);
-  listPairsWithMetadataForToken = async (
-    vars: ListPairsWithMetadataForTokenQueryVariables,
-  ) => this.sdk.query(ListPairsWithMetadataForTokenDocument, vars);
-  getNetworks = async (vars: GetNetworksQueryVariables) =>
-    this.sdk.query(GetNetworksDocument, vars);
-  getNftPool = async (vars: GetNftPoolQueryVariables) =>
-    this.sdk.query(GetNftPoolDocument, vars);
-  getNetworkStatus = async (vars: GetNetworkStatusQueryVariables) =>
-    this.sdk.query(GetNetworkStatusDocument, vars);
+  top10HoldersPercent = async (vars: Top10HoldersPercentQueryVariables) =>
+    this.sdk.query(Top10HoldersPercentDocument, vars);
+  walletAggregateBackfillState = async (
+    vars: WalletAggregateBackfillStateQueryVariables,
+  ) => this.sdk.query(WalletAggregateBackfillStateDocument, vars);
+  walletChart = async (vars: WalletChartQueryVariables) =>
+    this.sdk.query(WalletChartDocument, vars);
+  walletNftCollectionAssets = async (
+    vars: WalletNftCollectionAssetsQueryVariables,
+  ) => this.sdk.query(WalletNftCollectionAssetsDocument, vars);
+  walletNftCollections = async (vars: WalletNftCollectionsQueryVariables) =>
+    this.sdk.query(WalletNftCollectionsDocument, vars);
 }

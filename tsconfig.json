@@ -2,11 +2,11 @@
   "compilerOptions": {
     "allowSyntheticDefaultImports": true,
     "declaration": true,
-    "sourceMap": true,
-    "declarationMap": true,
+    "sourceMap": false,
+    "declarationMap": false,
     "experimentalDecorators": true,
-    "types": ["node", "jest"],
-    "rootDirs": ["src"],
+    "types": ["node"],
+    "rootDirs": ["src/sdk"],
     "outDir": "dist",
     "lib": ["es2020", "DOM"],
     "target": "es2015",
@@ -17,6 +17,17 @@
     "isolatedModules": true,
     "strict": true
   },
-  "exclude": ["node_modules", "src/scripts"],
-  "include": ["src"]
+  "exclude": [
+    "node_modules",
+    "src/scripts",
+    "src/resources",
+    "**/*.test.ts",
+    "**/*.spec.ts",
+    "examples"
+  ],
+  "include": [
+    "src/sdk/**/*.ts",
+    "src/index.ts",
+    "!src/sdk/**/*.test.ts"
+  ]
 }

@@ -15,15 +15,15 @@ import { Codex } from "./index";
 
 export class Mutation {
   constructor(private sdk: Codex) {}
-  createWebhooks = async (vars: CreateWebhooksMutationVariables) =>
-    this.sdk.mutation(CreateWebhooksDocument, vars);
-  deleteWebhooks = async (vars: DeleteWebhooksMutationVariables) =>
-    this.sdk.mutation(DeleteWebhooksDocument, vars);
   backfillWalletAggregates = async (
     vars: BackfillWalletAggregatesMutationVariables,
   ) => this.sdk.mutation(BackfillWalletAggregatesDocument, vars);
   createApiTokens = async (vars: CreateApiTokensMutationVariables) =>
     this.sdk.mutation(CreateApiTokensDocument, vars);
+  createWebhooks = async (vars: CreateWebhooksMutationVariables) =>
+    this.sdk.mutation(CreateWebhooksDocument, vars);
   deleteApiToken = async (vars: DeleteApiTokenMutationVariables) =>
     this.sdk.mutation(DeleteApiTokenDocument, vars);
+  deleteWebhooks = async (vars: DeleteWebhooksMutationVariables) =>
+    this.sdk.mutation(DeleteWebhooksDocument, vars);
 }

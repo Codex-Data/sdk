@@ -2,20 +2,27 @@
 
 This package exists to help you develop on top of the Codex API (https://docs.codex.io).
 
-It provides the public schema SDL for you to use. You can use graphql-codegen to generate types and queries for example.
+It provides generated TypeScript types and convenient methods to access the GraphQL API with full type safety.
 
 > [!NOTE]
 > We've changed our name from Defined to Codex.
 >
 > You will see references to our previous company name, Defined, while we make the switch to Codex.
 
+## Features
+
+- 🚀 **Fully Typed**: Generated TypeScript types for all GraphQL operations
+- 📦 **Tree Shakeable**: ESM support with optimized bundle size
+- 🔄 **Real-time**: WebSocket subscriptions support
+- 🛠 **Developer Friendly**: Comprehensive examples and documentation
+
 ## Installation
 
-| packager                      | command                   |
-| ----------------------------- | ------------------------- |
-| [npm](https://www.npmjs.com/) | `npm add @codex-data/sdk`  |
-| [yarn](https://yarnpkg.com/)  | `yarn add @codex-data/sdk` |
-| [bun](https://bun.sh/)        | `bun add @codex-data/sdk`  |
+| Package Manager               | Command                    |
+| ----------------------------- | -------------------------- |
+| [npm](https://www.npmjs.com/) | `npm install @codex-data/sdk` |
+| [yarn](https://yarnpkg.com/)  | `yarn add @codex-data/sdk`    |
+| [pnpm](https://pnpm.io/)      | `pnpm add @codex-data/sdk`    |
 
 ## Usage
 
@@ -41,13 +48,13 @@ sdk.queries
 Use your own GraphQL selections
 
 ```typescript
-import { Network } from "../../src/resources/graphql";
-import { Codex } from "@codex-data/sdk/dist/sdk";
+import { Codex } from "@codex-data/sdk";
 
 const sdk = new Codex(process.env.CODEX_API_KEY || "");
 
+// Using the raw GraphQL client
 sdk
-  .send<{ getNetworks: Network[] }>(
+  .send<{ getNetworks: Array<{ id: string; name: string }> }>(
     `
   query GetNetworks {
     getNetworks { id name }
@@ -60,51 +67,109 @@ sdk
   });
 ```
 
-## Running the examples
+Subscribe to real-time data
 
-You'll need to have [`curl`](https://curl.se/) installed in order to build this locally, as it fetches the schema from the Codex API.
+```typescript
+import { Codex } from "@codex-data/sdk";
 
-You need to provide an API key in order for the examples to work. We have [bun](https://bun.sh) in use for development here.
+const sdk = new Codex(process.env.CODEX_API_KEY || "");
 
-After installing [bun](https://bun.sh), from the project root.
+// Subscribe to price updates
+sdk.subscriptions.onPriceUpdated(
+  {
+    address: "0xbb4cdb9cbd36b01bd1cbaebf2de08d9173bc095c",
+    networkId: 56
+  },
+  (result) => {
+    if (result.data) {
+      console.log("Price updated:", result.data.onPriceUpdated);
+    }
+  }
+);
+```
 
-- `bun i`
-- `bun run build`
+## Development
 
-### Simple
+### Prerequisites
 
-This performs a simple inline graphql request, and uses a user-provided query and selection set.
+- [Node.js](https://nodejs.org/) >= 17.5.0
+- [pnpm](https://pnpm.io/) (recommended) or npm/yarn
+- [`curl`](https://curl.se/) for fetching the GraphQL schema
 
-- `cd examples/simple`
-- `bun i`
-- `CODEX_API_KEY=xyz bun run index.ts`
+### Building from Source
 
-You can define your own GraphQL queries and use those with codegen (see next section). The pre-defined queries we provide in the
-examples do not include all of the fields for every query.
+```bash
+# Install dependencies
+pnpm install
 
-### Codegen
+# Build the SDK
+pnpm run build
+```
 
-This shows how to use graphql-codegen to generate query types and get a fully typed end-to-end experience.
+### Running Examples
 
-- `cd examples/codegen`
-- `bun i`
-- `bun run codegen`
-- `CODEX_API_KEY=xyz bun run src/index.ts`
+All examples require a Codex API key. Get yours at [docs.codex.io](https://docs.codex.io).
 
-### Next
+#### Simple Example
 
-This shows how you could use it in a NextJS project.
+Basic usage with inline GraphQL queries:
 
-- `cd examples/next`
-- `bun i`
-- `NEXT_PUBLIC_CODEX_API_KEY=xyz bun run dev`
+```bash
+cd examples/simple
+pnpm install
+CODEX_API_KEY=your_api_key pnpm run dev
+```
 
-## Releasing a new version
+#### Codegen Example
 
-- Increase version number to what you want in package.json on a branch.
-- Merge that Pr to main
-- Release it with the right version number. 
+Shows how to use GraphQL Code Generator for fully typed queries:
+
+```bash
+cd examples/codegen
+pnpm install
+pnpm run codegen
+CODEX_API_KEY=your_api_key pnpm run dev
+```
+
+#### Next.js Example
+
+Full-stack example with a Next.js application:
+
+```bash
+cd examples/next
+pnpm install
+NEXT_PUBLIC_CODEX_API_KEY=your_api_key pnpm run dev
+```
+
+## Package Structure
+
+The SDK is built with modern tooling and provides both CommonJS and ESM builds:
+
+```
+@codex-data/sdk/
+├── dist/
+│   ├── index.js      # CommonJS entry point
+│   ├── index.mjs     # ESM entry point
+│   ├── index.d.ts    # TypeScript definitions
+│   └── sdk/          # SDK implementation
+├── README.md
+└── package.json
+```
 
 ## Contributing
 
-Prs open!
+We welcome contributions! Please feel free to submit a Pull Request.
+
+### Development Scripts
+
+- `pnpm run build` - Build the SDK for production
+- `pnpm run test` - Run the test suite
+- `pnpm run lint` - Lint the codebase
+- `pnpm run clean` - Clean build artifacts
+
+## Releasing
+
+1. Update the version number in `package.json`
+2. Create a PR and merge to `main`
+3. Create a new release with the version tag (e.g., `v1.0.41`)
+4. The GitHub Action will automatically publish to npm

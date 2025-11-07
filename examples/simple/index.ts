@@ -1,12 +1,9 @@
 import { Codex } from "@codex-data/sdk";
 
-// import { AlertRecurrence } from "../../dist/sdk/generated/graphql";
-import { AlertRecurrence, Network } from "../../src/resources/graphql";
-
 const sdk = new Codex(process.env.CODEX_API_KEY || "");
 
 sdk
-  .send<{ getNetworks: Network[] }>(
+  .send<{ getNetworks: Array<{ id: string; name: string }> }>(
     `query GetNetworks { getNetworks { id name } }`,
     {},
   )
@@ -92,7 +89,7 @@ sdk.mutations
             callbackUrl:
               "https://webhook.site/#!/697da597-6f40-4bec-b59a-3b6dc2e680b8",
             securityToken: "1234567890",
-            alertRecurrence: AlertRecurrence.Once,
+            alertRecurrence: "ONCE",
             conditions: {
               priceUsd: {
                 gt: "100",
