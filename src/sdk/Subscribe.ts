@@ -362,110 +362,11 @@ export class Subscribe {
     sink: Sink<ExecutionResult<OnLaunchpadTokenEventBatchSubscription>>,
   ) =>
     this.sdk.subscribe(
-      `subscription OnLaunchpadTokenEventBatch(
-  $input: OnLaunchpadTokenEventBatchInput
-) {
-  onLaunchpadTokenEventBatch(input: $input) {
-    address
-    buyCount1
-    eventType
-    holders
-    marketCap
-    networkId
-    price
-    protocol
-    sellCount1
-    sniperCount
-    sniperHeldPercentage
-    bundlerCount
-    bundlerHeldPercentage
-    insiderCount
-    insiderHeldPercentage
-    devHeldPercentage
-    launchpadName
-    token {
-      address
-      cmcId
-      createBlockNumber
-      createTransactionHash
-      createdAt
-      creatorAddress
-      decimals
-      exchanges {
-        address
-        color
-        exchangeVersion
-        iconUrl
-        id
-        name
-        networkId
-        tradeUrl
-      }
-      freezable
-      id
-      info {
-        address
-        circulatingSupply
-        cmcId
-        description
-        id
-        imageBannerUrl
-        imageLargeUrl
-        imageSmallUrl
-        imageThumbUrl
-        isScam
-        name
-        networkId
-        symbol
-        totalSupply
-      }
-      isScam
-      launchpad {
-        completed
-        completedAt
-        completedSlot
-        graduationPercent
-        launchpadProtocol
-        migrated
-        migratedAt
-        migratedPoolAddress
-        migratedSlot
-        name
-        launchpadName
-        poolAddress
-      }
-      mintable
-      name
-      networkId
-      socialLinks {
-        bitcointalk
-        blog
-        coingecko
-        coinmarketcap
-        discord
-        email
-        facebook
-        github
-        instagram
-        linkedin
-        reddit
-        slack
-        telegram
-        twitch
-        twitter
-        website
-        wechat
-        whitepaper
-        youtube
-      }
-      symbol
-    }
-    transactions1
-    volume1
-    liquidity
+      `subscription OnLaunchpadTokenEventBatch($input: OnLaunchpadTokenEventBatchInput) {
+  onLaunchpadTokenEventBatch (input: $input) {
+    address, bundlerCount, bundlerHeldPercentage, buyCount1, devHeldPercentage, eventType, holders, insiderCount, insiderHeldPercentage, launchpadName, liquidity, marketCap, networkId, price, protocol, sellCount1, sniperCount, sniperHeldPercentage, token { address, cmcId, createBlockNumber, createTransactionHash, createdAt, creatorAddress, decimals, exchanges { address, color, exchangeVersion, iconUrl, id, name, networkId, tradeUrl }, freezable, id, info { address, circulatingSupply, cmcId, description, id, imageBannerUrl, imageLargeUrl, imageSmallUrl, imageThumbHash, imageThumbUrl, isScam, name, networkId, symbol, totalSupply }, isFreezableValid, isMintableValid, isScam, launchpad { completed, completedAt, completedSlot, graduationPercent, launchpadIconUrl, launchpadName, launchpadProtocol, migrated, migratedAt, migratedPoolAddress, migratedSlot, poolAddress }, mintable, name, networkId, socialLinks { bitcointalk, blog, coingecko, coinmarketcap, discord, email, facebook, github, instagram, linkedin, reddit, slack, telegram, twitch, twitter, website, wechat, whitepaper, youtube }, symbol }, transactions1, volume1
   }
-}
-`,
+}`,
       vars,
       sink,
     );
