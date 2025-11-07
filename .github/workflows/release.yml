@@ -17,6 +17,7 @@ jobs:
         with:
           bun-version: latest
       - run: bun i
+      - run: rm -rf dist
       - run: bun run build
         env:
           CODEX_API_KEY: ${{ secrets.CODEX_API_KEY }}
