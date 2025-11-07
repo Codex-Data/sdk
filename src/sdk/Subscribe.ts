@@ -375,6 +375,13 @@ export class Subscribe {
     price
     protocol
     sellCount1
+    sniperCount
+    sniperHeldPercentage
+    bundlerCount
+    bundlerHeldPercentage
+    insiderCount
+    insiderHeldPercentage
+    devHeldPercentage
     launchpadName
     token {
       address
