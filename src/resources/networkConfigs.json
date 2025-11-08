@@ -13,7 +13,9 @@
     "baseTokenAddress": "0x3439153eb7af838ad19d56e1571fbd09333c2809",
     "defaultPairAddress": "0x22e77ffe8d3ee3a161f657f235807caf891f5638",
     "defaultPairQuoteToken": "token1",
-    "stableCoinAddresses": ["0x84a71ccd554cc1b02749b35d22f684cc8ec987e1"],
+    "stableCoinAddresses": [
+      "0x84a71ccd554cc1b02749b35d22f684cc8ec987e1"
+    ],
     "networkIconUrl": "https://icons.defined.fi/networks/abstract.png",
     "color": "#14d179",
     "networkShortName": "abs",
@@ -69,7 +71,9 @@
     "baseTokenAddress": "0x48b62137edfa95a428d35c09e44256a739f6b557",
     "defaultPairAddress": "0x99556e210123da382eded3c72aa8dcb605c3c435",
     "defaultPairQuoteToken": "token0",
-    "stableCoinAddresses": ["0xa2235d059f80e176d931ef76b6c51953eb3fbef4"],
+    "stableCoinAddresses": [
+      "0xa2235d059f80e176d931ef76b6c51953eb3fbef4"
+    ],
     "networkIconUrl": "https://icons.defined.fi/networks/apechain.png",
     "color": "#0054fa",
     "networkShortName": "apechain",
@@ -286,7 +290,9 @@
     "baseTokenAddress": "0x4200000000000000000000000000000000000006",
     "defaultPairAddress": "0x739bcbe0639a4f676aa020f7f70e5a1b44394c85",
     "defaultPairQuoteToken": "token1",
-    "stableCoinAddresses": ["0x036cbd53842c5426634e7929541ec2318f3dcf7e"],
+    "stableCoinAddresses": [
+      "0x036cbd53842c5426634e7929541ec2318f3dcf7e"
+    ],
     "networkIconUrl": "https://icons.defined.fi/explorers/basescan.png",
     "color": "#0000ff",
     "networkShortName": "base-sepolia",
@@ -314,7 +320,9 @@
     "baseTokenAddress": "0x6969696969696969696969696969696969696969",
     "defaultPairAddress": "0xab2673d5cdf4c6e2936692316d61829a47aace4b",
     "defaultPairQuoteToken": "token0",
-    "stableCoinAddresses": ["0xfcbd14dc51f0a4d49d5e53c2e0950e0bc26d0dce"],
+    "stableCoinAddresses": [
+      "0xfcbd14dc51f0a4d49d5e53c2e0950e0bc26d0dce"
+    ],
     "networkIconUrl": "https://icons.defined.fi/networks/Berachain.png",
     "color": "#875426",
     "networkShortName": "bera",
@@ -370,7 +378,9 @@
     "baseTokenAddress": "0x6969696969696969696969696969696969696969",
     "defaultPairAddress": "0xab2673d5cdf4c6e2936692316d61829a47aace4b",
     "defaultPairQuoteToken": "token0",
-    "stableCoinAddresses": ["0xfcbd14dc51f0a4d49d5e53c2e0950e0bc26d0dce"],
+    "stableCoinAddresses": [
+      "0xfcbd14dc51f0a4d49d5e53c2e0950e0bc26d0dce"
+    ],
     "networkIconUrl": "https://icons.defined.fi/networks/berachain.svg",
     "color": "#875426",
     "networkShortName": "bera_old",
@@ -398,7 +408,9 @@
     "baseTokenAddress": "0x7507c1dc16935b82698e4c63f2746a2fcf994df8",
     "defaultPairAddress": "0x8a960a6e5f224d0a88bad10463bdad161b68c144",
     "defaultPairQuoteToken": "token1",
-    "stableCoinAddresses": ["0xd6d83af58a19cd14ef3cf6fe848c9a4d21e5727c"],
+    "stableCoinAddresses": [
+      "0xd6d83af58a19cd14ef3cf6fe848c9a4d21e5727c"
+    ],
     "networkIconUrl": "https://icons.defined.fi/networks/berachain.svg",
     "color": "#875426",
     "networkShortName": "bartio",
@@ -453,7 +465,9 @@
     "baseTokenAddress": "0x4300000000000000000000000000000000000004",
     "defaultPairAddress": "0x12c69bfa3fb3cba75a1defa6e976b87e233fc7df",
     "defaultPairQuoteToken": "token1",
-    "stableCoinAddresses": ["0x4300000000000000000000000000000000000003"],
+    "stableCoinAddresses": [
+      "0x4300000000000000000000000000000000000003"
+    ],
     "networkIconUrl": "https://icons.defined.fi/networks/blast.png",
     "color": "#fcfc03",
     "networkShortName": "blast",
@@ -547,7 +561,9 @@
     "baseTokenAddress": "0xf5ad6f6edec824c7fd54a66d241a227f6503ad3a",
     "defaultPairAddress": "0xb852ad87329986eac6e991954fe329231d1e4de1",
     "defaultPairQuoteToken": "token1",
-    "stableCoinAddresses": ["0xbf6c50889d3a620eb42c0f188b65ade90de958c4"],
+    "stableCoinAddresses": [
+      "0xbf6c50889d3a620eb42c0f188b65ade90de958c4"
+    ],
     "networkIconUrl": "https://icons.defined.fi/networks/callisto.png",
     "color": "#34c88a",
     "networkShortName": "clo",
@@ -575,7 +591,9 @@
     "baseTokenAddress": "0x826551890dc65655a0aceca109ab11abdbd7a07b",
     "defaultPairAddress": "0x1d20635535307208919f0b67c3b2065965a85aa9",
     "defaultPairQuoteToken": "token1",
-    "stableCoinAddresses": ["0x80b5a32e4f032b2a058b4f29ec95eefeeb87adcd"],
+    "stableCoinAddresses": [
+      "0x80b5a32e4f032b2a058b4f29ec95eefeeb87adcd"
+    ],
     "networkIconUrl": "https://icons.defined.fi/networks/canto.png",
     "color": "#06fc99",
     "networkShortName": "canto",
@@ -749,7 +767,9 @@
     "baseTokenAddress": "0x40375c92d9faf44d2f9db9bd9ba41a3317a2404f",
     "defaultPairAddress": "0xd24f5b6fa3064022a07c0d5dbe875a0e1afb4354",
     "defaultPairQuoteToken": "token0",
-    "stableCoinAddresses": ["0x900101d06a7426441ae63e9ab3b9b0f63be145f1"],
+    "stableCoinAddresses": [
+      "0x900101d06a7426441ae63e9ab3b9b0f63be145f1"
+    ],
     "networkIconUrl": "https://icons.defined.fi/networks/core.png",
     "color": "#ff9636",
     "networkShortName": "core",
@@ -836,7 +856,9 @@
     "baseTokenAddress": "0x04b9da42306b023f3572e106b11d82aad9d32ebb",
     "defaultPairAddress": "0x04dec678825b8dfd2d0d9bd83b538be3fbda2926",
     "defaultPairQuoteToken": "token1",
-    "stableCoinAddresses": ["0x3ad9dfe640e1a9cc1d9b0948620820d975c3803a"],
+    "stableCoinAddresses": [
+      "0x3ad9dfe640e1a9cc1d9b0948620820d975c3803a"
+    ],
     "networkIconUrl": "https://icons.defined.fi/networks/avalanchedfk.png",
     "color": "#77afb1",
     "networkShortName": "dfk",
@@ -864,7 +886,9 @@
     "baseTokenAddress": "0xb7ddc6414bf4f5515b52d8bdd69973ae205ff101",
     "defaultPairAddress": "0x8dcebe9f071562d52b5abb17235f3bca768c1e44",
     "defaultPairQuoteToken": "token0",
-    "stableCoinAddresses": ["0x765277eebeca2e31912c9946eae1021199b39c61"],
+    "stableCoinAddresses": [
+      "0x765277eebeca2e31912c9946eae1021199b39c61"
+    ],
     "networkIconUrl": "https://icons.defined.fi/networks/dogechain.png",
     "color": "#b0944b",
     "networkShortName": "doge",
@@ -892,7 +916,9 @@
     "baseTokenAddress": "0xadee5159f4f82a35b9068a6c810bdc6c599ba6a8",
     "defaultPairAddress": "0x9ec918e3a7312032147bfc0dc68c07f4984b55c5",
     "defaultPairQuoteToken": "token0",
-    "stableCoinAddresses": ["0xc42974d6554f9054265b477723c3f689d8699239"],
+    "stableCoinAddresses": [
+      "0xc42974d6554f9054265b477723c3f689d8699239"
+    ],
     "networkIconUrl": "https://icons.defined.fi/networks/echelon.png",
     "color": "#7c1790",
     "networkShortName": "ech",
@@ -920,7 +946,9 @@
     "baseTokenAddress": "0x37234506262ff64d97694ea1f0461414c9e8a39e",
     "defaultPairAddress": "0x88cc7fa5c0a152bea5e591ed38a3405f294d056f",
     "defaultPairQuoteToken": "token0",
-    "stableCoinAddresses": ["0x37234506262ff64d97694ea1f0461414c9e8a39e"],
+    "stableCoinAddresses": [
+      "0x37234506262ff64d97694ea1f0461414c9e8a39e"
+    ],
     "networkIconUrl": "https://icons.defined.fi/networks/echos.png",
     "color": "#b55dff",
     "networkShortName": "echos",
@@ -948,7 +976,9 @@
     "baseTokenAddress": "0x517e9e5d46c1ea8ab6f78677d6114ef47f71f6c4",
     "defaultPairAddress": "0x6077b7990d3d0dfb5a50f1d207f67ac5955b999d",
     "defaultPairQuoteToken": "token0",
-    "stableCoinAddresses": ["0xa06be0f5950781ce28d965e5efc6996e88a8c141"],
+    "stableCoinAddresses": [
+      "0xa06be0f5950781ce28d965e5efc6996e88a8c141"
+    ],
     "networkIconUrl": "https://icons.defined.fi/networks/elastos.png",
     "color": "#8530f1",
     "networkShortName": "ela",
@@ -1072,7 +1102,9 @@
     "baseTokenAddress": "0xd4949664cd82660aae99bedc034a0dea8a0bd517",
     "defaultPairAddress": "0x6df94e977d82d917a621dff75c00abd19a27c26b",
     "defaultPairQuoteToken": "token0",
-    "stableCoinAddresses": ["0x15c3eb3b621d1bff62cba1c9536b7c1ae9149b57"],
+    "stableCoinAddresses": [
+      "0x15c3eb3b621d1bff62cba1c9536b7c1ae9149b57"
+    ],
     "networkIconUrl": "https://icons.defined.fi/networks/evmos.png",
     "color": "#ed4e33",
     "networkShortName": "evmos",
@@ -1132,7 +1164,9 @@
     "baseTokenAddress": "0xd3bf53dac106a0290b0483ecbc89d40fcc961f3e",
     "defaultPairAddress": "0x4b07f2d19028a7fb7bf5e9258f9666a9673da331",
     "defaultPairQuoteToken": "token0",
-    "stableCoinAddresses": ["0x7f27352d5f83db87a5a3e00f4b07cc2138d8ee52"],
+    "stableCoinAddresses": [
+      "0x7f27352d5f83db87a5a3e00f4b07cc2138d8ee52"
+    ],
     "networkIconUrl": "https://icons.defined.fi/networks/flow.png",
     "color": "#00EF8B",
     "networkShortName": "flow-evm",
@@ -1160,7 +1194,9 @@
     "baseTokenAddress": "0xd3bf53dac106a0290b0483ecbc89d40fcc961f3e",
     "defaultPairAddress": "0x514d310563c4928f19b83208af5f33e8cdae17bd",
     "defaultPairQuoteToken": "token0",
-    "stableCoinAddresses": ["0x5e65b6b04fba51d95409712978cb91e99d93ae73"],
+    "stableCoinAddresses": [
+      "0x5e65b6b04fba51d95409712978cb91e99d93ae73"
+    ],
     "networkIconUrl": "https://icons.defined.fi/networks/flow.png",
     "color": "#00EF8B",
     "networkShortName": "flow-evm-test",
@@ -1281,7 +1317,9 @@
     "baseTokenAddress": "0x4200000000000000000000000000000000000006",
     "defaultPairAddress": "0xc5a076cad94176c2996b32d8466be1ce757faa27",
     "defaultPairQuoteToken": "token1",
-    "stableCoinAddresses": ["0x30005fd5ee0480d0ccfdde168bbe4527ffb27062"],
+    "stableCoinAddresses": [
+      "0x30005fd5ee0480d0ccfdde168bbe4527ffb27062"
+    ],
     "networkIconUrl": "https://icons.defined.fi/networks/ham.png",
     "color": "#eb4748",
     "networkShortName": "ham",
@@ -1404,7 +1442,9 @@
     "baseTokenAddress": "0x5555555555555555555555555555555555555555",
     "defaultPairAddress": "0xc62f47203f2c1038a528293c6662d1db0599ce94",
     "defaultPairQuoteToken": "token0",
-    "stableCoinAddresses": ["0xca79db4b49f608ef54a5cb813fbed3a6387bc645"],
+    "stableCoinAddresses": [
+      "0xca79db4b49f608ef54a5cb813fbed3a6387bc645"
+    ],
     "networkIconUrl": "https://icons.defined.fi/networks/hyperliquid.png",
     "color": "#96fce5",
     "networkShortName": "hyperevm",
@@ -1525,7 +1565,9 @@
     "baseTokenAddress": "0xaf984e23eaa3e7967f3c5e007fbe397d8566d23d",
     "defaultPairAddress": "0x8a5c572ce422da947e2d04a2d8339a2ea7141de9",
     "defaultPairQuoteToken": "token1",
-    "stableCoinAddresses": ["0x765277eebeca2e31912c9946eae1021199b39c61"],
+    "stableCoinAddresses": [
+      "0x765277eebeca2e31912c9946eae1021199b39c61"
+    ],
     "networkIconUrl": "https://icons.defined.fi/networks/kardia.png",
     "color": "#ad182a",
     "networkShortName": "kai",
@@ -1931,7 +1973,9 @@
     "baseTokenAddress": "0x760afe86e5de5fa0ee542fc7b7b713e1c5425701",
     "defaultPairAddress": "0xa95472a9adcdbd4bad3f43526d5b5b1e1f403084",
     "defaultPairQuoteToken": "token0",
-    "stableCoinAddresses": ["0xf817257fed379853cde0fa4f97ab987181b1e5ea"],
+    "stableCoinAddresses": [
+      "0xf817257fed379853cde0fa4f97ab987181b1e5ea"
+    ],
     "networkIconUrl": "https://icons.defined.fi/networks/monad-testnet.png",
     "color": "#836ef9",
     "networkShortName": "mon-test",
@@ -2117,7 +2161,9 @@
     "baseTokenAddress": "0xf21cbaf7bd040d686bd390957770d2ea652e4013",
     "defaultPairAddress": "0x255e600ed993ed3f07d620693b6bc94271cdaaf9",
     "defaultPairQuoteToken": "token0",
-    "stableCoinAddresses": ["0x8abee32587864cce7000e6f2820680874ed6100a"],
+    "stableCoinAddresses": [
+      "0x8abee32587864cce7000e6f2820680874ed6100a"
+    ],
     "networkIconUrl": "https://icons.defined.fi/networks/odyssey.png",
     "color": "#100d19",
     "networkShortName": "odyssey",
@@ -2237,7 +2283,9 @@
     "baseTokenAddress": "0x59c914c8ac6f212bb655737cc80d9abc79a1e273",
     "defaultPairAddress": "0x4b507edc8828e90ea7fbc6bc0f2d1cf2e95ac1a0",
     "defaultPairQuoteToken": "token0",
-    "stableCoinAddresses": ["0xa510432e4aa60b4acd476fb850ec84b7ee226b2d"],
+    "stableCoinAddresses": [
+      "0xa510432e4aa60b4acd476fb850ec84b7ee226b2d"
+    ],
     "networkIconUrl": "https://icons.defined.fi/networks/overprotocol.png",
     "color": "#F5773E",
     "networkShortName": "over",
@@ -2265,7 +2313,9 @@
     "baseTokenAddress": "0x6100e367285b01f48d07953803a2d8dca5d19873",
     "defaultPairAddress": "0xb4afac168ca0cce40c5b4d4e8e49a1e18a630b40",
     "defaultPairQuoteToken": "token0",
-    "stableCoinAddresses": ["0xb8ce59fc3717ada4c02eadf9682a9e934f625ebb"],
+    "stableCoinAddresses": [
+      "0xb8ce59fc3717ada4c02eadf9682a9e934f625ebb"
+    ],
     "networkIconUrl": "https://icons.defined.fi/networks/plasma.png",
     "color": "#162F29",
     "networkShortName": "plasma",
@@ -2293,7 +2343,9 @@
     "baseTokenAddress": "0xea237441c92cae6fc17caaf9a7acb3f953be4bd1",
     "defaultPairAddress": "0x4a14398c5c5b4b7913954cb82521fb7afa676314",
     "defaultPairQuoteToken": "token0",
-    "stableCoinAddresses": ["0xdddd73f5df1f0dc31373357beac77545dc5a6f3f"],
+    "stableCoinAddresses": [
+      "0xdddd73f5df1f0dc31373357beac77545dc5a6f3f"
+    ],
     "networkIconUrl": "https://icons.defined.fi/networks/plume.png",
     "color": "#ff3d00",
     "networkShortName": "plume",
@@ -2353,7 +2405,9 @@
     "baseTokenAddress": "0x6fc851b8d66116627fb1137b9d5fe4e2e1bea978",
     "defaultPairAddress": "0x231b19577b87da85e02a1b80733b70cd71ff478a",
     "defaultPairQuoteToken": "token1",
-    "stableCoinAddresses": ["0x247123e806a27ea322bfd93e0273d04602dc942d"],
+    "stableCoinAddresses": [
+      "0x247123e806a27ea322bfd93e0273d04602dc942d"
+    ],
     "networkIconUrl": "https://icons.defined.fi/networks/polis.png",
     "color": "#0f32a6",
     "networkShortName": "polis",
@@ -2476,7 +2530,9 @@
     "baseTokenAddress": "0xe514d9deb7966c8be0ca922de8a064264ea6bcd4",
     "defaultPairAddress": "0x2ecb08f87f075b5769fe543d0e52e40140575ea7",
     "defaultPairQuoteToken": "token0",
-    "stableCoinAddresses": ["0x0b7007c13325c48911f73a2dad5fa5dcbf808adc"],
+    "stableCoinAddresses": [
+      "0x0b7007c13325c48911f73a2dad5fa5dcbf808adc"
+    ],
     "networkIconUrl": "https://icons.defined.fi/networks/ronin.png",
     "color": "#1966FF",
     "networkShortName": "ronin",
@@ -2504,7 +2560,9 @@
     "baseTokenAddress": "0xa959726154953bae111746e265e6d754f48570e6",
     "defaultPairAddress": "0x3152b7c67036d4e09b4e271588e868cb25d95b69",
     "defaultPairQuoteToken": "token0",
-    "stableCoinAddresses": ["0x067fbff8990c58ab90bae3c97241c5d736053f77"],
+    "stableCoinAddresses": [
+      "0x067fbff8990c58ab90bae3c97241c5d736053f77"
+    ],
     "networkIconUrl": "https://icons.defined.fi/networks/ronin.png",
     "color": "#1966FF",
     "networkShortName": "saigon",
@@ -2532,7 +2590,9 @@
     "baseTokenAddress": "0x754cdad6f5821077d6915004be2ce05f93d176f8",
     "defaultPairAddress": "0xacb574808d0556147a27d07945dd9b12da4e7aaf",
     "defaultPairQuoteToken": "token1",
-    "stableCoinAddresses": ["0x13d675bc5e659b11cfa331594cf35a20815dcf02"],
+    "stableCoinAddresses": [
+      "0x13d675bc5e659b11cfa331594cf35a20815dcf02"
+    ],
     "networkIconUrl": "https://icons.defined.fi/networks/sanko.png",
     "color": "#f60400",
     "networkShortName": "sanko",
@@ -2773,7 +2833,9 @@
     "baseTokenAddress": "0x3743ec0673453e5009310c727ba4eaf7b3a1cc04",
     "defaultPairAddress": "0x24f011f12ea45afadb1d4245ba15dcab38b43d13",
     "defaultPairQuoteToken": "token0",
-    "stableCoinAddresses": ["0xbc2f884680c95a02cea099da2f524b366d9028ba"],
+    "stableCoinAddresses": [
+      "0xbc2f884680c95a02cea099da2f524b366d9028ba"
+    ],
     "networkIconUrl": "https://icons.defined.fi/networks/smartbch.png",
     "color": "#74dd54",
     "networkShortName": "bch",
@@ -2987,7 +3049,9 @@
     "baseTokenAddress": "0x1514000000000000000000000000000000000000",
     "defaultPairAddress": "0x4a170a20dd1ff838c99d49ac18b517a339206e83",
     "defaultPairQuoteToken": "token0",
-    "stableCoinAddresses": ["0xf1815bd50389c46847f0bda824ec8da914045d14"],
+    "stableCoinAddresses": [
+      "0xf1815bd50389c46847f0bda824ec8da914045d14"
+    ],
     "networkIconUrl": "https://icons.defined.fi/networks/story.png",
     "color": "#333333",
     "networkShortName": "story",
@@ -3136,7 +3200,9 @@
     "baseTokenAddress": "0x4200000000000000000000000000000000000006",
     "defaultPairAddress": "0x327149cbf5029ccf93c5d31969ed9de8496c9751",
     "defaultPairQuoteToken": "token0",
-    "stableCoinAddresses": ["0x5d3a1ff2b6bab83b63cd9ad0787074081a52ef34"],
+    "stableCoinAddresses": [
+      "0x5d3a1ff2b6bab83b63cd9ad0787074081a52ef34"
+    ],
     "networkIconUrl": "https://icons.defined.fi/networks/swellchain.png",
     "color": "#1966FF",
     "networkShortName": "swellchain",
@@ -3195,7 +3261,9 @@
     "baseTokenAddress": "0x5d0fa4c5668e5809c83c95a7cef3a9dd7c68d4fe",
     "defaultPairAddress": "0x2cc019f1fcd2b65f14c547f432ae93d4b7c682a4",
     "defaultPairQuoteToken": "token0",
-    "stableCoinAddresses": ["0x69d411cbf6dbad54bfe36f81d0a39922625bc78c"],
+    "stableCoinAddresses": [
+      "0x69d411cbf6dbad54bfe36f81d0a39922625bc78c"
+    ],
     "networkIconUrl": "https://icons.defined.fi/networks/taraxa.png",
     "color": "#13ab5a",
     "networkShortName": "taraxa",
@@ -3281,7 +3349,9 @@
     "baseTokenAddress": "0x891cdb91d149f23b1a45d9c5ca78a88d0cb44c18",
     "defaultPairAddress": "0x3a10321a4e97a64d9376af42ec07d5fa50294b35",
     "defaultPairQuoteToken": "token0",
-    "stableCoinAddresses": ["0xa614f803b6fd780986a42c78ec9c7f77e6ded13c"],
+    "stableCoinAddresses": [
+      "0xa614f803b6fd780986a42c78ec9c7f77e6ded13c"
+    ],
     "networkIconUrl": "https://icons.defined.fi/networks/tron.png",
     "color": "#2adacc",
     "networkShortName": "tron",
@@ -3309,7 +3379,9 @@
     "baseTokenAddress": "0x4200000000000000000000000000000000000006",
     "defaultPairAddress": "0x4200000000000000000000000000000000000006",
     "defaultPairQuoteToken": "token0",
-    "stableCoinAddresses": ["0x078d782b760474a361dda0af3839290b0ef57ad6"],
+    "stableCoinAddresses": [
+      "0x078d782b760474a361dda0af3839290b0ef57ad6"
+    ],
     "networkIconUrl": "https://icons.defined.fi/networks/unichain.png",
     "color": "#ff00cb",
     "networkShortName": "unichain",
@@ -3337,7 +3409,9 @@
     "baseTokenAddress": "0x00eddd9621fb08436d0331c149d1690909a5906d",
     "defaultPairAddress": "0x6e47f840847940fc47e1c9ab3be333ebcc63d69e",
     "defaultPairQuoteToken": "token0",
-    "stableCoinAddresses": ["0xf1815bd50389c46847f0bda824ec8da914045d14"],
+    "stableCoinAddresses": [
+      "0xf1815bd50389c46847f0bda824ec8da914045d14"
+    ],
     "networkIconUrl": "https://icons.defined.fi/networks/vana.png",
     "color": "#000000",
     "networkShortName": "vana",
@@ -3456,7 +3530,9 @@
     "baseTokenAddress": "0x4200000000000000000000000000000000000006",
     "defaultPairAddress": "0x400c1293a6e6e98b7bc3b611b4806381a214d68d",
     "defaultPairQuoteToken": "token1",
-    "stableCoinAddresses": ["0x79a02482a880bce3f13e09da970dc34db4cd24d1"],
+    "stableCoinAddresses": [
+      "0x79a02482a880bce3f13e09da970dc34db4cd24d1"
+    ],
     "networkIconUrl": "https://icons.defined.fi/networks/worldchain.png",
     "color": "#34312e",
     "networkShortName": "worldchain",
@@ -3484,7 +3560,9 @@
     "baseTokenAddress": "0x3fb787101dc6be47cfe18aeee15404dcc842e6af",
     "defaultPairAddress": "0x079399d848986cbbdf5c69c6fd21c36662c4a7c7",
     "defaultPairQuoteToken": "token0",
-    "stableCoinAddresses": ["0x300a7b57dc85b6a9776e249614abf0fe5c9905fb"],
+    "stableCoinAddresses": [
+      "0x300a7b57dc85b6a9776e249614abf0fe5c9905fb"
+    ],
     "networkIconUrl": "https://icons.defined.fi/networks/xai.png",
     "color": "#f30818",
     "networkShortName": "xai",
@@ -3599,7 +3677,9 @@
     "baseTokenAddress": "0x5aea5775959fbc2557cc8789bc1bf90a239d9a91",
     "defaultPairAddress": "0xd0ce094412898760c2a5e37abec39b0e785b45ae",
     "defaultPairQuoteToken": "token1",
-    "stableCoinAddresses": ["0x3355df6d4c9c3035724fd0e3914de96a5a83aaf4"],
+    "stableCoinAddresses": [
+      "0x3355df6d4c9c3035724fd0e3914de96a5a83aaf4"
+    ],
     "networkIconUrl": "https://icons.defined.fi/networks/zksync.png",
     "color": "#1e69ff",
     "networkShortName": "zksync",
@@ -3627,7 +3707,9 @@
     "baseTokenAddress": "0x4200000000000000000000000000000000000006",
     "defaultPairAddress": "0xbc59f8f3b275aa56a90d13bae7cce5e6e11a3b17",
     "defaultPairQuoteToken": "token0",
-    "stableCoinAddresses": ["0xcccccccc7021b32ebb4e8c08314bd62f7c653ec4"],
+    "stableCoinAddresses": [
+      "0xcccccccc7021b32ebb4e8c08314bd62f7c653ec4"
+    ],
     "networkIconUrl": "https://icons.defined.fi/networks/zora.png",
     "color": "#40428E",
     "networkShortName": "zora",

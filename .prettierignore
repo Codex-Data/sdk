@@ -1,0 +1,29 @@
+# Dependencies
+node_modules
+pnpm-lock.yaml
+
+# Build output
+dist
+dist-esm
+
+# Generated files
+**/generated/
+**/generated_*/
+src/resources/graphql.schema.json
+src/resources/graphql.ts
+src/resources/schema.graphql
+src/resources/networkConfigs.json
+src/resources/graphql.schema.json
+src/resources/graphql.ts
+src/resources/networkConfigs.json
+src/resources/schema.graphql
+
+
+# IDE
+.vscode
+.idea
+
+# Misc
+coverage
+*.log
+
