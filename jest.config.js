@@ -8,7 +8,7 @@ module.exports = merge.recursive(
     modulePathIgnorePatterns: ["dist"],
     coverageProvider: "v8",
     collectCoverage: true,
-    coveragePathIgnorePatterns: ["invariant.ts", "dist", "node_modules"]
+    coveragePathIgnorePatterns: ["invariant.ts", "dist", "node_modules"],
   },
-  tsPreset
+  tsPreset,
 );

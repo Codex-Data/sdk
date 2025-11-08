@@ -6,9 +6,7 @@
       "request": "launch",
       "name": "Launch test",
       "cwd": "${workspaceFolder}",
-      "skipFiles": [
-        "<node_internals>/**"
-      ],
+      "skipFiles": ["<node_internals>/**"],
       "runtimeExecutable": "${workspaceFolder}/node_modules/.bin/tsx"
     }
   ]

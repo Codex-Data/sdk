@@ -167,11 +167,7 @@ const getTokensQuery = gql`
   }
 `;
 
-const EXCLUDED_NETWORK_IDS = [
-  150607357, // FOGO
-  6343, // megaeth
-  143, // monad
-];
+const EXCLUDED_NETWORK_IDS = [150607357, 6343, 143];
 
 async function main() {
   // eslint-disable-next-line @typescript-eslint/ban-types, @typescript-eslint/no-explicit-any

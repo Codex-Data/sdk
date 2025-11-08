@@ -20,7 +20,7 @@ const topNetworkNames = [
   "Tron",
   "Polygon",
   "Sonic", // Check if this name matches API exactly
-  "Aptos"
+  "Aptos",
 ];
 
 // Keep this as an async Server Component
@@ -37,21 +37,25 @@ export default async function Home() {
       const codexClient = new Codex(apiKey);
       const result = await codexClient.queries.getNetworks({});
       // Ensure we have an array, even if result.getNetworks is null/undefined
-      allNetworks = result.getNetworks?.filter(net => net != null) as Network[] || [];
+      allNetworks =
+        (result.getNetworks?.filter((net) => net != null) as Network[]) || [];
     } catch (err) {
       console.error("Error fetching networks on server:", err);
       error = "Failed to load networks.";
     }
   } else {
-    console.warn("NEXT_PUBLIC_CODEX_API_KEY environment variable is not set. Using demo data.");
-    error = "API key not configured. Please set NEXT_PUBLIC_CODEX_API_KEY environment variable.";
+    console.warn(
+      "NEXT_PUBLIC_CODEX_API_KEY environment variable is not set. Using demo data.",
+    );
+    error =
+      "API key not configured. Please set NEXT_PUBLIC_CODEX_API_KEY environment variable.";
   }
 
   // Partition the networks
   const topNetworksMap = new Map<string, Network>();
   const restNetworks: Network[] = [];
 
-  allNetworks.forEach(network => {
+  allNetworks.forEach((network) => {
     if (topNetworkNames.includes(network.name)) {
       topNetworksMap.set(network.name, network);
     } else {
@@ -61,7 +65,7 @@ export default async function Home() {
 
   // Create the topNetworks array in the desired order
   const topNetworks = topNetworkNames
-    .map(name => topNetworksMap.get(name))
+    .map((name) => topNetworksMap.get(name))
     .filter((network): network is Network => network !== undefined);
 
   // Sort the networks alphabetically by name

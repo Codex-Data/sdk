@@ -25,9 +25,5 @@
     "**/*.spec.ts",
     "examples"
   ],
-  "include": [
-    "src/sdk/**/*.ts",
-    "src/index.ts",
-    "!src/sdk/**/*.test.ts"
-  ]
+  "include": ["src/sdk/**/*.ts", "src/index.ts", "!src/sdk/**/*.test.ts"]
 }

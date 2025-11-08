@@ -29,7 +29,8 @@
     "build:sdk": "tsx src/scripts/buildSdk.ts",
     "codegen": "graphql-codegen --config codegen.ts",
     "lint": "eslint --ext .ts src",
-    "test": "jest"
+    "test": "jest",
+    "format": "prettier --write ."
   },
   "files": [
     "dist/index.js",

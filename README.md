@@ -18,8 +18,8 @@ It provides generated TypeScript types and convenient methods to access the Grap
 
 ## Installation
 
-| Package Manager               | Command                    |
-| ----------------------------- | -------------------------- |
+| Package Manager               | Command                       |
+| ----------------------------- | ----------------------------- |
 | [npm](https://www.npmjs.com/) | `npm install @codex-data/sdk` |
 | [yarn](https://yarnpkg.com/)  | `yarn add @codex-data/sdk`    |
 | [pnpm](https://pnpm.io/)      | `pnpm add @codex-data/sdk`    |
@@ -60,7 +60,7 @@ sdk
     getNetworks { id name }
   }
 `,
-    {}
+    {},
   )
   .then((res) => {
     console.log("Networks: ", res.getNetworks);
@@ -78,13 +78,13 @@ const sdk = new Codex(process.env.CODEX_API_KEY || "");
 sdk.subscriptions.onPriceUpdated(
   {
     address: "0xbb4cdb9cbd36b01bd1cbaebf2de08d9173bc095c",
-    networkId: 56
+    networkId: 56,
   },
   (result) => {
     if (result.data) {
       console.log("Price updated:", result.data.onPriceUpdated);
     }
-  }
+  },
 );
 ```
 

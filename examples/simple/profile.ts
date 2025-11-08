@@ -1,6 +1,5 @@
 import { Codex, OnUnconfirmedEventsCreatedSubscription } from "@codex-data/sdk";
 import { gql } from "graphql-request";
-import { Sink } from "graphql-ws";
 
 const codex = new Codex(process.env.CODEX_API_KEY!);
 
@@ -23,10 +22,7 @@ const unconfirmedEvents = gql`
   }
 `;
 
-codex.subscribe<
-  OnUnconfirmedEventsCreatedSubscription,
-  { id: string }
->(
+codex.subscribe<OnUnconfirmedEventsCreatedSubscription, { id: string }>(
   unconfirmedEvents,
   { id: "H66r4cb3LrvEZowN6eJZxMVbjrzxmRzPRT7Z6aMEXunb:1399811149" },
   {
@@ -35,6 +31,8 @@ codex.subscribe<
 
       if (data?.onUnconfirmedEventsCreated?.events) {
         data.onUnconfirmedEventsCreated.events.forEach((event, index) => {
+          if (!event) return;
+
           const eventTimestamp =
             typeof event.timestamp === "string"
               ? parseInt(event.timestamp)

@@ -1,6 +1,8 @@
-import { createCodexClient } from "./utils";
+import { Codex } from "@codex-data/sdk";
 
-const sdk = createCodexClient();
+const sdk = new Codex(process.env.CODEX_API_KEY || "", {
+  apiUrl: process.env.CODEX_API_URL,
+});
 
 sdk.queries
   .filterTokens({

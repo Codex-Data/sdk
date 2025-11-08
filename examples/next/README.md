@@ -15,6 +15,7 @@ A comprehensive Next.js application demonstrating how to integrate the Codex SDK
 ## Quick Start
 
 ### Prerequisites
+
 - [Node.js](https://nodejs.org/) >= 17.5.0
 - [pnpm](https://pnpm.io/) (recommended)
 - A Codex API key from [docs.codex.io](https://docs.codex.io)
@@ -22,16 +23,19 @@ A comprehensive Next.js application demonstrating how to integrate the Codex SDK
 ### Setup
 
 1. **Set your API key**:
+
    ```bash
    export NEXT_PUBLIC_CODEX_API_KEY="your_api_key_here"
    ```
 
 2. **Install dependencies** (from the root directory):
+
    ```bash
    pnpm install
    ```
 
 3. **Start the development server**:
+
    ```bash
    cd examples/next
    pnpm run dev
@@ -74,14 +78,18 @@ src/
 ## Key Components
 
 ### NetworkList Component
+
 Displays available blockchain networks with real-time data:
+
 ```typescript
 // Fetches networks using the Codex SDK
 const networks = await sdk.queries.getNetworks({});
 ```
 
 ### TokenChart Component
+
 Renders interactive price charts for tokens:
+
 ```typescript
 // Real-time price updates via WebSocket
 sdk.subscriptions.onPriceUpdated(params, {
@@ -90,6 +98,7 @@ sdk.subscriptions.onPriceUpdated(params, {
 ```
 
 ### Dynamic Routing
+
 - `/` - Network overview
 - `/networks/[networkId]` - Network details
 - `/networks/[networkId]/tokens/[tokenId]` - Token analysis
@@ -97,6 +106,7 @@ sdk.subscriptions.onPriceUpdated(params, {
 ## SDK Integration Patterns
 
 ### Server-Side Data Fetching
+
 ```typescript
 // app/page.tsx
 export default async function HomePage() {
@@ -108,6 +118,7 @@ export default async function HomePage() {
 ```
 
 ### Client-Side Real-time Updates
+
 ```typescript
 // components/TokenChart.tsx
 useEffect(() => {
@@ -116,7 +127,7 @@ useEffect(() => {
     {
       next: (data) => setPriceData(data),
       error: (err) => console.error(err),
-    }
+    },
   );
 
   return cleanup;
@@ -124,36 +135,40 @@ useEffect(() => {
 ```
 
 ### Error Handling
+
 ```typescript
 try {
   const token = await sdk.queries.token({ input: { address, networkId } });
   setTokenData(token);
 } catch (error) {
-  setError('Failed to fetch token data');
+  setError("Failed to fetch token data");
 }
 ```
 
 ## Available Scripts
 
-| Command | Description |
-|---------|-------------|
-| `pnpm run dev` | Start development server |
-| `pnpm run build` | Build for production |
-| `pnpm run start` | Start production server |
-| `pnpm run lint` | Run ESLint |
+| Command          | Description              |
+| ---------------- | ------------------------ |
+| `pnpm run dev`   | Start development server |
+| `pnpm run build` | Build for production     |
+| `pnpm run start` | Start production server  |
+| `pnpm run lint`  | Run ESLint               |
 
 ## Troubleshooting
 
 **"API key not found"**
+
 - Ensure `NEXT_PUBLIC_CODEX_API_KEY` is set in your environment
 - Check that the environment variable starts with `NEXT_PUBLIC_`
 
 **"WebSocket connection failed"**
+
 - Verify your network allows WebSocket connections
 - Check that the WebSocket URL is correct
 - Ensure your API key has subscription permissions
 
 **"Build fails"**
+
 ```bash
 # Clear Next.js cache
 rm -rf .next
@@ -163,16 +178,19 @@ pnpm run build
 ## Learn More
 
 ### Codex SDK
+
 - 📖 [Codex SDK Documentation](https://docs.codex.io)
 - 🚀 [SDK Examples](../README.md)
 - 🐛 [Report Issues](https://github.com/codex-data/sdk/issues)
 
 ### Next.js
+
 - 📚 [Next.js Documentation](https://nextjs.org/docs)
 - 🎓 [Learn Next.js](https://nextjs.org/learn)
 - 💬 [Next.js GitHub](https://github.com/vercel/next.js)
 
 ### UI Components
+
 - 🎨 [Tailwind CSS](https://tailwindcss.com)
 - ♿ [Radix UI](https://radix-ui.com)
 - 📊 [Recharts](https://recharts.org)

@@ -1,8 +1,10 @@
-import { createCodexClient } from "./utils";
+import { Codex } from "@codex-data/sdk";
 
-const sdk = createCodexClient();
+const sdk = new Codex(process.env.CODEX_API_KEY || "", {
+  apiUrl: process.env.CODEX_API_URL,
+});
 
-sdk.subscriptions.tokenPrices(
+sdk.subscriptions.onPriceUpdated(
   {
     address: "0xbb4cdb9cbd36b01bd1cbaebf2de08d9173bc095c",
     networkId: 56,

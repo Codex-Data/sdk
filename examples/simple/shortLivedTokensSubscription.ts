@@ -1,17 +1,14 @@
 import { Codex } from "@codex-data/sdk";
 
-const sdk = new Codex(
-  process.env.CODEX_API_KEY || "",
-  process.env.CODEX_API_URL ?? undefined,
-);
+const sdk = new Codex(process.env.CODEX_API_KEY || "", {
+  apiUrl: process.env.CODEX_API_URL,
+});
 
 const res = await sdk.mutations.createApiTokens({
   input: { expiresIn: 3600 * 1000 },
 });
 
 const token = res.createApiTokens[0].token;
-
-console.log(`Using token: ${token}`);
 
 const shortLivedSdk = new Codex(`Bearer ${token}`);
 

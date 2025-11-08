@@ -11,11 +11,13 @@ This directory contains comprehensive examples demonstrating how to use the Code
 ## Quick Start
 
 1. **Install dependencies** (from the root directory):
+
    ```bash
    pnpm install
    ```
 
 2. **Set your API key**:
+
    ```bash
    export CODEX_API_KEY="your_api_key_here"
    ```
@@ -29,24 +31,26 @@ This directory contains comprehensive examples demonstrating how to use the Code
 ## Examples Directory
 
 ### 📁 [simple/](./simple/)
+
 **Basic SDK Usage Examples**
 
 A collection of focused examples demonstrating core SDK functionality:
 
-| File | Description | Key Features |
-|------|-------------|--------------|
-| [`index.ts`](./simple/index.ts) | Complete SDK overview | Queries, mutations, subscriptions, webhooks |
-| [`token.ts`](./simple/token.ts) | Token data queries | Custom headers, GraphQL queries |
-| [`filterTest.ts`](./simple/filterTest.ts) | Token filtering | Advanced filtering, liquidity checks |
-| [`realtime.ts`](./simple/realtime.ts) | Real-time price updates | WebSocket subscriptions, custom sink |
-| [`simpleSubscription.ts`](./simple/simpleSubscription.ts) | Basic subscriptions | Built-in subscription methods |
-| [`apiKeys.ts`](./simple/apiKeys.ts) | API token management | Token creation, short-lived tokens |
-| [`apiKeysSubscription.ts`](./simple/apiKeysSubscription.ts) | Token + subscriptions | Token auth with real-time data |
-| [`updateConfig.ts`](./simple/updateConfig.ts) | Dynamic configuration | Runtime config updates |
-| [`profile.ts`](./simple/profile.ts) | Event profiling | Unconfirmed events, timing analysis |
-| [`auto.ts`](./simple/auto.ts) | Automated queries | Simple token lookups |
+| File                                                        | Description             | Key Features                                |
+| ----------------------------------------------------------- | ----------------------- | ------------------------------------------- |
+| [`index.ts`](./simple/index.ts)                             | Complete SDK overview   | Queries, mutations, subscriptions, webhooks |
+| [`token.ts`](./simple/token.ts)                             | Token data queries      | Custom headers, GraphQL queries             |
+| [`filterTest.ts`](./simple/filterTest.ts)                   | Token filtering         | Advanced filtering, liquidity checks        |
+| [`realtime.ts`](./simple/realtime.ts)                       | Real-time price updates | WebSocket subscriptions, custom sink        |
+| [`simpleSubscription.ts`](./simple/simpleSubscription.ts)   | Basic subscriptions     | Built-in subscription methods               |
+| [`apiKeys.ts`](./simple/apiKeys.ts)                         | API token management    | Token creation, short-lived tokens          |
+| [`apiKeysSubscription.ts`](./simple/apiKeysSubscription.ts) | Token + subscriptions   | Token auth with real-time data              |
+| [`updateConfig.ts`](./simple/updateConfig.ts)               | Dynamic configuration   | Runtime config updates                      |
+| [`profile.ts`](./simple/profile.ts)                         | Event profiling         | Unconfirmed events, timing analysis         |
+| [`auto.ts`](./simple/auto.ts)                               | Automated queries       | Simple token lookups                        |
 
 **Usage:**
+
 ```bash
 cd examples/simple
 pnpm run dev                    # Run index.ts
@@ -55,17 +59,20 @@ CODEX_API_KEY=xyz tsx auto.ts   # With inline API key
 ```
 
 ### 📁 [codegen/](./codegen/)
+
 **GraphQL Code Generation**
 
 Shows how to use GraphQL Code Generator for fully typed queries and mutations.
 
 **Features:**
+
 - Type-safe GraphQL operations
 - Generated TypeScript types
 - Custom document nodes
 - Full IntelliSense support
 
 **Usage:**
+
 ```bash
 cd examples/codegen
 pnpm run codegen    # Generate types
@@ -73,16 +80,19 @@ pnpm run dev        # Run example
 ```
 
 **Key Files:**
+
 - [`codegen.ts`](./codegen/codegen.ts) - Code generation configuration
 - [`src/index.ts`](./codegen/src/index.ts) - Typed query example
 - `src/gql/` - Generated types and utilities
 
 ### 📁 [next/](./next/)
+
 **Next.js Integration**
 
 A complete Next.js application demonstrating SDK usage in a React environment.
 
 **Features:**
+
 - Server-side rendering with SDK
 - Client-side data fetching
 - Real-time updates
@@ -90,6 +100,7 @@ A complete Next.js application demonstrating SDK usage in a React environment.
 - Network and token exploration
 
 **Usage:**
+
 ```bash
 cd examples/next
 pnpm run dev    # Start development server
@@ -97,6 +108,7 @@ pnpm run build  # Build for production
 ```
 
 **Key Features:**
+
 - 🌐 Network browsing
 - 🪙 Token exploration
 - 📊 Price charts
@@ -112,11 +124,13 @@ import {
   Codex,
   TokenQuery,
   OnPriceUpdatedSubscription,
-  CreateWebhooksMutation
+  CreateWebhooksMutation,
 } from "@codex-data/sdk";
 
 // All operations are fully typed
-const token: TokenQuery = await sdk.queries.token({ input: { address, networkId } });
+const token: TokenQuery = await sdk.queries.token({
+  input: { address, networkId },
+});
 ```
 
 ### Available Type Categories
@@ -130,6 +144,7 @@ const token: TokenQuery = await sdk.queries.token({ input: { address, networkId 
 ## Common Patterns
 
 ### Basic Query
+
 ```typescript
 import { Codex } from "@codex-data/sdk";
 
@@ -144,6 +159,7 @@ const token = await sdk.queries.token({
 ```
 
 ### Real-time Subscription
+
 ```typescript
 sdk.subscriptions.onPriceUpdated(
   {
@@ -154,33 +170,37 @@ sdk.subscriptions.onPriceUpdated(
     next: (data) => console.log("Price update:", data),
     error: (err) => console.error("Error:", err),
     complete: () => console.log("Subscription complete"),
-  }
+  },
 );
 ```
 
 ### Custom GraphQL Query
+
 ```typescript
 import { GetNetworksQuery } from "@codex-data/sdk";
 
 const result = await sdk.send<GetNetworksQuery>(
   `query GetNetworks { getNetworks { id name } }`,
-  {}
+  {},
 );
 ```
 
 ### Mutation Example
+
 ```typescript
 const webhook = await sdk.mutations.createWebhooks({
   input: {
     priceWebhooksInput: {
-      webhooks: [{
-        name: "Price Alert",
-        callbackUrl: "https://your-webhook-url.com",
-        conditions: {
-          priceUsd: { gt: "100" },
-          networkId: { eq: 1 },
+      webhooks: [
+        {
+          name: "Price Alert",
+          callbackUrl: "https://your-webhook-url.com",
+          conditions: {
+            priceUsd: { gt: "100" },
+            networkId: { eq: 1 },
+          },
         },
-      }],
+      ],
     },
   },
 });
@@ -190,11 +210,11 @@ const webhook = await sdk.mutations.createWebhooks({
 
 All examples support these environment variables:
 
-| Variable | Description | Default |
-|----------|-------------|---------|
-| `CODEX_API_KEY` | Your Codex API key | Required |
-| `CODEX_API_URL` | Custom API endpoint | `https://graph.codex.io/graphql` |
-| `CODEX_WS_URL` | Custom WebSocket endpoint | `wss://graph.codex.io/graphql` |
+| Variable        | Description               | Default                          |
+| --------------- | ------------------------- | -------------------------------- |
+| `CODEX_API_KEY` | Your Codex API key        | Required                         |
+| `CODEX_API_URL` | Custom API endpoint       | `https://graph.codex.io/graphql` |
+| `CODEX_WS_URL`  | Custom WebSocket endpoint | `wss://graph.codex.io/graphql`   |
 
 ## Development Scripts
 
@@ -207,21 +227,25 @@ Each example directory includes these scripts:
 ## Tips & Best Practices
 
 ### 🔑 **API Key Management**
+
 - Store API keys in environment variables
 - Use `.env.local` files for local development
 - Never commit API keys to version control
 
 ### 🚀 **Performance**
+
 - Use subscriptions for real-time data
 - Implement proper error handling
 - Consider rate limiting for production use
 
 ### 🛠 **Development**
+
 - Use TypeScript for better development experience
 - Leverage code generation for type safety
 - Test with different network configurations
 
 ### 🔄 **Real-time Data**
+
 - Handle subscription lifecycle properly
 - Implement reconnection logic for production
 - Use appropriate cleanup mechanisms
@@ -231,16 +255,19 @@ Each example directory includes these scripts:
 ### Common Issues
 
 **"API key not found"**
+
 ```bash
 export CODEX_API_KEY="your_api_key_here"
 ```
 
 **"Module not found"**
+
 ```bash
 pnpm install  # From project root
 ```
 
 **"WebSocket connection failed"**
+
 - Check your network connection
 - Verify WebSocket URL is correct
 - Ensure API key has subscription permissions
