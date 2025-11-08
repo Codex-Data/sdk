@@ -1,7 +1,7 @@
 /* eslint-disable */
 import {
-  ResultOf,
   DocumentTypeDecoration,
+  ResultOf,
   TypedDocumentNode,
 } from "@graphql-typed-document-node/core";
 import { FragmentDefinitionNode } from "graphql";
@@ -11,12 +11,12 @@ export type FragmentType<
   TDocumentType extends DocumentTypeDecoration<any, any>,
 > =
   TDocumentType extends DocumentTypeDecoration<infer TType, any>
-    ? [TType] extends [{ " $fragmentName"?: infer TKey }]
-      ? TKey extends string
-        ? { " $fragmentRefs"?: { [key in TKey]: TType } }
-        : never
-      : never
-    : never;
+  ? [TType] extends [{ " $fragmentName"?: infer TKey }]
+  ? TKey extends string
+  ? { " $fragmentRefs"?: { [key in TKey]: TType } }
+  : never
+  : never
+  : never;
 
 // return non-nullable if `fragmentType` is non-nullable
 export function useFragment<TType>(

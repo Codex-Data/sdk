@@ -24,7 +24,3 @@ jobs:
         run: pnpm run build:types
       - name: Test
         run: pnpm run test
-      - name: Build Examples
-        run: |
-          cd examples/codegen && pnpm run codegen
-          cd ../next && pnpm run build

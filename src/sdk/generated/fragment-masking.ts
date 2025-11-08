@@ -1,5 +1,5 @@
 /* eslint-disable */
-import { ResultOf, DocumentTypeDecoration, TypedDocumentNode } from '@graphql-typed-document-node/core';
+import { DocumentTypeDecoration, ResultOf, TypedDocumentNode } from '@graphql-typed-document-node/core';
 import { FragmentDefinitionNode } from 'graphql';
 import { Incremental } from './graphql';
 
@@ -9,10 +9,10 @@ export type FragmentType<TDocumentType extends DocumentTypeDecoration<any, any>>
   any
 >
   ? [TType] extends [{ ' $fragmentName'?: infer TKey }]
-    ? TKey extends string
-      ? { ' $fragmentRefs'?: { [key in TKey]: TType } }
-      : never
-    : never
+  ? TKey extends string
+  ? { ' $fragmentRefs'?: { [key in TKey]: TType } }
+  : never
+  : never
   : never;
 
 // return non-nullable if `fragmentType` is non-nullable
