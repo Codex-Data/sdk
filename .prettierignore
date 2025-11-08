@@ -7,17 +7,8 @@ dist
 dist-esm
 
 # Generated files
-**/generated/
-**/generated_*/
-src/resources/graphql.schema.json
-src/resources/graphql.ts
-src/resources/schema.graphql
-src/resources/networkConfigs.json
-src/resources/graphql.schema.json
-src/resources/graphql.ts
-src/resources/networkConfigs.json
-src/resources/schema.graphql
-
+src/resources/
+src/sdk/generated/
 
 # IDE
 .vscode
