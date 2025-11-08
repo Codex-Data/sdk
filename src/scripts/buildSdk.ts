@@ -6,19 +6,22 @@ const GENERATED_SUBSCRIPTIONS_DIRECTORY = path.join(
   __dirname,
   "..",
   "resources",
-  "generated_subscriptions",
+  "generated",
+  "subscriptions",
 );
 const GENERATED_MUTATIONS_DIRECTORY = path.join(
   __dirname,
   "..",
   "resources",
-  "generated_mutations",
+  "generated",
+  "mutations",
 );
 const GENERATED_QUERIES_DIRECTORY = path.join(
   __dirname,
   "..",
   "resources",
-  "generated_queries",
+  "generated",
+  "queries",
 );
 
 class Subscription {

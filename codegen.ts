@@ -10,7 +10,7 @@ const config: CodegenConfig = {
         fragmentMasking: false,
       },
       documents:
-        "src/resources/(generated_queries|generated_mutations|generated_subscriptions)/**/*",
+        "src/resources/generated/(queries|mutations|subscriptions)/**/*",
     },
     "src/resources/graphql.ts": {
       plugins: ["typescript"],

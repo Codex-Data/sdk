@@ -189,16 +189,12 @@ async function run() {
       __dirname,
       "..",
       "resources",
-      "generated_mutations",
+      "generated",
+      "mutations",
     );
     await mkdirp(mutationsFolderPath);
 
-    const overridePath = path.join(
-      __dirname,
-      "..",
-      "resources",
-      "mutations_override",
-    );
+    const overridePath = path.join(__dirname, "..", "overrides", "mutations");
     const filename = `${capitalize(field.name)}.graphql`;
     const filePath = path.join(mutationsFolderPath, filename);
 
@@ -229,15 +225,16 @@ async function run() {
       __dirname,
       "..",
       "resources",
-      "generated_subscriptions",
+      "generated",
+      "subscriptions",
     );
     await mkdirp(subscriptionsFolderPath);
 
     const overridePath = path.join(
       __dirname,
       "..",
-      "resources",
-      "subscriptions_override",
+      "overrides",
+      "subscriptions",
     );
     const filename = `${capitalize(field.name)}.graphql`;
     const subPath = path.join(subscriptionsFolderPath, filename);
@@ -277,16 +274,12 @@ async function run() {
       __dirname,
       "..",
       "resources",
-      "generated_queries",
+      "generated",
+      "queries",
     );
     await mkdirp(queriesFolderPath);
 
-    const overridePath = path.join(
-      __dirname,
-      "..",
-      "resources",
-      "queries_override",
-    );
+    const overridePath = path.join(__dirname, "..", "overrides", "queries");
     const queryFileName = `${capitalize(field.name)}.graphql`;
     const queryPath = path.join(queriesFolderPath, queryFileName);
     // If we have an override, use it.
