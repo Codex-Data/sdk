@@ -1,8 +1,6 @@
-import { Codex } from "@codex-data/sdk";
+import { Codex, OnUnconfirmedEventsCreatedSubscription } from "@codex-data/sdk";
 import { gql } from "graphql-request";
 import { Sink } from "graphql-ws";
-
-import { UnconfirmedEvent } from "../../dist/resources/graphql";
 
 const codex = new Codex(process.env.CODEX_API_KEY!);
 
@@ -26,7 +24,7 @@ const unconfirmedEvents = gql`
 `;
 
 codex.subscribe<
-  { onUnconfirmedEventsCreated: { events: UnconfirmedEvent[] } },
+  OnUnconfirmedEventsCreatedSubscription,
   { id: string }
 >(
   unconfirmedEvents,

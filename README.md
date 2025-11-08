@@ -108,7 +108,7 @@ pnpm run build
 
 ### Running Examples
 
-All examples require a Codex API key. Get yours at [docs.codex.io](https://docs.codex.io).
+All examples require a Codex API key. Get your API key at [docs.codex.io](https://docs.codex.io).
 
 #### Simple Example
 
