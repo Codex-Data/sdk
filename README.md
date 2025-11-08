@@ -169,7 +169,40 @@ We welcome contributions! Please feel free to submit a Pull Request.
 
 ## Releasing
 
-1. Update the version number in `package.json`
-2. Create a PR and merge to `main`
-3. Create a new release with the version tag (e.g., `v1.0.41`)
-4. The GitHub Action will automatically publish to npm
+### Publishing Beta Versions
+
+For testing releases before making them public:
+
+1. Update the version in `package.json` to a beta version:
+
+   ```json
+   "version": "2.0.0-beta.0"
+   ```
+
+2. Publish to the beta tag:
+
+   ```bash
+   pnpm run publish:beta
+   ```
+
+3. Test the beta version:
+   ```bash
+   npm install @codex-data/sdk@beta
+   ```
+
+Users installing without the `@beta` tag will continue to receive the latest stable version.
+
+### Publishing Production Releases
+
+1. Update the version in `package.json` to a production version:
+
+   ```json
+   "version": "2.0.0"
+   ```
+
+2. Publish to the latest tag:
+   ```bash
+   pnpm run publish:latest
+   ```
+
+> **Note:** The `prepublishOnly` script automatically runs the full build before publishing, ensuring the package is always built before release.

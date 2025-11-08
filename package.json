@@ -1,6 +1,6 @@
 {
   "name": "@codex-data/sdk",
-  "version": "1.0.40",
+  "version": "1.1.0-beta.0",
   "engines": {
     "node": ">=17.5.0"
   },
@@ -30,7 +30,10 @@
     "codegen": "graphql-codegen --config codegen.ts",
     "lint": "eslint --ext .ts src",
     "test": "jest",
-    "format": "prettier --write ."
+    "format": "prettier --write .",
+    "prepublishOnly": "pnpm run build",
+    "publish:beta": "pnpm publish --tag beta --access public",
+    "publish:latest": "pnpm publish --access public"
   },
   "files": [
     "dist/index.js",
