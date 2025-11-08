@@ -5,12 +5,13 @@
     "node": ">=17.5.0"
   },
   "main": "dist/index.js",
+  "module": "dist/index.mjs",
   "types": "dist/index.d.ts",
   "exports": {
     ".": {
       "types": "./dist/index.d.ts",
-      "require": "./dist/index.js",
-      "import": "./dist/index.mjs"
+      "import": "./dist/index.mjs",
+      "require": "./dist/index.js"
     }
   },
   "sideEffects": false,
@@ -51,6 +52,7 @@
   "homepage": "https://docs.codex.io",
   "description": "The Codex SDK for JavaScript/Typescript. It provides generated types and convenient ways to access the graphql api.",
   "dependencies": {
+    "@graphql-typed-document-node/core": "^3.2.0",
     "graphql-request": "^6.1.0",
     "graphql-ws": "^5.14.0",
     "isomorphic-ws": "^5.0.0"

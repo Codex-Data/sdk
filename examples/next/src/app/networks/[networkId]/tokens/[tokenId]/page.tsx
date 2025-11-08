@@ -50,7 +50,7 @@ interface TokenPageProps {
 
 // --- Helper: Data Fetching Function ---
 async function getTokenPageData(networkIdNum: number, tokenId: string): Promise<TokenPageData> {
-  const apiKey = process.env.CODEX_API_KEY;
+  const apiKey = process.env.NEXT_PUBLIC_CODEX_API_KEY;
   if (!apiKey) {
     console.warn("CODEX_API_KEY not set.");
   }

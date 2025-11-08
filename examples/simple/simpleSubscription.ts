@@ -1,6 +1,6 @@
-import { Codex } from "@codex-data/sdk";
+import { createCodexClient } from "./utils";
 
-const sdk = new Codex(process.env.CODEX_API_KEY || "");
+const sdk = createCodexClient();
 
 sdk.subscriptions.tokenPrices(
   {

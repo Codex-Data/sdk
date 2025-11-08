@@ -1,5 +1,4 @@
-import { Codex } from "@codex-data/sdk";
-import { TokenRankingAttribute, RankingDirection } from "@codex-data/sdk/dist/sdk/generated/graphql";
+import { Codex, TokenRankingAttribute, RankingDirection } from "@codex-data/sdk";
 import Link from "next/link";
 import React from "react";
 import Image from "next/image";
@@ -24,7 +23,7 @@ export default async function NetworkPage({ params }: NetworkPageProps) {
     );
   }
 
-  const apiKey = process.env.CODEX_API_KEY;
+  const apiKey = process.env.NEXT_PUBLIC_CODEX_API_KEY;
   if (!apiKey) {
     console.warn("CODEX_API_KEY environment variable is not set. Codex SDK might not work.");
   }
