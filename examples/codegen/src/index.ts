@@ -1,4 +1,4 @@
-import { Codex } from "../../../src/sdk";
+import { Codex } from "@codex-data/sdk";
 import { graphql } from "./gql/gql";
 import { NetworksQuery, NetworksQueryVariables } from "./gql/graphql";
 

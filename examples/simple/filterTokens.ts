@@ -1,6 +1,8 @@
 import { Codex } from "@codex-data/sdk";
 
-const sdk = new Codex(process.env.CODEX_API_KEY || "");
+const sdk = new Codex(process.env.CODEX_API_KEY || "", {
+  apiUrl: process.env.CODEX_API_URL,
+});
 
 sdk.queries
   .filterTokens({

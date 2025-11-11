@@ -1,0 +1,19 @@
+# Dependencies
+node_modules
+pnpm-lock.yaml
+
+# Build output
+dist
+dist-esm
+
+# Generated files
+src/resources/
+src/sdk/generated/
+
+# IDE
+.vscode
+.idea
+
+# Misc
+coverage
+*.log

@@ -1,6 +1,6 @@
-'use client'; // Mark as client component
+"use client"; // Mark as client component
 
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef } from "react";
 
 interface GlitchTextProps {
   text: string;
@@ -11,13 +11,14 @@ interface GlitchTextProps {
 }
 
 // Escape the double quote in the character set
-const defaultCharSet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*()_+-=[]{};:\'';
+const defaultCharSet =
+  "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*()_+-=[]{};:'";
 const defaultIntervalMs = 100;
 const defaultIterationsPerChar = 10;
 
 export const GlitchText: React.FC<GlitchTextProps> = ({
   text,
-  className = '',
+  className = "",
   charSet = defaultCharSet,
   intervalMs = defaultIntervalMs,
   iterationsPerChar = defaultIterationsPerChar,
@@ -31,23 +32,28 @@ export const GlitchText: React.FC<GlitchTextProps> = ({
     // Start animation
     setIsAnimating(true);
     iterationCounters.current = Array(text.length).fill(0);
-    setDisplayText(Array.from({ length: text.length }, () =>
-      charSet[Math.floor(Math.random() * charSet.length)]
-    ).join(''));
+    setDisplayText(
+      Array.from(
+        { length: text.length },
+        () => charSet[Math.floor(Math.random() * charSet.length)],
+      ).join(""),
+    );
 
     intervalRef.current = setInterval(() => {
       let allDone = true;
-      const nextText = Array.from(text).map((originalChar, index) => {
-        if (iterationCounters.current[index] < iterationsPerChar) {
-          allDone = false;
-          iterationCounters.current[index]++;
-          // Return a random character for glitching
-          return charSet[Math.floor(Math.random() * charSet.length)];
-        } else {
-          // Once iterations are done, return the original character
-          return originalChar;
-        }
-      }).join('');
+      const nextText = Array.from(text)
+        .map((originalChar, index) => {
+          if (iterationCounters.current[index] < iterationsPerChar) {
+            allDone = false;
+            iterationCounters.current[index]++;
+            // Return a random character for glitching
+            return charSet[Math.floor(Math.random() * charSet.length)];
+          } else {
+            // Once iterations are done, return the original character
+            return originalChar;
+          }
+        })
+        .join("");
 
       setDisplayText(nextText);
 
@@ -68,11 +74,13 @@ export const GlitchText: React.FC<GlitchTextProps> = ({
         clearInterval(intervalRef.current);
       }
     };
-  // Rerun effect if the target text changes
+    // Rerun effect if the target text changes
   }, [text, charSet, intervalMs, iterationsPerChar]);
 
   // Conditionally apply opacity class
-  const animationClass = isAnimating ? 'opacity-75' : '';
+  const animationClass = isAnimating ? "opacity-75" : "";
 
-  return <span className={`${className} ${animationClass}`}>{displayText}</span>;
+  return (
+    <span className={`${className} ${animationClass}`}>{displayText}</span>
+  );
 };

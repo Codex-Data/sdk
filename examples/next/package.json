@@ -9,7 +9,7 @@
     "lint": "next lint"
   },
   "dependencies": {
-    "@codex-data/sdk": "^1.0.6",
+    "@codex-data/sdk": "workspace:*",
     "@radix-ui/react-dialog": "^1.1.11",
     "@types/recharts": "^2.0.1",
     "class-variance-authority": "^0.7.1",

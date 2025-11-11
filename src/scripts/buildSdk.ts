@@ -1,24 +1,29 @@
+import chalk from "chalk";
 import fs from "fs";
 import camelCase from "lodash/camelCase";
+import ora from "ora";
 import path from "path";
 
 const GENERATED_SUBSCRIPTIONS_DIRECTORY = path.join(
   __dirname,
   "..",
   "resources",
-  "generated_subscriptions",
+  "generated",
+  "subscriptions",
 );
 const GENERATED_MUTATIONS_DIRECTORY = path.join(
   __dirname,
   "..",
   "resources",
-  "generated_mutations",
+  "generated",
+  "mutations",
 );
 const GENERATED_QUERIES_DIRECTORY = path.join(
   __dirname,
   "..",
   "resources",
-  "generated_queries",
+  "generated",
+  "queries",
 );
 
 class Subscription {
@@ -147,27 +152,58 @@ ${this.queries.map((q) => "  " + q.pre()).join(",\n")}
   }
 
   output() {
+    const brand = chalk.hex("#EAFE77");
+    const spinner = ora();
+
+    spinner.start(`Writing ${brand("Subscribe.ts")}`);
     fs.writeFileSync(
       path.join(__dirname, "..", "sdk", "Subscribe.ts"),
       this.printSubscriptions(),
       "utf8",
     );
+    spinner.succeed(
+      `Wrote ${brand("Subscribe.ts")} ${chalk.gray(`(${this.subscriptions.length} subscriptions)`)}`,
+    );
+
+    spinner.start(`Writing ${brand("Mutation.ts")}`);
     fs.writeFileSync(
       path.join(__dirname, "..", "sdk", "Mutation.ts"),
       this.printMutations(),
       "utf8",
     );
+    spinner.succeed(
+      `Wrote ${brand("Mutation.ts")} ${chalk.gray(`(${this.mutations.length} mutations)`)}`,
+    );
+
+    spinner.start(`Writing ${brand("Query.ts")}`);
     fs.writeFileSync(
       path.join(__dirname, "..", "sdk", "Query.ts"),
       this.printQueries(),
       "utf8",
     );
+    spinner.succeed(
+      `Wrote ${brand("Query.ts")} ${chalk.gray(`(${this.queries.length} queries)`)}`,
+    );
   }
 }
 
 async function run() {
+  const brand = chalk.hex("#EAFE77");
+  console.log(brand.bold("\n🔨 Building SDK\n"));
+
+  const initSpinner = ora("Initializing SDK builder").start();
   const sdk = new SDK();
+  const totalOps =
+    sdk["queries"].length +
+    sdk["mutations"].length +
+    sdk["subscriptions"].length;
+  initSpinner.succeed(
+    `Initialized SDK builder ${chalk.gray(`(${brand(totalOps)} operations)`)}`,
+  );
+
   sdk.output();
+
+  console.log(brand.bold("\n✅ SDK build complete!\n"));
 }
 
 run().then(() => process.exit());

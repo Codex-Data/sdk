@@ -5,6 +5,6 @@ coverage
 .next
 dist
 yarn-error.log
-src/resources/generated_queries*
-src/resources/generated_subscriptions*
-src/resources/generated_mutations*
+
+# Generated resources (all regenerated at build time)
+src/resources/

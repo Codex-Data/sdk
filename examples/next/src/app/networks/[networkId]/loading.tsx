@@ -1,5 +1,5 @@
-import React from 'react';
-import { GlitchText } from '@/components/GlitchText';
+import React from "react";
+import { GlitchText } from "@/components/GlitchText";
 
 export default function Loading() {
   // You can add any UI inside Loading, including a Skeleton.

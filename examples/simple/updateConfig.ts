@@ -1,6 +1,13 @@
-import { Codex } from "@codex-data/sdk/dist/sdk";
+import { Codex } from "@codex-data/sdk";
 
-const sdk = new Codex(process.env.CODEX_API_KEY || "");
+// This example demonstrates how to dynamically update the SDK configuration,
+// particularly the WebSocket authentication headers. It starts a subscription
+// to token events, then after 5 seconds creates a new API token and updates
+// the SDK's WebSocket headers to use the new token before starting another subscription.
+
+const sdk = new Codex(process.env.CODEX_API_KEY || "", {
+  apiUrl: process.env.CODEX_API_URL,
+});
 
 const subscribe = () => {
   sdk.subscriptions.onTokenEventsCreated(

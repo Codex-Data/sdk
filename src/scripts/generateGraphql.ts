@@ -1,7 +1,9 @@
+import chalk from "chalk";
 import fs from "fs";
 import * as gql from "gql-query-builder";
 import VariableOptions from "gql-query-builder/build/VariableOptions";
 import { mkdirp } from "mkdirp";
+import ora from "ora";
 import path from "path";
 
 type SchemaTypeDefinition = {
@@ -155,13 +157,16 @@ export function parseVariables(args: SchemaType[]) {
  * and generates a query ts file for query.
  */
 async function run() {
-  console.log("Generating...");
+  const brand = chalk.hex("#EAFE77");
+  console.log(brand.bold("\n📝 Generating GraphQL Operations\n"));
 
   // Fetch schema from remote
+  const fetchSpinner = ora("Fetching schema from remote").start();
   const res = await fetch(`https://graph.codex.io/schema/latest.json`, {
     method: "GET",
   });
   const schemaJson = await res.json();
+  fetchSpinner.succeed(`Fetched schema from ${brand("graph.codex.io")}`);
 
   const types = schemaJson.__schema.types;
   const mutationType = types.find(
@@ -172,6 +177,9 @@ async function run() {
     (type: SchemaType) => type.name === "Subscription",
   );
 
+  // Mutations
+  const mutationsSpinner = ora(`Generating mutations`).start();
+  let mutationsCount = 0;
   for (const field of mutationType.fields) {
     const args = field.args;
     const parsedVariables = parseVariables(args);
@@ -184,21 +192,17 @@ async function run() {
         : undefined,
       fields: parsedFields.length ? parsedFields : undefined,
     });
-    console.log(`Writing mutation: ${field.name}.graphql`);
+
     const mutationsFolderPath = path.join(
       __dirname,
       "..",
       "resources",
-      "generated_mutations",
+      "generated",
+      "mutations",
     );
     await mkdirp(mutationsFolderPath);
 
-    const overridePath = path.join(
-      __dirname,
-      "..",
-      "resources",
-      "mutations_override",
-    );
+    const overridePath = path.join(__dirname, "..", "overrides", "mutations");
     const filename = `${capitalize(field.name)}.graphql`;
     const filePath = path.join(mutationsFolderPath, filename);
 
@@ -212,8 +216,15 @@ async function run() {
           .toString()
           .slice("mutation ".length)}`,
       );
-  }
 
+    mutationsCount++;
+    mutationsSpinner.text = `Generating mutations ${chalk.gray(`(${brand(mutationsCount)}/${mutationType.fields.length})`)}`;
+  }
+  mutationsSpinner.succeed(`Generated ${brand(mutationsCount)} mutations`);
+
+  // Subscriptions
+  const subscriptionsSpinner = ora(`Generating subscriptions`).start();
+  let subscriptionsCount = 0;
   for (const field of subscriptionType.fields) {
     const args = field.args;
     const parsedVariables = parseVariables(args) ?? {};
@@ -224,20 +235,21 @@ async function run() {
       variables: parsedVariables,
       fields: parsedFields.length ? parsedFields : undefined,
     });
-    console.log(`Writing subscription: ${field.name}.graphql`);
+
     const subscriptionsFolderPath = path.join(
       __dirname,
       "..",
       "resources",
-      "generated_subscriptions",
+      "generated",
+      "subscriptions",
     );
     await mkdirp(subscriptionsFolderPath);
 
     const overridePath = path.join(
       __dirname,
       "..",
-      "resources",
-      "subscriptions_override",
+      "overrides",
+      "subscriptions",
     );
     const filename = `${capitalize(field.name)}.graphql`;
     const subPath = path.join(subscriptionsFolderPath, filename);
@@ -251,12 +263,22 @@ async function run() {
           .toString()
           .slice("subscription ".length)}`,
       );
+
+    subscriptionsCount++;
+    subscriptionsSpinner.text = `Generating subscriptions ${chalk.gray(`(${brand(subscriptionsCount)}/${subscriptionType.fields.length})`)}`;
   }
+  subscriptionsSpinner.succeed(
+    `Generated ${brand(subscriptionsCount)} subscriptions`,
+  );
 
   // Write queries
+  const queriesSpinner = ora(`Generating queries`).start();
+  let queriesCount = 0;
+  let skippedCount = 0;
   for (const field of queryType.fields) {
     if (field.isDeprecated) {
-      console.log("Skipping deprecated field", field.name);
+      skippedCount++;
+      queriesSpinner.text = `Generating queries ${chalk.gray(`(${brand(queriesCount)}/${queryType.fields.length - skippedCount}, skipped ${skippedCount})`)}`;
       continue;
     }
 
@@ -271,22 +293,17 @@ async function run() {
         : undefined,
       fields: parsedFields.length ? parsedFields : undefined,
     });
-    console.log(`Writing query: ${field.name}.graphql`);
 
     const queriesFolderPath = path.join(
       __dirname,
       "..",
       "resources",
-      "generated_queries",
+      "generated",
+      "queries",
     );
     await mkdirp(queriesFolderPath);
 
-    const overridePath = path.join(
-      __dirname,
-      "..",
-      "resources",
-      "queries_override",
-    );
+    const overridePath = path.join(__dirname, "..", "overrides", "queries");
     const queryFileName = `${capitalize(field.name)}.graphql`;
     const queryPath = path.join(queriesFolderPath, queryFileName);
     // If we have an override, use it.
@@ -299,7 +316,20 @@ async function run() {
           .toString()
           .slice("query ".length)}`,
       );
+
+    queriesCount++;
+    queriesSpinner.text = `Generating queries ${chalk.gray(`(${brand(queriesCount)}/${queryType.fields.length - skippedCount})`)}`;
   }
+  queriesSpinner.succeed(
+    `Generated ${brand(queriesCount)} queries ${skippedCount > 0 ? chalk.gray(`(skipped ${skippedCount} deprecated)`) : ""}`,
+  );
+
+  console.log(brand.bold("\n✅ GraphQL generation complete!\n"));
+  console.log(
+    chalk.dim(
+      `  Total: ${brand(mutationsCount + subscriptionsCount + queriesCount)} operations`,
+    ),
+  );
 }
 
 run().then(() => process.exit());

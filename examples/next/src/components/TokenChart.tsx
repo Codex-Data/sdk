@@ -1,6 +1,6 @@
-'use client';
+"use client";
 
-import React from 'react';
+import React from "react";
 import {
   LineChart,
   Line,
@@ -9,8 +9,8 @@ import {
   CartesianGrid,
   Tooltip,
   ResponsiveContainer,
-} from 'recharts';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'; // Assuming shadcn Card is installed
+} from "recharts";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"; // Assuming shadcn Card is installed
 
 // Type for the data expected by the chart (from getBars)
 // Adjust based on actual getBars response structure
@@ -28,7 +28,10 @@ interface TokenChartProps {
   title?: string;
 }
 
-export const TokenChart: React.FC<TokenChartProps> = ({ data, title = "Price Chart" }) => {
+export const TokenChart: React.FC<TokenChartProps> = ({
+  data,
+  title = "Price Chart",
+}) => {
   if (!data || data.length === 0) {
     return (
       <Card>
@@ -44,7 +47,10 @@ export const TokenChart: React.FC<TokenChartProps> = ({ data, title = "Price Cha
 
   // Format timestamp for XAxis
   const formatXAxis = (tickItem: number) => {
-    return new Date(tickItem * 1000).toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
+    return new Date(tickItem * 1000).toLocaleDateString(undefined, {
+      month: "short",
+      day: "numeric",
+    });
   };
 
   // Format tooltip value
@@ -83,13 +89,13 @@ export const TokenChart: React.FC<TokenChartProps> = ({ data, title = "Price Cha
               tickLine={false}
               axisLine={false}
               tickFormatter={(value) => `$${value.toFixed(2)}`}
-              domain={['auto', 'auto']}
+              domain={["auto", "auto"]}
             />
             <Tooltip
               contentStyle={{
-                backgroundColor: 'hsl(var(--background))',
-                borderColor: 'hsl(var(--border))',
-                color: '#FFFFFF'
+                backgroundColor: "hsl(var(--background))",
+                borderColor: "hsl(var(--border))",
+                color: "#FFFFFF",
               }}
               labelFormatter={formatXAxis}
               formatter={formatTooltipValue}

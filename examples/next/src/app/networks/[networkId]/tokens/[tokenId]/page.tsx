@@ -2,8 +2,21 @@ import { Codex } from "@codex-data/sdk";
 import Link from "next/link";
 import React, { Suspense } from "react";
 import { TokenChart, ChartDataPoint } from "@/components/TokenChart";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+} from "@/components/ui/card";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 import Image from "next/image";
 
 // --- Type Definitions ---
@@ -16,7 +29,8 @@ type TokenDetails = {
   networkId?: number | null;
   description?: string | null;
   decimals?: number | null; // Keep decimals for event calculation
-  info?: { // Add nested info object
+  info?: {
+    // Add nested info object
     imageThumbUrl?: string | null;
     // Add other fields from info if needed
   } | null;
@@ -49,12 +63,15 @@ interface TokenPageProps {
 }
 
 // --- Helper: Data Fetching Function ---
-async function getTokenPageData(networkIdNum: number, tokenId: string): Promise<TokenPageData> {
-  const apiKey = process.env.CODEX_API_KEY;
+async function getTokenPageData(
+  networkIdNum: number,
+  tokenId: string,
+): Promise<TokenPageData> {
+  const apiKey = process.env.NEXT_PUBLIC_CODEX_API_KEY;
   if (!apiKey) {
     console.warn("CODEX_API_KEY not set.");
   }
-  const codexClient = new Codex(apiKey || '');
+  const codexClient = new Codex(apiKey || "");
 
   // Calculate timestamps (in seconds)
   const now = Math.floor(Date.now() / 1000);
@@ -64,64 +81,81 @@ async function getTokenPageData(networkIdNum: number, tokenId: string): Promise<
 
   // Fetch details, bars, and events
   const results = await Promise.allSettled([
-    codexClient.queries.token({ input: { networkId: networkIdNum, address: tokenId } }),
-    codexClient.queries.getBars({
-        symbol: symbolId,
-        from: oneDayAgo,
-        to: now,
-        resolution: '30'
+    codexClient.queries.token({
+      input: { networkId: networkIdNum, address: tokenId },
     }),
-    codexClient.queries.getTokenEvents({ query: { networkId: networkIdNum, address: tokenId }, limit: 50 }),
+    codexClient.queries.getBars({
+      symbol: symbolId,
+      from: oneDayAgo,
+      to: now,
+      resolution: "30",
+    }),
+    codexClient.queries.getTokenEvents({
+      query: { networkId: networkIdNum, address: tokenId },
+      limit: 50,
+    }),
   ]);
 
   const detailsResult = results[0];
   const barsResult = results[1];
   const eventsResult = results[2];
 
-  const details: TokenDetails | null = detailsResult.status === 'fulfilled' ? detailsResult.value.token as TokenDetails : null;
+  const details: TokenDetails | null =
+    detailsResult.status === "fulfilled"
+      ? (detailsResult.value.token as TokenDetails)
+      : null;
 
   let bars: ChartDataPoint[] = [];
-  if (barsResult.status === 'fulfilled') {
+  if (barsResult.status === "fulfilled") {
     // Access arrays via barsResult.value.getBars
     const b = barsResult.value.getBars;
     // Add null check for b itself before accessing properties
     if (b?.t && b?.c) {
-        bars = b.t.map((time: number, index: number) => ({
-            time: time,
-            open: b.o?.[index],
-            high: b.h?.[index],
-            low: b.l?.[index],
-            close: b.c?.[index],
-        }));
+      bars = b.t.map((time: number, index: number) => ({
+        time: time,
+        open: b.o?.[index],
+        high: b.h?.[index],
+        low: b.l?.[index],
+        close: b.c?.[index],
+      }));
     }
   }
 
   // Format events data - Simple filter, direct access in map
   let events: TokenEvent[] = [];
-  if (eventsResult.status === 'fulfilled' && eventsResult.value.getTokenEvents?.items) {
-      events = eventsResult.value.getTokenEvents.items
-          .filter(ev => ev != null) // Simple non-null check
-          .map((ev) => { // Let TS infer ev type (should be non-null SDK Event)
-            // Perform calculation safely
-            const decimals = details?.decimals ?? 18;
-            const swapValue = parseFloat(ev.token0SwapValueUsd || '0');
-            const amount0 = parseFloat(ev.data?.amount0 || '0');
-            const calculatedAmountUsd = swapValue * Math.abs(amount0 / (10 ** decimals));
+  if (
+    eventsResult.status === "fulfilled" &&
+    eventsResult.value.getTokenEvents?.items
+  ) {
+    events = eventsResult.value.getTokenEvents.items
+      .filter((ev) => ev != null) // Simple non-null check
+      .map((ev) => {
+        // Let TS infer ev type (should be non-null SDK Event)
+        // Perform calculation safely
+        const decimals = details?.decimals ?? 18;
+        const swapValue = parseFloat(ev.token0SwapValueUsd || "0");
+        const amount0 = parseFloat(ev.data?.amount0 || "0");
+        const calculatedAmountUsd =
+          swapValue * Math.abs(amount0 / 10 ** decimals);
 
-            return { // Map to TokenEvent
-              id: ev.id,
-              timestamp: ev.timestamp,
-              uniqueId: `${ev.id}-${ev.blockNumber}-${ev.transactionIndex}-${ev.logIndex}`,
-              transactionHash: ev.transactionHash,
-              eventDisplayType: ev.eventDisplayType,
-              amountUsd: calculatedAmountUsd,
-            }
-          });
+        return {
+          // Map to TokenEvent
+          id: ev.id,
+          timestamp: ev.timestamp,
+          uniqueId: `${ev.id}-${ev.blockNumber}-${ev.transactionIndex}-${ev.logIndex}`,
+          transactionHash: ev.transactionHash,
+          eventDisplayType: ev.eventDisplayType,
+          amountUsd: calculatedAmountUsd,
+        };
+      });
   }
 
-  if (detailsResult.status === 'rejected') console.error("Error fetching token details:", detailsResult.reason);
-  if (barsResult.status === 'rejected') console.error("Error fetching chart bars:", barsResult.reason);
-  if (eventsResult.status === 'rejected') console.error("Error fetching token events:", eventsResult.reason);
+  if (detailsResult.status === "rejected")
+    console.error("Error fetching token details:", detailsResult.reason);
+  if (barsResult.status === "rejected")
+    console.error("Error fetching chart bars:", barsResult.reason);
+  if (eventsResult.status === "rejected")
+    console.error("Error fetching token events:", eventsResult.reason);
 
   // Return all data including bars
   return { details, bars, events };
@@ -135,16 +169,23 @@ export default async function TokenPage({ params }: TokenPageProps) {
   if (isNaN(networkIdNum) || !tokenId) {
     return (
       <main className="flex min-h-screen flex-col items-center p-12 md:p-24">
-        <h1 className="text-2xl font-bold text-destructive">Invalid Network or Token ID</h1>
-        <Link href="/" className="mt-4 hover:underline">Go back home</Link>
+        <h1 className="text-2xl font-bold text-destructive">
+          Invalid Network or Token ID
+        </h1>
+        <Link href="/" className="mt-4 hover:underline">
+          Go back home
+        </Link>
       </main>
     );
   }
 
-  const { details, bars, events } = await getTokenPageData(networkIdNum, tokenId);
+  const { details, bars, events } = await getTokenPageData(
+    networkIdNum,
+    tokenId,
+  );
 
   const tokenName = details?.name || tokenId;
-  const tokenSymbol = details?.symbol ? `(${details.symbol})` : '';
+  const tokenSymbol = details?.symbol ? `(${details.symbol})` : "";
 
   return (
     <main className="flex min-h-screen flex-col items-center p-6 md:p-12 space-y-6">
@@ -153,7 +194,10 @@ export default async function TokenPage({ params }: TokenPageProps) {
         <h1 className="text-2xl md:text-3xl font-bold truncate pr-4">
           {tokenName} {tokenSymbol}
         </h1>
-        <Link href={`/networks/${networkId}`} className="text-sm hover:underline whitespace-nowrap">
+        <Link
+          href={`/networks/${networkId}`}
+          className="text-sm hover:underline whitespace-nowrap"
+        >
           &lt; Back to Network
         </Link>
       </div>
@@ -164,8 +208,22 @@ export default async function TokenPage({ params }: TokenPageProps) {
         {/* Left/Center Area (Chart and Transactions) */}
         <div className="lg:col-span-2 space-y-6">
           {/* Re-add Chart with Suspense */}
-          <Suspense fallback={<Card><CardHeader><CardTitle>Price Chart</CardTitle></CardHeader><CardContent><p>Loading chart...</p></CardContent></Card>}>
-             <TokenChart data={bars} title={`${tokenSymbol || 'Token'} Price Chart`} />
+          <Suspense
+            fallback={
+              <Card>
+                <CardHeader>
+                  <CardTitle>Price Chart</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <p>Loading chart...</p>
+                </CardContent>
+              </Card>
+            }
+          >
+            <TokenChart
+              data={bars}
+              title={`${tokenSymbol || "Token"} Price Chart`}
+            />
           </Suspense>
 
           {/* Transactions Table - Takes 2 columns */}
@@ -187,18 +245,28 @@ export default async function TokenPage({ params }: TokenPageProps) {
                   <TableBody>
                     {events.map((event) => (
                       <TableRow key={event.uniqueId || event.id}>
-                        <TableCell>{event.eventDisplayType || 'N/A'}</TableCell>
-                        <TableCell>{new Date(event.timestamp * 1000).toLocaleString()}</TableCell>
-                        <TableCell>{event.amountUsd ? `$${event.amountUsd.toFixed(2)}` : 'N/A'}</TableCell>
+                        <TableCell>{event.eventDisplayType || "N/A"}</TableCell>
+                        <TableCell>
+                          {new Date(event.timestamp * 1000).toLocaleString()}
+                        </TableCell>
+                        <TableCell>
+                          {event.amountUsd
+                            ? `$${event.amountUsd.toFixed(2)}`
+                            : "N/A"}
+                        </TableCell>
                         <TableCell className="truncate">
-                          <span title={event.transactionHash}>{event.transactionHash.substring(0, 8)}...</span>
+                          <span title={event.transactionHash}>
+                            {event.transactionHash.substring(0, 8)}...
+                          </span>
                         </TableCell>
                       </TableRow>
                     ))}
                   </TableBody>
                 </Table>
               ) : (
-                <p className="text-muted-foreground">No recent transaction data available.</p>
+                <p className="text-muted-foreground">
+                  No recent transaction data available.
+                </p>
               )}
             </CardContent>
           </Card>
@@ -209,21 +277,23 @@ export default async function TokenPage({ params }: TokenPageProps) {
           <Card>
             <CardHeader className="flex flex-row items-center space-x-4">
               {details?.info?.imageThumbUrl ? (
-                 <Image
-                    src={details.info.imageThumbUrl}
-                    alt={`${details.name || 'Token'} icon`}
-                    width={40}
-                    height={40}
-                    className="rounded-full"
-                  />
+                <Image
+                  src={details.info.imageThumbUrl}
+                  alt={`${details.name || "Token"} icon`}
+                  width={40}
+                  height={40}
+                  className="rounded-full"
+                />
               ) : (
-                  <div className="w-10 h-10 rounded-full bg-muted flex items-center justify-center text-lg font-semibold">
-                    {details?.symbol ? details.symbol[0] : 'T'}
-                  </div>
+                <div className="w-10 h-10 rounded-full bg-muted flex items-center justify-center text-lg font-semibold">
+                  {details?.symbol ? details.symbol[0] : "T"}
+                </div>
               )}
               <div>
                 <CardTitle>Information</CardTitle>
-                {details?.symbol && <CardDescription>{details.symbol}</CardDescription>}
+                {details?.symbol && (
+                  <CardDescription>{details.symbol}</CardDescription>
+                )}
               </div>
             </CardHeader>
             <CardContent className="space-y-2">
@@ -231,17 +301,27 @@ export default async function TokenPage({ params }: TokenPageProps) {
                 <>
                   <p className="text-sm">
                     <strong className="text-muted-foreground">Address:</strong>
-                    <span className="font-mono block break-all" title={details.address}>{details.address}</span>
+                    <span
+                      className="font-mono block break-all"
+                      title={details.address}
+                    >
+                      {details.address}
+                    </span>
                   </p>
                   {details.description && (
-                     <p className="text-sm">
-                        <strong className="text-muted-foreground">Description:</strong> {details.description}
-                     </p>
+                    <p className="text-sm">
+                      <strong className="text-muted-foreground">
+                        Description:
+                      </strong>{" "}
+                      {details.description}
+                    </p>
                   )}
                   {/* Add more details fields here */}
                 </>
               ) : (
-                <p className="text-muted-foreground">Token details could not be loaded.</p>
+                <p className="text-muted-foreground">
+                  Token details could not be loaded.
+                </p>
               )}
             </CardContent>
           </Card>
