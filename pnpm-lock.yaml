@@ -87,9 +87,6 @@ importers:
       graphql:
         specifier: ^16.9.0
         version: 16.12.0
-      graphql-ast-types:
-        specifier: ^1.0.2
-        version: 1.0.2(graphql@16.12.0)
       graphql-tag:
         specifier: ^2.12.6
         version: 2.12.6(graphql@16.12.0)
@@ -2927,11 +2924,6 @@ packages:
 
   graphemer@1.4.0:
     resolution: {integrity: sha512-EtKwoO6kxCL9WO5xipiHTZlSzBm7WLT627TqC/uVRd0HKmq8NXyebnNYxDoBi7wt8eTWrUrKXCOVaFq9x1kgag==}
-
-  graphql-ast-types@1.0.2:
-    resolution: {integrity: sha512-X/fPOuVsW1jor3/FIceloKZB4YGx5nsZ8/7z7mceIU6tw7AQTt+OZ0Xk+RWk9DZ0DLdmZ3kuh67fkzGR+U7j6Q==}
-    peerDependencies:
-      graphql: ^16.9.0
 
   graphql-config@4.5.0:
     resolution: {integrity: sha512-x6D0/cftpLUJ0Ch1e5sj1TZn6Wcxx4oMfmhaG9shM0DKajA9iR+j1z86GSTQ19fShbGvrSSvbIQsHku6aQ6BBw==}
@@ -8121,10 +8113,6 @@ snapshots:
   graceful-fs@4.2.11: {}
 
   graphemer@1.4.0: {}
-
-  graphql-ast-types@1.0.2(graphql@16.12.0):
-    dependencies:
-      graphql: 16.12.0
 
   graphql-config@4.5.0(@types/node@20.19.24)(graphql@16.12.0):
     dependencies:
