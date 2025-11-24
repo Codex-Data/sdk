@@ -10,6 +10,8 @@ import {
   DeleteApiTokenMutationVariables,
   DeleteWebhooksDocument,
   DeleteWebhooksMutationVariables,
+  RefreshBalancesDocument,
+  RefreshBalancesMutationVariables,
 } from "./generated/graphql";
 import { Codex } from "./index";
 
@@ -26,4 +28,6 @@ export class Mutation {
     this.sdk.mutation(DeleteApiTokenDocument, vars);
   deleteWebhooks = async (vars: DeleteWebhooksMutationVariables) =>
     this.sdk.mutation(DeleteWebhooksDocument, vars);
+  refreshBalances = async (vars: RefreshBalancesMutationVariables) =>
+    this.sdk.mutation(RefreshBalancesDocument, vars);
 }
