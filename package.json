@@ -1,6 +1,6 @@
 {
   "name": "@codex-data/sdk",
-  "version": "1.1.0-beta.1",
+  "version": "2.0.0",
   "engines": {
     "node": ">=17.5.0"
   },
@@ -50,7 +50,7 @@
     "blockchain",
     "api"
   ],
-  "repository": "github:codex-data/sdk",
+  "repository": "github:Codex-Data/sdk",
   "author": "Codex",
   "license": "MIT",
   "homepage": "https://docs.codex.io",

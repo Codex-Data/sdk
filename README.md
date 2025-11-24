@@ -206,3 +206,56 @@ Users installing without the `@beta` tag will continue to receive the latest sta
    ```
 
 > **Note:** The `prepublishOnly` script automatically runs the full build before publishing, ensuring the package is always built before release.
+
+# Upgrading to 2.0.0+
+
+There are a few breaking changes in 2.0.0 that you need to be aware of.
+
+### Imports
+
+**Before**
+```
+import { Codex } from "@codex-data/sdk";
+import { TokenRankingAttribute, RankingDirection } from "@codex-data/sdk/dist/sdk/generated/graphql";
+```
+
+**After**
+```
+import { Codex, TokenRankingAttribute, RankingDirection } from "@codex-data/sdk";
+```
+
+**Before**
+```tsx
+import { Codex, GraphQL } from "@codex-data/sdk";
+
+const [quoteToken, setQuoteToken] = useState<GraphQL.QuoteToken>(GraphQL.QuoteToken.Token0);
+```
+
+**After**
+```tsx
+import { Codex, QuoteToken } from "@codex-data/sdk";
+
+const [quoteToken, setQuoteToken] = useState<QuoteToken>(QuoteToken.Token0);
+```
+
+### `onLaunchpadTokenEventBatch`
+
+**Before**
+```tsx
+const unsubscribeFn = codex.subscriptions.onLaunchpadTokenEventBatch(
+  {
+    networkId: networkId
+  }
+)
+```
+
+**After**
+```tsx
+const unsubscribeFn = codex.subscriptions.onLaunchpadTokenEventBatch(
+  {
+    input: {
+      networkId: networkId
+    }
+  }
+)
+```
