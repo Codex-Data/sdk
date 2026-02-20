@@ -202,6 +202,8 @@ events.getTokenEvents?.items?.forEach((event) => {
 
 ## Stream Real-Time Prices
 
+> **Note:** WebSocket subscriptions require a [paid plan](https://dashboard.codex.io/dashboard/billing).
+
 Subscribe to live price updates via WebSocket. Fires on every on-chain swap.
 
 ```typescript
@@ -228,6 +230,8 @@ const unsubscribe = sdk.subscriptions.onPriceUpdated(
 
 ## Stream Real-Time OHLCV Bars
 
+> **Note:** WebSocket subscriptions require a [paid plan](https://dashboard.codex.io/dashboard/billing).
+
 Get live candlestick updates across all resolutions simultaneously.
 
 ```typescript
@@ -253,6 +257,8 @@ const unsubscribe = sdk.subscriptions.onBarsUpdated(
 ```
 
 ## Stream Live Trades
+
+> **Note:** WebSocket subscriptions require a [paid plan](https://dashboard.codex.io/dashboard/billing).
 
 Watch buy/sell events as they happen on any trading pair.
 
@@ -327,75 +333,75 @@ IDs in the Codex API follow the pattern `address:networkId`:
 
 | Method | Description |
 | --- | --- |
-| `getTokenPrices` | Get current or historical USD prices for up to 25 tokens |
-| `getBars` | Get OHLCV candlestick data for a trading pair |
-| `getTokenBars` | Get OHLCV data for a token across all pairs |
-| `filterTokens` | Search and filter tokens by price, volume, market cap, liquidity |
-| `filterPairs` | Search and filter trading pairs |
-| `token` | Get metadata for a single token |
-| `tokens` | Get metadata for multiple tokens |
-| `balances` | Get wallet token balances with USD values |
-| `holders` | Get token holder list sorted by balance |
-| `top10HoldersPercent` | Get percentage held by top 10 wallets |
-| `getTokenEvents` | Get buy/sell/mint/burn trade events |
-| `getTokenEventsForMaker` | Get trade events for a specific wallet |
-| `filterTokenWallets` | Get per-wallet trading stats (profit/loss, buy/sell counts) |
-| `filterWallets` | Filter wallets by trading statistics |
-| `detailedWalletStats` | Get comprehensive wallet analytics |
-| `pairMetadata` | Get trading pair stats and metadata |
-| `listPairsForToken` | List all trading pairs for a token |
-| `listPairsWithMetadataForToken` | List pairs with full metadata |
-| `getDetailedPairStats` | Get detailed bucketed stats for a pair |
-| `getDetailedPairsStats` | Get detailed stats for multiple pairs |
-| `tokenSparklines` | Get sparkline price data for tokens |
-| `tokenTopTraders` | Get top traders for a token |
-| `tokenLifecycleEvents` | Get token creation and migration events |
-| `getNetworks` | List all 80+ supported networks |
-| `getNetworkConfigs` | Get network configuration details |
-| `getNetworkStats` | Get network-level statistics |
-| `getNetworkStatus` | Get network sync status |
-| `liquidityLocks` | Get liquidity lock information |
-| `liquidityMetadata` | Get liquidity pool metadata |
-| `chartUrls` | Get pre-rendered chart image URLs |
-| `getExchanges` | Get DEX information |
-| `filterExchanges` | Filter decentralized exchanges |
-| `walletChart` | Get wallet portfolio chart data |
-| `blocks` | Get block data by number or timestamp |
+| [`filterTokens`](https://docs.codex.io/api-reference/queries/filtertokens) | Search and filter tokens by price, volume, market cap, liquidity |
+| [`getTokenPrices`](https://docs.codex.io/api-reference/queries/gettokenprices) | Get current or historical USD prices for up to 25 tokens |
+| [`getBars`](https://docs.codex.io/api-reference/queries/getbars) | Get OHLCV candlestick data for a trading pair |
+| [`holders`](https://docs.codex.io/api-reference/queries/holders) | Get token holder list sorted by balance ([paid](https://dashboard.codex.io/dashboard/billing)) |
+| [`filterPairs`](https://docs.codex.io/api-reference/queries/filterpairs) | Search and filter trading pairs |
+| [`balances`](https://docs.codex.io/api-reference/queries/balances) | Get wallet token balances with USD values ([paid](https://dashboard.codex.io/dashboard/billing)) |
+| [`getTokenEvents`](https://docs.codex.io/api-reference/queries/gettokenevents) | Get buy/sell/mint/burn trade events |
+| [`pairMetadata`](https://docs.codex.io/api-reference/queries/pairmetadata) | Get trading pair stats and metadata |
+| [`token`](https://docs.codex.io/api-reference/queries/token) | Get metadata for a single token |
+| [`listPairsWithMetadataForToken`](https://docs.codex.io/api-reference/queries/listpairswithmetadatafortoken) | List pairs with full metadata |
+| [`getTokenEventsForMaker`](https://docs.codex.io/api-reference/queries/gettokeneventsformaker) | Get trade events for a specific wallet |
+| [`getDetailedPairStats`](https://docs.codex.io/api-reference/queries/getdetailedpairstats) | Get detailed bucketed stats for a pair |
+| [`listPairsForToken`](https://docs.codex.io/api-reference/queries/listpairsfortoken) | List all trading pairs for a token |
+| [`tokenTopTraders`](https://docs.codex.io/api-reference/queries/tokentoptraders) | Get top traders for a token |
+| [`tokens`](https://docs.codex.io/api-reference/queries/tokens) | Get metadata for multiple tokens |
+| [`top10HoldersPercent`](https://docs.codex.io/api-reference/queries/top10holderspercent) | Get percentage held by top 10 wallets |
+| [`getDetailedPairsStats`](https://docs.codex.io/api-reference/queries/getdetailedpairsstats) | Get detailed stats for multiple pairs |
+| [`filterTokenWallets`](https://docs.codex.io/api-reference/queries/filtertokenwallets) | Get per-wallet trading stats (profit/loss, buy/sell counts) ([paid](https://dashboard.codex.io/dashboard/billing)) |
+| [`liquidityMetadata`](https://docs.codex.io/api-reference/queries/liquiditymetadata) | Get liquidity pool metadata ([paid](https://dashboard.codex.io/dashboard/billing)) |
+| [`tokenSparklines`](https://docs.codex.io/api-reference/queries/tokensparklines) | Get sparkline price data for tokens |
+| [`filterWallets`](https://docs.codex.io/api-reference/queries/filterwallets) | Filter wallets by trading statistics ([paid](https://dashboard.codex.io/dashboard/billing)) |
+| [`detailedWalletStats`](https://docs.codex.io/api-reference/queries/detailedwalletstats) | Get comprehensive wallet analytics ([paid](https://dashboard.codex.io/dashboard/billing)) |
+| [`getExchanges`](https://docs.codex.io/api-reference/queries/getexchanges) | Get DEX information |
+| [`getNetworks`](https://docs.codex.io/api-reference/queries/getnetworks) | List all 80+ supported networks |
+| [`getTokenBars`](https://docs.codex.io/api-reference/queries/gettokenbars) | Get OHLCV data for a token across all pairs |
+| [`chartUrls`](https://docs.codex.io/api-reference/queries/charturls) | Get pre-rendered chart image URLs ([paid](https://dashboard.codex.io/dashboard/billing)) |
+| [`walletChart`](https://docs.codex.io/api-reference/queries/walletchart) | Get wallet portfolio chart data ([paid](https://dashboard.codex.io/dashboard/billing)) |
+| [`filterExchanges`](https://docs.codex.io/api-reference/queries/filterexchanges) | Filter decentralized exchanges |
+| [`liquidityLocks`](https://docs.codex.io/api-reference/queries/liquiditylocks) | Get liquidity lock information ([paid](https://dashboard.codex.io/dashboard/billing)) |
+| [`getNetworkConfigs`](https://docs.codex.io/api-reference/queries/getnetworkconfigs) | Get network configuration details |
+| [`getNetworkStats`](https://docs.codex.io/api-reference/queries/getnetworkstats) | Get network-level statistics |
+| [`getNetworkStatus`](https://docs.codex.io/api-reference/queries/getnetworkstatus) | Get network sync status |
+| [`tokenLifecycleEvents`](https://docs.codex.io/api-reference/queries/tokenlifecycleevents) | Get token creation and migration events |
+| [`blocks`](https://docs.codex.io/api-reference/queries/blocks) | Get block data by number or timestamp |
 
-### Subscriptions (`sdk.subscriptions.*`)
+### Subscriptions (`sdk.subscriptions.*`) — [paid plan](https://dashboard.codex.io/dashboard/billing) required
 
 | Method | Description |
 | --- | --- |
-| `onPriceUpdated` | Real-time price for a single token |
-| `onPricesUpdated` | Real-time prices for multiple tokens |
-| `onBarsUpdated` | Real-time OHLCV bars for a trading pair |
-| `onTokenBarsUpdated` | Real-time OHLCV bars for a token |
-| `onEventsCreated` | Live buy/sell events for a pair |
-| `onTokenEventsCreated` | Live events across all pools for a token |
-| `onEventsCreatedByMaker` | Live events for a specific wallet |
-| `onHoldersUpdated` | Live holder count and balance changes |
-| `onBalanceUpdated` | Live wallet balance updates |
-| `onPairMetadataUpdated` | Live pair stat updates |
-| `onDetailedStatsUpdated` | Live detailed stats updates |
-| `onLatestPairUpdated` | New trading pair creation events |
-| `onLatestTokens` | New token creation events |
-| `onLaunchpadTokenEvent` | Individual launchpad events (Pump.fun, etc.) |
-| `onLaunchpadTokenEventBatch` | Batched launchpad events |
-| `onTokenLifecycleEventsCreated` | Token lifecycle events |
-| `onUnconfirmedEventsCreated` | Unconfirmed (mempool) trade events |
-| `onUnconfirmedBarsUpdated` | Unconfirmed bar updates |
-| `onNftEventsCreated` | NFT trade events |
+| [`onPairMetadataUpdated`](https://docs.codex.io/api-reference/subscriptions/onpairmetadataupdated) | Live pair stat updates |
+| [`onLaunchpadTokenEventBatch`](https://docs.codex.io/api-reference/subscriptions/onlaunchpadtokeneventbatch) | Batched launchpad events |
+| [`onBarsUpdated`](https://docs.codex.io/api-reference/subscriptions/onbarsupdated) | Real-time OHLCV bars for a trading pair |
+| [`onPriceUpdated`](https://docs.codex.io/api-reference/subscriptions/onpriceupdated) | Real-time price for a single token |
+| [`onHoldersUpdated`](https://docs.codex.io/api-reference/subscriptions/onholdersupdated) | Live holder count and balance changes |
+| [`onDetailedStatsUpdated`](https://docs.codex.io/api-reference/subscriptions/ondetailedstatsupdated) | Live detailed stats updates |
+| [`onEventsCreated`](https://docs.codex.io/api-reference/subscriptions/oneventscreated) | Live buy/sell events for a pair |
+| [`onPricesUpdated`](https://docs.codex.io/api-reference/subscriptions/onpricesupdated) | Real-time prices for multiple tokens |
+| [`onUnconfirmedEventsCreated`](https://docs.codex.io/api-reference/subscriptions/onunconfirmedeventscreated) | Unconfirmed (mempool) trade events |
+| [`onTokenEventsCreated`](https://docs.codex.io/api-reference/subscriptions/ontokeneventscreated) | Live events across all pools for a token |
+| [`onLaunchpadTokenEvent`](https://docs.codex.io/api-reference/subscriptions/onlaunchpadtokenevent) | Individual launchpad events (Pump.fun, etc.) |
+| [`onTokenBarsUpdated`](https://docs.codex.io/api-reference/subscriptions/ontokenbarsupdated) | Real-time OHLCV bars for a token |
+| [`onLatestPairUpdated`](https://docs.codex.io/api-reference/subscriptions/onlatestpairupdated) | New trading pair creation events |
+| [`onUnconfirmedBarsUpdated`](https://docs.codex.io/api-reference/subscriptions/onunconfirmedbarsupdated) | Unconfirmed bar updates |
+| [`onEventsCreatedByMaker`](https://docs.codex.io/api-reference/subscriptions/oneventscreatedbymaker) | Live events for a specific wallet |
+| [`onBalanceUpdated`](https://docs.codex.io/api-reference/subscriptions/onbalanceupdated) | Live wallet balance updates |
+| [`onTokenLifecycleEventsCreated`](https://docs.codex.io/api-reference/subscriptions/ontokenlifecycleeventscreated) | Token lifecycle events |
+| [`onLatestTokens`](https://docs.codex.io/api-reference/subscriptions/onlatesttokens) | New token creation events |
+| [`onNftEventsCreated`](https://docs.codex.io/api-reference/subscriptions/onnfteventscreated) | NFT trade events |
 
 ### Mutations (`sdk.mutations.*`)
 
 | Method | Description |
 | --- | --- |
-| `createWebhooks` | Create webhook alerts |
-| `deleteWebhooks` | Delete webhook alerts |
-| `createApiTokens` | Create short-lived API tokens for client-side use |
-| `deleteApiToken` | Delete an API token |
-| `backfillWalletAggregates` | Trigger wallet data backfill |
-| `refreshBalances` | Refresh wallet balances |
+| [`createWebhooks`](https://docs.codex.io/api-reference/mutations/createwebhooks) | Create webhook alerts ([paid](https://dashboard.codex.io/dashboard/billing)) |
+| [`deleteWebhooks`](https://docs.codex.io/api-reference/mutations/deletewebhooks) | Delete webhook alerts ([paid](https://dashboard.codex.io/dashboard/billing)) |
+| [`backfillWalletAggregates`](https://docs.codex.io/api-reference/mutations/backfillwalletaggregates) | Trigger wallet data backfill ([paid](https://dashboard.codex.io/dashboard/billing)) |
+| [`createApiTokens`](https://docs.codex.io/api-reference/mutations/createapitokens) | Create short-lived API tokens for client-side use ([paid](https://dashboard.codex.io/dashboard/billing)) |
+| [`deleteApiToken`](https://docs.codex.io/api-reference/mutations/deleteapitoken) | Delete an API token ([paid](https://dashboard.codex.io/dashboard/billing)) |
+| [`refreshBalances`](https://docs.codex.io/api-reference/mutations/refreshbalances) | Refresh wallet balances |
 
 ## Configuration
 
