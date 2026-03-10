@@ -378,6 +378,7 @@ IDs in the Codex API follow the pattern `address:networkId`:
 | [`onPriceUpdated`](https://docs.codex.io/api-reference/subscriptions/onpriceupdated) | Real-time price for a single token |
 | [`onHoldersUpdated`](https://docs.codex.io/api-reference/subscriptions/onholdersupdated) | Live holder count and balance changes |
 | [`onDetailedStatsUpdated`](https://docs.codex.io/api-reference/subscriptions/ondetailedstatsupdated) | Live detailed stats updates |
+| [`onDetailedTokenStatsUpdated`](https://docs.codex.io/api-reference/subscriptions/ondetailedtokenstatsupdated) | Live detailed token stats aggregated across pools |
 | [`onEventsCreated`](https://docs.codex.io/api-reference/subscriptions/oneventscreated) | Live buy/sell events for a pair |
 | [`onPricesUpdated`](https://docs.codex.io/api-reference/subscriptions/onpricesupdated) | Real-time prices for multiple tokens |
 | [`onUnconfirmedEventsCreated`](https://docs.codex.io/api-reference/subscriptions/onunconfirmedeventscreated) | Unconfirmed (mempool) trade events |
