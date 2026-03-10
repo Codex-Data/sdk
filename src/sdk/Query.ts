@@ -30,6 +30,8 @@ import {
   GetDetailedPairsStatsQueryVariables,
   GetDetailedPairStatsDocument,
   GetDetailedPairStatsQueryVariables,
+  GetDetailedTokenStatsDocument,
+  GetDetailedTokenStatsQueryVariables,
   GetEventLabelsDocument,
   GetEventLabelsQueryVariables,
   GetExchangesDocument,
@@ -119,6 +121,8 @@ export class Query {
     this.sdk.query(GetDetailedPairStatsDocument, vars);
   getDetailedPairsStats = async (vars: GetDetailedPairsStatsQueryVariables) =>
     this.sdk.query(GetDetailedPairsStatsDocument, vars);
+  getDetailedTokenStats = async (vars: GetDetailedTokenStatsQueryVariables) =>
+    this.sdk.query(GetDetailedTokenStatsDocument, vars);
   getEventLabels = async (vars: GetEventLabelsQueryVariables) =>
     this.sdk.query(GetEventLabelsDocument, vars);
   getExchanges = async (vars: GetExchangesQueryVariables) =>
