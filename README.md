@@ -441,6 +441,15 @@ pnpm run test   # Run tests
 pnpm run lint   # Lint the codebase
 ```
 
+## Releasing
+
+On a branch, make your changes then: 
+
+- `pnpm run build`
+- change `package.json` version accordingly
+- merge to main
+- create a github release with the same tag as the version in `package.json`
+
 ## Upgrading to v2
 
 See [UPGRADING.md](./UPGRADING.md) for migration instructions from v1 to v2.
