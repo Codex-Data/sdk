@@ -10,12 +10,26 @@ import {
   BlocksQueryVariables,
   ChartUrlsDocument,
   ChartUrlsQueryVariables,
+  DetailedPredictionEventStatsDocument,
+  DetailedPredictionEventStatsQueryVariables,
+  DetailedPredictionMarketStatsDocument,
+  DetailedPredictionMarketStatsQueryVariables,
+  DetailedPredictionTraderStatsDocument,
+  DetailedPredictionTraderStatsQueryVariables,
   DetailedWalletStatsDocument,
   DetailedWalletStatsQueryVariables,
   FilterExchangesDocument,
   FilterExchangesQueryVariables,
   FilterPairsDocument,
   FilterPairsQueryVariables,
+  FilterPredictionEventsDocument,
+  FilterPredictionEventsQueryVariables,
+  FilterPredictionMarketsDocument,
+  FilterPredictionMarketsQueryVariables,
+  FilterPredictionTraderMarketsDocument,
+  FilterPredictionTraderMarketsQueryVariables,
+  FilterPredictionTradersDocument,
+  FilterPredictionTradersQueryVariables,
   FilterTokensDocument,
   FilterTokensQueryVariables,
   FilterTokenWalletsDocument,
@@ -70,6 +84,26 @@ import {
   ListPairsWithMetadataForTokenQueryVariables,
   PairMetadataDocument,
   PairMetadataQueryVariables,
+  PredictionCategoriesDocument,
+  PredictionCategoriesQueryVariables,
+  PredictionEventBarsDocument,
+  PredictionEventBarsQueryVariables,
+  PredictionEventTopMarketsBarsDocument,
+  PredictionEventTopMarketsBarsQueryVariables,
+  PredictionMarketBarsDocument,
+  PredictionMarketBarsQueryVariables,
+  PredictionMarketsDocument,
+  PredictionMarketsQueryVariables,
+  PredictionTokenHoldersDocument,
+  PredictionTokenHoldersQueryVariables,
+  PredictionTraderBarsDocument,
+  PredictionTraderBarsQueryVariables,
+  PredictionTraderMarketsStatsDocument,
+  PredictionTraderMarketsStatsQueryVariables,
+  PredictionTradersDocument,
+  PredictionTradersQueryVariables,
+  PredictionTradesDocument,
+  PredictionTradesQueryVariables,
   TokenDocument,
   TokenLifecycleEventsDocument,
   TokenLifecycleEventsQueryVariables,
@@ -101,12 +135,32 @@ export class Query {
     this.sdk.query(BlocksDocument, vars);
   chartUrls = async (vars: ChartUrlsQueryVariables) =>
     this.sdk.query(ChartUrlsDocument, vars);
+  detailedPredictionEventStats = async (
+    vars: DetailedPredictionEventStatsQueryVariables,
+  ) => this.sdk.query(DetailedPredictionEventStatsDocument, vars);
+  detailedPredictionMarketStats = async (
+    vars: DetailedPredictionMarketStatsQueryVariables,
+  ) => this.sdk.query(DetailedPredictionMarketStatsDocument, vars);
+  detailedPredictionTraderStats = async (
+    vars: DetailedPredictionTraderStatsQueryVariables,
+  ) => this.sdk.query(DetailedPredictionTraderStatsDocument, vars);
   detailedWalletStats = async (vars: DetailedWalletStatsQueryVariables) =>
     this.sdk.query(DetailedWalletStatsDocument, vars);
   filterExchanges = async (vars: FilterExchangesQueryVariables) =>
     this.sdk.query(FilterExchangesDocument, vars);
   filterPairs = async (vars: FilterPairsQueryVariables) =>
     this.sdk.query(FilterPairsDocument, vars);
+  filterPredictionEvents = async (vars: FilterPredictionEventsQueryVariables) =>
+    this.sdk.query(FilterPredictionEventsDocument, vars);
+  filterPredictionMarkets = async (
+    vars: FilterPredictionMarketsQueryVariables,
+  ) => this.sdk.query(FilterPredictionMarketsDocument, vars);
+  filterPredictionTraderMarkets = async (
+    vars: FilterPredictionTraderMarketsQueryVariables,
+  ) => this.sdk.query(FilterPredictionTraderMarketsDocument, vars);
+  filterPredictionTraders = async (
+    vars: FilterPredictionTradersQueryVariables,
+  ) => this.sdk.query(FilterPredictionTradersDocument, vars);
   filterTokenWallets = async (vars: FilterTokenWalletsQueryVariables) =>
     this.sdk.query(FilterTokenWalletsDocument, vars);
   filterTokens = async (vars: FilterTokensQueryVariables) =>
@@ -163,6 +217,28 @@ export class Query {
   ) => this.sdk.query(ListPairsWithMetadataForTokenDocument, vars);
   pairMetadata = async (vars: PairMetadataQueryVariables) =>
     this.sdk.query(PairMetadataDocument, vars);
+  predictionCategories = async (vars: PredictionCategoriesQueryVariables) =>
+    this.sdk.query(PredictionCategoriesDocument, vars);
+  predictionEventBars = async (vars: PredictionEventBarsQueryVariables) =>
+    this.sdk.query(PredictionEventBarsDocument, vars);
+  predictionEventTopMarketsBars = async (
+    vars: PredictionEventTopMarketsBarsQueryVariables,
+  ) => this.sdk.query(PredictionEventTopMarketsBarsDocument, vars);
+  predictionMarketBars = async (vars: PredictionMarketBarsQueryVariables) =>
+    this.sdk.query(PredictionMarketBarsDocument, vars);
+  predictionMarkets = async (vars: PredictionMarketsQueryVariables) =>
+    this.sdk.query(PredictionMarketsDocument, vars);
+  predictionTokenHolders = async (vars: PredictionTokenHoldersQueryVariables) =>
+    this.sdk.query(PredictionTokenHoldersDocument, vars);
+  predictionTraderBars = async (vars: PredictionTraderBarsQueryVariables) =>
+    this.sdk.query(PredictionTraderBarsDocument, vars);
+  predictionTraderMarketsStats = async (
+    vars: PredictionTraderMarketsStatsQueryVariables,
+  ) => this.sdk.query(PredictionTraderMarketsStatsDocument, vars);
+  predictionTraders = async (vars: PredictionTradersQueryVariables) =>
+    this.sdk.query(PredictionTradersDocument, vars);
+  predictionTrades = async (vars: PredictionTradesQueryVariables) =>
+    this.sdk.query(PredictionTradesDocument, vars);
   token = async (vars: TokenQueryVariables) =>
     this.sdk.query(TokenDocument, vars);
   tokenLifecycleEvents = async (vars: TokenLifecycleEventsQueryVariables) =>
