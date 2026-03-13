@@ -213,6 +213,8 @@ export type BalancesInput = {
   removeScams?: InputMaybe<Scalars['Boolean']['input']>;
   /** The attribute to sort the list on. Defaults to BALANCE (raw token amount). */
   sortBy?: InputMaybe<BalancesSortAttribute>;
+  /** The direction to sort the list. Defaults to DESC (highest value first). */
+  sortDirection?: InputMaybe<RankingDirection>;
   /** The token IDs (`address:networkId`) or addresses to request the balance for. Requires a list of `networks` if only passing addresses. Include native network balances using `native` as the token address. Only applied when using `walletAddress` (not `walletId`). Max 200 tokens. */
   tokens?: InputMaybe<Array<Scalars['String']['input']>>;
   /** The wallet address to filter by. */
@@ -8949,10 +8951,10 @@ export type PredictionTraderBarsInput = {
 
 /** The time resolution for prediction trader bar data. */
 export enum PredictionTraderBarsResolution {
-  Day1 = 'DAY1',
-  Hour1 = 'HOUR1',
-  Hour4 = 'HOUR4',
-  Week1 = 'WEEK1'
+  Day1 = 'day1',
+  Hour1 = 'hour1',
+  Hour4 = 'hour4',
+  Week1 = 'week1'
 }
 
 /** Response returned by `predictionTraderBars`. */
