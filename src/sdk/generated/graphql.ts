@@ -213,6 +213,8 @@ export type BalancesInput = {
   removeScams?: InputMaybe<Scalars['Boolean']['input']>;
   /** The attribute to sort the list on. Defaults to BALANCE (raw token amount). */
   sortBy?: InputMaybe<BalancesSortAttribute>;
+  /** The direction to sort the list. Defaults to DESC (highest value first). */
+  sortDirection?: InputMaybe<RankingDirection>;
   /** The token IDs (`address:networkId`) or addresses to request the balance for. Requires a list of `networks` if only passing addresses. Include native network balances using `native` as the token address. Only applied when using `walletAddress` (not `walletId`). Max 200 tokens. */
   tokens?: InputMaybe<Array<Scalars['String']['input']>>;
   /** The wallet address to filter by. */
@@ -5745,9 +5747,9 @@ export type OnEventsCreatedByMakerInput = {
 export type OnLaunchpadTokenEventBatchInput = {
   /** The type of event. */
   eventType?: InputMaybe<LaunchpadTokenEventType>;
-  /** The name of the launchpad. One of the following: Pump.fun, Pump Mayhem, Bonk, BONAD.fun, Nad.Fun, Baseapp, Baseapp Creator, Zora, Zora Creator, Four.meme, Four.meme Fair, Believe, Moonshot, Jupiter Studio, boop, Heaven, TokenMill V2, Virtuals, Clanker, Clanker V4, ArenaTrade, Moonit, LaunchLab, MeteoraDBC, Zora Solana, Cooking.City, time.fun, BAGS, Circus, Dealr, OhFuckFun, PrintFun, Trend, shout.fun, xApple, Sendshot, DubDub, cults, OpenGameProtocol, AMERICA.fun, Kumbaya, Printr, Bankr, Noice, Flaunch, Coinbarrel, Blowfish. */
+  /** The name of the launchpad. One of the following: Pump.fun, Pump Mayhem, Bonk, BONAD.fun, Nad.Fun, Baseapp, Baseapp Creator, Zora, Zora Creator, Four.meme, Four.meme Fair, Believe, Moonshot, Jupiter Studio, boop, Heaven, TokenMill V2, Virtuals, Clanker, Clanker V4, ArenaTrade, Moonit, LaunchLab, MeteoraDBC, Zora Solana, Cooking.City, time.fun, BAGS, Circus, Dealr, OhFuckFun, PrintFun, Trend, shout.fun, xApple, Sendshot, DubDub, cults, OpenGameProtocol, AMERICA.fun, Kumbaya, Printr, Bankr, Noice, Flaunch, Coinbarrel, Blowfish, MeMoo. */
   launchpadName?: InputMaybe<Scalars['String']['input']>;
-  /** A list of launchpad names. Any of the following: Pump.fun, Pump Mayhem, Bonk, BONAD.fun, Nad.Fun, Baseapp, Baseapp Creator, Zora, Zora Creator, Four.meme, Four.meme Fair, Believe, Moonshot, Jupiter Studio, boop, Heaven, TokenMill V2, Virtuals, Clanker, Clanker V4, ArenaTrade, Moonit, LaunchLab, MeteoraDBC, Zora Solana, Cooking.City, time.fun, BAGS, Circus, Dealr, OhFuckFun, PrintFun, Trend, shout.fun, xApple, Sendshot, DubDub, cults, OpenGameProtocol, AMERICA.fun, Kumbaya, Printr, Bankr, Noice, Flaunch, Coinbarrel, Blowfish. */
+  /** A list of launchpad names. Any of the following: Pump.fun, Pump Mayhem, Bonk, BONAD.fun, Nad.Fun, Baseapp, Baseapp Creator, Zora, Zora Creator, Four.meme, Four.meme Fair, Believe, Moonshot, Jupiter Studio, boop, Heaven, TokenMill V2, Virtuals, Clanker, Clanker V4, ArenaTrade, Moonit, LaunchLab, MeteoraDBC, Zora Solana, Cooking.City, time.fun, BAGS, Circus, Dealr, OhFuckFun, PrintFun, Trend, shout.fun, xApple, Sendshot, DubDub, cults, OpenGameProtocol, AMERICA.fun, Kumbaya, Printr, Bankr, Noice, Flaunch, Coinbarrel, Blowfish, MeMoo. */
   launchpadNames?: InputMaybe<Array<Scalars['String']['input']>>;
   /** The network ID that the token is deployed on. */
   networkId?: InputMaybe<Scalars['Int']['input']>;
@@ -5763,9 +5765,9 @@ export type OnLaunchpadTokenEventInput = {
   address?: InputMaybe<Scalars['String']['input']>;
   /** The type of event. */
   eventType?: InputMaybe<LaunchpadTokenEventType>;
-  /** The name of the launchpad. One of the following: Pump.fun, Pump Mayhem, Bonk, BONAD.fun, Nad.Fun, Baseapp, Baseapp Creator, Zora, Zora Creator, Four.meme, Four.meme Fair, Believe, Moonshot, Jupiter Studio, boop, Heaven, TokenMill V2, Virtuals, Clanker, Clanker V4, ArenaTrade, Moonit, LaunchLab, MeteoraDBC, Zora Solana, Cooking.City, time.fun, BAGS, Circus, Dealr, OhFuckFun, PrintFun, Trend, shout.fun, xApple, Sendshot, DubDub, cults, OpenGameProtocol, AMERICA.fun, Kumbaya, Printr, Bankr, Noice, Flaunch, Coinbarrel, Blowfish. */
+  /** The name of the launchpad. One of the following: Pump.fun, Pump Mayhem, Bonk, BONAD.fun, Nad.Fun, Baseapp, Baseapp Creator, Zora, Zora Creator, Four.meme, Four.meme Fair, Believe, Moonshot, Jupiter Studio, boop, Heaven, TokenMill V2, Virtuals, Clanker, Clanker V4, ArenaTrade, Moonit, LaunchLab, MeteoraDBC, Zora Solana, Cooking.City, time.fun, BAGS, Circus, Dealr, OhFuckFun, PrintFun, Trend, shout.fun, xApple, Sendshot, DubDub, cults, OpenGameProtocol, AMERICA.fun, Kumbaya, Printr, Bankr, Noice, Flaunch, Coinbarrel, Blowfish, MeMoo. */
   launchpadName?: InputMaybe<Scalars['String']['input']>;
-  /** A list of launchpad names. Any of the following: Pump.fun, Pump Mayhem, Bonk, BONAD.fun, Nad.Fun, Baseapp, Baseapp Creator, Zora, Zora Creator, Four.meme, Four.meme Fair, Believe, Moonshot, Jupiter Studio, boop, Heaven, TokenMill V2, Virtuals, Clanker, Clanker V4, ArenaTrade, Moonit, LaunchLab, MeteoraDBC, Zora Solana, Cooking.City, time.fun, BAGS, Circus, Dealr, OhFuckFun, PrintFun, Trend, shout.fun, xApple, Sendshot, DubDub, cults, OpenGameProtocol, AMERICA.fun, Kumbaya, Printr, Bankr, Noice, Flaunch, Coinbarrel, Blowfish. */
+  /** A list of launchpad names. Any of the following: Pump.fun, Pump Mayhem, Bonk, BONAD.fun, Nad.Fun, Baseapp, Baseapp Creator, Zora, Zora Creator, Four.meme, Four.meme Fair, Believe, Moonshot, Jupiter Studio, boop, Heaven, TokenMill V2, Virtuals, Clanker, Clanker V4, ArenaTrade, Moonit, LaunchLab, MeteoraDBC, Zora Solana, Cooking.City, time.fun, BAGS, Circus, Dealr, OhFuckFun, PrintFun, Trend, shout.fun, xApple, Sendshot, DubDub, cults, OpenGameProtocol, AMERICA.fun, Kumbaya, Printr, Bankr, Noice, Flaunch, Coinbarrel, Blowfish, MeMoo. */
   launchpadNames?: InputMaybe<Array<Scalars['String']['input']>>;
   /** The network ID that the token is deployed on. */
   networkId?: InputMaybe<Scalars['Int']['input']>;
@@ -8949,10 +8951,10 @@ export type PredictionTraderBarsInput = {
 
 /** The time resolution for prediction trader bar data. */
 export enum PredictionTraderBarsResolution {
-  Day1 = 'DAY1',
-  Hour1 = 'HOUR1',
-  Hour4 = 'HOUR4',
-  Week1 = 'WEEK1'
+  Day1 = 'day1',
+  Hour1 = 'hour1',
+  Hour4 = 'hour4',
+  Week1 = 'week1'
 }
 
 /** Response returned by `predictionTraderBars`. */
@@ -10293,7 +10295,6 @@ export type PumpData = {
   type: Scalars['String']['output'];
 };
 
-/** Prediction data queries for markets, events, outcomes, traders, and analytics. */
 export type Query = {
   __typename?: 'Query';
   /** Get the active short-lived api token for this api key by the short-lived token */
@@ -10564,55 +10565,46 @@ export type Query = {
 };
 
 
-/** Prediction data queries for markets, events, outcomes, traders, and analytics. */
 export type QueryApiTokenArgs = {
   token: Scalars['String']['input'];
 };
 
 
-/** Prediction data queries for markets, events, outcomes, traders, and analytics. */
 export type QueryBalancesArgs = {
   input: BalancesInput;
 };
 
 
-/** Prediction data queries for markets, events, outcomes, traders, and analytics. */
 export type QueryBlocksArgs = {
   input: BlocksInput;
 };
 
 
-/** Prediction data queries for markets, events, outcomes, traders, and analytics. */
 export type QueryChartUrlsArgs = {
   input: ChartInput;
 };
 
 
-/** Prediction data queries for markets, events, outcomes, traders, and analytics. */
 export type QueryDetailedPredictionEventStatsArgs = {
   input: DetailedPredictionEventStatsInput;
 };
 
 
-/** Prediction data queries for markets, events, outcomes, traders, and analytics. */
 export type QueryDetailedPredictionMarketStatsArgs = {
   input: DetailedPredictionMarketStatsInput;
 };
 
 
-/** Prediction data queries for markets, events, outcomes, traders, and analytics. */
 export type QueryDetailedPredictionTraderStatsArgs = {
   input: DetailedPredictionTraderStatsInput;
 };
 
 
-/** Prediction data queries for markets, events, outcomes, traders, and analytics. */
 export type QueryDetailedWalletStatsArgs = {
   input: DetailedWalletStatsInput;
 };
 
 
-/** Prediction data queries for markets, events, outcomes, traders, and analytics. */
 export type QueryFilterExchangesArgs = {
   filters?: InputMaybe<ExchangeFilters>;
   limit?: InputMaybe<Scalars['Int']['input']>;
@@ -10622,13 +10614,11 @@ export type QueryFilterExchangesArgs = {
 };
 
 
-/** Prediction data queries for markets, events, outcomes, traders, and analytics. */
 export type QueryFilterNetworkWalletsArgs = {
   input: FilterNetworkWalletsInput;
 };
 
 
-/** Prediction data queries for markets, events, outcomes, traders, and analytics. */
 export type QueryFilterNftCollectionsArgs = {
   collections?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
   filters?: InputMaybe<NftCollectionFilters>;
@@ -10639,7 +10629,6 @@ export type QueryFilterNftCollectionsArgs = {
 };
 
 
-/** Prediction data queries for markets, events, outcomes, traders, and analytics. */
 export type QueryFilterNftParallelAssetsArgs = {
   filters?: InputMaybe<ParallelAssetFilters>;
   limit?: InputMaybe<Scalars['Int']['input']>;
@@ -10650,7 +10639,6 @@ export type QueryFilterNftParallelAssetsArgs = {
 };
 
 
-/** Prediction data queries for markets, events, outcomes, traders, and analytics. */
 export type QueryFilterNftPoolCollectionsArgs = {
   filters?: InputMaybe<NftPoolCollectionFilters>;
   limit?: InputMaybe<Scalars['Int']['input']>;
@@ -10660,7 +10648,6 @@ export type QueryFilterNftPoolCollectionsArgs = {
 };
 
 
-/** Prediction data queries for markets, events, outcomes, traders, and analytics. */
 export type QueryFilterNftPoolsArgs = {
   filters?: InputMaybe<NftPoolFilters>;
   limit?: InputMaybe<Scalars['Int']['input']>;
@@ -10670,7 +10657,6 @@ export type QueryFilterNftPoolsArgs = {
 };
 
 
-/** Prediction data queries for markets, events, outcomes, traders, and analytics. */
 export type QueryFilterPairsArgs = {
   filters?: InputMaybe<PairFilters>;
   limit?: InputMaybe<Scalars['Int']['input']>;
@@ -10683,7 +10669,6 @@ export type QueryFilterPairsArgs = {
 };
 
 
-/** Prediction data queries for markets, events, outcomes, traders, and analytics. */
 export type QueryFilterPredictionEventsArgs = {
   eventIds?: InputMaybe<Array<Scalars['String']['input']>>;
   excludeEventIds?: InputMaybe<Array<Scalars['String']['input']>>;
@@ -10696,7 +10681,6 @@ export type QueryFilterPredictionEventsArgs = {
 };
 
 
-/** Prediction data queries for markets, events, outcomes, traders, and analytics. */
 export type QueryFilterPredictionMarketsArgs = {
   eventIds?: InputMaybe<Array<Scalars['String']['input']>>;
   excludeEventIds?: InputMaybe<Array<Scalars['String']['input']>>;
@@ -10710,7 +10694,6 @@ export type QueryFilterPredictionMarketsArgs = {
 };
 
 
-/** Prediction data queries for markets, events, outcomes, traders, and analytics. */
 export type QueryFilterPredictionTraderMarketsArgs = {
   eventIds?: InputMaybe<Array<Scalars['String']['input']>>;
   excludeEventIds?: InputMaybe<Array<Scalars['String']['input']>>;
@@ -10726,7 +10709,6 @@ export type QueryFilterPredictionTraderMarketsArgs = {
 };
 
 
-/** Prediction data queries for markets, events, outcomes, traders, and analytics. */
 export type QueryFilterPredictionTradersArgs = {
   excludeTraderIds?: InputMaybe<Array<Scalars['String']['input']>>;
   filters?: InputMaybe<PredictionTraderFilters>;
@@ -10738,13 +10720,11 @@ export type QueryFilterPredictionTradersArgs = {
 };
 
 
-/** Prediction data queries for markets, events, outcomes, traders, and analytics. */
 export type QueryFilterTokenWalletsArgs = {
   input: FilterTokenWalletsInput;
 };
 
 
-/** Prediction data queries for markets, events, outcomes, traders, and analytics. */
 export type QueryFilterTokensArgs = {
   excludeTokens?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
   filters?: InputMaybe<TokenFilters>;
@@ -10758,13 +10738,11 @@ export type QueryFilterTokensArgs = {
 };
 
 
-/** Prediction data queries for markets, events, outcomes, traders, and analytics. */
 export type QueryFilterWalletsArgs = {
   input: FilterWalletsInput;
 };
 
 
-/** Prediction data queries for markets, events, outcomes, traders, and analytics. */
 export type QueryGetBarsArgs = {
   countback?: InputMaybe<Scalars['Int']['input']>;
   currencyCode?: InputMaybe<Scalars['String']['input']>;
@@ -10780,13 +10758,11 @@ export type QueryGetBarsArgs = {
 };
 
 
-/** Prediction data queries for markets, events, outcomes, traders, and analytics. */
 export type QueryGetCommunityNotesArgs = {
   input?: InputMaybe<CommunityNotesInput>;
 };
 
 
-/** Prediction data queries for markets, events, outcomes, traders, and analytics. */
 export type QueryGetDetailedNftStatsArgs = {
   bucketCount?: InputMaybe<Scalars['Int']['input']>;
   collectionAddress: Scalars['String']['input'];
@@ -10797,7 +10773,6 @@ export type QueryGetDetailedNftStatsArgs = {
 };
 
 
-/** Prediction data queries for markets, events, outcomes, traders, and analytics. */
 export type QueryGetDetailedPairStatsArgs = {
   bucketCount?: InputMaybe<Scalars['Int']['input']>;
   durations?: InputMaybe<Array<InputMaybe<DetailedPairStatsDuration>>>;
@@ -10809,13 +10784,11 @@ export type QueryGetDetailedPairStatsArgs = {
 };
 
 
-/** Prediction data queries for markets, events, outcomes, traders, and analytics. */
 export type QueryGetDetailedPairsStatsArgs = {
   input: Array<GetDetailedPairsStatsInput>;
 };
 
 
-/** Prediction data queries for markets, events, outcomes, traders, and analytics. */
 export type QueryGetDetailedStatsArgs = {
   bucketCount?: InputMaybe<Scalars['Int']['input']>;
   pairId: Scalars['String']['input'];
@@ -10826,7 +10799,6 @@ export type QueryGetDetailedStatsArgs = {
 };
 
 
-/** Prediction data queries for markets, events, outcomes, traders, and analytics. */
 export type QueryGetDetailedTokenStatsArgs = {
   bucketCount?: InputMaybe<Scalars['Int']['input']>;
   durations?: InputMaybe<Array<InputMaybe<DetailedTokenStatsDuration>>>;
@@ -10837,7 +10809,6 @@ export type QueryGetDetailedTokenStatsArgs = {
 };
 
 
-/** Prediction data queries for markets, events, outcomes, traders, and analytics. */
 export type QueryGetEventLabelsArgs = {
   cursor?: InputMaybe<Scalars['String']['input']>;
   direction?: InputMaybe<RankingDirection>;
@@ -10846,13 +10817,11 @@ export type QueryGetEventLabelsArgs = {
 };
 
 
-/** Prediction data queries for markets, events, outcomes, traders, and analytics. */
 export type QueryGetExchangesArgs = {
   showNameless?: InputMaybe<Scalars['Boolean']['input']>;
 };
 
 
-/** Prediction data queries for markets, events, outcomes, traders, and analytics. */
 export type QueryGetLatestPairsArgs = {
   cursor?: InputMaybe<Scalars['String']['input']>;
   exchangeFilter?: InputMaybe<Array<Scalars['String']['input']>>;
@@ -10862,7 +10831,6 @@ export type QueryGetLatestPairsArgs = {
 };
 
 
-/** Prediction data queries for markets, events, outcomes, traders, and analytics. */
 export type QueryGetLatestTokensArgs = {
   limit?: InputMaybe<Scalars['Int']['input']>;
   networkFilter?: InputMaybe<Array<Scalars['Int']['input']>>;
@@ -10870,26 +10838,22 @@ export type QueryGetLatestTokensArgs = {
 };
 
 
-/** Prediction data queries for markets, events, outcomes, traders, and analytics. */
 export type QueryGetNetworkConfigsArgs = {
   networkIds?: InputMaybe<Array<Scalars['Int']['input']>>;
 };
 
 
-/** Prediction data queries for markets, events, outcomes, traders, and analytics. */
 export type QueryGetNetworkStatsArgs = {
   exchangeAddress?: InputMaybe<Scalars['String']['input']>;
   networkId: Scalars['Int']['input'];
 };
 
 
-/** Prediction data queries for markets, events, outcomes, traders, and analytics. */
 export type QueryGetNetworkStatusArgs = {
   networkIds: Array<Scalars['Int']['input']>;
 };
 
 
-/** Prediction data queries for markets, events, outcomes, traders, and analytics. */
 export type QueryGetNftAssetsArgs = {
   address: Scalars['String']['input'];
   cursor?: InputMaybe<Scalars['String']['input']>;
@@ -10900,7 +10864,6 @@ export type QueryGetNftAssetsArgs = {
 };
 
 
-/** Prediction data queries for markets, events, outcomes, traders, and analytics. */
 export type QueryGetNftCollectionMetadataArgs = {
   address?: InputMaybe<Scalars['String']['input']>;
   collectionId?: InputMaybe<Scalars['String']['input']>;
@@ -10908,13 +10871,11 @@ export type QueryGetNftCollectionMetadataArgs = {
 };
 
 
-/** Prediction data queries for markets, events, outcomes, traders, and analytics. */
 export type QueryGetNftContractsArgs = {
   contracts?: InputMaybe<Array<InputMaybe<NftContractInput>>>;
 };
 
 
-/** Prediction data queries for markets, events, outcomes, traders, and analytics. */
 export type QueryGetNftEventsArgs = {
   address?: InputMaybe<Scalars['String']['input']>;
   cursor?: InputMaybe<Scalars['String']['input']>;
@@ -10928,14 +10889,12 @@ export type QueryGetNftEventsArgs = {
 };
 
 
-/** Prediction data queries for markets, events, outcomes, traders, and analytics. */
 export type QueryGetNftPoolArgs = {
   address: Scalars['String']['input'];
   networkId: Scalars['Int']['input'];
 };
 
 
-/** Prediction data queries for markets, events, outcomes, traders, and analytics. */
 export type QueryGetNftPoolCollectionArgs = {
   collectionAddress: Scalars['String']['input'];
   exchangeAddress: Scalars['String']['input'];
@@ -10943,7 +10902,6 @@ export type QueryGetNftPoolCollectionArgs = {
 };
 
 
-/** Prediction data queries for markets, events, outcomes, traders, and analytics. */
 export type QueryGetNftPoolCollectionsByExchangeArgs = {
   cursor?: InputMaybe<Scalars['String']['input']>;
   exchangeAddress: Scalars['String']['input'];
@@ -10952,7 +10910,6 @@ export type QueryGetNftPoolCollectionsByExchangeArgs = {
 };
 
 
-/** Prediction data queries for markets, events, outcomes, traders, and analytics. */
 export type QueryGetNftPoolEventsArgs = {
   collectionAddress?: InputMaybe<Scalars['String']['input']>;
   cursor?: InputMaybe<Scalars['String']['input']>;
@@ -10965,7 +10922,6 @@ export type QueryGetNftPoolEventsArgs = {
 };
 
 
-/** Prediction data queries for markets, events, outcomes, traders, and analytics. */
 export type QueryGetNftPoolStatsArgs = {
   collectionAddress: Scalars['String']['input'];
   endTime: Scalars['Int']['input'];
@@ -10976,7 +10932,6 @@ export type QueryGetNftPoolStatsArgs = {
 };
 
 
-/** Prediction data queries for markets, events, outcomes, traders, and analytics. */
 export type QueryGetNftPoolsByCollectionAndExchangeArgs = {
   collectionAddress: Scalars['String']['input'];
   cursor?: InputMaybe<Scalars['String']['input']>;
@@ -10986,7 +10941,6 @@ export type QueryGetNftPoolsByCollectionAndExchangeArgs = {
 };
 
 
-/** Prediction data queries for markets, events, outcomes, traders, and analytics. */
 export type QueryGetNftPoolsByOwnerArgs = {
   cursor?: InputMaybe<Scalars['String']['input']>;
   exchangeAddress?: InputMaybe<Scalars['String']['input']>;
@@ -10996,7 +10950,6 @@ export type QueryGetNftPoolsByOwnerArgs = {
 };
 
 
-/** Prediction data queries for markets, events, outcomes, traders, and analytics. */
 export type QueryGetParallelCardChangesArgs = {
   cursor?: InputMaybe<Scalars['String']['input']>;
   limit?: InputMaybe<Scalars['Int']['input']>;
@@ -11005,7 +10958,6 @@ export type QueryGetParallelCardChangesArgs = {
 };
 
 
-/** Prediction data queries for markets, events, outcomes, traders, and analytics. */
 export type QueryGetPrimePoolAssetsArgs = {
   cursor?: InputMaybe<Scalars['String']['input']>;
   limit?: InputMaybe<Scalars['Int']['input']>;
@@ -11016,7 +10968,6 @@ export type QueryGetPrimePoolAssetsArgs = {
 };
 
 
-/** Prediction data queries for markets, events, outcomes, traders, and analytics. */
 export type QueryGetPrimePoolEventsArgs = {
   cursor?: InputMaybe<Scalars['String']['input']>;
   eventTypes?: InputMaybe<Array<InputMaybe<PrimePoolEventType>>>;
@@ -11028,7 +10979,6 @@ export type QueryGetPrimePoolEventsArgs = {
 };
 
 
-/** Prediction data queries for markets, events, outcomes, traders, and analytics. */
 export type QueryGetPrimePoolsArgs = {
   address: Scalars['String']['input'];
   cursor?: InputMaybe<Scalars['String']['input']>;
@@ -11038,14 +10988,12 @@ export type QueryGetPrimePoolsArgs = {
 };
 
 
-/** Prediction data queries for markets, events, outcomes, traders, and analytics. */
 export type QueryGetSymbolArgs = {
   currencyCode?: InputMaybe<Scalars['String']['input']>;
   symbol: Scalars['String']['input'];
 };
 
 
-/** Prediction data queries for markets, events, outcomes, traders, and analytics. */
 export type QueryGetTokenBarsArgs = {
   countback?: InputMaybe<Scalars['Int']['input']>;
   currencyCode?: InputMaybe<QuoteCurrency>;
@@ -11059,7 +11007,6 @@ export type QueryGetTokenBarsArgs = {
 };
 
 
-/** Prediction data queries for markets, events, outcomes, traders, and analytics. */
 export type QueryGetTokenEventsArgs = {
   cursor?: InputMaybe<Scalars['String']['input']>;
   direction?: InputMaybe<RankingDirection>;
@@ -11068,7 +11015,6 @@ export type QueryGetTokenEventsArgs = {
 };
 
 
-/** Prediction data queries for markets, events, outcomes, traders, and analytics. */
 export type QueryGetTokenEventsForMakerArgs = {
   cursor?: InputMaybe<Scalars['String']['input']>;
   direction?: InputMaybe<RankingDirection>;
@@ -11077,13 +11023,11 @@ export type QueryGetTokenEventsForMakerArgs = {
 };
 
 
-/** Prediction data queries for markets, events, outcomes, traders, and analytics. */
 export type QueryGetTokenPricesArgs = {
   inputs?: InputMaybe<Array<InputMaybe<GetPriceInput>>>;
 };
 
 
-/** Prediction data queries for markets, events, outcomes, traders, and analytics. */
 export type QueryGetWebhooksArgs = {
   bucketId?: InputMaybe<Scalars['String']['input']>;
   bucketSortkey?: InputMaybe<Scalars['String']['input']>;
@@ -11093,13 +11037,11 @@ export type QueryGetWebhooksArgs = {
 };
 
 
-/** Prediction data queries for markets, events, outcomes, traders, and analytics. */
 export type QueryHoldersArgs = {
   input: HoldersInput;
 };
 
 
-/** Prediction data queries for markets, events, outcomes, traders, and analytics. */
 export type QueryLiquidityLocksArgs = {
   cursor?: InputMaybe<Scalars['String']['input']>;
   networkId: Scalars['Int']['input'];
@@ -11108,21 +11050,18 @@ export type QueryLiquidityLocksArgs = {
 };
 
 
-/** Prediction data queries for markets, events, outcomes, traders, and analytics. */
 export type QueryLiquidityMetadataArgs = {
   networkId: Scalars['Int']['input'];
   pairAddress: Scalars['String']['input'];
 };
 
 
-/** Prediction data queries for markets, events, outcomes, traders, and analytics. */
 export type QueryLiquidityMetadataByTokenArgs = {
   networkId: Scalars['Int']['input'];
   tokenAddress: Scalars['String']['input'];
 };
 
 
-/** Prediction data queries for markets, events, outcomes, traders, and analytics. */
 export type QueryListPairsForTokenArgs = {
   limit?: InputMaybe<Scalars['Int']['input']>;
   networkId: Scalars['Int']['input'];
@@ -11130,7 +11069,6 @@ export type QueryListPairsForTokenArgs = {
 };
 
 
-/** Prediction data queries for markets, events, outcomes, traders, and analytics. */
 export type QueryListPairsWithMetadataForTokenArgs = {
   limit?: InputMaybe<Scalars['Int']['input']>;
   networkId: Scalars['Int']['input'];
@@ -11138,7 +11076,6 @@ export type QueryListPairsWithMetadataForTokenArgs = {
 };
 
 
-/** Prediction data queries for markets, events, outcomes, traders, and analytics. */
 export type QueryListTopTokensArgs = {
   limit?: InputMaybe<Scalars['Int']['input']>;
   networkFilter?: InputMaybe<Array<Scalars['Int']['input']>>;
@@ -11146,13 +11083,11 @@ export type QueryListTopTokensArgs = {
 };
 
 
-/** Prediction data queries for markets, events, outcomes, traders, and analytics. */
 export type QueryNftHoldersArgs = {
   input: NftHoldersInput;
 };
 
 
-/** Prediction data queries for markets, events, outcomes, traders, and analytics. */
 export type QueryPairMetadataArgs = {
   pairId: Scalars['String']['input'];
   quoteToken?: InputMaybe<QuoteToken>;
@@ -11160,61 +11095,51 @@ export type QueryPairMetadataArgs = {
 };
 
 
-/** Prediction data queries for markets, events, outcomes, traders, and analytics. */
 export type QueryPredictionEventBarsArgs = {
   input: PredictionEventBarsInput;
 };
 
 
-/** Prediction data queries for markets, events, outcomes, traders, and analytics. */
 export type QueryPredictionEventTopMarketsBarsArgs = {
   input: PredictionEventTopMarketsBarsInput;
 };
 
 
-/** Prediction data queries for markets, events, outcomes, traders, and analytics. */
 export type QueryPredictionMarketBarsArgs = {
   input: PredictionMarketBarsInput;
 };
 
 
-/** Prediction data queries for markets, events, outcomes, traders, and analytics. */
 export type QueryPredictionMarketsArgs = {
   input: PredictionMarketsInput;
 };
 
 
-/** Prediction data queries for markets, events, outcomes, traders, and analytics. */
 export type QueryPredictionTokenHoldersArgs = {
   input: PredictionTokenHoldersInput;
 };
 
 
-/** Prediction data queries for markets, events, outcomes, traders, and analytics. */
 export type QueryPredictionTraderBarsArgs = {
   input: PredictionTraderBarsInput;
 };
 
 
-/** Prediction data queries for markets, events, outcomes, traders, and analytics. */
 export type QueryPredictionTraderMarketsStatsArgs = {
   input: PredictionTraderMarketsStatsInput;
 };
 
 
-/** Prediction data queries for markets, events, outcomes, traders, and analytics. */
 export type QueryPredictionTradersArgs = {
   input: PredictionTradersInput;
 };
 
 
-/** Prediction data queries for markets, events, outcomes, traders, and analytics. */
 export type QueryPredictionTradesArgs = {
   input: PredictionTradesInput;
 };
 
 
-/** Prediction data queries for markets, events, outcomes, traders, and analytics. */
 export type QuerySearchNftsArgs = {
   filterWashTrading?: InputMaybe<Scalars['Boolean']['input']>;
   include?: InputMaybe<Array<NftSearchable>>;
@@ -11225,13 +11150,11 @@ export type QuerySearchNftsArgs = {
 };
 
 
-/** Prediction data queries for markets, events, outcomes, traders, and analytics. */
 export type QueryTokenArgs = {
   input: TokenInput;
 };
 
 
-/** Prediction data queries for markets, events, outcomes, traders, and analytics. */
 export type QueryTokenLifecycleEventsArgs = {
   cursor?: InputMaybe<Scalars['String']['input']>;
   limit?: InputMaybe<Scalars['Int']['input']>;
@@ -11239,49 +11162,41 @@ export type QueryTokenLifecycleEventsArgs = {
 };
 
 
-/** Prediction data queries for markets, events, outcomes, traders, and analytics. */
 export type QueryTokenSparklinesArgs = {
   input: TokenSparklineInput;
 };
 
 
-/** Prediction data queries for markets, events, outcomes, traders, and analytics. */
 export type QueryTokenTopTradersArgs = {
   input: TokenTopTradersInput;
 };
 
 
-/** Prediction data queries for markets, events, outcomes, traders, and analytics. */
 export type QueryTokensArgs = {
   ids?: InputMaybe<Array<TokenInput>>;
 };
 
 
-/** Prediction data queries for markets, events, outcomes, traders, and analytics. */
 export type QueryTop10HoldersPercentArgs = {
   tokenId: Scalars['String']['input'];
 };
 
 
-/** Prediction data queries for markets, events, outcomes, traders, and analytics. */
 export type QueryWalletAggregateBackfillStateArgs = {
   input: WalletAggregateBackfillStateInput;
 };
 
 
-/** Prediction data queries for markets, events, outcomes, traders, and analytics. */
 export type QueryWalletChartArgs = {
   input: WalletChartInput;
 };
 
 
-/** Prediction data queries for markets, events, outcomes, traders, and analytics. */
 export type QueryWalletNftCollectionAssetsArgs = {
   input: WalletNftCollectionAssetsInput;
 };
 
 
-/** Prediction data queries for markets, events, outcomes, traders, and analytics. */
 export type QueryWalletNftCollectionsArgs = {
   input: WalletNftCollectionsInput;
 };
@@ -12499,7 +12414,7 @@ export type TokenFilters = {
   launchpadMigrated?: InputMaybe<Scalars['Boolean']['input']>;
   /** The timestamp when the launchpad was migrated. */
   launchpadMigratedAt?: InputMaybe<NumberFilter>;
-  /** A list of launchpad names. Any of the following: Pump.fun, Pump Mayhem, Bonk, BONAD.fun, Nad.Fun, Baseapp, Baseapp Creator, Zora, Zora Creator, Four.meme, Four.meme Fair, Believe, Moonshot, Jupiter Studio, boop, Heaven, TokenMill V2, Virtuals, Clanker, Clanker V4, ArenaTrade, Moonit, LaunchLab, MeteoraDBC, Zora Solana, Cooking.City, time.fun, BAGS, Circus, Dealr, OhFuckFun, PrintFun, Trend, shout.fun, xApple, Sendshot, DubDub, cults, OpenGameProtocol, AMERICA.fun, Kumbaya, Printr, Bankr, Noice, Flaunch, Coinbarrel, Blowfish. */
+  /** A list of launchpad names. Any of the following: Pump.fun, Pump Mayhem, Bonk, BONAD.fun, Nad.Fun, Baseapp, Baseapp Creator, Zora, Zora Creator, Four.meme, Four.meme Fair, Believe, Moonshot, Jupiter Studio, boop, Heaven, TokenMill V2, Virtuals, Clanker, Clanker V4, ArenaTrade, Moonit, LaunchLab, MeteoraDBC, Zora Solana, Cooking.City, time.fun, BAGS, Circus, Dealr, OhFuckFun, PrintFun, Trend, shout.fun, xApple, Sendshot, DubDub, cults, OpenGameProtocol, AMERICA.fun, Kumbaya, Printr, Bankr, Noice, Flaunch, Coinbarrel, Blowfish, MeMoo. */
   launchpadName?: InputMaybe<Array<Scalars['String']['input']>>;
   /** A list of launchpad protocols. */
   launchpadProtocol?: InputMaybe<Array<Scalars['String']['input']>>;
