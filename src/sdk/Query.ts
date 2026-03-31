@@ -98,6 +98,8 @@ import {
   PredictionTokenHoldersQueryVariables,
   PredictionTraderBarsDocument,
   PredictionTraderBarsQueryVariables,
+  PredictionTraderHoldingsDocument,
+  PredictionTraderHoldingsQueryVariables,
   PredictionTraderMarketsStatsDocument,
   PredictionTraderMarketsStatsQueryVariables,
   PredictionTradersDocument,
@@ -232,6 +234,9 @@ export class Query {
     this.sdk.query(PredictionTokenHoldersDocument, vars);
   predictionTraderBars = async (vars: PredictionTraderBarsQueryVariables) =>
     this.sdk.query(PredictionTraderBarsDocument, vars);
+  predictionTraderHoldings = async (
+    vars: PredictionTraderHoldingsQueryVariables,
+  ) => this.sdk.query(PredictionTraderHoldingsDocument, vars);
   predictionTraderMarketsStats = async (
     vars: PredictionTraderMarketsStatsQueryVariables,
   ) => this.sdk.query(PredictionTraderMarketsStatsDocument, vars);
