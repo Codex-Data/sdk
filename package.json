@@ -97,7 +97,7 @@
     "tsx": "^4.19.1",
     "typescript": "^5.2.2"
   },
-  "packageManager": "pnpm@9.0.0",
+  "packageManager": "pnpm@10.16.0",
   "pnpm": {
     "overrides": {
       "graphql": "^16.9.0"
