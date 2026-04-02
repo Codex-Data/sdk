@@ -92,6 +92,8 @@ import {
   PredictionEventTopMarketsBarsQueryVariables,
   PredictionMarketBarsDocument,
   PredictionMarketBarsQueryVariables,
+  PredictionMarketPriceDocument,
+  PredictionMarketPriceQueryVariables,
   PredictionMarketsDocument,
   PredictionMarketsQueryVariables,
   PredictionTokenHoldersDocument,
@@ -228,6 +230,8 @@ export class Query {
   ) => this.sdk.query(PredictionEventTopMarketsBarsDocument, vars);
   predictionMarketBars = async (vars: PredictionMarketBarsQueryVariables) =>
     this.sdk.query(PredictionMarketBarsDocument, vars);
+  predictionMarketPrice = async (vars: PredictionMarketPriceQueryVariables) =>
+    this.sdk.query(PredictionMarketPriceDocument, vars);
   predictionMarkets = async (vars: PredictionMarketsQueryVariables) =>
     this.sdk.query(PredictionMarketsDocument, vars);
   predictionTokenHolders = async (vars: PredictionTokenHoldersQueryVariables) =>
