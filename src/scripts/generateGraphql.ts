@@ -90,6 +90,7 @@ export const getLeafType = (
         getLeafType(f.type, allTypes, [], f.name, level + 1),
       )
       .flat();
+    if (level > 0 && subTypeLeaves.length === 0) return result;
     return [
       ...result,
       ...(level === 0 ? subTypeLeaves : [{ [currentName]: subTypeLeaves }]),
