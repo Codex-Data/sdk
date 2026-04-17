@@ -1,6 +1,6 @@
 {
   "name": "@codex-data/sdk",
-  "version": "2.3.2",
+  "version": "2.3.3",
   "engines": {
     "node": ">=17.5.0"
   },
@@ -23,7 +23,7 @@
     "build:cjs": "tsc",
     "build:esm": "tsc -p tsconfig.esm.json",
     "build:rename-esm": "find dist-esm -name '*.js' -exec sh -c 'mv \"$1\" \"${1%.js}.mjs\"' _ {} \\; && cp -r dist-esm/* dist/ && rm -rf dist-esm",
-    "fetch:schema": "curl -s https://graph.codex.io/schema/latest.graphql --output src/resources/schema.graphql",
+    "fetch:schema": "mkdir -p src/resources && curl -s https://graph.codex.io/schema/latest.graphql --output src/resources/schema.graphql",
     "generate:configs": "tsx src/scripts/generateNetworkConfigs.ts",
     "generate:graphql": "tsx src/scripts/generateGraphql.ts",
     "build:sdk": "tsx src/scripts/buildSdk.ts",
