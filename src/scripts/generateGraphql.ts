@@ -36,7 +36,7 @@ type Fields = Array<string | { [key: string]: Fields }>;
 // Max times a single type may appear on a recursion path before we stop
 // descending. Controls how deep recursive fields (e.g. Asset.assetDeployments
 // .asset) expand in generated queries.
-const MAX_TYPE_RECURSION = 3;
+const MAX_TYPE_RECURSION = 2;
 
 function capitalize(str: string) {
   return str.charAt(0).toUpperCase() + str.slice(1);
