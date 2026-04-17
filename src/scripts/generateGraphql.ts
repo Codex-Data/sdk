@@ -33,6 +33,11 @@ type SchemaType = {
 
 type Fields = Array<string | { [key: string]: Fields }>;
 
+// Max times a single type may appear on a recursion path before we stop
+// descending. Controls how deep recursive fields (e.g. Asset.assetDeployments
+// .asset) expand in generated queries.
+const MAX_TYPE_RECURSION = 3;
+
 function capitalize(str: string) {
   return str.charAt(0).toUpperCase() + str.slice(1);
 }
@@ -43,14 +48,20 @@ export const getLeafType = (
   result: Fields,
   currentName: string,
   level = 0,
+  visited: string[] = [],
 ): Fields => {
-  if (level > 8 || !type?.kind || type.isDeprecated) return result;
+  if (!type?.kind || type.isDeprecated) return result;
 
   // If it's a scalar, return the name
   if (type.kind === "SCALAR" || type.kind === "ENUM")
     return [...result, currentName!];
 
   if (type.kind === "UNION") {
+    // Allow a type to appear up to MAX_TYPE_RECURSION times on the same path.
+    const seen = type.name ? visited.filter((n) => n === type.name).length : 0;
+    if (seen >= MAX_TYPE_RECURSION) return result;
+    const nextVisited = type.name ? [...visited, type.name] : visited;
+
     // Find all the possible types
     const possibleTypes = allTypes.find(
       (t) => t.name === type.name,
@@ -68,6 +79,7 @@ export const getLeafType = (
           [],
           `... on ${f.name}`,
           level + 1,
+          nextVisited,
         );
       })
       .flat();
@@ -82,14 +94,24 @@ export const getLeafType = (
 
   // If it's an object resolve it.
   if (type.kind === "OBJECT") {
+    // Allow a type to appear up to MAX_TYPE_RECURSION times on the same path.
+    const seen = type.name ? visited.filter((n) => n === type.name).length : 0;
+    if (seen >= MAX_TYPE_RECURSION) return result;
+    const nextVisited = type.name ? [...visited, type.name] : visited;
+
     // For each of the fields of the subtype, resolve them
     const subType = allTypes.find((t) => t.name === type.name);
     const subTypeLeaves = (subType?.fields ?? [])
       .filter((t) => !t.isDeprecated)
       .map((f: SchemaType) =>
-        getLeafType(f.type, allTypes, [], f.name, level + 1),
+        getLeafType(f.type, allTypes, [], f.name, level + 1, nextVisited),
       )
       .flat();
+
+    // Drop fields whose only children were cycles — GraphQL rejects empty
+    // selection sets. At the root level we still return whatever we found.
+    if (level > 0 && subTypeLeaves.length === 0) return result;
+
     return [
       ...result,
       ...(level === 0 ? subTypeLeaves : [{ [currentName]: subTypeLeaves }]),
@@ -98,11 +120,25 @@ export const getLeafType = (
 
   // If it's a list, resolve the first object type
   if (type.kind === "LIST")
-    return getLeafType(type.ofType!, allTypes, [...result], currentName, level);
+    return getLeafType(
+      type.ofType!,
+      allTypes,
+      [...result],
+      currentName,
+      level,
+      visited,
+    );
 
   // If it's required, resolve the first object type
   if (type.kind === "NON_NULL")
-    return getLeafType(type.ofType!, allTypes, [...result], currentName, level);
+    return getLeafType(
+      type.ofType!,
+      allTypes,
+      [...result],
+      currentName,
+      level,
+      visited,
+    );
 
   throw new Error(`Unknown type ${type.name} ${type.kind}`);
 };
@@ -332,4 +368,6 @@ async function run() {
   );
 }
 
-run().then(() => process.exit());
+if (require.main === module) {
+  run().then(() => process.exit());
+}
