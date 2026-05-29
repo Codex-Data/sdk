@@ -18,6 +18,8 @@ import {
   DetailedPredictionTraderStatsQueryVariables,
   DetailedWalletStatsDocument,
   DetailedWalletStatsQueryVariables,
+  EventScopedFilterPredictionMarketsDocument,
+  EventScopedFilterPredictionMarketsQueryVariables,
   FilterExchangesDocument,
   FilterExchangesQueryVariables,
   FilterPairsDocument,
@@ -96,6 +98,8 @@ import {
   PredictionMarketPriceQueryVariables,
   PredictionMarketsDocument,
   PredictionMarketsQueryVariables,
+  PredictionOutcomeOrderBooksDocument,
+  PredictionOutcomeOrderBooksQueryVariables,
   PredictionTokenHoldersDocument,
   PredictionTokenHoldersQueryVariables,
   PredictionTraderBarsDocument,
@@ -124,6 +128,8 @@ import {
   WalletAggregateBackfillStateQueryVariables,
   WalletChartDocument,
   WalletChartQueryVariables,
+  WalletLabelTypesDocument,
+  WalletLabelTypesQueryVariables,
 } from "./generated/graphql";
 import { Codex } from "./index";
 
@@ -150,6 +156,9 @@ export class Query {
   ) => this.sdk.query(DetailedPredictionTraderStatsDocument, vars);
   detailedWalletStats = async (vars: DetailedWalletStatsQueryVariables) =>
     this.sdk.query(DetailedWalletStatsDocument, vars);
+  eventScopedFilterPredictionMarkets = async (
+    vars: EventScopedFilterPredictionMarketsQueryVariables,
+  ) => this.sdk.query(EventScopedFilterPredictionMarketsDocument, vars);
   filterExchanges = async (vars: FilterExchangesQueryVariables) =>
     this.sdk.query(FilterExchangesDocument, vars);
   filterPairs = async (vars: FilterPairsQueryVariables) =>
@@ -234,6 +243,9 @@ export class Query {
     this.sdk.query(PredictionMarketPriceDocument, vars);
   predictionMarkets = async (vars: PredictionMarketsQueryVariables) =>
     this.sdk.query(PredictionMarketsDocument, vars);
+  predictionOutcomeOrderBooks = async (
+    vars: PredictionOutcomeOrderBooksQueryVariables,
+  ) => this.sdk.query(PredictionOutcomeOrderBooksDocument, vars);
   predictionTokenHolders = async (vars: PredictionTokenHoldersQueryVariables) =>
     this.sdk.query(PredictionTokenHoldersDocument, vars);
   predictionTraderBars = async (vars: PredictionTraderBarsQueryVariables) =>
@@ -265,4 +277,6 @@ export class Query {
   ) => this.sdk.query(WalletAggregateBackfillStateDocument, vars);
   walletChart = async (vars: WalletChartQueryVariables) =>
     this.sdk.query(WalletChartDocument, vars);
+  walletLabelTypes = async (vars: WalletLabelTypesQueryVariables) =>
+    this.sdk.query(WalletLabelTypesDocument, vars);
 }

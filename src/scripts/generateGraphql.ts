@@ -90,6 +90,12 @@ export const getLeafType = (
         getLeafType(f.type, allTypes, [], f.name, level + 1),
       )
       .flat();
+    // An object whose subfields all got cut off (by the depth limit or because
+    // the type is fully recursive) would emit `field {  }` — an empty selection
+    // set, which is invalid GraphQL. Drop the field instead. This bubbles up:
+    // a parent whose only children are such objects becomes empty and is
+    // dropped too.
+    if (level !== 0 && subTypeLeaves.length === 0) return result;
     return [
       ...result,
       ...(level === 0 ? subTypeLeaves : [{ [currentName]: subTypeLeaves }]),
@@ -167,6 +173,13 @@ async function run() {
   });
   const schemaJson = await res.json();
   fetchSpinner.succeed(`Fetched schema from ${brand("graph.codex.io")}`);
+
+  // Clear previously generated operations so that anything removed from the
+  // schema doesn't linger as an orphaned .graphql file and break codegen.
+  const generatedRoot = path.join(__dirname, "..", "resources", "generated");
+  for (const dir of ["mutations", "subscriptions", "queries"]) {
+    fs.rmSync(path.join(generatedRoot, dir), { recursive: true, force: true });
+  }
 
   const types = schemaJson.__schema.types;
   const mutationType = types.find(

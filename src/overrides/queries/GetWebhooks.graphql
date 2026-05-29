@@ -19,40 +19,6 @@ query GetWebhooks(
       bucketSortkey
       callbackUrl
       conditions {
-        ... on NftEventWebhookCondition {
-          contractAddress {
-            eq
-          }
-          eventType {
-            eq
-          }
-          exchangeAddress {
-            eq
-          }
-          fillSource {
-            oneOf
-          }
-          ignoreTransfers
-          individualBaseTokenPrice {
-            eq
-            gt
-            gte
-            lt
-            lte
-          }
-          maker {
-            eq
-          }
-          networkId {
-            oneOf
-          }
-          tokenAddress {
-            eq
-          }
-          tokenId {
-            eq
-          }
-        }
         ... on PriceEventWebhookCondition {
           priceNetworkId: networkId {
             eq
@@ -72,7 +38,6 @@ query GetWebhooks(
           from {
             eq
           }
-          ignoreNftEvents
           ignoreTokenPairEvents
           input {
             contains
