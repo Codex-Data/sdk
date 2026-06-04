@@ -246,5 +246,87 @@ mutation CreateWebhooks($input: CreateWebhooksInput!) {
       status
       webhookType
     }
+    predictionMarketMetricsEventWebhooks {
+      alertRecurrence
+      bucketId
+      bucketSortkey
+      callbackUrl
+      conditions {
+        ... on PriceEventWebhookCondition {
+          priceEventNetworkId: networkId {
+            eq
+          }
+          priceUsd {
+            eq
+            gt
+            gte
+            lt
+            lte
+          }
+          priceEventTokenAddress: tokenAddress {
+            eq
+          }
+        }
+        ... on RawTransactionWebhookCondition {
+          from {
+            eq
+          }
+          ignoreTokenPairEvents
+          input {
+            contains
+            notContains
+          }
+          networkId {
+            oneOf
+          }
+          to {
+            eq
+          }
+          toOrFrom {
+            eq
+          }
+        }
+        ... on TokenPairEventWebhookCondition {
+          eventType {
+            oneOf
+          }
+          exchangeAddress {
+            eq
+          }
+          maker {
+            eq
+          }
+          networkId {
+            oneOf
+          }
+          pairAddress {
+            eq
+          }
+          swapValue {
+            eq
+            gt
+            gte
+            lt
+            lte
+          }
+          tokenAddress {
+            eq
+          }
+        }
+      }
+      created
+      groupId
+      id
+      name
+      publishingType
+      retrySettings {
+        maxRetries
+        maxRetryDelay
+        maxTimeElapsed
+        minRetryDelay
+      }
+      status
+      webhookType
+    }
   }
 }
