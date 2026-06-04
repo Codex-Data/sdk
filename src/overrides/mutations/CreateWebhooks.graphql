@@ -252,6 +252,23 @@ mutation CreateWebhooks($input: CreateWebhooksInput!) {
       bucketSortkey
       callbackUrl
       conditions {
+        ... on PredictionMarketMetricsEventWebhookCondition {
+          marketId {
+            eq
+          }
+          market {
+            ...PredictionMarketMetricsMarketConditionFields
+          }
+          outcome0 {
+            ...PredictionMarketMetricsOutcomeConditionFields
+          }
+          outcome1 {
+            ...PredictionMarketMetricsOutcomeConditionFields
+          }
+          anyOutcome {
+            ...PredictionMarketMetricsOutcomeConditionFields
+          }
+        }
         ... on PriceEventWebhookCondition {
           priceEventNetworkId: networkId {
             eq
@@ -329,4 +346,90 @@ mutation CreateWebhooks($input: CreateWebhooksInput!) {
       webhookType
     }
   }
+}
+
+fragment PredictionMarketMetricsMarketConditionFields on PredictionMarketMetricsEventMarketCondition {
+  min5 {
+    ...WindowedPredictionMarketMetricsMarketConditionFields
+  }
+  hour1 {
+    ...WindowedPredictionMarketMetricsMarketConditionFields
+  }
+  hour4 {
+    ...WindowedPredictionMarketMetricsMarketConditionFields
+  }
+  hour12 {
+    ...WindowedPredictionMarketMetricsMarketConditionFields
+  }
+  day1 {
+    ...WindowedPredictionMarketMetricsMarketConditionFields
+  }
+  week1 {
+    ...WindowedPredictionMarketMetricsMarketConditionFields
+  }
+}
+
+fragment WindowedPredictionMarketMetricsMarketConditionFields on WindowedPredictionMarketMetricsEventMarketCondition {
+  volumeUsd {
+    ...ComparisonOperatorFields
+  }
+  trades {
+    ...ComparisonOperatorFields
+  }
+  volumeChange {
+    ...ComparisonOperatorFields
+  }
+  tradesChange {
+    ...ComparisonOperatorFields
+  }
+}
+
+fragment PredictionMarketMetricsOutcomeConditionFields on PredictionMarketMetricsEventOutcomeCondition {
+  min5 {
+    ...WindowedPredictionMarketMetricsOutcomeConditionFields
+  }
+  hour1 {
+    ...WindowedPredictionMarketMetricsOutcomeConditionFields
+  }
+  hour4 {
+    ...WindowedPredictionMarketMetricsOutcomeConditionFields
+  }
+  hour12 {
+    ...WindowedPredictionMarketMetricsOutcomeConditionFields
+  }
+  day1 {
+    ...WindowedPredictionMarketMetricsOutcomeConditionFields
+  }
+  week1 {
+    ...WindowedPredictionMarketMetricsOutcomeConditionFields
+  }
+}
+
+fragment WindowedPredictionMarketMetricsOutcomeConditionFields on WindowedPredictionMarketMetricsEventOutcomeCondition {
+  price {
+    ...ComparisonOperatorFields
+  }
+  priceChange {
+    ...ComparisonOperatorFields
+  }
+  volumeUsd {
+    ...ComparisonOperatorFields
+  }
+  volumeChange {
+    ...ComparisonOperatorFields
+  }
+  trades {
+    ...ComparisonOperatorFields
+  }
+  tradesChange {
+    ...ComparisonOperatorFields
+  }
+}
+
+fragment ComparisonOperatorFields on ComparisonOperator {
+  eq
+  gt
+  gte
+  lt
+  lte
 }

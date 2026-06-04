@@ -1,5 +1,6 @@
-import { DocumentNode } from "graphql";
+import { DocumentNode, print } from "graphql";
 
+import { CreateWebhooksDocument } from "./generated/graphql";
 import { ApiConfig, Codex } from "./index";
 
 const getNetworksDocument = {
@@ -31,6 +32,24 @@ const getNetworksDocument = {
 
 const getNetworksString = `query GetNetworks { getNetworks { id } }`;
 const subscribePriceUpdatedString = `subscription onPriceUpdated($address: String!, $networkId: Int!) { onPriceUpdated(address: $address, networkId: $networkId) { address networkId priceUsd timestamp } }`;
+
+function getFieldSelectionBlock(document: string, fieldName: string) {
+  const start = document.indexOf(`${fieldName} {`);
+  if (start === -1) return "";
+
+  let depth = 0;
+  let seenOpenBrace = false;
+  for (let i = start; i < document.length; i++) {
+    if (document[i] === "{") {
+      depth++;
+      seenOpenBrace = true;
+    }
+    if (document[i] === "}") depth--;
+    if (seenOpenBrace && depth === 0) return document.slice(start, i + 1);
+  }
+
+  return "";
+}
 
 describe("Codex", () => {
   let sdk: Codex;
@@ -252,6 +271,30 @@ describe("Codex", () => {
       const sdkWithFetch = new Codex("test-key", { fetch: fetchMock });
       await sdkWithFetch.query(getNetworksDocument, {});
       expect(fetchMock).toHaveBeenCalled();
+    });
+  });
+
+  describe("generated documents", () => {
+    it("should select prediction market metrics webhook condition fields when creating webhooks", () => {
+      const document = print(CreateWebhooksDocument as unknown as DocumentNode);
+      const metricsWebhooksBlock = getFieldSelectionBlock(
+        document,
+        "predictionMarketMetricsEventWebhooks",
+      );
+
+      expect(metricsWebhooksBlock).toContain(
+        "... on PredictionMarketMetricsEventWebhookCondition",
+      );
+      expect(metricsWebhooksBlock).toContain("marketId");
+      expect(metricsWebhooksBlock).toContain("anyOutcome");
+      expect(metricsWebhooksBlock).toContain(
+        "...PredictionMarketMetricsOutcomeConditionFields",
+      );
+      expect(document).toContain(
+        "fragment WindowedPredictionMarketMetricsOutcomeConditionFields",
+      );
+      expect(document).toContain("priceChange");
+      expect(document).toContain("volumeChange");
     });
   });
 
