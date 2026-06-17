@@ -113,8 +113,6 @@ import {
   PredictionTradesDocument,
   PredictionTradesQueryVariables,
   TokenDocument,
-  TokenLifecycleEventsDocument,
-  TokenLifecycleEventsQueryVariables,
   TokenQueryVariables,
   TokensDocument,
   TokenSparklinesDocument,
@@ -262,8 +260,6 @@ export class Query {
     this.sdk.query(PredictionTradesDocument, vars);
   token = async (vars: TokenQueryVariables) =>
     this.sdk.query(TokenDocument, vars);
-  tokenLifecycleEvents = async (vars: TokenLifecycleEventsQueryVariables) =>
-    this.sdk.query(TokenLifecycleEventsDocument, vars);
   tokenSparklines = async (vars: TokenSparklinesQueryVariables) =>
     this.sdk.query(TokenSparklinesDocument, vars);
   tokenTopTraders = async (vars: TokenTopTradersQueryVariables) =>
