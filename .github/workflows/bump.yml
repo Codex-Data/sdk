@@ -3,11 +3,6 @@ name: Bump version
 # Bumps the patch version, commits, and pushes a v* tag.
 # Pushing the tag triggers release.yml, which builds, publishes to npm,
 # and cuts a GitHub Release.
-#
-# Triggered manually or remotely (e.g. from company-z/supergraph production CI)
-# via workflow_dispatch. The token used to push must be a PAT / GitHub App token
-# so that the resulting tag push re-triggers release.yml (the default GITHUB_TOKEN
-# does not trigger downstream workflows).
 
 on:
   workflow_dispatch:
