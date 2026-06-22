@@ -1,0 +1,29 @@
+name: Bump version
+
+# Bumps the patch version, commits, and pushes a v* tag.
+# Pushing the tag triggers release.yml, which builds, publishes to npm,
+# and cuts a GitHub Release.
+
+on:
+  workflow_dispatch:
+
+jobs:
+  bump:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.SDK_RELEASE_TOKEN }}
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - uses: pnpm/action-setup@v4
+      - name: Configure git
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+      - name: Bump patch version and tag
+        run: pnpm version patch -m "chore(release): %s"
+      - name: Push commit and tag
+        run: git push --follow-tags
