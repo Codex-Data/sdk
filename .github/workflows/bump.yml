@@ -10,6 +10,8 @@ on:
 jobs:
   bump:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
     steps:
       - uses: actions/checkout@v4
         with:
@@ -24,6 +26,13 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
       - name: Bump patch version and tag
-        run: 'pnpm version patch -m "chore(release): %s"'
+        id: bump
+        run: |
+          echo "tag=$(pnpm version patch -m 'chore(release): %s')" >> "$GITHUB_OUTPUT"
       - name: Push commit and tag
         run: git push --follow-tags
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ steps.bump.outputs.tag }}
+          generate_release_notes: true
