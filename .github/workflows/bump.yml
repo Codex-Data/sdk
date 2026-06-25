@@ -24,6 +24,6 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
       - name: Bump patch version and tag
-        run: pnpm version patch -m "chore(release): %s"
+        run: 'pnpm version patch -m "chore(release): %s"'
       - name: Push commit and tag
         run: git push --follow-tags
