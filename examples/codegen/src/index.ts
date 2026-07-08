@@ -1,7 +1,8 @@
 import { Codex } from "@codex-data/sdk";
-import { graphql } from "./gql/gql";
-import { NetworksQuery, NetworksQueryVariables } from "./gql/graphql";
+import { graphql } from "./gql";
 
+// The result type is inferred from exactly the fields selected here —
+// and you're only billed for the fields you request.
 const doc = graphql(`
   query Networks {
     getNetworks {
@@ -13,6 +14,6 @@ const doc = graphql(`
 
 const sdk = new Codex(process.env.CODEX_API_KEY || "");
 
-sdk.query<NetworksQuery, NetworksQueryVariables>(doc).then((res) => {
-  console.log("Fetched res", res);
+sdk.query(doc).then((res) => {
+  console.log("Fetched res", res.getNetworks);
 });

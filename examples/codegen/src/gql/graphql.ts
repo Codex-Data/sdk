@@ -66,6 +66,17 @@ export type AddNftPoolEventsOutput = {
   poolAddress: Scalars['String']['output'];
 };
 
+/** Payload for `onPredictionTradesCreated`. */
+export type AddPredictionTradeOutput = {
+  __typename?: 'AddPredictionTradeOutput';
+  /** The ID of the prediction event. */
+  eventId: Scalars['String']['output'];
+  /** The ID of the prediction market. */
+  marketId: Scalars['String']['output'];
+  /** The number of trades. */
+  trades: Array<Maybe<PredictionTrade>>;
+};
+
 /** Response returned by `onTokenEventsCreated`. */
 export type AddTokenEventsOutput = {
   __typename?: 'AddTokenEventsOutput';
@@ -82,7 +93,7 @@ export type AddTokenLifecycleEventsOutput = {
   id: Scalars['String']['output'];
 };
 
-/** Response returned by `onUnconfirmedEventsCreatedByMaker`. */
+/** Response returned by deprecated `onUnconfirmedEventsCreatedByMaker`. Prefer `onEventsCreatedByMaker`. */
 export type AddUnconfirmedEventsByMakerOutput = {
   __typename?: 'AddUnconfirmedEventsByMakerOutput';
   /** A list of transactions for the maker. */
@@ -91,7 +102,7 @@ export type AddUnconfirmedEventsByMakerOutput = {
   makerAddress: Scalars['String']['output'];
 };
 
-/** Response returned by `onUnconfirmedEventsCreated`. */
+/** Response returned by deprecated `onUnconfirmedEventsCreated`. Prefer `onEventsCreated`. */
 export type AddUnconfirmedEventsOutput = {
   __typename?: 'AddUnconfirmedEventsOutput';
   /** The contract address of the pair. */
@@ -155,6 +166,48 @@ export type ArenaTradeData = {
   type: Scalars['String']['output'];
 };
 
+/** A Grid asset — a canonical representation of an on-chain token or instrument. */
+export type Asset = {
+  __typename?: 'Asset';
+  /** Deployments of this asset across chains. */
+  assetDeployments: Array<AssetDeployment>;
+  /** A description of the asset. */
+  description?: Maybe<Scalars['String']['output']>;
+  /** The asset icon URL. */
+  icon?: Maybe<Scalars['String']['output']>;
+  /** The Grid asset ID. */
+  id: Scalars['String']['output'];
+  /** The asset name. */
+  name?: Maybe<Scalars['String']['output']>;
+  /** The Grid root ID for the parent organization. */
+  rootId: Scalars['String']['output'];
+  /** The asset status. */
+  status?: Maybe<Scalars['String']['output']>;
+  /** The asset ticker symbol. */
+  ticker?: Maybe<Scalars['String']['output']>;
+  /** The asset type (e.g. `token`, `stablecoin`). */
+  type?: Maybe<Scalars['String']['output']>;
+};
+
+/** A deployment of a Grid asset on a specific chain. */
+export type AssetDeployment = {
+  __typename?: 'AssetDeployment';
+  /** The contract address of the deployment. */
+  address: Scalars['String']['output'];
+  /** The Grid asset ID. */
+  assetId: Scalars['String']['output'];
+  /** The deployment ID. */
+  id: Scalars['String']['output'];
+  /** The network ID the asset is deployed on. */
+  networkId: Scalars['Int']['output'];
+  /** The Grid root ID for the parent organization. */
+  rootId: Scalars['String']['output'];
+  /** The token standard (e.g. `ERC20`, `SPL`). */
+  standard?: Maybe<Scalars['String']['output']>;
+  /** The enhanced token this deployment represents. */
+  token?: Maybe<EnhancedToken>;
+};
+
 /** Wallet balance of a token. */
 export type Balance = {
   __typename?: 'Balance';
@@ -178,8 +231,12 @@ export type Balance = {
   tokenAddress: Scalars['String']['output'];
   /** The ID of the token (`tokenAddress:networkId`). */
   tokenId: Scalars['String']['output'];
+  /** Unix timestamp (seconds) of the token's most recent trade/market event across all pools we track. Token-level (not specific to this wallet). Useful for filtering out dead/worthless tokens, e.g. no activity in months. */
+  tokenLastTradedTimestamp?: Maybe<Scalars['Int']['output']>;
   /** The token price in USD. */
   tokenPriceUsd?: Maybe<Scalars['String']['output']>;
+  /** Identity and profile metadata for the wallet holding this balance. Not always available. */
+  wallet?: Maybe<Wallet>;
   /** The ID of the wallet (`walletAddress:networkId`). */
   walletId: Scalars['String']['output'];
 };
@@ -202,6 +259,8 @@ export type BalancesInput = {
   removeScams?: InputMaybe<Scalars['Boolean']['input']>;
   /** The attribute to sort the list on. Defaults to BALANCE (raw token amount). */
   sortBy?: InputMaybe<BalancesSortAttribute>;
+  /** The direction to sort the list. Defaults to DESC (highest value first). */
+  sortDirection?: InputMaybe<RankingDirection>;
   /** The token IDs (`address:networkId`) or addresses to request the balance for. Requires a list of `networks` if only passing addresses. Include native network balances using `native` as the token address. Only applied when using `walletAddress` (not `walletId`). Max 200 tokens. */
   tokens?: InputMaybe<Array<Scalars['String']['input']>>;
   /** The wallet address to filter by. */
@@ -229,9 +288,22 @@ export enum BalancesSortAttribute {
   UsdValue = 'USD_VALUE'
 }
 
+/** The commitment level of a streamed bar update for Solana subscriptions. */
+export enum BarCommitmentLevel {
+  Confirmed = 'Confirmed',
+  Preprocessed = 'Preprocessed',
+  Processed = 'Processed'
+}
+
 /** Bar chart data to track price changes over time. */
 export type BarsResponse = {
   __typename?: 'BarsResponse';
+  /** Average total fee cost per transaction in USD (totalFees / transactions). Null when there are no transactions. */
+  averageCostPerTrade?: Maybe<Array<Maybe<Scalars['String']['output']>>>;
+  /** The aggregate base fees (gas) in USD */
+  baseFees?: Maybe<Array<Maybe<Scalars['String']['output']>>>;
+  /** The aggregate builder tips (MEV) in USD */
+  builderTips?: Maybe<Array<Maybe<Scalars['String']['output']>>>;
   /** The buy volume in USD */
   buyVolume: Array<Maybe<Scalars['String']['output']>>;
   /** The number of unique buyers */
@@ -240,18 +312,36 @@ export type BarsResponse = {
   buys: Array<Maybe<Scalars['Int']['output']>>;
   /** The closing price. */
   c: Array<Maybe<Scalars['Float']['output']>>;
+  /** Dominant fee component: gas-dominated (gas &gt;50% of fees), mev-dominated (tips &gt;20%), or pool-fee-dominated. Null when no fees. */
+  feeRegimeClassification?: Maybe<Array<Maybe<Scalars['String']['output']>>>;
+  /** Ratio of total fees to volume (totalFees / volume). Null when volume is zero. */
+  feeToVolumeRatio?: Maybe<Array<Maybe<Scalars['String']['output']>>>;
+  /** Gas cost per dollar of volume ((baseFees + priorityFees + l1DataFees) / volume). Null when volume is zero. */
+  gasPerVolume?: Maybe<Array<Maybe<Scalars['String']['output']>>>;
   /** The high price. */
   h: Array<Maybe<Scalars['Float']['output']>>;
   /** The low price. */
   l: Array<Maybe<Scalars['Float']['output']>>;
+  /** The aggregate L1 data posting fees in USD (L2 rollups only) */
+  l1DataFees?: Maybe<Array<Maybe<Scalars['String']['output']>>>;
   /** Liquidity in USD */
   liquidity: Array<Maybe<Scalars['String']['output']>>;
+  /** MEV risk level for this bar: low (&lt;3% builder tips), medium (3-30%), or high (&gt;30%). Null for pre-genesis bars. */
+  mevRiskLevel?: Maybe<Array<Maybe<Scalars['String']['output']>>>;
+  /** Ratio of builder tips (MEV) to total fees (builderTips / totalFees). Null when totalFees is zero. */
+  mevToTotalFeesRatio?: Maybe<Array<Maybe<Scalars['String']['output']>>>;
   /** The opening price. */
   o: Array<Maybe<Scalars['Float']['output']>>;
   /** The pair that is being returned */
   pair: Pair;
+  /** The aggregate pool/DEX fees in USD */
+  poolFees?: Maybe<Array<Maybe<Scalars['String']['output']>>>;
+  /** The aggregate priority fees in USD */
+  priorityFees?: Maybe<Array<Maybe<Scalars['String']['output']>>>;
   /** The status code for the batch: `ok` for successful data retrieval and `no_data` for empty responses signaling the end of server data. */
   s: Scalars['String']['output'];
+  /** Rate of sandwich attacks per transaction (sandwichedEventCount / transactions). Null when no transaction data. */
+  sandwichRate?: Maybe<Array<Maybe<Scalars['String']['output']>>>;
   /** The sell volume in USD */
   sellVolume: Array<Maybe<Scalars['String']['output']>>;
   /** The number of unique sellers */
@@ -260,6 +350,8 @@ export type BarsResponse = {
   sells: Array<Maybe<Scalars['Int']['output']>>;
   /** The timestamp for the bar. */
   t: Array<Scalars['Int']['output']>;
+  /** The total fees in USD (sum of poolFees + baseFees + priorityFees + builderTips + l1DataFees) */
+  totalFees?: Maybe<Array<Maybe<Scalars['String']['output']>>>;
   /** The number of traders */
   traders: Array<Maybe<Scalars['Int']['output']>>;
   /** The number of transactions */
@@ -357,6 +449,22 @@ export type ChartUrlsResponse = {
   __typename?: 'ChartUrlsResponse';
   /** The pair chart url. */
   pair: ChartUrl;
+};
+
+export type CoinCommunity = {
+  __typename?: 'CoinCommunity';
+  /** The unix timestamp for the creation of the coin community. */
+  createdAt: Scalars['Int']['output'];
+  /** The id of the coin community */
+  id: Scalars['String']['output'];
+  /** The unix timestamp for the most recent post in the coin community. */
+  lastPostAt?: Maybe<Scalars['Int']['output']>;
+  /** The number of likes in the coin community. */
+  likeCount: Scalars['Int']['output'];
+  /** The number of members in the coin community. */
+  memberCount: Scalars['Int']['output'];
+  /** The number of posts in the coin community. */
+  postCount: Scalars['Int']['output'];
 };
 
 /** Community gathered proposals for an asset. */
@@ -494,8 +602,8 @@ export enum ContractProposalStatus {
 
 /** Type of the contract. */
 export enum ContractType {
-  Nft = 'NFT',
-  Token = 'TOKEN'
+  Token = 'TOKEN',
+  Wallet = 'WALLET'
 }
 
 export type CreateApiTokensInput = {
@@ -550,33 +658,18 @@ export type CreateMarketCapWebhooksInput = {
   webhooks: Array<CreateMarketCapWebhookArgs>;
 };
 
-/** Input for creating an NFT event webhook. */
-export type CreateNftEventWebhookArgs = {
+/** Input for creating a prediction market metrics event webhook. */
+export type CreatePredictionMarketMetricsEventWebhookArgs = {
   /** The recurrence of the webhook. Can be `INDEFINITE` or `ONCE`. */
   alertRecurrence: AlertRecurrence;
-  /**
-   * Deprecated. Use `bucketKey.bucketId` instead. Existing webhooks created with `bucketId` and `bucketSortkey` will continue to work.
-   * @deprecated Use bucketKey.bucketId instead.
-   */
-  bucketId?: InputMaybe<Scalars['String']['input']>;
   /** An optional bucket key for grouping and querying webhooks. Prefer this over the deprecated flat bucket fields. */
   bucketKey?: InputMaybe<BucketKeyInput>;
-  /**
-   * Deprecated. Use `bucketKey.bucketSortKey` instead. Existing webhooks created with `bucketId` and `bucketSortkey` will continue to work.
-   * @deprecated Use bucketKey.bucketSortKey instead.
-   */
-  bucketSortkey?: InputMaybe<Scalars['String']['input']>;
   /** The url to which the webhook message should be sent. */
   callbackUrl: Scalars['String']['input'];
   /** The conditions which must be met in order for the webhook to send a message. */
-  conditions: NftEventWebhookConditionInput;
+  conditions: PredictionMarketMetricsEventWebhookConditionInput;
   /** If enabled, new webhooks won't be created if a webhook with the same parameters already exists. If callbackUrl, conditions, publishingType, and alertRecurrence all match, then we return the existing webhook. */
   deduplicate?: InputMaybe<Scalars['Boolean']['input']>;
-  /**
-   * A webhook group ID (max 64 characters). Can be used to group webhooks so that their messages are kept in order as a group rather than by individual webhook.
-   * @deprecated GroupId is deprecated and will be removed in the future. Messages will be grouped by webhookId
-   */
-  groupId?: InputMaybe<Scalars['String']['input']>;
   /** The name of the webhook (max 128 characters). */
   name: Scalars['String']['input'];
   /** The type of publishing for the webhook. If not set, it defaults to `SINGLE`. */
@@ -587,10 +680,34 @@ export type CreateNftEventWebhookArgs = {
   securityToken: Scalars['String']['input'];
 };
 
-/** Input for creating NFT event webhooks. */
-export type CreateNftEventWebhooksInput = {
-  /** A list of NFT event webhooks to create. */
-  webhooks: Array<CreateNftEventWebhookArgs>;
+/** Input for creating prediction market metrics event webhooks. */
+export type CreatePredictionMarketMetricsEventWebhooksInput = {
+  /** A list of prediction market metrics event webhooks to create. */
+  webhooks: Array<CreatePredictionMarketMetricsEventWebhookArgs>;
+};
+
+/** Input for creating a prediction trade webhook. */
+export type CreatePredictionTradeWebhookArgs = {
+  /** The recurrence of the webhook. Can be `INDEFINITE` or `ONCE`. */
+  alertRecurrence: AlertRecurrence;
+  /** An optional bucket key for grouping and querying webhooks. Prefer this over the deprecated flat bucket fields. */
+  bucketKey?: InputMaybe<BucketKeyInput>;
+  /** The url to which the webhook message should be sent. */
+  callbackUrl: Scalars['String']['input'];
+  /** The conditions which must be met in order for the webhook to send a message. */
+  conditions: PredictionTradeWebhookConditionInput;
+  /** The name of the webhook (max 128 characters). */
+  name: Scalars['String']['input'];
+  /** The settings for retrying failed webhook messages. */
+  retrySettings?: InputMaybe<RetrySettingsInput>;
+  /** A string value to hash along with `deduplicationId` using SHA-256. Included in the webhook message for added security. */
+  securityToken: Scalars['String']['input'];
+};
+
+/** Input for creating prediction trade webhooks. */
+export type CreatePredictionTradeWebhooksInput = {
+  /** A list of prediction trade webhooks to create. */
+  webhooks: Array<CreatePredictionTradeWebhookArgs>;
 };
 
 /** Input for creating a price webhook. */
@@ -802,8 +919,10 @@ export type CreateTokenTransferEventWebhooksInput = {
 export type CreateWebhooksInput = {
   /** Input for creating market cap webhooks. */
   marketCapWebhooksInput?: InputMaybe<CreateMarketCapWebhooksInput>;
-  /** Input for creating NFT event webhooks. */
-  nftEventWebhooksInput?: InputMaybe<CreateNftEventWebhooksInput>;
+  /** Input for creating prediction market metrics event webhooks. */
+  predictionMarketMetricsEventWebhooksInput?: InputMaybe<CreatePredictionMarketMetricsEventWebhooksInput>;
+  /** Input for creating prediction trade webhooks. */
+  predictionTradeWebhooksInput?: InputMaybe<CreatePredictionTradeWebhooksInput>;
   /**
    * Input for creating price webhooks.
    * @deprecated Use tokenPriceEventWebhooksInput instead.
@@ -824,8 +943,10 @@ export type CreateWebhooksOutput = {
   __typename?: 'CreateWebhooksOutput';
   /** The list of market cap event webhooks that were created. */
   marketCapWebhooks: Array<Maybe<Webhook>>;
-  /** The list of NFT event webhooks that were created. */
-  nftEventWebhooks: Array<Maybe<Webhook>>;
+  /** The list of prediction market metrics event webhooks that were created. */
+  predictionMarketMetricsEventWebhooks: Array<Maybe<Webhook>>;
+  /** The list of prediction trade webhooks that were created. */
+  predictionTradeWebhooks: Array<Maybe<Webhook>>;
   /** The list of price webhooks that were created. */
   priceWebhooks: Array<Maybe<Webhook>>;
   /** The list of raw transaction webhooks that were created. */
@@ -847,6 +968,35 @@ export type CurrencyBarData = {
   token: IndividualBarData;
   /** Bar chart data in USD. */
   usd: IndividualBarData;
+};
+
+/** OHLC (Open/High/Low/Close) values for a currency pair. */
+export type CurrencyOhlc = {
+  __typename?: 'CurrencyOHLC';
+  /** Closing value. */
+  close: CurrencyValuePair;
+  /** High value. */
+  high: CurrencyValuePair;
+  /** Low value. */
+  low: CurrencyValuePair;
+  /** Opening value. */
+  open: CurrencyValuePair;
+};
+
+/** A currency value pair containing both USD and collateral token values. */
+export type CurrencyValuePair = {
+  __typename?: 'CurrencyValuePair';
+  /** Value in collateral token units. */
+  ct: Scalars['String']['output'];
+  /** Value in USD. */
+  usd: Scalars['String']['output'];
+};
+
+/** Decomposed components extracted from a venue's native event identifier. The parent event's `protocol` field is the source of truth for which sub-block is populated. */
+export type DecomposedVenueTicker = {
+  __typename?: 'DecomposedVenueTicker';
+  /** Populated for Kalshi events whose ticker matches the sports template. */
+  kalshiSports?: Maybe<KalshiSportsTickerComponents>;
 };
 
 /** Input for deleting webhooks. */
@@ -1013,6 +1163,150 @@ export type DetailedPairStatsStringMetrics = {
   previousValue?: Maybe<Scalars['String']['output']>;
 };
 
+/** Response returned by `detailedPredictionEventStats`. */
+export type DetailedPredictionEventStats = {
+  __typename?: 'DetailedPredictionEventStats';
+  /** All-time aggregate stats. */
+  allTimeStats: PredictionEventAllTimeStats;
+  /** The ID of the prediction event. */
+  eventId: Scalars['String']['output'];
+  /** The timestamp of the last transaction. */
+  lastTransactionAt: Scalars['Int']['output'];
+  /** Lifecycle metadata. */
+  lifecycle: PredictionLifecycleStats;
+  /** The prediction event. */
+  predictionEvent: PredictionEvent;
+  /** The prediction markets. */
+  predictionMarkets: Array<PredictionMarket>;
+  /** Relevance scores across time windows. */
+  relevanceScores: DetailedPredictionStatsScores;
+  /** Stats for the 1-day window. */
+  statsDay1?: Maybe<EnhancedWindowedPredictionEventStats>;
+  /** Stats for the 1-hour window. */
+  statsHour1?: Maybe<EnhancedWindowedPredictionEventStats>;
+  /** Stats for the 4-hour window. */
+  statsHour4?: Maybe<EnhancedWindowedPredictionEventStats>;
+  /** Stats for the 12-hour window. */
+  statsHour12?: Maybe<EnhancedWindowedPredictionEventStats>;
+  /** Stats for the 5-minute window. */
+  statsMin5?: Maybe<EnhancedWindowedPredictionEventStats>;
+  /** Stats for the 1-week window. */
+  statsWeek1?: Maybe<EnhancedWindowedPredictionEventStats>;
+  /** Trending scores across time windows. */
+  trendingScores: DetailedPredictionStatsScores;
+};
+
+/** Input type of `detailedPredictionEventStats`. */
+export type DetailedPredictionEventStatsInput = {
+  /** The number of stat buckets to return. */
+  bucketCount?: InputMaybe<Scalars['Int']['input']>;
+  /** The stat durations to include. */
+  durations?: InputMaybe<Array<PredictionStatsDuration>>;
+  /** The ID of the prediction event. */
+  eventId: Scalars['String']['input'];
+  /** The unix timestamp. */
+  timestamp?: InputMaybe<Scalars['Int']['input']>;
+};
+
+/** Response returned by `detailedPredictionMarketStats`. */
+export type DetailedPredictionMarketStats = {
+  __typename?: 'DetailedPredictionMarketStats';
+  /** All-time aggregate stats. */
+  allTimeStats: PredictionMarketAllTimeStats;
+  /** Competitive scores across time windows. */
+  competitiveScores: DetailedPredictionStatsScores;
+  /** The timestamp of the last transaction. */
+  lastTransactionAt: Scalars['Int']['output'];
+  /** Lifecycle metadata. */
+  lifecycle: PredictionLifecycleStats;
+  /** The ID of the prediction market. */
+  marketId: Scalars['String']['output'];
+  /** The prediction event. */
+  predictionEvent: PredictionEvent;
+  /** The prediction market. */
+  predictionMarket: PredictionMarket;
+  /** Relevance scores across time windows. */
+  relevanceScores: DetailedPredictionStatsScores;
+  /** Stats for the 1-day window. */
+  statsDay1?: Maybe<EnhancedWindowedPredictionMarketStats>;
+  /** Stats for the 1-hour window. */
+  statsHour1?: Maybe<EnhancedWindowedPredictionMarketStats>;
+  /** Stats for the 4-hour window. */
+  statsHour4?: Maybe<EnhancedWindowedPredictionMarketStats>;
+  /** Stats for the 12-hour window. */
+  statsHour12?: Maybe<EnhancedWindowedPredictionMarketStats>;
+  /** Stats for the 5-minute window. */
+  statsMin5?: Maybe<EnhancedWindowedPredictionMarketStats>;
+  /** Stats for the 1-week window. */
+  statsWeek1?: Maybe<EnhancedWindowedPredictionMarketStats>;
+  /** Trending scores across time windows. */
+  trendingScores: DetailedPredictionStatsScores;
+};
+
+/** Input type of `detailedPredictionMarketStats`. */
+export type DetailedPredictionMarketStatsInput = {
+  /** The number of stat buckets to return. */
+  bucketCount?: InputMaybe<Scalars['Int']['input']>;
+  /** The stat durations to include. */
+  durations?: InputMaybe<Array<PredictionStatsDuration>>;
+  /** The ID of the prediction market. */
+  marketId: Scalars['String']['input'];
+  /** The unix timestamp. */
+  timestamp?: InputMaybe<Scalars['Int']['input']>;
+};
+
+/** Scores across multiple time windows for a prediction entity. */
+export type DetailedPredictionStatsScores = {
+  __typename?: 'DetailedPredictionStatsScores';
+  /** The score1. */
+  score1?: Maybe<Scalars['Float']['output']>;
+  /** The score1w. */
+  score1w?: Maybe<Scalars['Float']['output']>;
+  /** The score4. */
+  score4?: Maybe<Scalars['Float']['output']>;
+  /** The score5m. */
+  score5m?: Maybe<Scalars['Float']['output']>;
+  /** The score12. */
+  score12?: Maybe<Scalars['Float']['output']>;
+  /** The score24. */
+  score24?: Maybe<Scalars['Float']['output']>;
+};
+
+/** Response returned by `detailedPredictionTraderStats`. */
+export type DetailedPredictionTraderStats = {
+  __typename?: 'DetailedPredictionTraderStats';
+  /** All-time aggregate stats. */
+  allTimeStats: WindowedPredictionTraderAllTimeStats;
+  /** The timestamp of the last transaction. */
+  lastTransactionAt: Scalars['Int']['output'];
+  /** Stats for the 1-day window. */
+  statsDay1?: Maybe<EnhancedWindowedPredictionTraderStats>;
+  /** Stats for the Day30 window. */
+  statsDay30?: Maybe<EnhancedWindowedPredictionTraderStats>;
+  /** Stats for the 1-hour window. */
+  statsHour1?: Maybe<EnhancedWindowedPredictionTraderStats>;
+  /** Stats for the 4-hour window. */
+  statsHour4?: Maybe<EnhancedWindowedPredictionTraderStats>;
+  /** Stats for the 12-hour window. */
+  statsHour12?: Maybe<EnhancedWindowedPredictionTraderStats>;
+  /** Stats for the 1-week window. */
+  statsWeek1?: Maybe<EnhancedWindowedPredictionTraderStats>;
+  /** The trader. */
+  trader: PredictionTrader;
+  /** The ID of the prediction trader. */
+  traderId: Scalars['String']['output'];
+};
+
+/** Input type of `detailedPredictionTraderStats`. */
+export type DetailedPredictionTraderStatsInput = {
+  /** The stat durations to include. */
+  durations?: InputMaybe<Array<PredictionTraderStatsDuration>>;
+  /** The unix timestamp. */
+  timestamp?: InputMaybe<Scalars['Int']['input']>;
+  /** The ID of the prediction trader. */
+  traderId: Scalars['String']['input'];
+};
+
 /** Detailed stats for a token within a pair. */
 export type DetailedStats = {
   __typename?: 'DetailedStats';
@@ -1077,6 +1371,66 @@ export enum DetailedStatsWindowSize {
   Hour12 = 'hour12',
   Min5 = 'min5'
 }
+
+/** Payload for `onDetailedPredictionEventStatsUpdated`. */
+export type DetailedSubscriptionPredictionEventStats = {
+  __typename?: 'DetailedSubscriptionPredictionEventStats';
+  /** All-time aggregate stats. */
+  allTimeStats: PredictionEventAllTimeStats;
+  /** The ID of the prediction event. */
+  eventId: Scalars['String']['output'];
+  /** The timestamp of the last transaction. */
+  lastTransactionAt: Scalars['Int']['output'];
+  /** Lifecycle metadata. */
+  lifecycle: PredictionLifecycleStats;
+  /** Relevance scores across time windows. */
+  relevanceScores: DetailedPredictionStatsScores;
+  /** Stats for the 1-day window. */
+  statsDay1?: Maybe<EnhancedWindowedPredictionEventStats>;
+  /** Stats for the 1-hour window. */
+  statsHour1?: Maybe<EnhancedWindowedPredictionEventStats>;
+  /** Stats for the 4-hour window. */
+  statsHour4?: Maybe<EnhancedWindowedPredictionEventStats>;
+  /** Stats for the 12-hour window. */
+  statsHour12?: Maybe<EnhancedWindowedPredictionEventStats>;
+  /** Stats for the 5-minute window. */
+  statsMin5?: Maybe<EnhancedWindowedPredictionEventStats>;
+  /** Stats for the 1-week window. */
+  statsWeek1?: Maybe<EnhancedWindowedPredictionEventStats>;
+  /** Trending scores across time windows. */
+  trendingScores: DetailedPredictionStatsScores;
+};
+
+/** Payload for `onDetailedPredictionMarketStatsUpdated`. */
+export type DetailedSubscriptionPredictionMarketStats = {
+  __typename?: 'DetailedSubscriptionPredictionMarketStats';
+  /** All-time aggregate stats. */
+  allTimeStats: PredictionMarketAllTimeStats;
+  /** Competitive scores across time windows. */
+  competitiveScores: DetailedPredictionStatsScores;
+  /** The timestamp of the last transaction. */
+  lastTransactionAt: Scalars['Int']['output'];
+  /** Lifecycle metadata. */
+  lifecycle: PredictionLifecycleStats;
+  /** The ID of the prediction market. */
+  marketId: Scalars['String']['output'];
+  /** Relevance scores across time windows. */
+  relevanceScores: DetailedPredictionStatsScores;
+  /** Stats for the 1-day window. */
+  statsDay1?: Maybe<EnhancedWindowedPredictionMarketStats>;
+  /** Stats for the 1-hour window. */
+  statsHour1?: Maybe<EnhancedWindowedPredictionMarketStats>;
+  /** Stats for the 4-hour window. */
+  statsHour4?: Maybe<EnhancedWindowedPredictionMarketStats>;
+  /** Stats for the 12-hour window. */
+  statsHour12?: Maybe<EnhancedWindowedPredictionMarketStats>;
+  /** Stats for the 5-minute window. */
+  statsMin5?: Maybe<EnhancedWindowedPredictionMarketStats>;
+  /** Stats for the 1-week window. */
+  statsWeek1?: Maybe<EnhancedWindowedPredictionMarketStats>;
+  /** Trending scores across time windows. */
+  trendingScores: DetailedPredictionStatsScores;
+};
 
 /** Detailed stats for a token. */
 export type DetailedTokenStats = {
@@ -1144,6 +1498,11 @@ export type DetailedWalletStats = {
   /** The stats for the last week */
   statsWeek1?: Maybe<WindowedWalletStats>;
   /** The stats for the last year */
+  statsYear?: Maybe<WindowedWalletStatsYear>;
+  /**
+   * The stats for the last year
+   * @deprecated statsYear1 is no longer supported and will be removed on 2026-07-10 (we are removing uniqueTokens1y). Use statsYear instead.
+   */
   statsYear1?: Maybe<WindowedWalletStats>;
   /** The wallet record */
   wallet: Wallet;
@@ -1198,6 +1557,10 @@ export type EnhancedToken = {
   __typename?: 'EnhancedToken';
   /** The contract address of the token. */
   address: Scalars['String']['output'];
+  /** The Grid asset associated with this token. */
+  asset?: Maybe<Asset>;
+  /** The Grid bluechip rating for this token (e.g. `A+`, `B-`). */
+  bluechipRating?: Maybe<Scalars['String']['output']>;
   /**
    * The circulating supply of the token.
    * @deprecated Use the TokenInfo type
@@ -1205,12 +1568,16 @@ export type EnhancedToken = {
   circulatingSupply?: Maybe<Scalars['String']['output']>;
   /** The token ID on CoinMarketCap. */
   cmcId?: Maybe<Scalars['Int']['output']>;
+  /** The Coin Community data for the token */
+  coinCommunity?: Maybe<CoinCommunity>;
   /** The block height the token was created at. */
   createBlockNumber?: Maybe<Scalars['Int']['output']>;
   /** The transaction hash of the token's creation. */
   createTransactionHash?: Maybe<Scalars['String']['output']>;
   /** The unix timestamp for the creation of the token. */
   createdAt?: Maybe<Scalars['Int']['output']>;
+  /** The token creator's wallet identity and profile, resolved from creatorAddress. Null when the token has no known creator. */
+  creator?: Maybe<Wallet>;
   /** The token creator's wallet address. */
   creatorAddress?: Maybe<Scalars['String']['output']>;
   /** The precision to which the token can be divided. For example, the smallest unit for USDC is 0.000001 (6 decimals). */
@@ -1222,8 +1589,12 @@ export type EnhancedToken = {
    * @deprecated Use the TokenInfo type
    */
   explorerData?: Maybe<ExplorerTokenData>;
+  /** All-time high and low price/market cap data for the token. */
+  extrema?: Maybe<TokenExtrema>;
   /** Returns freeze authority address if token is freezable. If null, verify against isFreezableValid. */
   freezable?: Maybe<Scalars['String']['output']>;
+  /** The Grid asset ID, if this token is linked to a Grid asset. */
+  gridAssetId?: Maybe<Scalars['String']['output']>;
   /** The ID of the token (`address:networkId`). */
   id: Scalars['String']['output'];
   /**
@@ -1257,11 +1628,15 @@ export type EnhancedToken = {
   name?: Maybe<Scalars['String']['output']>;
   /** The network ID the token is deployed on. */
   networkId: Scalars['Int']['output'];
+  /** The Grid organization associated with this token. */
+  organization?: Maybe<Organization>;
   /**
    * The amount of this token in the pair.
    * @deprecated Pooled can be found on the pair instead
    */
   pooled?: Maybe<Scalars['String']['output']>;
+  /** Whether the token name or symbol contains profanity. */
+  profanity?: Maybe<Scalars['Boolean']['output']>;
   /** Community gathered links for the socials of this token. */
   socialLinks?: Maybe<SocialLinks>;
   /** The token symbol. For example, `APE`. */
@@ -1275,6 +1650,96 @@ export type EnhancedToken = {
   totalSupply?: Maybe<Scalars['String']['output']>;
 };
 
+/** Enhanced stats for a prediction event over a time window. */
+export type EnhancedWindowedPredictionEventStats = {
+  __typename?: 'EnhancedWindowedPredictionEventStats';
+  /** All-time aggregate stats. */
+  allTimeStats: WindowedPredictionAllTimeStats;
+  /** Buy/sell breakdown (optional). */
+  buySell?: Maybe<WindowedPredictionEventBuySellStats>;
+  /** Core stats (always present). */
+  core: WindowedPredictionEventCoreStats;
+  /** Window end timestamp. */
+  end: Scalars['Int']['output'];
+  /** Timestamp of last transaction in window. */
+  lastTransactionAt: Scalars['Int']['output'];
+  /** Liquidity stats (optional). */
+  liquidity?: Maybe<WindowedPredictionEventLiquidityStats>;
+  /** Open interest stats (optional). */
+  openInterest?: Maybe<WindowedPredictionEventOpenInterestStats>;
+  /** Scores for this window. */
+  scores: PredictionEventWindowScores;
+  /** Window start timestamp. */
+  start: Scalars['Int']['output'];
+  /** Change stats for this window. */
+  statsChange: WindowedPredictionEventChangeStats;
+  /** Unique trader stats (optional). */
+  uniqueTraders?: Maybe<WindowedPredictionEventUniqueTraderStats>;
+};
+
+/** Enhanced stats for a prediction market over a time window. */
+export type EnhancedWindowedPredictionMarketStats = {
+  __typename?: 'EnhancedWindowedPredictionMarketStats';
+  /** All-time aggregate stats. */
+  allTimeStats: WindowedPredictionAllTimeStats;
+  /** Core stats (always present). */
+  core: WindowedPredictionMarketCoreStats;
+  /** Window end timestamp. */
+  end: Scalars['Int']['output'];
+  /** Timestamp of last transaction in window. */
+  lastTransactionAt: Scalars['Int']['output'];
+  /** Liquidity stats (optional). */
+  liquidity?: Maybe<WindowedPredictionMarketLiquidityStats>;
+  /** Open interest stats (optional). */
+  openInterest?: Maybe<WindowedPredictionMarketOpenInterestStats>;
+  /** Outcome 0 stats. */
+  outcome0Stats: EnhancedWindowedPredictionOutcomeStats;
+  /** Outcome 1 stats. */
+  outcome1Stats: EnhancedWindowedPredictionOutcomeStats;
+  /** Scores for this window. */
+  scores: PredictionMarketWindowScores;
+  /** Window start timestamp. */
+  start: Scalars['Int']['output'];
+  /** Change stats for this window. */
+  statsChange: WindowedPredictionMarketChangeStats;
+  /** Unique trader stats (optional). */
+  uniqueTraders?: Maybe<WindowedPredictionMarketUniqueTraderStats>;
+};
+
+/** Enhanced stats for a single outcome over a time window. */
+export type EnhancedWindowedPredictionOutcomeStats = {
+  __typename?: 'EnhancedWindowedPredictionOutcomeStats';
+  /** Buy/sell breakdown (optional). */
+  buySell?: Maybe<WindowedPredictionOutcomeBuySellStats>;
+  /** Core stats (always present). */
+  core: WindowedPredictionOutcomeCoreStats;
+  /** Depth stats (optional). */
+  depth?: Maybe<WindowedPredictionOutcomeDepthStats>;
+  /** Liquidity stats (optional). */
+  liquidity?: Maybe<WindowedPredictionOutcomeLiquidityStats>;
+  /** Orderbook stats (optional). */
+  orderbook?: Maybe<WindowedPredictionOutcomeOrderbookStats>;
+  /** Change stats for this window. */
+  statsChange: WindowedPredictionOutcomeChangeStats;
+};
+
+/** Enhanced stats for a prediction trader over a time window, including scores. */
+export type EnhancedWindowedPredictionTraderStats = {
+  __typename?: 'EnhancedWindowedPredictionTraderStats';
+  /** The end. */
+  end: Scalars['Int']['output'];
+  /** The timestamp of the last transaction. */
+  lastTransactionAt: Scalars['Int']['output'];
+  /** The start. */
+  start: Scalars['Int']['output'];
+  /** Change stats for this window. */
+  statsChange: WindowedPredictionTraderChangeStats;
+  /** Currency stats for this window. */
+  statsCurrency: WindowedPredictionTraderCurrencyStats;
+  /** Non-currency stats for this window. */
+  statsNonCurrency: WindowedPredictionTraderNonCurrencyStats;
+};
+
 /** A token transaction. */
 export type Event = {
   __typename?: 'Event';
@@ -1286,12 +1751,16 @@ export type Event = {
   blockHash: Scalars['String']['output'];
   /** The block number for the transaction. */
   blockNumber: Scalars['Int']['output'];
+  /** The commitment level of the event within the live stream. */
+  commitmentLevel: EventCommitmentLevel;
   /** The event-specific data for the transaction. Can be `BurnEventData` or `MintEventData` or `SwapEventData`. */
   data?: Maybe<EventData>;
   /** A more specific breakdown of `eventType`. Splits `Swap` into `Buy` or `Sell`. */
   eventDisplayType?: Maybe<EventDisplayType>;
   /** The type of transaction event. Can be `Burn`, `Mint`, `Swap`, `Sync`, `Collect`, or `CollectProtocol`. */
   eventType: EventType;
+  /** Fee breakdown for this event. */
+  feeData?: Maybe<EventFeeData>;
   /** The ID of the event (`address:networkId`). For example, `0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2:1`. */
   id: Scalars['String']['output'];
   /** Labels attributed to the event. */
@@ -1306,6 +1775,8 @@ export type Event = {
   networkId: Scalars['Int']['output'];
   /** The token of interest within the token's top pair. Can be `token0` or `token1`. */
   quoteToken?: Maybe<QuoteToken>;
+  /** An optional unique identifier describing where the event appears within the transaction. */
+  supplementalIndex?: Maybe<Scalars['Int']['output']>;
   /** The unix timestamp for when the transaction occurred. */
   timestamp: Scalars['Int']['output'];
   /** The address of the event's token0. */
@@ -1334,6 +1805,13 @@ export type Event = {
   walletLabels?: Maybe<Array<Scalars['String']['output']>>;
 };
 
+/** The commitment level of a streamed event for Solana subscriptions. */
+export enum EventCommitmentLevel {
+  Confirmed = 'Confirmed',
+  Preprocessed = 'Preprocessed',
+  Processed = 'Processed'
+}
+
 /** Response returned by `getTokenEvents`. */
 export type EventConnection = {
   __typename?: 'EventConnection';
@@ -1356,6 +1834,35 @@ export enum EventDisplayType {
   Sell = 'Sell',
   Sync = 'Sync'
 }
+
+/** Fee breakdown for a single event. All wei-denominated fields are in the network's native token smallest unit. */
+export type EventFeeData = {
+  __typename?: 'EventFeeData';
+  /** Base fee portion of gas cost in native token smallest unit (wei for EVM, lamports for Solana). baseFeePerGas * gasUsed on EVM, 5000 lamports * signatures on Solana. */
+  baseFeeNativeUnit?: Maybe<Scalars['String']['output']>;
+  /** Direct payment to the block builder in native token smallest unit. Sum of ETH transfers to block.coinbase on EVM, or Jito tip on Solana. */
+  builderTipNativeUnit?: Maybe<Scalars['String']['output']>;
+  /** True when the pool fee is dynamic (e.g. UniswapV4 hooks, AlgebraIntegral plugins). */
+  dynamicFee?: Maybe<Scalars['Boolean']['output']>;
+  /** True when poolFeeBps is a protocol-level estimate rather than an exact per-pool or per-swap value (e.g. MintClub averaged mint/burn royalties). */
+  estimatedPoolFee?: Maybe<Scalars['Boolean']['output']>;
+  /** Gas units consumed by the transaction (EVM gas units or Solana compute units). */
+  gasUsed?: Maybe<Scalars['String']['output']>;
+  /** L1 data posting fee in native token smallest unit (L2 rollups only: Base, Optimism, etc.). */
+  l1DataFeeNativeUnit?: Maybe<Scalars['String']['output']>;
+  /** Pool fee absolute amount in the fee token's smallest unit. */
+  poolFeeAmountRaw?: Maybe<Scalars['String']['output']>;
+  /** Pool fee rate normalized to basis points (1 bps = 0.01%). */
+  poolFeeBps?: Maybe<Scalars['Float']['output']>;
+  /** Pool fee rate in the protocol's native encoding. */
+  poolFeeRateRaw?: Maybe<Scalars['String']['output']>;
+  /** Priority fee / gas tip in native token smallest unit. (effectiveGasPrice - baseFeePerGas) * gasUsed on EVM, meta.fee - baseFee on Solana. */
+  priorityFeeNativeUnit?: Maybe<Scalars['String']['output']>;
+  /** Protocol-specific supplemental fee data (e.g. Pump cashback). */
+  supplementalFeeData?: Maybe<SupplementalFeeData>;
+  /** Number of DEX events in this transaction. Used to pro-rate transaction-level fees per event. */
+  txEventCount?: Maybe<Scalars['Int']['output']>;
+};
 
 /** Metadata for an event label. */
 export type EventLabel = {
@@ -1402,6 +1909,30 @@ export type EventQueryTimestampInput = {
   from: Scalars['Int']['input'];
   /** The unix timestamp for the end of the requested range. */
   to: Scalars['Int']['input'];
+};
+
+/** Response returned by `eventScopedFilterPredictionMarkets`. All markets belong to the same event, so `eventShape` and `eventId` are surfaced once at the connection level rather than repeated on every row. */
+export type EventScopedPredictionMarketFilterConnection = {
+  __typename?: 'EventScopedPredictionMarketFilterConnection';
+  /** Total number of matching results. */
+  count: Scalars['Int']['output'];
+  /** The ID of the prediction event. */
+  eventId: Scalars['String']['output'];
+  /** Event-level shape (one per event; identical for all markets in a single-event query). */
+  eventShape: PredictionEventShape;
+  /** The current page number. */
+  page: Scalars['Int']['output'];
+  /** The list of results. */
+  results: Array<EventScopedPredictionMarketFilterResult>;
+};
+
+/** A prediction market scoped to a single event, paired with its structured classification metadata. */
+export type EventScopedPredictionMarketFilterResult = {
+  __typename?: 'EventScopedPredictionMarketFilterResult';
+  /** Structured classification metadata. Discriminated by `classification.role`; carries `segment` (period/stat), `entrant` (with country code / image), `thresholdBucket` (parsed numeric rung + operator), and `dateBucket` (unix timestamp + operator) sub-blocks. See `MarketClassifier/CLASSIFICATION.md` for the consumer guide. */
+  classification: PredictionMarketClassification;
+  /** The prediction market filter result. */
+  marketResult: PredictionMarketFilterResult;
 };
 
 /** The event type for a token transaction. */
@@ -1675,6 +2206,13 @@ export type FilterNetworkWalletsInput = {
   wallets?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
 };
 
+/** Response returned by `onFilterTokensUpdated`. */
+export type FilterTokenUpdates = {
+  __typename?: 'FilterTokenUpdates';
+  /** The list of updated token results matching the subscription parameters. */
+  updates?: Maybe<Array<Maybe<TokenFilterResult>>>;
+};
+
 /** The input for filtering wallets for a token. */
 export type FilterTokenWalletsInput = {
   /** Exclude wallets with these labels. See [`WalletLabel`](/api-reference/enums/walletlabel) for possible values. */
@@ -1714,6 +2252,60 @@ export type FilterTokenWalletsInput = {
   wallets?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
 };
 
+/** Trader metadata within a trader-market filter result. */
+export type FilterTrader = {
+  __typename?: 'FilterTrader';
+  /** The trader alias. */
+  alias?: Maybe<Scalars['String']['output']>;
+  /** The unique identifier. */
+  id: Scalars['String']['output'];
+  /** Labels applied to this entity. */
+  labels?: Maybe<Array<Scalars['String']['output']>>;
+  /** The linked addresses. */
+  linkedAddresses?: Maybe<Array<Scalars['String']['output']>>;
+  /** The primary address. */
+  primaryAddress?: Maybe<Scalars['String']['output']>;
+  /** The profile image url. */
+  profileImageUrl?: Maybe<Scalars['String']['output']>;
+  /** The profile url. */
+  profileUrl?: Maybe<Scalars['String']['output']>;
+  /** The prediction protocol. */
+  protocol: PredictionProtocol;
+  /** The venue trader id. */
+  venueTraderId: Scalars['String']['output'];
+};
+
+/** Market metadata within a trader-market filter result. */
+export type FilterTraderMarket = {
+  __typename?: 'FilterTraderMarket';
+  /** The timestamp when this entity closes. */
+  closesAt: Scalars['Int']['output'];
+  /** The ID of the prediction event. */
+  eventId: Scalars['String']['output'];
+  /** The parent event label. */
+  eventLabel?: Maybe<Scalars['String']['output']>;
+  /** The unique identifier. */
+  id: Scalars['String']['output'];
+  /** URL of the thumbnail image. */
+  imageThumbUrl?: Maybe<Scalars['String']['output']>;
+  /** The display label. */
+  label?: Maybe<Scalars['String']['output']>;
+  /** Outcome 0 label. */
+  outcome0Label?: Maybe<Scalars['String']['output']>;
+  /** Outcome 1 label. */
+  outcome1Label?: Maybe<Scalars['String']['output']>;
+  /** The prediction protocol. */
+  protocol: PredictionProtocol;
+  /** The question or title. */
+  question?: Maybe<Scalars['String']['output']>;
+  /** The actual resolution timestamp. */
+  resolvedAt?: Maybe<Scalars['Int']['output']>;
+  /** The current status. */
+  status: PredictionEventStatus;
+  /** The venue-specific market ID. */
+  venueMarketId: Scalars['String']['output'];
+};
+
 /** The input for filtering wallets. */
 export type FilterWalletsInput = {
   /** Exclude wallets with these labels. See [`WalletLabel`](/api-reference/enums/walletlabel) for possible values. */
@@ -1726,6 +2318,8 @@ export type FilterWalletsInput = {
   limit?: InputMaybe<Scalars['Int']['input']>;
   /** Where in the list the server should start when returning items. Use `count`+`offset` from the previous query to request the next page of results. */
   offset?: InputMaybe<Scalars['Int']['input']>;
+  /** A phrase to search for. Matches wallet address, display name, or social usernames (Twitter, Discord, Telegram, Farcaster, GitHub). */
+  phrase?: InputMaybe<Scalars['String']['input']>;
   /** A list of ranking attributes to apply. */
   rankings?: InputMaybe<Array<InputMaybe<WalletRanking>>>;
   /** A list of wallet addresses to filter by. */
@@ -1895,6 +2489,7 @@ export type HoldersResponse = {
 
 export enum HoldersSortAttribute {
   Balance = 'BALANCE',
+  /** @deprecated No longer supported. Use BALANCE instead. */
   Date = 'DATE'
 }
 
@@ -1921,6 +2516,10 @@ export type HoldersUpdate = {
 /** Bar chart data. */
 export type IndividualBarData = {
   __typename?: 'IndividualBarData';
+  /** The USD value of base fees (gas) paid */
+  baseFees?: Maybe<Scalars['String']['output']>;
+  /** The USD value of builder tips (MEV) paid */
+  builderTips?: Maybe<Scalars['String']['output']>;
   /** The buy volume in USD */
   buyVolume: Scalars['String']['output'];
   /** The number of unique buyers */
@@ -1933,10 +2532,16 @@ export type IndividualBarData = {
   h: Scalars['Float']['output'];
   /** The low price. */
   l: Scalars['Float']['output'];
+  /** The USD value of L1 data posting fees (L2 rollups only) */
+  l1DataFees?: Maybe<Scalars['String']['output']>;
   /** Liquidity in USD */
   liquidity: Scalars['String']['output'];
   /** The opening price. */
   o: Scalars['Float']['output'];
+  /** The USD value of pool fees collected */
+  poolFees?: Maybe<Scalars['String']['output']>;
+  /** The USD value of priority fees (tips) paid */
+  priorityFees?: Maybe<Scalars['String']['output']>;
   /** The sell volume in USD */
   sellVolume: Scalars['String']['output'];
   /** The number of unique sellers */
@@ -1970,82 +2575,28 @@ export type IntEqualsConditionInput = {
   eq: Scalars['Int']['input'];
 };
 
+/** Structural decomposition of a Kalshi sports event_ticker (e.g. "KXMLBGAME-26MAY091610WSHMIA"). The ticker's ET date/time segments are not exposed here — they are converted to UTC and surfaced on the parent event's `gameStartTime` fields. */
+export type KalshiSportsTickerComponents = {
+  __typename?: 'KalshiSportsTickerComponents';
+  /** Populated only when the parser can confidently split the team tail. */
+  awayAbbreviation?: Maybe<Scalars['String']['output']>;
+  /** Populated only when the parser can confidently split the team tail. */
+  homeAbbreviation?: Maybe<Scalars['String']['output']>;
+  /** Original ticker string. */
+  rawTicker: Scalars['String']['output'];
+  /** Series prefix (e.g. "KXMLBGAME"). */
+  seriesPrefix: Scalars['String']['output'];
+  /** Soft-normalised series sport. */
+  seriesSport?: Maybe<Scalars['String']['output']>;
+  /** Raw uppercase team-tail captured from the ticker (e.g. "1WINTUNDRA"). Present when the parser matched the structural shape. */
+  teamTailRaw?: Maybe<Scalars['String']['output']>;
+};
+
 /** Event labels. Can be `sandwich` or `washtrade`. */
 export type LabelsForEvent = {
   __typename?: 'LabelsForEvent';
   sandwich?: Maybe<SandwichLabelForEvent>;
   washtrade?: Maybe<WashtradeLabelForEvent>;
-};
-
-/** Metadata for a newly listed pair. */
-export type LatestPair = {
-  __typename?: 'LatestPair';
-  /** The contract address for the pair. */
-  address: Scalars['String']['output'];
-  /** The contract address for the exchange. */
-  exchangeHash: Scalars['String']['output'];
-  /** The ID of the pair (`address:networkId`). */
-  id: Scalars['String']['output'];
-  /** The listing price, or first known price for the pair, in USD. */
-  initialPriceUsd: Scalars['String']['output'];
-  /** The unix timestamp for when liquidity was added to the pair. */
-  liquidAt?: Maybe<Scalars['Int']['output']>;
-  /** The total liquidity in the pair. */
-  liquidity: Scalars['String']['output'];
-  /** The token with higher liquidity within the pair. Can be `token0` or `token1`. */
-  liquidityToken?: Maybe<Scalars['String']['output']>;
-  /** The network ID the pair is deployed on. */
-  networkId: Scalars['Int']['output'];
-  /** The newly added token within the pair. Can be `token0` or `token1`. */
-  newToken: Scalars['String']['output'];
-  /** The token with lower liquidity within the pair. Can be `token0` or `token1`. */
-  nonLiquidityToken?: Maybe<Scalars['String']['output']>;
-  /** The pre-existing token within the pair. Can be `token0` or `token1`. */
-  oldToken: Scalars['String']['output'];
-  /** The percent price change between the listing price and the current price. */
-  priceChange: Scalars['Float']['output'];
-  /** The newly added token price in USD. */
-  priceUsd: Scalars['String']['output'];
-  /** Metadata for `token0`. */
-  token0: LatestPairToken;
-  /** Metadata for `token1`. */
-  token1: LatestPairToken;
-  /** The unique hash for the transaction that added liquidity, if applicable, otherwise the transaction that added the pair. */
-  transactionHash: Scalars['String']['output'];
-};
-
-/** Response returned by `getLatestPairs`. */
-export type LatestPairConnection = {
-  __typename?: 'LatestPairConnection';
-  /** A cursor for use in pagination. */
-  cursor?: Maybe<Scalars['String']['output']>;
-  /** A list of newly listed pairs. */
-  items: Array<LatestPair>;
-};
-
-/** Metadata for a token within a newly listed pair. */
-export type LatestPairToken = {
-  __typename?: 'LatestPairToken';
-  /** The contract address for the token. */
-  address: Scalars['String']['output'];
-  /** The amount of `token` currently in the pair. */
-  currentPoolAmount: Scalars['String']['output'];
-  /** The precision to which the token can be divided. For example, the smallest unit for USDC is 0.000001 (6 decimals). */
-  decimals: Scalars['Int']['output'];
-  /** The ID of the token (`address:networkId`). */
-  id: Scalars['String']['output'];
-  /** The initial amount of `token` added to the pair. */
-  initialPoolAmount: Scalars['String']['output'];
-  /** The name of the token. */
-  name: Scalars['String']['output'];
-  /** The network ID the token is deployed on. */
-  networkId: Scalars['Int']['output'];
-  /** The ID of the pair (`pairAddress:networkId`). */
-  pairId: Scalars['String']['output'];
-  /** The percent change `token` remaining in the pair since the initial add. */
-  poolVariation: Scalars['Float']['output'];
-  /** The symbol for the token. */
-  symbol: Scalars['String']['output'];
 };
 
 /** Metadata for a newly created token. */
@@ -2123,6 +2674,8 @@ export type LatestTokenSimResults = {
 
 export type LaunchpadData = {
   __typename?: 'LaunchpadData';
+  /** The token category assigned by the launchpad. Populated by launchpads that publish a category taxonomy (e.g. Scale/Creator, Eitherway). Values include platform, meme, utility, etc. */
+  category?: Maybe<Scalars['String']['output']>;
   /** Indicates if the launchpad is completed. */
   completed?: Maybe<Scalars['Boolean']['output']>;
   /** The unix timestamp when the launchpad was completed. */
@@ -2131,6 +2684,8 @@ export type LaunchpadData = {
   completedSlot?: Maybe<Scalars['Int']['output']>;
   /** The percentage of the pool that was sold to the public. */
   graduationPercent?: Maybe<Scalars['Float']['output']>;
+  /** Whether cashback is enabled for this launchpad token (Pump V1/V2 only). */
+  isCashbackEnabled?: Maybe<Scalars['Boolean']['output']>;
   /** The icon URL of the launchpad. */
   launchpadIconUrl?: Maybe<Scalars['String']['output']>;
   /** The name of the launchpad. */
@@ -2159,6 +2714,10 @@ export type LaunchpadTokenEventOutput = {
   __typename?: 'LaunchpadTokenEventOutput';
   /** The contract address of the token. */
   address: Scalars['String']['output'];
+  /** Network base fees in the last hour, USD. */
+  baseFees1?: Maybe<Scalars['String']['output']>;
+  /** Builder tips (MEV activity indicator) in the last hour, USD. */
+  builderTips1?: Maybe<Scalars['String']['output']>;
   /** The number of bundlers that bought the token */
   bundlerCount?: Maybe<Scalars['Float']['output']>;
   /** The percentage of the token that is held by bundlers */
@@ -2167,14 +2726,20 @@ export type LaunchpadTokenEventOutput = {
   buyCount1?: Maybe<Scalars['Int']['output']>;
   /** The percentage of the token that is held by developers */
   devHeldPercentage?: Maybe<Scalars['Float']['output']>;
+  /** Resolved profile and token-creator stats for the deployer wallet. */
+  devWallet?: Maybe<Wallet>;
   /** The type of event. */
   eventType: LaunchpadTokenEventType;
+  /** The ratio of total fees to volume in the last hour. */
+  feeToVolumeRatio1?: Maybe<Scalars['Float']['output']>;
   /** The number of holders. */
   holders?: Maybe<Scalars['Int']['output']>;
   /** The number of insiders that bought the token */
   insiderCount?: Maybe<Scalars['Float']['output']>;
   /** The percentage of the token that is held by insiders */
   insiderHeldPercentage?: Maybe<Scalars['Float']['output']>;
+  /** L1 data fees (cost of posting rollup data to L1, applies to all L2 rollups) in the last hour, USD. */
+  l1DataFees1?: Maybe<Scalars['String']['output']>;
   /** The name of the launchpad. */
   launchpadName: Scalars['String']['output'];
   /** The liquidity of the token's top pair. */
@@ -2183,8 +2748,12 @@ export type LaunchpadTokenEventOutput = {
   marketCap?: Maybe<Scalars['String']['output']>;
   /** The network ID that the token is deployed on. */
   networkId: Scalars['Int']['output'];
+  /** Pool fees (DEX protocol revenue) in the last hour, USD. */
+  poolFees1?: Maybe<Scalars['String']['output']>;
   /** The price of the token. */
   price?: Maybe<Scalars['Float']['output']>;
+  /** EIP-1559 priority fees (tips to validators) in the last hour, USD. */
+  priorityFees1?: Maybe<Scalars['String']['output']>;
   /** The protocol of the token. */
   protocol: Scalars['String']['output'];
   /** The number of sells in the last hour. */
@@ -2193,10 +2762,16 @@ export type LaunchpadTokenEventOutput = {
   sniperCount?: Maybe<Scalars['Float']['output']>;
   /** The percentage of the token that is held by snipers */
   sniperHeldPercentage?: Maybe<Scalars['Float']['output']>;
+  /** The number of suspicious wallets (deduplicated union of snipers, bundlers, and insiders) that bought the token */
+  suspiciousCount?: Maybe<Scalars['Float']['output']>;
+  /** The percentage of the token that is held by suspicious wallets */
+  suspiciousHeldPercentage?: Maybe<Scalars['Float']['output']>;
   /** Metadata for the token. */
   token: EnhancedToken;
   /** The percentage of total supply held by the top 10 holders. */
   top10HoldersPercent?: Maybe<Scalars['Float']['output']>;
+  /** The total fees (pool + base + priority + builder tips + L1 data) in the last hour, denominated in USD. */
+  totalFees1?: Maybe<Scalars['String']['output']>;
   /** The number of transactions in the last hour. */
   transactions1?: Maybe<Scalars['Int']['output']>;
   /** The volume of the token in the last hour. */
@@ -2213,6 +2788,8 @@ export enum LaunchpadTokenEventType {
   Deployed = 'Deployed',
   /** The token has been migrated */
   Migrated = 'Migrated',
+  /** The token has graduated off its bonding curve (not finalized) */
+  UnconfirmedCompleted = 'UnconfirmedCompleted',
   /** The token has been discovered (not finalized) */
   UnconfirmedDeployed = 'UnconfirmedDeployed',
   /** The token's metadata has been processed (not finalized) */
@@ -2249,6 +2826,8 @@ export enum LaunchpadTokenProtocol {
   HeavenAmm = 'HeavenAMM',
   /** Protocol name for Kumbaya. */
   Kumbaya = 'Kumbaya',
+  /** Protocol name for Liquid. */
+  Liquid = 'Liquid',
   /** Protocol name for MeteoraDBC. */
   MeteoraDbc = 'MeteoraDBC',
   /** Protocol name for Moonit (formerly Moonshot). */
@@ -2555,12 +3134,13 @@ export type Mutation = {
   backfillWalletAggregates: WalletAggregateBackfillStateResponse;
   /** Create a new set of short-lived api access tokens */
   createApiTokens: Array<ApiToken>;
-  /** Create price, raw transaction, token/pair event, and NFT event webhooks. */
+  /** Create event webhooks for price, token/pair, transfer, market cap, and prediction market trades. */
   createWebhooks: CreateWebhooksOutput;
   /** Delete a single short-lived api access token by id */
   deleteApiToken: Scalars['String']['output'];
   /** Delete multiple webhooks. */
   deleteWebhooks?: Maybe<DeleteWebhooksOutput>;
+  /** Force refreshes the balance for a token in a wallet. EVM only. */
   refreshBalances: Array<Balance>;
 };
 
@@ -2618,6 +3198,11 @@ export type NetworkBreakdown = {
   /** The stats for the last week */
   statsWeek1?: Maybe<WindowedWalletStats>;
   /** The stats for the last year */
+  statsYear?: Maybe<WindowedWalletStatsYear>;
+  /**
+   * The stats for the last year
+   * @deprecated statsYear1 is no longer supported and will be removed on 2026-07-10 (we are removing uniqueTokens1y). Use statsYear instead.
+   */
   statsYear1?: Maybe<WindowedWalletStats>;
 };
 
@@ -2684,12 +3269,22 @@ export type NetworkWalletFilterResult = {
   averageSwapAmountUsd1y: Scalars['String']['output'];
   /** Average swap amount in USD in the past 30 days */
   averageSwapAmountUsd30d: Scalars['String']['output'];
+  /** Average hold period, in seconds, for positions sold during the past day. Calculated from cost-basis turnover using sold cost basis. Returns null when there are no sells. */
+  avgHoldPeriodSec1d?: Maybe<Scalars['Float']['output']>;
+  /** Average hold period, in seconds, for positions sold during the past week. Calculated from cost-basis turnover using sold cost basis. Returns null when there are no sells. */
+  avgHoldPeriodSec1w?: Maybe<Scalars['Float']['output']>;
+  /** Average hold period, in seconds, for positions sold during the past year. Calculated from cost-basis turnover using sold cost basis. Returns null when there are no sells. */
+  avgHoldPeriodSec1y?: Maybe<Scalars['Float']['output']>;
+  /** Average hold period, in seconds, for positions sold during the past 30 days. Calculated from cost-basis turnover using sold cost basis. Returns null when there are no sells. */
+  avgHoldPeriodSec30d?: Maybe<Scalars['Float']['output']>;
   /** The backfill state of the wallet. */
   backfillState?: Maybe<WalletAggregateBackfillState>;
   /** The bot score for the wallet. */
   botScore?: Maybe<Scalars['Int']['output']>;
   /** The unix timestamp for the first transaction from this wallet */
   firstTransactionAt?: Maybe<Scalars['Int']['output']>;
+  /** Manual or proposal-derived identity vocabulary (e.g. WHALE, KOL). Distinct from behavioral `labels`. */
+  identityLabels?: Maybe<Array<Scalars['String']['output']>>;
   /** The labels associated with the wallet */
   labels: Array<Scalars['String']['output']>;
   /** The unix timestamp for the last transaction from this wallet */
@@ -2736,7 +3331,10 @@ export type NetworkWalletFilterResult = {
   uniqueTokens1d: Scalars['Int']['output'];
   /** Number of unique tokens traded in the past week */
   uniqueTokens1w: Scalars['Int']['output'];
-  /** Number of unique tokens traded in the past year */
+  /**
+   * Number of unique tokens traded in the past year
+   * @deprecated uniqueTokens1y is no longer supported and will be removed on 2026-07-10.
+   */
   uniqueTokens1y: Scalars['Int']['output'];
   /** Number of unique tokens traded in the past 30 days */
   uniqueTokens30d: Scalars['Int']['output'];
@@ -2756,6 +3354,8 @@ export type NetworkWalletFilterResult = {
   volumeUsdAll1y: Scalars['String']['output'];
   /** Total volume in USD in the past 30 days including all tokens */
   volumeUsdAll30d: Scalars['String']['output'];
+  /** The wallet identity and profile data */
+  wallet?: Maybe<Wallet>;
   /** Win rate in the past day */
   winRate1d: Scalars['Float']['output'];
   /** Win rate in the past week */
@@ -3894,19 +4494,6 @@ export type NftEvent = {
   transactionIndex: Scalars['Int']['output'];
 };
 
-/** NFT marketplaces for a webhook to listen on. */
-export type NftEventFillSourceCondition = {
-  __typename?: 'NftEventFillSourceCondition';
-  /** The list of NFT marketplaces. */
-  oneOf: Array<WebhookNftEventFillSource>;
-};
-
-/** Input for NFT event fill source condition. */
-export type NftEventFillSourceConditionInput = {
-  /** The list of NFT marketplace to equal. */
-  oneOf: Array<WebhookNftEventFillSource>;
-};
-
 /** Details for an NFT offered or received as part of an nft trade. */
 export type NftEventNftTradeItem = {
   __typename?: 'NftEventNftTradeItem';
@@ -3978,64 +4565,6 @@ export enum NftEventTradeItemType {
   Nft = 'NFT',
   Token = 'TOKEN'
 }
-
-/** An NFT event type for a webhook to listen for. */
-export type NftEventTypeCondition = {
-  __typename?: 'NftEventTypeCondition';
-  /** The NFT event type. */
-  eq: WebhookNftEventType;
-};
-
-/** Input for NFT event type. */
-export type NftEventTypeConditionInput = {
-  /** The NFT event type to equal. */
-  eq: WebhookNftEventType;
-};
-
-/** Webhook conditions for an NFT event. */
-export type NftEventWebhookCondition = {
-  __typename?: 'NftEventWebhookCondition';
-  /** The NFT collection contract address the webhook is listening for. */
-  contractAddress?: Maybe<StringEqualsCondition>;
-  /** The NFT event type the webhook is listening for. */
-  eventType?: Maybe<NftEventTypeCondition>;
-  /** The exchange contract address the webhook is listening for. */
-  exchangeAddress?: Maybe<StringEqualsCondition>;
-  /** The NFT marketplaces the webhook is listening on. */
-  fillSource?: Maybe<NftEventFillSourceCondition>;
-  /** Option to ignore all nft transfer events */
-  ignoreTransfers?: Maybe<Scalars['Boolean']['output']>;
-  /** The base token price the webhook is listening for. */
-  individualBaseTokenPrice?: Maybe<ComparisonOperator>;
-  /** The maker wallet address the webhook is listening for. */
-  maker?: Maybe<StringEqualsCondition>;
-  /** The list of network IDs the webhook is listening on. */
-  networkId?: Maybe<OneOfNumberCondition>;
-  /** The token contract address the webhook is listening for. */
-  tokenAddress?: Maybe<StringEqualsCondition>;
-  /** The token ID the webhook is listening for. */
-  tokenId?: Maybe<StringEqualsCondition>;
-};
-
-/** Input conditions for an NFT event webhook. */
-export type NftEventWebhookConditionInput = {
-  /** The NFT collection contract address to listen for. */
-  contractAddress?: InputMaybe<StringEqualsConditionInput>;
-  /** The NFT event type to listen for. */
-  eventType?: InputMaybe<NftEventTypeConditionInput>;
-  /** The exchange contract address to listen for. */
-  exchangeAddress?: InputMaybe<StringEqualsConditionInput>;
-  /** The NFT marketplaces to listen for. */
-  fillSource?: InputMaybe<NftEventFillSourceConditionInput>;
-  /** Option to ignore all nft transfer events */
-  ignoreTransfers?: InputMaybe<Scalars['Boolean']['input']>;
-  /** The maker wallet address to listen for. */
-  maker?: InputMaybe<StringEqualsConditionInput>;
-  /** A list of network IDs to listen on. */
-  networkId?: InputMaybe<OneOfNumberConditionInput>;
-  /** The token ID to listen for. */
-  tokenId?: InputMaybe<StringEqualsConditionInput>;
-};
 
 /** Response returned by `getNftEvents`. */
 export type NftEventsConnection = {
@@ -5360,7 +5889,7 @@ export type NftStatsWindowWithChange = {
   usd?: Maybe<NftCollectionCurrencyStats>;
 };
 
-/** Input type of `NumberFilter`. */
+/** A numeric range filter with optional upper and lower bounds. */
 export type NumberFilter = {
   /** Greater than. */
   gt?: InputMaybe<Scalars['Float']['input']>;
@@ -5375,8 +5904,10 @@ export type NumberFilter = {
 /** Response returned by `onBarsUpdated`. */
 export type OnBarsUpdatedResponse = {
   __typename?: 'OnBarsUpdatedResponse';
-  /** Price data broken down by resolution. */
+  /** Price data broken down by resolution. For processed updates, this is a confirmed-shaped compatibility projection. */
   aggregates: ResolutionBarData;
+  /** The commitment level of the bar update within the live stream. */
+  commitmentLevel: BarCommitmentLevel;
   /** The sortKey for the bar (`blockNumber`#`transactionIndex`#`logIndex`, zero padded). For example, `0000000016414564#00000224#00000413`. */
   eventSortKey: Scalars['String']['output'];
   /** The network ID the pair is deployed on. */
@@ -5404,9 +5935,9 @@ export type OnEventsCreatedByMakerInput = {
 export type OnLaunchpadTokenEventBatchInput = {
   /** The type of event. */
   eventType?: InputMaybe<LaunchpadTokenEventType>;
-  /** The name of the launchpad. One of the following: Pump.fun, Pump Mayhem, Bonk, BONAD.fun, Nad.Fun, Baseapp, Baseapp Creator, Zora, Zora Creator, Four.meme, Four.meme Fair, Believe, Moonshot, Jupiter Studio, boop, Heaven, TokenMill V2, Virtuals, Clanker, Clanker V4, ArenaTrade, Moonit, LaunchLab, MeteoraDBC, Zora Solana, Cooking.City, time.fun, BAGS, Circus, Dealr, OhFuckFun, PrintFun, Trend, shout.fun, xApple, Sendshot, DubDub, cults, OpenGameProtocol, AMERICA.fun, Kumbaya, Printr, Bankr, Noice, Flaunch, Coinbarrel, Blowfish. */
+  /** The name of the launchpad. One of the following: Pump.fun, Pump Mayhem, Bonk, BONAD.fun, Nad.Fun, Baseapp, Baseapp Creator, Zora, Zora Creator, Four.meme, Four.meme Fair, Believe, Moonshot, Jupiter Studio, boop, Heaven, TokenMill V2, Virtuals, Clanker, Clanker V4, ArenaTrade, Moonit, LaunchLab, MeteoraDBC, Meteora Alpha Vault, Zora Solana, Cooking.City, time.fun, BAGS, Circus, Dealr, OhFuckFun, PrintFun, Trend, shout.fun, xApple, Sendshot, DubDub, cults, OpenGameProtocol, AMERICA.fun, Kumbaya, Printr, Bankr, Liquid, Noice, Flaunch, Coinbarrel, Blowfish, MeMoo, Metaplex, Scale, Eitherway, Livo, Flap. */
   launchpadName?: InputMaybe<Scalars['String']['input']>;
-  /** A list of launchpad names. Any of the following: Pump.fun, Pump Mayhem, Bonk, BONAD.fun, Nad.Fun, Baseapp, Baseapp Creator, Zora, Zora Creator, Four.meme, Four.meme Fair, Believe, Moonshot, Jupiter Studio, boop, Heaven, TokenMill V2, Virtuals, Clanker, Clanker V4, ArenaTrade, Moonit, LaunchLab, MeteoraDBC, Zora Solana, Cooking.City, time.fun, BAGS, Circus, Dealr, OhFuckFun, PrintFun, Trend, shout.fun, xApple, Sendshot, DubDub, cults, OpenGameProtocol, AMERICA.fun, Kumbaya, Printr, Bankr, Noice, Flaunch, Coinbarrel, Blowfish. */
+  /** A list of launchpad names. Any of the following: Pump.fun, Pump Mayhem, Bonk, BONAD.fun, Nad.Fun, Baseapp, Baseapp Creator, Zora, Zora Creator, Four.meme, Four.meme Fair, Believe, Moonshot, Jupiter Studio, boop, Heaven, TokenMill V2, Virtuals, Clanker, Clanker V4, ArenaTrade, Moonit, LaunchLab, MeteoraDBC, Meteora Alpha Vault, Zora Solana, Cooking.City, time.fun, BAGS, Circus, Dealr, OhFuckFun, PrintFun, Trend, shout.fun, xApple, Sendshot, DubDub, cults, OpenGameProtocol, AMERICA.fun, Kumbaya, Printr, Bankr, Liquid, Noice, Flaunch, Coinbarrel, Blowfish, MeMoo, Metaplex, Scale, Eitherway, Livo, Flap. */
   launchpadNames?: InputMaybe<Array<Scalars['String']['input']>>;
   /** The network ID that the token is deployed on. */
   networkId?: InputMaybe<Scalars['Int']['input']>;
@@ -5422,9 +5953,9 @@ export type OnLaunchpadTokenEventInput = {
   address?: InputMaybe<Scalars['String']['input']>;
   /** The type of event. */
   eventType?: InputMaybe<LaunchpadTokenEventType>;
-  /** The name of the launchpad. One of the following: Pump.fun, Pump Mayhem, Bonk, BONAD.fun, Nad.Fun, Baseapp, Baseapp Creator, Zora, Zora Creator, Four.meme, Four.meme Fair, Believe, Moonshot, Jupiter Studio, boop, Heaven, TokenMill V2, Virtuals, Clanker, Clanker V4, ArenaTrade, Moonit, LaunchLab, MeteoraDBC, Zora Solana, Cooking.City, time.fun, BAGS, Circus, Dealr, OhFuckFun, PrintFun, Trend, shout.fun, xApple, Sendshot, DubDub, cults, OpenGameProtocol, AMERICA.fun, Kumbaya, Printr, Bankr, Noice, Flaunch, Coinbarrel, Blowfish. */
+  /** The name of the launchpad. One of the following: Pump.fun, Pump Mayhem, Bonk, BONAD.fun, Nad.Fun, Baseapp, Baseapp Creator, Zora, Zora Creator, Four.meme, Four.meme Fair, Believe, Moonshot, Jupiter Studio, boop, Heaven, TokenMill V2, Virtuals, Clanker, Clanker V4, ArenaTrade, Moonit, LaunchLab, MeteoraDBC, Meteora Alpha Vault, Zora Solana, Cooking.City, time.fun, BAGS, Circus, Dealr, OhFuckFun, PrintFun, Trend, shout.fun, xApple, Sendshot, DubDub, cults, OpenGameProtocol, AMERICA.fun, Kumbaya, Printr, Bankr, Liquid, Noice, Flaunch, Coinbarrel, Blowfish, MeMoo, Metaplex, Scale, Eitherway, Livo, Flap. */
   launchpadName?: InputMaybe<Scalars['String']['input']>;
-  /** A list of launchpad names. Any of the following: Pump.fun, Pump Mayhem, Bonk, BONAD.fun, Nad.Fun, Baseapp, Baseapp Creator, Zora, Zora Creator, Four.meme, Four.meme Fair, Believe, Moonshot, Jupiter Studio, boop, Heaven, TokenMill V2, Virtuals, Clanker, Clanker V4, ArenaTrade, Moonit, LaunchLab, MeteoraDBC, Zora Solana, Cooking.City, time.fun, BAGS, Circus, Dealr, OhFuckFun, PrintFun, Trend, shout.fun, xApple, Sendshot, DubDub, cults, OpenGameProtocol, AMERICA.fun, Kumbaya, Printr, Bankr, Noice, Flaunch, Coinbarrel, Blowfish. */
+  /** A list of launchpad names. Any of the following: Pump.fun, Pump Mayhem, Bonk, BONAD.fun, Nad.Fun, Baseapp, Baseapp Creator, Zora, Zora Creator, Four.meme, Four.meme Fair, Believe, Moonshot, Jupiter Studio, boop, Heaven, TokenMill V2, Virtuals, Clanker, Clanker V4, ArenaTrade, Moonit, LaunchLab, MeteoraDBC, Meteora Alpha Vault, Zora Solana, Cooking.City, time.fun, BAGS, Circus, Dealr, OhFuckFun, PrintFun, Trend, shout.fun, xApple, Sendshot, DubDub, cults, OpenGameProtocol, AMERICA.fun, Kumbaya, Printr, Bankr, Liquid, Noice, Flaunch, Coinbarrel, Blowfish, MeMoo, Metaplex, Scale, Eitherway, Livo, Flap. */
   launchpadNames?: InputMaybe<Array<Scalars['String']['input']>>;
   /** The network ID that the token is deployed on. */
   networkId?: InputMaybe<Scalars['Int']['input']>;
@@ -5432,6 +5963,34 @@ export type OnLaunchpadTokenEventInput = {
   protocol?: InputMaybe<LaunchpadTokenProtocol>;
   /** A list of launchpad protocols. */
   protocols?: InputMaybe<Array<LaunchpadTokenProtocol>>;
+};
+
+/** Payload for `onPredictionEventBarsUpdated`. */
+export type OnPredictionEventBarsUpdatedResponse = {
+  __typename?: 'OnPredictionEventBarsUpdatedResponse';
+  /** The bar data. */
+  bars: PredictionEventResolutionBarData;
+  /** The ID of the prediction event. */
+  eventId: Scalars['String']['output'];
+};
+
+/** Payload for `onPredictionMarketBarsUpdated`. */
+export type OnPredictionMarketBarsUpdatedResponse = {
+  __typename?: 'OnPredictionMarketBarsUpdatedResponse';
+  /** The bar data. */
+  bars: PredictionMarketResolutionBarData;
+  /** The ID of the prediction market. */
+  marketId: Scalars['String']['output'];
+};
+
+/** Input for `onPredictionTradesCreated`. */
+export type OnPredictionTradesCreatedInput = {
+  /** The ID of the prediction event. */
+  eventId?: InputMaybe<Scalars['String']['input']>;
+  /** The ID of the prediction market. */
+  marketId?: InputMaybe<Scalars['String']['input']>;
+  /** The ID of the prediction trader. */
+  traderId?: InputMaybe<Scalars['String']['input']>;
 };
 
 export type OnPricesUpdatedInput = {
@@ -5448,6 +6007,8 @@ export type OnTokenBarsUpdatedResponse = {
   __typename?: 'OnTokenBarsUpdatedResponse';
   /** Price data broken down by resolution. */
   aggregates: ResolutionBarData;
+  /** The commitment level of the bar within the live stream. */
+  commitmentLevel: BarCommitmentLevel;
   /** The sortKey for the bar (`blockNumber`#`transactionIndex`#`logIndex`, zero padded). For example, `0000000016414564#00000224#00000413`. */
   eventSortKey: Scalars['String']['output'];
   /** The network ID the pair is deployed on. */
@@ -5484,7 +6045,7 @@ export type OnTokenEventsCreatedInput = {
   tokenAddress?: InputMaybe<Scalars['String']['input']>;
 };
 
-/** Response returned by `onUnconfirmedBarsUpdated`. */
+/** Response returned by deprecated `onUnconfirmedBarsUpdated`. Prefer `onBarsUpdated`. */
 export type OnUnconfirmedBarsUpdated = {
   __typename?: 'OnUnconfirmedBarsUpdated';
   /** Price data broken down by resolution. */
@@ -5505,7 +6066,7 @@ export type OnUnconfirmedBarsUpdated = {
   timestamp: Scalars['Int']['output'];
 };
 
-/** Input for `onUnconfirmedEventsCreatedByMaker`. */
+/** Input for deprecated `onUnconfirmedEventsCreatedByMaker`. */
 export type OnUnconfirmedEventsCreatedByMakerInput = {
   /** The wallet address of the maker. */
   makerAddress: Scalars['String']['input'];
@@ -5535,6 +6096,78 @@ export type OneOfTokenTransferDirectionCondition = {
 export type OneOfTokenTransferDirectionConditionInput = {
   /** The list of transfer directions to listen for. */
   oneOf: Array<TokenTransferDirection>;
+};
+
+/** A Grid organization — the entity behind one or more on-chain assets. */
+export type Organization = {
+  __typename?: 'Organization';
+  /** Assets managed by this organization. */
+  assets: Array<Asset>;
+  /** A detailed description of the organization. */
+  descriptionLong?: Maybe<Scalars['String']['output']>;
+  /** A short description of the organization. */
+  descriptionShort?: Maybe<Scalars['String']['output']>;
+  /** The founding date of the organization. */
+  foundingDate?: Maybe<Scalars['String']['output']>;
+  header?: Maybe<Scalars['String']['output']>;
+  /** The organization's icon URL. */
+  icon?: Maybe<Scalars['String']['output']>;
+  /** The organization's logo URL. */
+  logo?: Maybe<Scalars['String']['output']>;
+  /** The organization name. */
+  name: Scalars['String']['output'];
+  /** The Grid root ID for the organization. */
+  rootId: Scalars['String']['output'];
+  /** The sector the organization operates in. */
+  sector?: Maybe<Scalars['String']['output']>;
+  /** Social links for the organization. */
+  socials: Array<OrganizationSocial>;
+  /** The organization's tagline. */
+  tagLine?: Maybe<Scalars['String']['output']>;
+  /** The type of organization (e.g. `protocol`, `company`). */
+  type?: Maybe<Scalars['String']['output']>;
+  /** URLs associated with the organization. */
+  urls: Array<OrganizationUrl>;
+};
+
+/** A social link associated with a Grid organization. */
+export type OrganizationSocial = {
+  __typename?: 'OrganizationSocial';
+  /** The type of social link (e.g. `twitter`, `discord`). */
+  type?: Maybe<Scalars['String']['output']>;
+  /** The social URL. */
+  url: Scalars['String']['output'];
+};
+
+/** A URL associated with a Grid organization. */
+export type OrganizationUrl = {
+  __typename?: 'OrganizationUrl';
+  /** The type of URL (e.g. `website`, `docs`). */
+  type?: Maybe<Scalars['String']['output']>;
+  /** The URL. */
+  url: Scalars['String']['output'];
+};
+
+/** Buy/sell volume breakdown including shares. */
+export type OutcomeBuySellVolumeStats = {
+  __typename?: 'OutcomeBuySellVolumeStats';
+  /** Volume in collateral token units. */
+  ct: Scalars['String']['output'];
+  /** Volume in shares. */
+  shares: Scalars['String']['output'];
+  /** Volume in USD. */
+  usd: Scalars['String']['output'];
+};
+
+/** Volume breakdown including shares for an outcome. */
+export type OutcomeVolumeStats = {
+  __typename?: 'OutcomeVolumeStats';
+  /** Volume in collateral token units. */
+  ct: Scalars['String']['output'];
+  /** Volume in shares. */
+  shares: Scalars['String']['output'];
+  /** Volume in USD. */
+  usd: Scalars['String']['output'];
 };
 
 /** Metadata for a token pair. */
@@ -5573,6 +6206,8 @@ export type Pair = {
   token1: Scalars['String']['output'];
   /** Metadata for the second token in the pair. */
   token1Data?: Maybe<EnhancedToken>;
+  /** The virtual pooled amounts of each token in the pair. */
+  virtualPooled?: Maybe<PooledTokenValues>;
 };
 
 /** Input type of `PairChartInput`. */
@@ -5671,6 +6306,8 @@ export type PairFilterResult = {
   marketCap?: Maybe<Scalars['String']['output']>;
   /** Metadata for the pair. */
   pair?: Maybe<Pair>;
+  /** The reasons the token has been flagged as a potential scam. */
+  potentialScamReasons?: Maybe<Array<Maybe<PotentialScamReason>>>;
   /** The token price in USD. */
   price?: Maybe<Scalars['String']['output']>;
   /** The percent price change in the past hour. Decimal format. */
@@ -6423,13 +7060,3600 @@ export type PooledTokenValues = {
   token1?: Maybe<Scalars['String']['output']>;
 };
 
-/** Sort order for markets within a prediction event */
+/** The reason a token has been flagged as a potential scam. */
+export enum PotentialScamReason {
+  /** The token has an abnormal buyer ratio. */
+  AbnormalBuyerRatio = 'AbnormalBuyerRatio',
+  /** The token has experienced a significant drop in liquidity. */
+  LiquidityRugPull = 'LiquidityRugPull',
+  /** The token does not meet the minimum liquidity threshold. */
+  MinimumLiquidity = 'MinimumLiquidity',
+  /** The token has suspicious wallet activity. */
+  SuspiciousWalletActivity = 'SuspiciousWalletActivity'
+}
+
+/** A prediction category with optional nested subcategories. */
+export type PredictionCategory = {
+  __typename?: 'PredictionCategory';
+  /** The display name. */
+  name: Scalars['String']['output'];
+  /** The URL slug. */
+  slug: Scalars['String']['output'];
+  /** Nested subcategories (2nd level). */
+  subcategories?: Maybe<Array<PredictionSubcategory>>;
+};
+
+/** Collateral backing a prediction market, either on-chain token or fiat. */
+export type PredictionCollateral = PredictionCollateralFiat | PredictionCollateralToken;
+
+/** Fiat currency used as collateral for a prediction market. */
+export type PredictionCollateralFiat = {
+  __typename?: 'PredictionCollateralFiat';
+  /** The token or currency symbol. */
+  symbol: Scalars['String']['output'];
+};
+
+/** On-chain token used as collateral for a prediction market. */
+export type PredictionCollateralToken = {
+  __typename?: 'PredictionCollateralToken';
+  /** The network ID. */
+  networkId: Scalars['Int']['output'];
+  /** The token or currency symbol. */
+  symbol?: Maybe<Scalars['String']['output']>;
+  /** The token contract address. */
+  tokenAddress: Scalars['String']['output'];
+};
+
+/** A prediction event containing one or more markets. */
+export type PredictionEvent = {
+  __typename?: 'PredictionEvent';
+  /** Categories associated with this entity. */
+  categories?: Maybe<Array<PredictionCategory>>;
+  /** The timestamp when this entity closes. */
+  closesAt?: Maybe<Scalars['Int']['output']>;
+  /** The creation timestamp. */
+  createdAt: Scalars['Int']['output'];
+  /** Per-domain structured enrichment (sports league/teams/start times today; new domains added over time). Null when no domain-specific signal extracted. */
+  enrichedMetadata?: Maybe<PredictionEventEnrichedMetadata>;
+  /** The unique identifier. */
+  id: Scalars['String']['output'];
+  /** URL of the large image. */
+  imageLargeUrl?: Maybe<Scalars['String']['output']>;
+  /** URL of the small image. */
+  imageSmallUrl?: Maybe<Scalars['String']['output']>;
+  /** URL of the thumbnail image. */
+  imageThumbUrl?: Maybe<Scalars['String']['output']>;
+  /** Associated market IDs. */
+  marketIds?: Maybe<Array<Scalars['String']['output']>>;
+  /** The network ID. */
+  networkId?: Maybe<Scalars['Int']['output']>;
+  /** The timestamp when this entity opens. */
+  opensAt: Scalars['Int']['output'];
+  /** The prediction protocol. */
+  protocol: PredictionProtocol;
+  /** The question or title. */
+  question: Scalars['String']['output'];
+  /** The resolution details. */
+  resolution?: Maybe<PredictionResolution>;
+  /** The actual resolution timestamp. */
+  resolvedAt?: Maybe<Scalars['Int']['output']>;
+  /** The expected resolution timestamp. */
+  resolvesAt?: Maybe<Scalars['Int']['output']>;
+  /** Primary rules text. */
+  rulesPrimary: Scalars['String']['output'];
+  /** Secondary rules text. */
+  rulesSecondary?: Maybe<Scalars['String']['output']>;
+  /** The current status. */
+  status: PredictionEventStatus;
+  /** Tags associated with this entity. */
+  tags: Array<Scalars['String']['output']>;
+  /** The last update timestamp. */
+  updatedAt: Scalars['Int']['output'];
+  /** The external URL. */
+  url: Scalars['String']['output'];
+  /** The venue-specific event ID. */
+  venueEventId: Scalars['String']['output'];
+  /** The venue-specific series ID. */
+  venueSeriesId?: Maybe<Scalars['String']['output']>;
+};
+
+/** All-time aggregate stats for a prediction event. */
+export type PredictionEventAllTimeStats = {
+  __typename?: 'PredictionEventAllTimeStats';
+  /** Venue-specific volume (optional). */
+  venueVolume?: Maybe<CurrencyValuePair>;
+  /** Total volume. */
+  volume: CurrencyValuePair;
+};
+
+/** Bar data for a prediction event at a single point in time. */
+export type PredictionEventBar = {
+  __typename?: 'PredictionEventBar';
+  /** Buy volume in collateral token units. */
+  buyVolumeCollateralToken?: Maybe<Scalars['String']['output']>;
+  /** Buy volume in USD. Null if protocol doesn't provide directional data. */
+  buyVolumeUsd?: Maybe<Scalars['String']['output']>;
+  /** The last event timestamp. */
+  lastEventTimestamp: Scalars['Int']['output'];
+  /** Liquidity OHLC in collateral token (nullable for old aggregates) */
+  liquidityCollateralToken?: Maybe<PredictionEventBarOhlc>;
+  /** Liquidity in USD. Null if protocol doesn't provide liquidity data. */
+  liquidityUsd?: Maybe<PredictionEventBarOhlc>;
+  /** Open interest OHLC in collateral token (nullable for old aggregates) */
+  openInterestCollateralToken?: Maybe<PredictionEventBarOhlc>;
+  /** Open interest in USD. Null if protocol doesn't provide open interest data. */
+  openInterestUsd?: Maybe<PredictionEventBarOhlc>;
+  /** Sell volume in collateral token units. */
+  sellVolumeCollateralToken?: Maybe<Scalars['String']['output']>;
+  /** Sell volume in USD. Null if protocol doesn't provide directional data. */
+  sellVolumeUsd?: Maybe<Scalars['String']['output']>;
+  /** The unix timestamp for this bar. */
+  t: Scalars['Int']['output'];
+  /** Total volume in collateral token (nullable for old aggregates) */
+  totalVolumeCollateralToken?: Maybe<Scalars['String']['output']>;
+  /** The total volume usd. */
+  totalVolumeUsd: Scalars['String']['output'];
+  /** The number of trades. */
+  trades: Scalars['Int']['output'];
+  /** The number of unique traders. Null if protocol doesn't track unique traders. */
+  uniqueTraders?: Maybe<Scalars['Int']['output']>;
+  /** Venue volume in collateral token (nullable for old aggregates) */
+  venueVolumeCollateralToken?: Maybe<Scalars['String']['output']>;
+  /** The venue volume usd. Null if protocol doesn't provide venue volume. */
+  venueVolumeUsd?: Maybe<Scalars['String']['output']>;
+  /** Volume in collateral token units. */
+  volumeCollateralToken?: Maybe<Scalars['String']['output']>;
+  /** Volume in USD. */
+  volumeUsd: Scalars['String']['output'];
+};
+
+/** OHLC price data for a prediction event bar. */
+export type PredictionEventBarOhlc = {
+  __typename?: 'PredictionEventBarOhlc';
+  /** The close value. */
+  c: Scalars['String']['output'];
+  /** The high value. */
+  h: Scalars['String']['output'];
+  /** The low value. */
+  l: Scalars['String']['output'];
+  /** The open value. */
+  o: Scalars['String']['output'];
+};
+
+/** Input type of `predictionEventBars`. */
+export type PredictionEventBarsInput = {
+  /** Number of bars to return counting back from `to`. */
+  countback?: InputMaybe<Scalars['Int']['input']>;
+  /** The ID of the prediction event. */
+  eventId: Scalars['String']['input'];
+  /** The start timestamp (unix seconds). */
+  from: Scalars['Int']['input'];
+  /** Whether to omit bars with no activity. */
+  removeEmptyBars?: InputMaybe<Scalars['Boolean']['input']>;
+  /** The resolution details. */
+  resolution: PredictionEventBarsResolution;
+  /** The end timestamp (unix seconds). */
+  to: Scalars['Int']['input'];
+};
+
+/** The time resolution for prediction event bar data. */
+export enum PredictionEventBarsResolution {
+  Day1 = 'day1',
+  Hour1 = 'hour1',
+  Hour4 = 'hour4',
+  Hour12 = 'hour12',
+  Min1 = 'min1',
+  Min5 = 'min5',
+  Min15 = 'min15',
+  Min30 = 'min30',
+  Week1 = 'week1'
+}
+
+/** Response returned by `predictionEventBars`. */
+export type PredictionEventBarsResponse = {
+  __typename?: 'PredictionEventBarsResponse';
+  /** The bar data. */
+  bars: Array<PredictionEventBar>;
+  /** The ID of the prediction event. */
+  eventId: Scalars['String']['output'];
+  /** The prediction event. */
+  predictionEvent?: Maybe<PredictionEvent>;
+  /** The prediction markets. */
+  predictionMarkets: Array<PredictionMarket>;
+};
+
+/** Per-domain enrichment attached to a prediction event. Discriminated by `metadataType`; the corresponding sub-block (e.g. `sports`) is populated. Null when no domain-specific signal can be extracted. */
+export type PredictionEventEnrichedMetadata = {
+  __typename?: 'PredictionEventEnrichedMetadata';
+  /** Discriminator naming which sub-block carries data. */
+  metadataType: PredictionMetadataType;
+  /** Populated when `metadataType = SPORTS`. */
+  sports?: Maybe<SportsEventEnrichedMetadata>;
+};
+
+/** Response returned by `filterPredictionEvents`. */
+export type PredictionEventFilterConnection = {
+  __typename?: 'PredictionEventFilterConnection';
+  /** Total number of matching results. */
+  count: Scalars['Int']['output'];
+  /** The current page number. */
+  page: Scalars['Int']['output'];
+  /** The list of results. */
+  results: Array<PredictionEventFilterResult>;
+};
+
+/** A prediction event matching a set of filter parameters. */
+export type PredictionEventFilterResult = {
+  __typename?: 'PredictionEventFilterResult';
+  /** The age. */
+  age?: Maybe<Scalars['Int']['output']>;
+  /** Categories associated with this entity. */
+  categories: Array<Scalars['String']['output']>;
+  /** The timestamp when this entity closes. */
+  closesAt?: Maybe<Scalars['Int']['output']>;
+  /** The creation timestamp. */
+  createdAt: Scalars['Int']['output'];
+  /** Simplified event data from search index. Use predictionEvent for full event details. */
+  event: SearchPredictionEvent;
+  /** The event shape. */
+  eventShape?: Maybe<PredictionEventShape>;
+  /** The expected lifespan. */
+  expectedLifespan?: Maybe<Scalars['Int']['output']>;
+  /** The unique identifier. */
+  id: Scalars['String']['output'];
+  /** The timestamp of the last transaction. */
+  lastTransactionAt: Scalars['Int']['output'];
+  /** Liquidity in collateral token units. */
+  liquidityCT?: Maybe<Scalars['String']['output']>;
+  /** The percentage change. */
+  liquidityChange1h?: Maybe<Scalars['Float']['output']>;
+  /** The percentage change. */
+  liquidityChange1w?: Maybe<Scalars['Float']['output']>;
+  /** The percentage change. */
+  liquidityChange4h?: Maybe<Scalars['Float']['output']>;
+  /** The percentage change. */
+  liquidityChange5m?: Maybe<Scalars['Float']['output']>;
+  /** The percentage change. */
+  liquidityChange12h?: Maybe<Scalars['Float']['output']>;
+  /** The percentage change. */
+  liquidityChange24h?: Maybe<Scalars['Float']['output']>;
+  /** Liquidity in USD. */
+  liquidityUsd?: Maybe<Scalars['String']['output']>;
+  /** Data for marketCount. */
+  marketCount: Scalars['Int']['output'];
+  /** Data for markets. */
+  markets: Array<PredictionEventFilterResultMarket>;
+  /** Open interest in collateral token units. */
+  openInterestCT?: Maybe<Scalars['String']['output']>;
+  /** The percentage change. */
+  openInterestChange1h?: Maybe<Scalars['Float']['output']>;
+  /** The percentage change. */
+  openInterestChange1w?: Maybe<Scalars['Float']['output']>;
+  /** The percentage change. */
+  openInterestChange4h?: Maybe<Scalars['Float']['output']>;
+  /** The percentage change. */
+  openInterestChange5m?: Maybe<Scalars['Float']['output']>;
+  /** The percentage change. */
+  openInterestChange12h?: Maybe<Scalars['Float']['output']>;
+  /** The percentage change. */
+  openInterestChange24h?: Maybe<Scalars['Float']['output']>;
+  /** Open interest in USD. */
+  openInterestUsd?: Maybe<Scalars['String']['output']>;
+  /** The timestamp when this entity opens. */
+  opensAt: Scalars['Int']['output'];
+  /** Full prediction event loaded from database. May be null if event no longer exists. */
+  predictionEvent?: Maybe<PredictionEvent>;
+  /** The prediction protocol. */
+  protocol: PredictionProtocol;
+  /** The related event ids. */
+  relatedEventIds: Array<Scalars['String']['output']>;
+  /** The relevance score. */
+  relevanceScore1h?: Maybe<Scalars['Float']['output']>;
+  /** The relevance score. */
+  relevanceScore1w?: Maybe<Scalars['Float']['output']>;
+  /** The relevance score. */
+  relevanceScore4h?: Maybe<Scalars['Float']['output']>;
+  /** The relevance score. */
+  relevanceScore5m?: Maybe<Scalars['Float']['output']>;
+  /** The relevance score. */
+  relevanceScore12h?: Maybe<Scalars['Float']['output']>;
+  /** The relevance score. */
+  relevanceScore24h?: Maybe<Scalars['Float']['output']>;
+  /** The resolution source. */
+  resolutionSource?: Maybe<Scalars['String']['output']>;
+  /** The actual resolution timestamp. */
+  resolvedAt?: Maybe<Scalars['Int']['output']>;
+  /** The expected resolution timestamp. */
+  resolvesAt?: Maybe<Scalars['Int']['output']>;
+  /** The current status. */
+  status: PredictionEventStatus;
+  /** The unix timestamp. */
+  timestamp: Scalars['Int']['output'];
+  /** The top markets for this event. */
+  topMarkets: Array<PredictionEventTopMarket>;
+  /** The trades1h. */
+  trades1h?: Maybe<Scalars['Int']['output']>;
+  /** The trades1w. */
+  trades1w?: Maybe<Scalars['Int']['output']>;
+  /** The trades4h. */
+  trades4h?: Maybe<Scalars['Int']['output']>;
+  /** The trades5m. */
+  trades5m?: Maybe<Scalars['Int']['output']>;
+  /** The trades12h. */
+  trades12h?: Maybe<Scalars['Int']['output']>;
+  /** The trades24h. */
+  trades24h?: Maybe<Scalars['Int']['output']>;
+  /** The percentage change. */
+  tradesChange1h?: Maybe<Scalars['Float']['output']>;
+  /** The percentage change. */
+  tradesChange1w?: Maybe<Scalars['Float']['output']>;
+  /** The percentage change. */
+  tradesChange4h?: Maybe<Scalars['Float']['output']>;
+  /** The percentage change. */
+  tradesChange5m?: Maybe<Scalars['Float']['output']>;
+  /** The percentage change. */
+  tradesChange12h?: Maybe<Scalars['Float']['output']>;
+  /** The percentage change. */
+  tradesChange24h?: Maybe<Scalars['Float']['output']>;
+  /** The trending score. */
+  trendingScore1h?: Maybe<Scalars['Float']['output']>;
+  /** The trending score. */
+  trendingScore1w?: Maybe<Scalars['Float']['output']>;
+  /** The trending score. */
+  trendingScore4h?: Maybe<Scalars['Float']['output']>;
+  /** The trending score. */
+  trendingScore5m?: Maybe<Scalars['Float']['output']>;
+  /** The trending score. */
+  trendingScore12h?: Maybe<Scalars['Float']['output']>;
+  /** The trending score. */
+  trendingScore24h?: Maybe<Scalars['Float']['output']>;
+  /** The unique traders1h. */
+  uniqueTraders1h?: Maybe<Scalars['Int']['output']>;
+  /** The unique traders1w. */
+  uniqueTraders1w?: Maybe<Scalars['Int']['output']>;
+  /** The unique traders4h. */
+  uniqueTraders4h?: Maybe<Scalars['Int']['output']>;
+  /** The unique traders5m. */
+  uniqueTraders5m?: Maybe<Scalars['Int']['output']>;
+  /** The unique traders12h. */
+  uniqueTraders12h?: Maybe<Scalars['Int']['output']>;
+  /** The unique traders24h. */
+  uniqueTraders24h?: Maybe<Scalars['Int']['output']>;
+  /** The percentage change. */
+  uniqueTradersChange1h?: Maybe<Scalars['Float']['output']>;
+  /** The percentage change. */
+  uniqueTradersChange1w?: Maybe<Scalars['Float']['output']>;
+  /** The percentage change. */
+  uniqueTradersChange4h?: Maybe<Scalars['Float']['output']>;
+  /** The percentage change. */
+  uniqueTradersChange5m?: Maybe<Scalars['Float']['output']>;
+  /** The percentage change. */
+  uniqueTradersChange12h?: Maybe<Scalars['Float']['output']>;
+  /** The percentage change. */
+  uniqueTradersChange24h?: Maybe<Scalars['Float']['output']>;
+  /** The venue volume ct. */
+  venueVolumeCT?: Maybe<Scalars['String']['output']>;
+  /** The venue volume usd. */
+  venueVolumeUsd?: Maybe<Scalars['String']['output']>;
+  /** Volume in collateral token units. */
+  volumeCTAll?: Maybe<Scalars['String']['output']>;
+  /** The percentage change. */
+  volumeChange1h?: Maybe<Scalars['Float']['output']>;
+  /** The percentage change. */
+  volumeChange1w?: Maybe<Scalars['Float']['output']>;
+  /** The percentage change. */
+  volumeChange4h?: Maybe<Scalars['Float']['output']>;
+  /** The percentage change. */
+  volumeChange5m?: Maybe<Scalars['Float']['output']>;
+  /** The percentage change. */
+  volumeChange12h?: Maybe<Scalars['Float']['output']>;
+  /** The percentage change. */
+  volumeChange24h?: Maybe<Scalars['Float']['output']>;
+  /** Volume in USD. */
+  volumeUsd1h?: Maybe<Scalars['String']['output']>;
+  /** Volume in USD. */
+  volumeUsd1w?: Maybe<Scalars['String']['output']>;
+  /** Volume in USD. */
+  volumeUsd4h?: Maybe<Scalars['String']['output']>;
+  /** Volume in USD. */
+  volumeUsd5m?: Maybe<Scalars['String']['output']>;
+  /** Volume in USD. */
+  volumeUsd12h?: Maybe<Scalars['String']['output']>;
+  /** Volume in USD. */
+  volumeUsd24h?: Maybe<Scalars['String']['output']>;
+  /** Volume in USD. */
+  volumeUsdAll?: Maybe<Scalars['String']['output']>;
+};
+
+/** Summary market data within a prediction event filter result. */
+export type PredictionEventFilterResultMarket = {
+  __typename?: 'PredictionEventFilterResultMarket';
+  /** The unique identifier. */
+  id: Scalars['String']['output'];
+  /** The display label. */
+  label?: Maybe<Scalars['String']['output']>;
+};
+
+/** Filters for prediction events. */
+export type PredictionEventFilters = {
+  /** The age. */
+  age?: InputMaybe<NumberFilter>;
+  /** Categories associated with this entity. Mutually exclusive with excludeCategories and hasCategories. */
+  categories?: InputMaybe<Array<Scalars['String']['input']>>;
+  /** The timestamp when this entity closes. */
+  closesAt?: InputMaybe<NumberFilter>;
+  /** The creation timestamp. */
+  createdAt?: InputMaybe<NumberFilter>;
+  /** Exclude events with these categories. Mutually exclusive with categories and hasCategories. */
+  excludeCategories?: InputMaybe<Array<Scalars['String']['input']>>;
+  /** The expected lifespan. */
+  expectedLifespan?: InputMaybe<NumberFilter>;
+  /** Filter by whether the event has any categories. Mutually exclusive with categories and excludeCategories. */
+  hasCategories?: InputMaybe<Scalars['Boolean']['input']>;
+  /** The timestamp of the last transaction. */
+  lastTransactionAt?: InputMaybe<NumberFilter>;
+  /** Liquidity in collateral token units. */
+  liquidityCT?: InputMaybe<NumberFilter>;
+  /** The percentage change. */
+  liquidityChange1h?: InputMaybe<NumberFilter>;
+  /** The percentage change. */
+  liquidityChange1w?: InputMaybe<NumberFilter>;
+  /** The percentage change. */
+  liquidityChange4h?: InputMaybe<NumberFilter>;
+  /** The percentage change. */
+  liquidityChange5m?: InputMaybe<NumberFilter>;
+  /** The percentage change. */
+  liquidityChange12h?: InputMaybe<NumberFilter>;
+  /** The percentage change. */
+  liquidityChange24h?: InputMaybe<NumberFilter>;
+  /** Liquidity in USD. */
+  liquidityUsd?: InputMaybe<NumberFilter>;
+  /** Data for marketCount. */
+  marketCount?: InputMaybe<NumberFilter>;
+  /** Open interest in collateral token units. */
+  openInterestCT?: InputMaybe<NumberFilter>;
+  /** The percentage change. */
+  openInterestChange1h?: InputMaybe<NumberFilter>;
+  /** The percentage change. */
+  openInterestChange1w?: InputMaybe<NumberFilter>;
+  /** The percentage change. */
+  openInterestChange4h?: InputMaybe<NumberFilter>;
+  /** The percentage change. */
+  openInterestChange5m?: InputMaybe<NumberFilter>;
+  /** The percentage change. */
+  openInterestChange12h?: InputMaybe<NumberFilter>;
+  /** The percentage change. */
+  openInterestChange24h?: InputMaybe<NumberFilter>;
+  /** Open interest in USD. */
+  openInterestUsd?: InputMaybe<NumberFilter>;
+  /** The timestamp when this entity opens. */
+  opensAt?: InputMaybe<NumberFilter>;
+  /** The prediction protocol. */
+  protocol?: InputMaybe<Array<PredictionProtocol>>;
+  /** The relevance score. */
+  relevanceScore1h?: InputMaybe<NumberFilter>;
+  /** The relevance score. */
+  relevanceScore1w?: InputMaybe<NumberFilter>;
+  /** The relevance score. */
+  relevanceScore4h?: InputMaybe<NumberFilter>;
+  /** The relevance score. */
+  relevanceScore5m?: InputMaybe<NumberFilter>;
+  /** The relevance score. */
+  relevanceScore12h?: InputMaybe<NumberFilter>;
+  /** The relevance score. */
+  relevanceScore24h?: InputMaybe<NumberFilter>;
+  /** The resolution source. */
+  resolutionSource?: InputMaybe<Array<Scalars['String']['input']>>;
+  /** The actual resolution timestamp. */
+  resolvedAt?: InputMaybe<NumberFilter>;
+  /** The expected resolution timestamp. */
+  resolvesAt?: InputMaybe<NumberFilter>;
+  /** The current status. */
+  status?: InputMaybe<Array<PredictionEventStatus>>;
+  /** The unix timestamp. */
+  timestamp?: InputMaybe<NumberFilter>;
+  /** The trades1h. */
+  trades1h?: InputMaybe<NumberFilter>;
+  /** The trades1w. */
+  trades1w?: InputMaybe<NumberFilter>;
+  /** The trades4h. */
+  trades4h?: InputMaybe<NumberFilter>;
+  /** The trades5m. */
+  trades5m?: InputMaybe<NumberFilter>;
+  /** The trades12h. */
+  trades12h?: InputMaybe<NumberFilter>;
+  /** The trades24h. */
+  trades24h?: InputMaybe<NumberFilter>;
+  /** The percentage change. */
+  tradesChange1h?: InputMaybe<NumberFilter>;
+  /** The percentage change. */
+  tradesChange1w?: InputMaybe<NumberFilter>;
+  /** The percentage change. */
+  tradesChange4h?: InputMaybe<NumberFilter>;
+  /** The percentage change. */
+  tradesChange5m?: InputMaybe<NumberFilter>;
+  /** The percentage change. */
+  tradesChange12h?: InputMaybe<NumberFilter>;
+  /** The percentage change. */
+  tradesChange24h?: InputMaybe<NumberFilter>;
+  /** The trending score. */
+  trendingScore1h?: InputMaybe<NumberFilter>;
+  /** The trending score. */
+  trendingScore1w?: InputMaybe<NumberFilter>;
+  /** The trending score. */
+  trendingScore4h?: InputMaybe<NumberFilter>;
+  /** The trending score. */
+  trendingScore5m?: InputMaybe<NumberFilter>;
+  /** The trending score. */
+  trendingScore12h?: InputMaybe<NumberFilter>;
+  /** The trending score. */
+  trendingScore24h?: InputMaybe<NumberFilter>;
+  /** The unique traders1h. */
+  uniqueTraders1h?: InputMaybe<NumberFilter>;
+  /** The unique traders1w. */
+  uniqueTraders1w?: InputMaybe<NumberFilter>;
+  /** The unique traders4h. */
+  uniqueTraders4h?: InputMaybe<NumberFilter>;
+  /** The unique traders5m. */
+  uniqueTraders5m?: InputMaybe<NumberFilter>;
+  /** The unique traders12h. */
+  uniqueTraders12h?: InputMaybe<NumberFilter>;
+  /** The unique traders24h. */
+  uniqueTraders24h?: InputMaybe<NumberFilter>;
+  /** The percentage change. */
+  uniqueTradersChange1h?: InputMaybe<NumberFilter>;
+  /** The percentage change. */
+  uniqueTradersChange1w?: InputMaybe<NumberFilter>;
+  /** The percentage change. */
+  uniqueTradersChange4h?: InputMaybe<NumberFilter>;
+  /** The percentage change. */
+  uniqueTradersChange5m?: InputMaybe<NumberFilter>;
+  /** The percentage change. */
+  uniqueTradersChange12h?: InputMaybe<NumberFilter>;
+  /** The percentage change. */
+  uniqueTradersChange24h?: InputMaybe<NumberFilter>;
+  /** The venue-specific series ID. */
+  venueSeriesId?: InputMaybe<Array<Scalars['String']['input']>>;
+  /** The venue volume ct. */
+  venueVolumeCT?: InputMaybe<NumberFilter>;
+  /** The venue volume usd. */
+  venueVolumeUsd?: InputMaybe<NumberFilter>;
+  /** Volume in collateral token units. */
+  volumeCTAll?: InputMaybe<NumberFilter>;
+  /** The percentage change. */
+  volumeChange1h?: InputMaybe<NumberFilter>;
+  /** The percentage change. */
+  volumeChange1w?: InputMaybe<NumberFilter>;
+  /** The percentage change. */
+  volumeChange4h?: InputMaybe<NumberFilter>;
+  /** The percentage change. */
+  volumeChange5m?: InputMaybe<NumberFilter>;
+  /** The percentage change. */
+  volumeChange12h?: InputMaybe<NumberFilter>;
+  /** The percentage change. */
+  volumeChange24h?: InputMaybe<NumberFilter>;
+  /** Volume in USD. */
+  volumeUsd1h?: InputMaybe<NumberFilter>;
+  /** Volume in USD. */
+  volumeUsd1w?: InputMaybe<NumberFilter>;
+  /** Volume in USD. */
+  volumeUsd4h?: InputMaybe<NumberFilter>;
+  /** Volume in USD. */
+  volumeUsd5m?: InputMaybe<NumberFilter>;
+  /** Volume in USD. */
+  volumeUsd12h?: InputMaybe<NumberFilter>;
+  /** Volume in USD. */
+  volumeUsd24h?: InputMaybe<NumberFilter>;
+  /** Volume in USD. */
+  volumeUsdAll?: InputMaybe<NumberFilter>;
+};
+
+/** Deprecated. Sort order for markets within a prediction event. This no longer affects market ordering. */
 export enum PredictionEventMarketSort {
-  /** No sorting - return markets in original order */
+  /**
+   * Deprecated. No longer affects market ordering.
+   * @deprecated No longer affects market ordering.
+   */
   None = 'NONE',
-  /** Smart sorting based on market label patterns (dates, prices, etc.) - default */
+  /**
+   * Deprecated. No longer affects market ordering.
+   * @deprecated No longer affects market ordering.
+   */
   Smart = 'SMART'
 }
+
+/** A ranking to apply when sorting prediction events. */
+export type PredictionEventRanking = {
+  /** The attribute to rank by. */
+  attribute: PredictionEventRankingAttribute;
+  /** The sort direction. */
+  direction?: InputMaybe<RankingDirection>;
+};
+
+/** The attribute used to rank prediction events. */
+export enum PredictionEventRankingAttribute {
+  Age = 'age',
+  ClosesAt = 'closesAt',
+  CreatedAt = 'createdAt',
+  ExpectedLifespan = 'expectedLifespan',
+  LastTransactionAt = 'lastTransactionAt',
+  LiquidityCt = 'liquidityCT',
+  LiquidityChange1h = 'liquidityChange1h',
+  LiquidityChange1w = 'liquidityChange1w',
+  LiquidityChange4h = 'liquidityChange4h',
+  LiquidityChange5m = 'liquidityChange5m',
+  LiquidityChange12h = 'liquidityChange12h',
+  LiquidityChange24h = 'liquidityChange24h',
+  LiquidityUsd = 'liquidityUsd',
+  MarketCount = 'marketCount',
+  OpenInterestCt = 'openInterestCT',
+  OpenInterestChange1h = 'openInterestChange1h',
+  OpenInterestChange1w = 'openInterestChange1w',
+  OpenInterestChange4h = 'openInterestChange4h',
+  OpenInterestChange5m = 'openInterestChange5m',
+  OpenInterestChange12h = 'openInterestChange12h',
+  OpenInterestChange24h = 'openInterestChange24h',
+  OpenInterestUsd = 'openInterestUsd',
+  OpensAt = 'opensAt',
+  /** Score from phrase matching (for search queries) */
+  PhraseScore = 'phraseScore',
+  RelevanceScore1h = 'relevanceScore1h',
+  RelevanceScore1w = 'relevanceScore1w',
+  RelevanceScore4h = 'relevanceScore4h',
+  RelevanceScore5m = 'relevanceScore5m',
+  RelevanceScore12h = 'relevanceScore12h',
+  RelevanceScore24h = 'relevanceScore24h',
+  ResolvedAt = 'resolvedAt',
+  ResolvesAt = 'resolvesAt',
+  Timestamp = 'timestamp',
+  Trades1h = 'trades1h',
+  Trades1w = 'trades1w',
+  Trades4h = 'trades4h',
+  Trades5m = 'trades5m',
+  Trades12h = 'trades12h',
+  Trades24h = 'trades24h',
+  TradesChange1h = 'tradesChange1h',
+  TradesChange1w = 'tradesChange1w',
+  TradesChange4h = 'tradesChange4h',
+  TradesChange5m = 'tradesChange5m',
+  TradesChange12h = 'tradesChange12h',
+  TradesChange24h = 'tradesChange24h',
+  TrendingScore1h = 'trendingScore1h',
+  TrendingScore1w = 'trendingScore1w',
+  TrendingScore4h = 'trendingScore4h',
+  TrendingScore5m = 'trendingScore5m',
+  TrendingScore12h = 'trendingScore12h',
+  TrendingScore24h = 'trendingScore24h',
+  UniqueTraders1h = 'uniqueTraders1h',
+  UniqueTraders1w = 'uniqueTraders1w',
+  UniqueTraders4h = 'uniqueTraders4h',
+  UniqueTraders5m = 'uniqueTraders5m',
+  UniqueTraders12h = 'uniqueTraders12h',
+  UniqueTraders24h = 'uniqueTraders24h',
+  UniqueTradersChange1h = 'uniqueTradersChange1h',
+  UniqueTradersChange1w = 'uniqueTradersChange1w',
+  UniqueTradersChange4h = 'uniqueTradersChange4h',
+  UniqueTradersChange5m = 'uniqueTradersChange5m',
+  UniqueTradersChange12h = 'uniqueTradersChange12h',
+  UniqueTradersChange24h = 'uniqueTradersChange24h',
+  VenueVolumeCt = 'venueVolumeCT',
+  VenueVolumeUsd = 'venueVolumeUsd',
+  VolumeCtAll = 'volumeCTAll',
+  VolumeChange1h = 'volumeChange1h',
+  VolumeChange1w = 'volumeChange1w',
+  VolumeChange4h = 'volumeChange4h',
+  VolumeChange5m = 'volumeChange5m',
+  VolumeChange12h = 'volumeChange12h',
+  VolumeChange24h = 'volumeChange24h',
+  VolumeUsd1h = 'volumeUsd1h',
+  VolumeUsd1w = 'volumeUsd1w',
+  VolumeUsd4h = 'volumeUsd4h',
+  VolumeUsd5m = 'volumeUsd5m',
+  VolumeUsd12h = 'volumeUsd12h',
+  VolumeUsd24h = 'volumeUsd24h',
+  VolumeUsdAll = 'volumeUsdAll'
+}
+
+/** Multi-resolution bar data for a prediction event. */
+export type PredictionEventResolutionBarData = {
+  __typename?: 'PredictionEventResolutionBarData';
+  /** Data for the 1-day resolution. */
+  day1?: Maybe<PredictionEventBar>;
+  /** Data for the 1-hour resolution. */
+  hour1?: Maybe<PredictionEventBar>;
+  /** Data for the 4-hour resolution. */
+  hour4?: Maybe<PredictionEventBar>;
+  /** Data for the 12-hour resolution. */
+  hour12?: Maybe<PredictionEventBar>;
+  /** Data for the 1-minute resolution. */
+  min1?: Maybe<PredictionEventBar>;
+  /** Data for the 5-minute resolution. */
+  min5?: Maybe<PredictionEventBar>;
+  /** Data for the 15-minute resolution. */
+  min15?: Maybe<PredictionEventBar>;
+  /** Data for the 30-minute resolution. */
+  min30?: Maybe<PredictionEventBar>;
+  /** Data for the 1-week resolution. */
+  week1?: Maybe<PredictionEventBar>;
+};
+
+/** Capped event-shape taxonomy. One per event. */
+export enum PredictionEventShape {
+  /** Awards show / cultural competition outright field — typically one Yes/No market per nominee/entrant (e.g. "Eurovision Winner 2026", Oscars Best Picture, Grammy of the Year). */
+  AwardsShow = 'AWARDS_SHOW',
+  /** Single binary yes/no event. */
+  Binary = 'BINARY',
+  /** Date-bucket ladder (e.g. "Before Jan 21, 2029"). */
+  Date = 'DATE',
+  /** Election / nomination / primary outright field — typically one Yes/No market per candidate (e.g. "Democratic Presidential Nominee 2028"). */
+  Election = 'ELECTION',
+  /** Esports match (e.g. "Dota 2: Aurora vs Heroic", "CS2: FaZe vs Navi"). Similar market roles to traditional sports (moneyline, totals, props) but distinct event category. */
+  EsportsMatch = 'ESPORTS_MATCH',
+  /** FOMC / central-bank rate-decision event. */
+  FedDecision = 'FED_DECISION',
+  /** Multi-select / pick-N field where the entrant set is a list of distinct items (policy items, demands, topics) rather than candidates, dates, or numeric buckets (e.g. "What Iranian demands will Trump agree to?", "What will the bill include?"). */
+  MultiSelect = 'MULTI_SELECT',
+  /** Fallback. */
+  Other = 'OTHER',
+  /** Numeric threshold ladder for a price/value (e.g. "BTC &gt; $X"). */
+  PriceThreshold = 'PRICE_THRESHOLD',
+  /** Season/tournament-level championship (e.g. "Pro Basketball Champion?", Super Bowl winner). */
+  SportsChampionship = 'SPORTS_CHAMPIONSHIP',
+  /** Single team-vs-team match (e.g. "Lakers vs Celtics"). */
+  SportsMatch = 'SPORTS_MATCH',
+  /** Best-of-N series within a tournament (e.g. NBA Finals series, MLB postseason series). */
+  SportsSeries = 'SPORTS_SERIES',
+  /** Weather or climate measure ladder (e.g. daily high temperature in °C, one Yes/No market per bucket or tail). */
+  Weather = 'WEATHER'
+}
+
+/** The lifecycle status of a prediction event. */
+export enum PredictionEventStatus {
+  Cancelled = 'CANCELLED',
+  Open = 'OPEN',
+  Pending = 'PENDING',
+  Resolved = 'RESOLVED',
+  Suspended = 'SUSPENDED'
+}
+
+/** A top market for a prediction event. */
+export type PredictionEventTopMarket = {
+  __typename?: 'PredictionEventTopMarket';
+  /** ISO 3166-1 alpha-2 country code when the row is a country entrant (Eurovision, World Cup, Olympics, etc.). Null otherwise. Mirrors `classification.entrant.countryCode` from the per-market classification metadata, hoisted onto the top-market row so card clients don't have to issue a follow-up query just to render a flag. */
+  countryCode?: Maybe<Scalars['String']['output']>;
+  /** The label. */
+  label: Scalars['String']['output'];
+  /** The unique identifier of the market. */
+  marketId: Scalars['String']['output'];
+  /** The ask CT of the outcome 0. */
+  outcome0AskCT: Scalars['String']['output'];
+  /** The ask USD of the outcome 0. */
+  outcome0AskUSD: Scalars['String']['output'];
+  /** The bid CT of the outcome 0. */
+  outcome0BidCT: Scalars['String']['output'];
+  /** The bid USD of the outcome 0. */
+  outcome0BidUSD: Scalars['String']['output'];
+  /** The label of the outcome 0. */
+  outcome0Label: Scalars['String']['output'];
+  /** The ask CT of the outcome 1. */
+  outcome1AskCT: Scalars['String']['output'];
+  /** The ask USD of the outcome 1. */
+  outcome1AskUSD: Scalars['String']['output'];
+  /** The bid CT of the outcome 1. */
+  outcome1BidCT: Scalars['String']['output'];
+  /** The bid USD of the outcome 1. */
+  outcome1BidUSD: Scalars['String']['output'];
+  /** The label of the outcome 1. */
+  outcome1Label: Scalars['String']['output'];
+  /** The role of the market. */
+  role?: Maybe<PredictionMarketRole>;
+  /** The suggested label of the market. */
+  suggestedLabel?: Maybe<Scalars['String']['output']>;
+  /** thumbUrl of the market. */
+  thumbUrl?: Maybe<Scalars['String']['output']>;
+  /** The volume CT of the market in the last 1 day. */
+  volumeCT1d: Scalars['String']['output'];
+  /** The volume CT of the market in the last 1 week. */
+  volumeCT1w: Scalars['String']['output'];
+  /** The volume CT of the market in all time. */
+  volumeCTAll: Scalars['String']['output'];
+  /** The volume USD of the market in the last 1 day. */
+  volumeUSD1d: Scalars['String']['output'];
+  /** The volume USD of the market in the last 1 week. */
+  volumeUSD1w: Scalars['String']['output'];
+  /** The volume USD of the market in all time. */
+  volumeUSDAll: Scalars['String']['output'];
+};
+
+/** Input type of `predictionEventTopMarketsBars`. */
+export type PredictionEventTopMarketsBarsInput = {
+  /** Number of bars to fetch backwards from 'to' (alternative to 'from') */
+  countback?: InputMaybe<Scalars['Int']['input']>;
+  /** The event ID to fetch top markets for */
+  eventId: Scalars['String']['input'];
+  /** Unix timestamp (seconds) for the start of the range */
+  from: Scalars['Int']['input'];
+  /** Maximum number of markets to return (default 5, max 10) */
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  /** Explicit list of market IDs to fetch (overrides ranking if provided) */
+  marketIds?: InputMaybe<Array<Scalars['String']['input']>>;
+  /** Market-level attribute to rank by (use this OR rankByOutcome + rankByOutcomeAttribute) */
+  rankBy?: InputMaybe<PredictionMarketRankingAttribute>;
+  /** Which outcome to rank by (use with rankByOutcomeAttribute) */
+  rankByOutcome?: InputMaybe<PredictionOutcomeIndex>;
+  /** Outcome-level attribute to rank by (requires rankByOutcome) */
+  rankByOutcomeAttribute?: InputMaybe<PredictionOutcomeRankingAttribute>;
+  /** Direction to rank (DESC = highest first) */
+  rankDirection?: InputMaybe<RankingDirection>;
+  /** Whether to remove empty bars from the response */
+  removeEmptyBars?: InputMaybe<Scalars['Boolean']['input']>;
+  /** Resolution for the bars (e.g., min1, min5, hour1, day1) */
+  resolution: PredictionMarketBarsResolution;
+  /** Unix timestamp (seconds) for the end of the range */
+  to: Scalars['Int']['input'];
+  /** Use pre-computed leaderboard ranking (overrides rankBy options when true) */
+  useLeaderboard?: InputMaybe<Scalars['Boolean']['input']>;
+};
+
+/** Response returned by `predictionEventTopMarketsBars`. */
+export type PredictionEventTopMarketsBarsResponse = {
+  __typename?: 'PredictionEventTopMarketsBarsResponse';
+  /** The ID of the prediction event. */
+  eventId: Scalars['String']['output'];
+  /** Array of market bars (max 10) */
+  marketBars: Array<PredictionMarketBarsResponse>;
+  /** The parent prediction event */
+  predictionEvent?: Maybe<PredictionEvent>;
+};
+
+/** Trending, relevance, and competitive scores for an event window. */
+export type PredictionEventWindowScores = {
+  __typename?: 'PredictionEventWindowScores';
+  /** The competitive score. */
+  competitive: Scalars['Float']['output'];
+  /** The relevance score. */
+  relevance: Scalars['Float']['output'];
+  /** The trending score. */
+  trending: Scalars['Float']['output'];
+};
+
+/** Lifecycle metadata for a prediction entity including status and timing. */
+export type PredictionLifecycleStats = {
+  __typename?: 'PredictionLifecycleStats';
+  /** The age seconds. */
+  ageSeconds: Scalars['Int']['output'];
+  /** The expected lifespan seconds. */
+  expectedLifespanSeconds?: Maybe<Scalars['Int']['output']>;
+  /** The is resolved. */
+  isResolved: Scalars['Boolean']['output'];
+  /** The time to resolution seconds. */
+  timeToResolutionSeconds?: Maybe<Scalars['Int']['output']>;
+  /** The ID of the winning outcome. */
+  winningOutcomeId?: Maybe<Scalars['String']['output']>;
+};
+
+/** A prediction market with outcomes, pricing, and metadata. */
+export type PredictionMarket = {
+  __typename?: 'PredictionMarket';
+  /** Categories associated with this entity. */
+  categories?: Maybe<Array<PredictionCategory>>;
+  /** The timestamp when this entity closes. */
+  closesAt?: Maybe<Scalars['Int']['output']>;
+  /** The creation timestamp. */
+  createdAt?: Maybe<Scalars['Int']['output']>;
+  /** Per-domain structured enrichment (sports market type/teams/start times today). Null when no domain-specific signal extracted. */
+  enrichedMetadata?: Maybe<PredictionMarketEnrichedMetadata>;
+  /** The ID of the prediction event. */
+  eventId?: Maybe<Scalars['String']['output']>;
+  /** The parent event label. */
+  eventLabel?: Maybe<Scalars['String']['output']>;
+  /** The exchange contract address. */
+  exchangeAddress?: Maybe<Scalars['String']['output']>;
+  /** The unique identifier. */
+  id: Scalars['String']['output'];
+  /** URL of the large image. */
+  imageLargeUrl?: Maybe<Scalars['String']['output']>;
+  /** URL of the small image. */
+  imageSmallUrl?: Maybe<Scalars['String']['output']>;
+  /** URL of the thumbnail image. */
+  imageThumbUrl?: Maybe<Scalars['String']['output']>;
+  /** The display label. */
+  label?: Maybe<Scalars['String']['output']>;
+  /** The network ID. */
+  networkId?: Maybe<Scalars['Int']['output']>;
+  /** The last observation timestamp. */
+  observedAt: Scalars['Int']['output'];
+  /** The timestamp when this entity opens. */
+  opensAt?: Maybe<Scalars['Int']['output']>;
+  /** Internal outcome IDs. */
+  outcomeIds: Array<Scalars['String']['output']>;
+  /** Labels for each outcome. */
+  outcomeLabels?: Maybe<Array<Scalars['String']['output']>>;
+  /** The prediction protocol. */
+  protocol: PredictionProtocol;
+  /** The question or title. */
+  question?: Maybe<Scalars['String']['output']>;
+  /** The resolution details. */
+  resolution?: Maybe<PredictionResolution>;
+  /** The actual resolution timestamp. */
+  resolvedAt?: Maybe<Scalars['Int']['output']>;
+  /** The expected resolution timestamp. */
+  resolvesAt?: Maybe<Scalars['Int']['output']>;
+  /** Primary rules text. */
+  rules?: Maybe<Scalars['String']['output']>;
+  /** Secondary rules text. */
+  rules2?: Maybe<Scalars['String']['output']>;
+  /** A clean, UI-ready label derived from `label`/`question` with the parent event name stripped (and Kalshi `Yes:`/`No:` prefixes unwrapped). Falls back to `question` when `label` is missing or `unknown`. */
+  suggestedLabel?: Maybe<Scalars['String']['output']>;
+  /** The last update timestamp. */
+  updatedAt?: Maybe<Scalars['Int']['output']>;
+  /** The venue-specific event ID. */
+  venueEventId?: Maybe<Scalars['String']['output']>;
+  /** The venue-specific market ID. */
+  venueMarketId: Scalars['String']['output'];
+  /** The venue-specific market slug. */
+  venueMarketSlug?: Maybe<Scalars['String']['output']>;
+  /** Venue-specific outcome IDs. */
+  venueOutcomeIds: Array<Scalars['String']['output']>;
+  /** The ID of the winning outcome. */
+  winningOutcomeId?: Maybe<Scalars['String']['output']>;
+};
+
+/** All-time aggregate stats for a prediction market. */
+export type PredictionMarketAllTimeStats = {
+  __typename?: 'PredictionMarketAllTimeStats';
+  /** Venue-specific volume (optional). */
+  venueVolume?: Maybe<CurrencyValuePair>;
+  /** Total volume. */
+  volume: CurrencyValuePair;
+};
+
+/** Bar data for a prediction market at a single point in time. */
+export type PredictionMarketBar = {
+  __typename?: 'PredictionMarketBar';
+  /** The all time venue volume collateral token (reported by venue). */
+  allTimeVenueVolumeCollateralToken?: Maybe<Scalars['String']['output']>;
+  /** The all time venue volume usd (reported by venue). */
+  allTimeVenueVolumeUsd?: Maybe<Scalars['String']['output']>;
+  /** The all time volume collateral token (from on-chain trades). */
+  allTimeVolumeCollateralToken?: Maybe<Scalars['String']['output']>;
+  /** The all time volume usd (from on-chain trades). */
+  allTimeVolumeUsd?: Maybe<Scalars['String']['output']>;
+  /** The last event timestamp. */
+  lastEventTimestamp?: Maybe<Scalars['Int']['output']>;
+  /** Open interest in USD. */
+  openInterestUsd?: Maybe<PredictionMarketBarOhlc>;
+  /** Outcome 0 data. */
+  outcome0?: Maybe<PredictionOutcomeBar>;
+  /** Outcome 1 data. */
+  outcome1?: Maybe<PredictionOutcomeBar>;
+  /** The unix timestamp for this bar. */
+  t: Scalars['Int']['output'];
+  /** The number of trades. */
+  trades?: Maybe<Scalars['Int']['output']>;
+  /** The number of unique traders. */
+  uniqueTraders?: Maybe<Scalars['Int']['output']>;
+  /** Volume in collateral token units. */
+  volumeCollateralToken?: Maybe<Scalars['String']['output']>;
+  /** Volume in shares. */
+  volumeShares?: Maybe<Scalars['String']['output']>;
+  /** Volume in USD. */
+  volumeUsd?: Maybe<Scalars['String']['output']>;
+};
+
+/** OHLC price data for a prediction market bar. */
+export type PredictionMarketBarOhlc = {
+  __typename?: 'PredictionMarketBarOhlc';
+  /** The close value. */
+  c: Scalars['String']['output'];
+  /** The high value. */
+  h: Scalars['String']['output'];
+  /** The low value. */
+  l: Scalars['String']['output'];
+  /** The open value. */
+  o: Scalars['String']['output'];
+};
+
+/** Input type of `predictionMarketBars`. */
+export type PredictionMarketBarsInput = {
+  /** Number of bars to return counting back from `to`. */
+  countback?: InputMaybe<Scalars['Int']['input']>;
+  /** The start timestamp (unix seconds). */
+  from: Scalars['Int']['input'];
+  /** The ID of the prediction market. */
+  marketId: Scalars['String']['input'];
+  /** Whether to omit bars with no activity. */
+  removeEmptyBars?: InputMaybe<Scalars['Boolean']['input']>;
+  /** The resolution details. */
+  resolution: PredictionMarketBarsResolution;
+  /** The end timestamp (unix seconds). */
+  to: Scalars['Int']['input'];
+};
+
+/** The time resolution for prediction market bar data. */
+export enum PredictionMarketBarsResolution {
+  Day1 = 'day1',
+  Hour1 = 'hour1',
+  Hour4 = 'hour4',
+  Hour12 = 'hour12',
+  Min1 = 'min1',
+  Min5 = 'min5',
+  Min15 = 'min15',
+  Min30 = 'min30',
+  Week1 = 'week1'
+}
+
+/** Response returned by `predictionMarketBars`. */
+export type PredictionMarketBarsResponse = {
+  __typename?: 'PredictionMarketBarsResponse';
+  /** The bar data. */
+  bars: Array<PredictionMarketBar>;
+  /** The ID of the prediction market. */
+  marketId: Scalars['String']['output'];
+  /** The prediction event. */
+  predictionEvent: PredictionEvent;
+  /** The prediction market. */
+  predictionMarket: PredictionMarket;
+};
+
+/** Structured per-market classification metadata. Replaces the legacy flat fields (`marketSubtype`, `marketRole`, `displayOrder`, `suggestedOrder`) with discriminated, typed sub-objects so clients don't have to re-parse subtype slugs. */
+export type PredictionMarketClassification = {
+  __typename?: 'PredictionMarketClassification';
+  /** Populated when `role = DATE_BUCKET`. Carries the parsed timestamp(s) and operator (BEFORE / AFTER / ON / BETWEEN). */
+  dateBucket?: Maybe<PredictionMarketDateBucket>;
+  /** Populated when `role = ENTRANT`. Identifies the kind of entrant (person, team, country, ...) and provides type-specific hints (e.g. ISO 3166-1 alpha-2 country code). */
+  entrant?: Maybe<PredictionMarketEntrant>;
+  /** Original subtype slug emitted by the classifier (e.g. "first_half_spread", "player_points"). Provided so clients can forward-ship support for new subtypes before this schema gains structured fields for them. */
+  rawSubtype?: Maybe<Scalars['String']['output']>;
+  /** Per-market role within the event (same value as the legacy `marketRole`). */
+  role: PredictionMarketRole;
+  /** Sub-event period (set, half, game, etc.) and/or stat (points, rebounds, ...). Always present; `type = NONE` for non-sports markets and whole-match sports markets. The `groupingKey` field encodes the documented "stat wins over period" precedence so clients don't have to. */
+  segment: PredictionMarketSegment;
+  /** Position of this market within the event's display list (lower = show first). Folds in ladder ordering for `THRESHOLD_BUCKET` / `DATE_BUCKET` events; equivalent to `suggestedOrder ?? displayOrder` on the legacy fields. */
+  sortKey?: Maybe<Scalars['Int']['output']>;
+  /** Populated when `role = THRESHOLD_BUCKET`. Carries the parsed numeric rung value, comparison operator, and metric kind (price, temperature, tweets, ...). Saves clients from re-parsing the label. */
+  thresholdBucket?: Maybe<PredictionMarketThresholdBucket>;
+};
+
+/** Date-bucket metadata for DATE_BUCKET-role markets. */
+export type PredictionMarketDateBucket = {
+  __typename?: 'PredictionMarketDateBucket';
+  /** Lower bound timestamp (seconds) for BETWEEN buckets. */
+  lowerTimestamp?: Maybe<Scalars['Int']['output']>;
+  /** How the rung relates to its date bound(s). */
+  operator: PredictionMarketDateOperator;
+  /** Single unix timestamp (seconds) for BEFORE / AFTER / ON. */
+  unixTimestamp?: Maybe<Scalars['Int']['output']>;
+  /** Upper bound timestamp (seconds) for BETWEEN buckets. */
+  upperTimestamp?: Maybe<Scalars['Int']['output']>;
+};
+
+/** Comparison operator for a date rung. */
+export enum PredictionMarketDateOperator {
+  After = 'AFTER',
+  Before = 'BEFORE',
+  Between = 'BETWEEN',
+  On = 'ON'
+}
+
+/** Per-domain enrichment attached to a prediction market. Discriminated by `metadataType`; the corresponding sub-block (e.g. `sports`) is populated. */
+export type PredictionMarketEnrichedMetadata = {
+  __typename?: 'PredictionMarketEnrichedMetadata';
+  /** Discriminator naming which sub-block carries data. */
+  metadataType: PredictionMetadataType;
+  /** Populated when `metadataType = SPORTS`. */
+  sports?: Maybe<SportsMarketEnrichedMetadata>;
+};
+
+/** Entrant metadata for ENTRANT-role markets. */
+export type PredictionMarketEntrant = {
+  __typename?: 'PredictionMarketEntrant';
+  /** ISO 3166-1 alpha-2 country code (e.g. "SE"). Populated when `kind = COUNTRY` and the label resolves to a known country. */
+  countryCode?: Maybe<Scalars['String']['output']>;
+  /** Cleaned display name for the entrant (mirrors the existing `suggestedLabel` field). */
+  displayName: Scalars['String']['output'];
+  /** Per-market image URL when available (mirrors the existing per-market image). */
+  imageUrl?: Maybe<Scalars['String']['output']>;
+  /** Kind of entity this entrant represents. */
+  kind: PredictionMarketEntrantKind;
+};
+
+/** Closed list of entrant kinds. */
+export enum PredictionMarketEntrantKind {
+  /** Album. */
+  Album = 'ALBUM',
+  /** Company / corporation / brand. */
+  Company = 'COMPANY',
+  /** Country (Eurovision, Olympics outright, etc.). */
+  Country = 'COUNTRY',
+  /** Movie. */
+  Movie = 'MOVIE',
+  /** Fallback. */
+  Other = 'OTHER',
+  /** Real person — politician, executive, public figure (not a sports player). */
+  Person = 'PERSON',
+  /** Sports player or driver. */
+  Player = 'PLAYER',
+  /** Song. */
+  Song = 'SONG',
+  /** Sports team or franchise. */
+  Team = 'TEAM',
+  /** Multi-select / pick-N topic item (policy item, demand, agenda topic). */
+  Topic = 'TOPIC',
+  /** TV show. */
+  TvShow = 'TV_SHOW'
+}
+
+/** Response returned by `filterPredictionMarkets`. */
+export type PredictionMarketFilterConnection = {
+  __typename?: 'PredictionMarketFilterConnection';
+  /** Total number of matching results. */
+  count: Scalars['Int']['output'];
+  /** The current page number. */
+  page: Scalars['Int']['output'];
+  /** The list of results. */
+  results: Array<PredictionMarketFilterResult>;
+};
+
+/** A prediction market matching a set of filter parameters. */
+export type PredictionMarketFilterResult = {
+  __typename?: 'PredictionMarketFilterResult';
+  /** The age. */
+  age?: Maybe<Scalars['Int']['output']>;
+  /** The avg trade size usd1h. */
+  avgTradeSizeUsd1h?: Maybe<Scalars['String']['output']>;
+  /** The avg trade size usd1w. */
+  avgTradeSizeUsd1w?: Maybe<Scalars['String']['output']>;
+  /** The avg trade size usd4h. */
+  avgTradeSizeUsd4h?: Maybe<Scalars['String']['output']>;
+  /** The avg trade size usd5m. */
+  avgTradeSizeUsd5m?: Maybe<Scalars['String']['output']>;
+  /** The avg trade size usd12h. */
+  avgTradeSizeUsd12h?: Maybe<Scalars['String']['output']>;
+  /** The avg trade size usd24h. */
+  avgTradeSizeUsd24h?: Maybe<Scalars['String']['output']>;
+  /** Categories associated with this entity. */
+  categories: Array<Scalars['String']['output']>;
+  /** Structured classification metadata from the search index. Discriminated by `classification.role`; carries `segment`, `entrant`, `thresholdBucket`, and `dateBucket` sub-blocks. */
+  classification?: Maybe<PredictionMarketClassification>;
+  /** The timestamp when this entity closes. */
+  closesAt: Scalars['Int']['output'];
+  /** The competitive score. */
+  competitiveScore1h?: Maybe<Scalars['Float']['output']>;
+  /** The competitive score. */
+  competitiveScore1w?: Maybe<Scalars['Float']['output']>;
+  /** The competitive score. */
+  competitiveScore4h?: Maybe<Scalars['Float']['output']>;
+  /** The competitive score. */
+  competitiveScore5m?: Maybe<Scalars['Float']['output']>;
+  /** The competitive score. */
+  competitiveScore12h?: Maybe<Scalars['Float']['output']>;
+  /** The competitive score. */
+  competitiveScore24h?: Maybe<Scalars['Float']['output']>;
+  /** The parent event label. */
+  eventLabel?: Maybe<Scalars['String']['output']>;
+  /** The expected lifespan. */
+  expectedLifespan?: Maybe<Scalars['Int']['output']>;
+  /** The unique identifier. */
+  id: Scalars['String']['output'];
+  /** The implied probability sum. */
+  impliedProbabilitySum?: Maybe<Scalars['Float']['output']>;
+  /** The timestamp of the last transaction. */
+  lastTransactionAt: Scalars['Int']['output'];
+  /** The liquidity asymmetry. */
+  liquidityAsymmetry?: Maybe<Scalars['Float']['output']>;
+  /** Liquidity in collateral token units. */
+  liquidityCT?: Maybe<Scalars['String']['output']>;
+  /** The percentage change. */
+  liquidityChange1h?: Maybe<Scalars['Float']['output']>;
+  /** The percentage change. */
+  liquidityChange1w?: Maybe<Scalars['Float']['output']>;
+  /** The percentage change. */
+  liquidityChange4h?: Maybe<Scalars['Float']['output']>;
+  /** The percentage change. */
+  liquidityChange5m?: Maybe<Scalars['Float']['output']>;
+  /** The percentage change. */
+  liquidityChange12h?: Maybe<Scalars['Float']['output']>;
+  /** The percentage change. */
+  liquidityChange24h?: Maybe<Scalars['Float']['output']>;
+  /** Liquidity in USD. */
+  liquidityUsd?: Maybe<Scalars['String']['output']>;
+  /** Simplified market data from search index. Use predictionMarket for full market details. */
+  market: SearchPredictionMarket;
+  /** The max price range1h. */
+  maxPriceRange1h?: Maybe<Scalars['Float']['output']>;
+  /** The max price range1w. */
+  maxPriceRange1w?: Maybe<Scalars['Float']['output']>;
+  /** The max price range4h. */
+  maxPriceRange4h?: Maybe<Scalars['Float']['output']>;
+  /** The max price range5m. */
+  maxPriceRange5m?: Maybe<Scalars['Float']['output']>;
+  /** The max price range12h. */
+  maxPriceRange12h?: Maybe<Scalars['Float']['output']>;
+  /** The max price range24h. */
+  maxPriceRange24h?: Maybe<Scalars['Float']['output']>;
+  /** Open interest in collateral token units. */
+  openInterestCT?: Maybe<Scalars['String']['output']>;
+  /** The percentage change. */
+  openInterestChange1h?: Maybe<Scalars['Float']['output']>;
+  /** The percentage change. */
+  openInterestChange1w?: Maybe<Scalars['Float']['output']>;
+  /** The percentage change. */
+  openInterestChange4h?: Maybe<Scalars['Float']['output']>;
+  /** The percentage change. */
+  openInterestChange5m?: Maybe<Scalars['Float']['output']>;
+  /** The percentage change. */
+  openInterestChange12h?: Maybe<Scalars['Float']['output']>;
+  /** The percentage change. */
+  openInterestChange24h?: Maybe<Scalars['Float']['output']>;
+  /** Open interest in USD. */
+  openInterestUsd?: Maybe<Scalars['String']['output']>;
+  /** The timestamp when this entity opens. */
+  opensAt: Scalars['Int']['output'];
+  /** Outcome 0 data. */
+  outcome0: PredictionOutcomeFilterResult;
+  /** Outcome 1 data. */
+  outcome1: PredictionOutcomeFilterResult;
+  /** Full prediction market loaded from database. May be null if market no longer exists. */
+  predictionMarket?: Maybe<PredictionMarket>;
+  /** The price competitiveness. */
+  priceCompetitiveness?: Maybe<Scalars['Float']['output']>;
+  /** The prediction protocol. */
+  protocol: PredictionProtocol;
+  /** The relevance score. */
+  relevanceScore1h?: Maybe<Scalars['Float']['output']>;
+  /** The relevance score. */
+  relevanceScore1w?: Maybe<Scalars['Float']['output']>;
+  /** The relevance score. */
+  relevanceScore4h?: Maybe<Scalars['Float']['output']>;
+  /** The relevance score. */
+  relevanceScore5m?: Maybe<Scalars['Float']['output']>;
+  /** The relevance score. */
+  relevanceScore12h?: Maybe<Scalars['Float']['output']>;
+  /** The relevance score. */
+  relevanceScore24h?: Maybe<Scalars['Float']['output']>;
+  /** The resolution source. */
+  resolutionSource?: Maybe<Scalars['String']['output']>;
+  /** The expected resolution timestamp. */
+  resolvesAt: Scalars['Int']['output'];
+  /** The current status. */
+  status: PredictionEventStatus;
+  /** The unix timestamp. */
+  timestamp: Scalars['Int']['output'];
+  /** The trades1h. */
+  trades1h?: Maybe<Scalars['Int']['output']>;
+  /** The trades1w. */
+  trades1w?: Maybe<Scalars['Int']['output']>;
+  /** The trades4h. */
+  trades4h?: Maybe<Scalars['Int']['output']>;
+  /** The trades5m. */
+  trades5m?: Maybe<Scalars['Int']['output']>;
+  /** The trades12h. */
+  trades12h?: Maybe<Scalars['Int']['output']>;
+  /** The trades24h. */
+  trades24h?: Maybe<Scalars['Int']['output']>;
+  /** The percentage change. */
+  tradesChange1h?: Maybe<Scalars['Float']['output']>;
+  /** The percentage change. */
+  tradesChange1w?: Maybe<Scalars['Float']['output']>;
+  /** The percentage change. */
+  tradesChange4h?: Maybe<Scalars['Float']['output']>;
+  /** The percentage change. */
+  tradesChange5m?: Maybe<Scalars['Float']['output']>;
+  /** The percentage change. */
+  tradesChange12h?: Maybe<Scalars['Float']['output']>;
+  /** The percentage change. */
+  tradesChange24h?: Maybe<Scalars['Float']['output']>;
+  /** The trending score. */
+  trendingScore1h?: Maybe<Scalars['Float']['output']>;
+  /** The trending score. */
+  trendingScore1w?: Maybe<Scalars['Float']['output']>;
+  /** The trending score. */
+  trendingScore4h?: Maybe<Scalars['Float']['output']>;
+  /** The trending score. */
+  trendingScore5m?: Maybe<Scalars['Float']['output']>;
+  /** The trending score. */
+  trendingScore12h?: Maybe<Scalars['Float']['output']>;
+  /** The trending score. */
+  trendingScore24h?: Maybe<Scalars['Float']['output']>;
+  /** The unique traders1h. */
+  uniqueTraders1h?: Maybe<Scalars['Int']['output']>;
+  /** The unique traders1w. */
+  uniqueTraders1w?: Maybe<Scalars['Int']['output']>;
+  /** The unique traders4h. */
+  uniqueTraders4h?: Maybe<Scalars['Int']['output']>;
+  /** The unique traders5m. */
+  uniqueTraders5m?: Maybe<Scalars['Int']['output']>;
+  /** The unique traders12h. */
+  uniqueTraders12h?: Maybe<Scalars['Int']['output']>;
+  /** The unique traders24h. */
+  uniqueTraders24h?: Maybe<Scalars['Int']['output']>;
+  /** The percentage change. */
+  uniqueTradersChange1h?: Maybe<Scalars['Float']['output']>;
+  /** The percentage change. */
+  uniqueTradersChange1w?: Maybe<Scalars['Float']['output']>;
+  /** The percentage change. */
+  uniqueTradersChange4h?: Maybe<Scalars['Float']['output']>;
+  /** The percentage change. */
+  uniqueTradersChange5m?: Maybe<Scalars['Float']['output']>;
+  /** The percentage change. */
+  uniqueTradersChange12h?: Maybe<Scalars['Float']['output']>;
+  /** The percentage change. */
+  uniqueTradersChange24h?: Maybe<Scalars['Float']['output']>;
+  /** The venue volume ct. */
+  venueVolumeCT?: Maybe<Scalars['String']['output']>;
+  /** The venue volume usd. */
+  venueVolumeUsd?: Maybe<Scalars['String']['output']>;
+  /** Volume in collateral token units. */
+  volumeCTAll?: Maybe<Scalars['String']['output']>;
+  /** The percentage change. */
+  volumeChange1h?: Maybe<Scalars['Float']['output']>;
+  /** The percentage change. */
+  volumeChange1w?: Maybe<Scalars['Float']['output']>;
+  /** The percentage change. */
+  volumeChange4h?: Maybe<Scalars['Float']['output']>;
+  /** The percentage change. */
+  volumeChange5m?: Maybe<Scalars['Float']['output']>;
+  /** The percentage change. */
+  volumeChange12h?: Maybe<Scalars['Float']['output']>;
+  /** The percentage change. */
+  volumeChange24h?: Maybe<Scalars['Float']['output']>;
+  /** The volume imbalance24h. */
+  volumeImbalance24h?: Maybe<Scalars['Float']['output']>;
+  /** Volume in USD. */
+  volumeUsd1h?: Maybe<Scalars['String']['output']>;
+  /** Volume in USD. */
+  volumeUsd1w?: Maybe<Scalars['String']['output']>;
+  /** Volume in USD. */
+  volumeUsd4h?: Maybe<Scalars['String']['output']>;
+  /** Volume in USD. */
+  volumeUsd5m?: Maybe<Scalars['String']['output']>;
+  /** Volume in USD. */
+  volumeUsd12h?: Maybe<Scalars['String']['output']>;
+  /** Volume in USD. */
+  volumeUsd24h?: Maybe<Scalars['String']['output']>;
+  /** Volume in USD. */
+  volumeUsdAll?: Maybe<Scalars['String']['output']>;
+  /** The ID of the winning outcome. */
+  winningOutcomeId?: Maybe<Scalars['String']['output']>;
+};
+
+/** Filters for prediction markets. */
+export type PredictionMarketFilters = {
+  /** The age. */
+  age?: InputMaybe<NumberFilter>;
+  /** The avg trade size usd1h. */
+  avgTradeSizeUsd1h?: InputMaybe<NumberFilter>;
+  /** The avg trade size usd1w. */
+  avgTradeSizeUsd1w?: InputMaybe<NumberFilter>;
+  /** The avg trade size usd4h. */
+  avgTradeSizeUsd4h?: InputMaybe<NumberFilter>;
+  /** The avg trade size usd5m. */
+  avgTradeSizeUsd5m?: InputMaybe<NumberFilter>;
+  /** The avg trade size usd12h. */
+  avgTradeSizeUsd12h?: InputMaybe<NumberFilter>;
+  /** The avg trade size usd24h. */
+  avgTradeSizeUsd24h?: InputMaybe<NumberFilter>;
+  /** Categories associated with this entity. Mutually exclusive with excludeCategories and hasCategories. */
+  categories?: InputMaybe<Array<Scalars['String']['input']>>;
+  /** The timestamp when this entity closes. */
+  closesAt?: InputMaybe<NumberFilter>;
+  /** The competitive score. */
+  competitiveScore1h?: InputMaybe<NumberFilter>;
+  /** The competitive score. */
+  competitiveScore1w?: InputMaybe<NumberFilter>;
+  /** The competitive score. */
+  competitiveScore4h?: InputMaybe<NumberFilter>;
+  /** The competitive score. */
+  competitiveScore5m?: InputMaybe<NumberFilter>;
+  /** The competitive score. */
+  competitiveScore12h?: InputMaybe<NumberFilter>;
+  /** The competitive score. */
+  competitiveScore24h?: InputMaybe<NumberFilter>;
+  /** The timestamp when this entity was created. */
+  createdAt?: InputMaybe<NumberFilter>;
+  /** Exclude markets with these categories. Mutually exclusive with categories and hasCategories. */
+  excludeCategories?: InputMaybe<Array<Scalars['String']['input']>>;
+  /** The expected lifespan. */
+  expectedLifespan?: InputMaybe<NumberFilter>;
+  /** Filter by whether the market has any categories. Mutually exclusive with categories and excludeCategories. */
+  hasCategories?: InputMaybe<Scalars['Boolean']['input']>;
+  /** The implied probability sum. */
+  impliedProbabilitySum?: InputMaybe<NumberFilter>;
+  /** The timestamp of the last transaction. */
+  lastTransactionAt?: InputMaybe<NumberFilter>;
+  /** The liquidity asymmetry. */
+  liquidityAsymmetry?: InputMaybe<NumberFilter>;
+  /** Liquidity in collateral token units. */
+  liquidityCT?: InputMaybe<NumberFilter>;
+  /** The percentage change. */
+  liquidityChange1h?: InputMaybe<NumberFilter>;
+  /** The percentage change. */
+  liquidityChange1w?: InputMaybe<NumberFilter>;
+  /** The percentage change. */
+  liquidityChange4h?: InputMaybe<NumberFilter>;
+  /** The percentage change. */
+  liquidityChange5m?: InputMaybe<NumberFilter>;
+  /** The percentage change. */
+  liquidityChange12h?: InputMaybe<NumberFilter>;
+  /** The percentage change. */
+  liquidityChange24h?: InputMaybe<NumberFilter>;
+  /** Liquidity in USD. */
+  liquidityUsd?: InputMaybe<NumberFilter>;
+  /** The max price range1h. */
+  maxPriceRange1h?: InputMaybe<NumberFilter>;
+  /** The max price range1w. */
+  maxPriceRange1w?: InputMaybe<NumberFilter>;
+  /** The max price range4h. */
+  maxPriceRange4h?: InputMaybe<NumberFilter>;
+  /** The max price range5m. */
+  maxPriceRange5m?: InputMaybe<NumberFilter>;
+  /** The max price range12h. */
+  maxPriceRange12h?: InputMaybe<NumberFilter>;
+  /** The max price range24h. */
+  maxPriceRange24h?: InputMaybe<NumberFilter>;
+  /** Open interest in collateral token units. */
+  openInterestCT?: InputMaybe<NumberFilter>;
+  /** The percentage change. */
+  openInterestChange1h?: InputMaybe<NumberFilter>;
+  /** The percentage change. */
+  openInterestChange1w?: InputMaybe<NumberFilter>;
+  /** The percentage change. */
+  openInterestChange4h?: InputMaybe<NumberFilter>;
+  /** The percentage change. */
+  openInterestChange5m?: InputMaybe<NumberFilter>;
+  /** The percentage change. */
+  openInterestChange12h?: InputMaybe<NumberFilter>;
+  /** The percentage change. */
+  openInterestChange24h?: InputMaybe<NumberFilter>;
+  /** Open interest in USD. */
+  openInterestUsd?: InputMaybe<NumberFilter>;
+  /** The timestamp when this entity opens. */
+  opensAt?: InputMaybe<NumberFilter>;
+  /** Filter on outcome0 properties. All conditions must be met (AND logic). */
+  outcome0?: InputMaybe<PredictionOutcomeFilters>;
+  /** Filter on outcome1 properties. All conditions must be met (AND logic). */
+  outcome1?: InputMaybe<PredictionOutcomeFilters>;
+  /** Filter where ANY outcome matches the conditions (OR logic). Useful for finding markets where either outcome meets criteria. */
+  outcomeOr?: InputMaybe<PredictionOutcomeFilters>;
+  /** The price competitiveness. */
+  priceCompetitiveness?: InputMaybe<NumberFilter>;
+  /** The prediction protocol. */
+  protocol?: InputMaybe<Array<PredictionProtocol>>;
+  /** The relevance score. */
+  relevanceScore1h?: InputMaybe<NumberFilter>;
+  /** The relevance score. */
+  relevanceScore1w?: InputMaybe<NumberFilter>;
+  /** The relevance score. */
+  relevanceScore4h?: InputMaybe<NumberFilter>;
+  /** The relevance score. */
+  relevanceScore5m?: InputMaybe<NumberFilter>;
+  /** The relevance score. */
+  relevanceScore12h?: InputMaybe<NumberFilter>;
+  /** The relevance score. */
+  relevanceScore24h?: InputMaybe<NumberFilter>;
+  /** The resolution source. */
+  resolutionSource?: InputMaybe<Array<Scalars['String']['input']>>;
+  /** The expected resolution timestamp. */
+  resolvesAt?: InputMaybe<NumberFilter>;
+  /** The current status. */
+  status?: InputMaybe<Array<PredictionEventStatus>>;
+  /** The unix timestamp. */
+  timestamp?: InputMaybe<NumberFilter>;
+  /** The trades1h. */
+  trades1h?: InputMaybe<NumberFilter>;
+  /** The trades1w. */
+  trades1w?: InputMaybe<NumberFilter>;
+  /** The trades4h. */
+  trades4h?: InputMaybe<NumberFilter>;
+  /** The trades5m. */
+  trades5m?: InputMaybe<NumberFilter>;
+  /** The trades12h. */
+  trades12h?: InputMaybe<NumberFilter>;
+  /** The trades24h. */
+  trades24h?: InputMaybe<NumberFilter>;
+  /** The percentage change. */
+  tradesChange1h?: InputMaybe<NumberFilter>;
+  /** The percentage change. */
+  tradesChange1w?: InputMaybe<NumberFilter>;
+  /** The percentage change. */
+  tradesChange4h?: InputMaybe<NumberFilter>;
+  /** The percentage change. */
+  tradesChange5m?: InputMaybe<NumberFilter>;
+  /** The percentage change. */
+  tradesChange12h?: InputMaybe<NumberFilter>;
+  /** The percentage change. */
+  tradesChange24h?: InputMaybe<NumberFilter>;
+  /** The trending score. */
+  trendingScore1h?: InputMaybe<NumberFilter>;
+  /** The trending score. */
+  trendingScore1w?: InputMaybe<NumberFilter>;
+  /** The trending score. */
+  trendingScore4h?: InputMaybe<NumberFilter>;
+  /** The trending score. */
+  trendingScore5m?: InputMaybe<NumberFilter>;
+  /** The trending score. */
+  trendingScore12h?: InputMaybe<NumberFilter>;
+  /** The trending score. */
+  trendingScore24h?: InputMaybe<NumberFilter>;
+  /** The unique traders1h. */
+  uniqueTraders1h?: InputMaybe<NumberFilter>;
+  /** The unique traders1w. */
+  uniqueTraders1w?: InputMaybe<NumberFilter>;
+  /** The unique traders4h. */
+  uniqueTraders4h?: InputMaybe<NumberFilter>;
+  /** The unique traders5m. */
+  uniqueTraders5m?: InputMaybe<NumberFilter>;
+  /** The unique traders12h. */
+  uniqueTraders12h?: InputMaybe<NumberFilter>;
+  /** The unique traders24h. */
+  uniqueTraders24h?: InputMaybe<NumberFilter>;
+  /** The percentage change. */
+  uniqueTradersChange1h?: InputMaybe<NumberFilter>;
+  /** The percentage change. */
+  uniqueTradersChange1w?: InputMaybe<NumberFilter>;
+  /** The percentage change. */
+  uniqueTradersChange4h?: InputMaybe<NumberFilter>;
+  /** The percentage change. */
+  uniqueTradersChange5m?: InputMaybe<NumberFilter>;
+  /** The percentage change. */
+  uniqueTradersChange12h?: InputMaybe<NumberFilter>;
+  /** The percentage change. */
+  uniqueTradersChange24h?: InputMaybe<NumberFilter>;
+  /** The venue volume ct. */
+  venueVolumeCT?: InputMaybe<NumberFilter>;
+  /** The venue volume usd. */
+  venueVolumeUsd?: InputMaybe<NumberFilter>;
+  /** Volume in collateral token units. */
+  volumeCTAll?: InputMaybe<NumberFilter>;
+  /** The percentage change. */
+  volumeChange1h?: InputMaybe<NumberFilter>;
+  /** The percentage change. */
+  volumeChange1w?: InputMaybe<NumberFilter>;
+  /** The percentage change. */
+  volumeChange4h?: InputMaybe<NumberFilter>;
+  /** The percentage change. */
+  volumeChange5m?: InputMaybe<NumberFilter>;
+  /** The percentage change. */
+  volumeChange12h?: InputMaybe<NumberFilter>;
+  /** The percentage change. */
+  volumeChange24h?: InputMaybe<NumberFilter>;
+  /** The volume imbalance24h. */
+  volumeImbalance24h?: InputMaybe<NumberFilter>;
+  /** Volume in USD. */
+  volumeUsd1h?: InputMaybe<NumberFilter>;
+  /** Volume in USD. */
+  volumeUsd1w?: InputMaybe<NumberFilter>;
+  /** Volume in USD. */
+  volumeUsd4h?: InputMaybe<NumberFilter>;
+  /** Volume in USD. */
+  volumeUsd5m?: InputMaybe<NumberFilter>;
+  /** Volume in USD. */
+  volumeUsd12h?: InputMaybe<NumberFilter>;
+  /** Volume in USD. */
+  volumeUsd24h?: InputMaybe<NumberFilter>;
+  /** Volume in USD. */
+  volumeUsdAll?: InputMaybe<NumberFilter>;
+};
+
+/** Closed list of metrics for `PredictionMarketThresholdBucket.metric`. */
+export enum PredictionMarketLadderMetric {
+  /** Movie box-office opening-weekend gross. */
+  BoxOffice = 'BOX_OFFICE',
+  /** Commodity price (oil, gas, metals, etc.). */
+  Commodity = 'COMMODITY',
+  /** Fully-diluted valuation / market cap threshold. */
+  Fdv = 'FDV',
+  /** Follower count. */
+  Followers = 'FOLLOWERS',
+  /** Like count. */
+  Likes = 'LIKES',
+  /** Fallback. */
+  Other = 'OTHER',
+  /** Post count. */
+  Posts = 'POSTS',
+  /** Generic asset price (crypto, commodities-fallback). */
+  Price = 'PRICE',
+  /** Federal Reserve rate change in basis points. */
+  RateChangeBps = 'RATE_CHANGE_BPS',
+  /** Rotten Tomatoes Tomatometer score. */
+  RottenTomatoes = 'ROTTEN_TOMATOES',
+  /** Equity stock price. */
+  StockPrice = 'STOCK_PRICE',
+  /** Subscriber count. */
+  Subscribers = 'SUBSCRIBERS',
+  /** Daily high/low temperature in °C. */
+  Temperature = 'TEMPERATURE',
+  /** Tweet count. */
+  Tweets = 'TWEETS',
+  /** View / stream count. */
+  Views = 'VIEWS'
+}
+
+/** Comparison operator for a ladder rung. */
+export enum PredictionMarketLadderOperator {
+  /** Strictly greater than `numericValue` ("≥" is normalised to ABOVE). */
+  Above = 'ABOVE',
+  /** Strictly less than `numericValue` ("≤" is normalised to BELOW). */
+  Below = 'BELOW',
+  /** Inclusive range between `lowerBound` and `upperBound`. */
+  Between = 'BETWEEN',
+  /** Equal to `numericValue` (single-strike or exact-match bucket). */
+  Exactly = 'EXACTLY'
+}
+
+/** Market-level conditions across all windows for a prediction market metrics event webhook. */
+export type PredictionMarketMetricsEventMarketCondition = {
+  __typename?: 'PredictionMarketMetricsEventMarketCondition';
+  /** Conditions for the 1-day window. */
+  day1?: Maybe<WindowedPredictionMarketMetricsEventMarketCondition>;
+  /** Conditions for the 1-hour window. */
+  hour1?: Maybe<WindowedPredictionMarketMetricsEventMarketCondition>;
+  /** Conditions for the 4-hour window. */
+  hour4?: Maybe<WindowedPredictionMarketMetricsEventMarketCondition>;
+  /** Conditions for the 12-hour window. */
+  hour12?: Maybe<WindowedPredictionMarketMetricsEventMarketCondition>;
+  /** Conditions for the 5-minute window. */
+  min5?: Maybe<WindowedPredictionMarketMetricsEventMarketCondition>;
+  /** Conditions for the 1-week window. */
+  week1?: Maybe<WindowedPredictionMarketMetricsEventMarketCondition>;
+};
+
+/** Per-window market-level conditions across all 6 windows. */
+export type PredictionMarketMetricsEventMarketConditionInput = {
+  day1?: InputMaybe<WindowedPredictionMarketMetricsEventMarketConditionInput>;
+  hour1?: InputMaybe<WindowedPredictionMarketMetricsEventMarketConditionInput>;
+  hour4?: InputMaybe<WindowedPredictionMarketMetricsEventMarketConditionInput>;
+  hour12?: InputMaybe<WindowedPredictionMarketMetricsEventMarketConditionInput>;
+  min5?: InputMaybe<WindowedPredictionMarketMetricsEventMarketConditionInput>;
+  week1?: InputMaybe<WindowedPredictionMarketMetricsEventMarketConditionInput>;
+};
+
+/** Per-outcome conditions for a prediction market metrics event webhook. */
+export type PredictionMarketMetricsEventOutcomeCondition = {
+  __typename?: 'PredictionMarketMetricsEventOutcomeCondition';
+  /** Conditions for the 1-day window. */
+  day1?: Maybe<WindowedPredictionMarketMetricsEventOutcomeCondition>;
+  /** Conditions for the 1-hour window. */
+  hour1?: Maybe<WindowedPredictionMarketMetricsEventOutcomeCondition>;
+  /** Conditions for the 4-hour window. */
+  hour4?: Maybe<WindowedPredictionMarketMetricsEventOutcomeCondition>;
+  /** Conditions for the 12-hour window. */
+  hour12?: Maybe<WindowedPredictionMarketMetricsEventOutcomeCondition>;
+  /** Conditions for the 5-minute window. */
+  min5?: Maybe<WindowedPredictionMarketMetricsEventOutcomeCondition>;
+  /** Conditions for the 1-week window. */
+  week1?: Maybe<WindowedPredictionMarketMetricsEventOutcomeCondition>;
+};
+
+/** Per-outcome conditions for a PredictionMarketMetricsEvent webhook. */
+export type PredictionMarketMetricsEventOutcomeConditionInput = {
+  /** Conditions for the 1-day window. */
+  day1?: InputMaybe<WindowedPredictionMarketMetricsEventOutcomeConditionInput>;
+  /** Conditions for the 1-hour window. */
+  hour1?: InputMaybe<WindowedPredictionMarketMetricsEventOutcomeConditionInput>;
+  /** Conditions for the 4-hour window. */
+  hour4?: InputMaybe<WindowedPredictionMarketMetricsEventOutcomeConditionInput>;
+  /** Conditions for the 12-hour window. */
+  hour12?: InputMaybe<WindowedPredictionMarketMetricsEventOutcomeConditionInput>;
+  /** Conditions for the 5-minute window. */
+  min5?: InputMaybe<WindowedPredictionMarketMetricsEventOutcomeConditionInput>;
+  /** Conditions for the 1-week window. */
+  week1?: InputMaybe<WindowedPredictionMarketMetricsEventOutcomeConditionInput>;
+};
+
+/** Webhook conditions for a prediction market metrics event. */
+export type PredictionMarketMetricsEventWebhookCondition = {
+  __typename?: 'PredictionMarketMetricsEventWebhookCondition';
+  /** Conditions evaluated against both outcomes; matches if at least one outcome satisfies. ANDed with outcome0 and outcome1 when also present. */
+  anyOutcome?: Maybe<PredictionMarketMetricsEventOutcomeCondition>;
+  /** Conditions evaluated against market-level aggregate stats. ANDed with other clauses when also present. */
+  market?: Maybe<PredictionMarketMetricsEventMarketCondition>;
+  /** The market ID the webhook is listening for. */
+  marketId: StringEqualsCondition;
+  /** Conditions evaluated against outcome 0's stats. ANDed with outcome1 and anyOutcome when also present. */
+  outcome0?: Maybe<PredictionMarketMetricsEventOutcomeCondition>;
+  /** Conditions evaluated against outcome 1's stats. ANDed with outcome0 and anyOutcome when also present. */
+  outcome1?: Maybe<PredictionMarketMetricsEventOutcomeCondition>;
+};
+
+/** Input conditions for a PredictionMarketMetricsEvent webhook. */
+export type PredictionMarketMetricsEventWebhookConditionInput = {
+  /** Conditions evaluated against both outcomes; matches if at least one outcome satisfies. ANDed with outcome0 and outcome1 when also present. */
+  anyOutcome?: InputMaybe<PredictionMarketMetricsEventOutcomeConditionInput>;
+  /** Conditions evaluated against market-level aggregate stats. ANDed with other clauses when also present. */
+  market?: InputMaybe<PredictionMarketMetricsEventMarketConditionInput>;
+  /** The market ID to listen for. */
+  marketId: StringEqualsConditionInput;
+  /** Conditions evaluated against outcome 0's stats. ANDed with outcome1 and anyOutcome when also present. */
+  outcome0?: InputMaybe<PredictionMarketMetricsEventOutcomeConditionInput>;
+  /** Conditions evaluated against outcome 1's stats. ANDed with outcome0 and anyOutcome when also present. */
+  outcome1?: InputMaybe<PredictionMarketMetricsEventOutcomeConditionInput>;
+};
+
+/** Price data for a single outcome within a prediction market. */
+export type PredictionMarketOutcomePrice = {
+  __typename?: 'PredictionMarketOutcomePrice';
+  /** The best ask in collateral token units. */
+  bestAskCT?: Maybe<Scalars['String']['output']>;
+  /** The best ask in USD. */
+  bestAskUsd?: Maybe<Scalars['String']['output']>;
+  /** The best bid in collateral token units. */
+  bestBidCT?: Maybe<Scalars['String']['output']>;
+  /** The best bid in USD. */
+  bestBidUsd?: Maybe<Scalars['String']['output']>;
+  /** Live top-of-book best ask in collateral token units, sourced from the venue's CLOB. Polymarket and Kalshi; null for other venues. Fetched on-demand only when selected. Cached for up to 10s. */
+  bestBookAskCT?: Maybe<Scalars['String']['output']>;
+  /** Live top-of-book best ask in USD, sourced from the venue's CLOB. Polymarket and Kalshi; null for other venues. Fetched on-demand only when selected. Cached for up to 10s. */
+  bestBookAskUsd?: Maybe<Scalars['String']['output']>;
+  /** Live top-of-book best bid in collateral token units, sourced from the venue's CLOB. Polymarket and Kalshi; null for other venues. Fetched on-demand only when selected. Cached for up to 10s. */
+  bestBookBidCT?: Maybe<Scalars['String']['output']>;
+  /** Live top-of-book best bid in USD, sourced from the venue's CLOB. Polymarket and Kalshi; null for other venues. Fetched on-demand only when selected. Cached for up to 10s. */
+  bestBookBidUsd?: Maybe<Scalars['String']['output']>;
+  /** Total bid-side notional liquidity in collateral token units across all bid levels in the venue's CLOB. Polymarket and Kalshi; null for other venues. Fetched on-demand only when selected. Cached for up to 10s. */
+  bookLiquidityCT?: Maybe<Scalars['String']['output']>;
+  /** Total bid-side notional liquidity in USD across all bid levels in the venue's CLOB. Polymarket and Kalshi; null for other venues. Fetched on-demand only when selected. Cached for up to 10s. */
+  bookLiquidityUsd?: Maybe<Scalars['String']['output']>;
+  /** The last trade price in collateral token units. */
+  lastTradePriceCT?: Maybe<Scalars['String']['output']>;
+  /** The last trade price in USD. */
+  lastTradePriceUsd?: Maybe<Scalars['String']['output']>;
+  /** The ID of the outcome. */
+  outcomeId: Scalars['String']['output'];
+  /** The spread in collateral token units. */
+  spreadCT?: Maybe<Scalars['String']['output']>;
+  /** The spread in USD. */
+  spreadUsd?: Maybe<Scalars['String']['output']>;
+  /** The timestamp of the price data. */
+  timestamp: Scalars['Int']['output'];
+};
+
+/** Price data for a prediction market. */
+export type PredictionMarketPrice = {
+  __typename?: 'PredictionMarketPrice';
+  /** The ID of the prediction market. */
+  marketId: Scalars['String']['output'];
+  /** The prices for the outcomes. */
+  outcomes: Array<PredictionMarketOutcomePrice>;
+  /** The timestamp of the price data. */
+  timestamp: Scalars['Int']['output'];
+};
+
+/** Input for fetching prediction market price data. */
+export type PredictionMarketPriceInput = {
+  /** The ID of the prediction market. */
+  marketId: Scalars['String']['input'];
+  /** The timestamp (unix seconds). If not provided, the latest price will be returned. */
+  timestamp?: InputMaybe<Scalars['Int']['input']>;
+};
+
+/** A ranking to apply when sorting prediction markets. */
+export type PredictionMarketRanking = {
+  /** Market-level attribute to rank by (use this OR outcome + outcomeAttribute) */
+  attribute?: InputMaybe<PredictionMarketRankingAttribute>;
+  /** The sort direction. */
+  direction?: InputMaybe<RankingDirection>;
+  /** Which outcome to rank by (required when using outcomeAttribute) */
+  outcome?: InputMaybe<PredictionOutcomeIndex>;
+  /** Outcome-level attribute to rank by (requires outcome to be set) */
+  outcomeAttribute?: InputMaybe<PredictionOutcomeRankingAttribute>;
+};
+
+/** The attribute used to rank prediction markets. */
+export enum PredictionMarketRankingAttribute {
+  Age = 'age',
+  AvgTradeSizeUsd1h = 'avgTradeSizeUsd1h',
+  AvgTradeSizeUsd1w = 'avgTradeSizeUsd1w',
+  AvgTradeSizeUsd4h = 'avgTradeSizeUsd4h',
+  AvgTradeSizeUsd5m = 'avgTradeSizeUsd5m',
+  AvgTradeSizeUsd12h = 'avgTradeSizeUsd12h',
+  AvgTradeSizeUsd24h = 'avgTradeSizeUsd24h',
+  ClosesAt = 'closesAt',
+  CompetitiveScore1h = 'competitiveScore1h',
+  CompetitiveScore1w = 'competitiveScore1w',
+  CompetitiveScore4h = 'competitiveScore4h',
+  CompetitiveScore5m = 'competitiveScore5m',
+  CompetitiveScore12h = 'competitiveScore12h',
+  CompetitiveScore24h = 'competitiveScore24h',
+  CreatedAt = 'createdAt',
+  ExpectedLifespan = 'expectedLifespan',
+  ImpliedProbabilitySum = 'impliedProbabilitySum',
+  LastTransactionAt = 'lastTransactionAt',
+  LiquidityAsymmetry = 'liquidityAsymmetry',
+  LiquidityCt = 'liquidityCT',
+  LiquidityChange1h = 'liquidityChange1h',
+  LiquidityChange1w = 'liquidityChange1w',
+  LiquidityChange4h = 'liquidityChange4h',
+  LiquidityChange5m = 'liquidityChange5m',
+  LiquidityChange12h = 'liquidityChange12h',
+  LiquidityChange24h = 'liquidityChange24h',
+  LiquidityUsd = 'liquidityUsd',
+  MaxPriceRange1h = 'maxPriceRange1h',
+  MaxPriceRange1w = 'maxPriceRange1w',
+  MaxPriceRange4h = 'maxPriceRange4h',
+  MaxPriceRange5m = 'maxPriceRange5m',
+  MaxPriceRange12h = 'maxPriceRange12h',
+  MaxPriceRange24h = 'maxPriceRange24h',
+  OpenInterestCt = 'openInterestCT',
+  OpenInterestChange1h = 'openInterestChange1h',
+  OpenInterestChange1w = 'openInterestChange1w',
+  OpenInterestChange4h = 'openInterestChange4h',
+  OpenInterestChange5m = 'openInterestChange5m',
+  OpenInterestChange12h = 'openInterestChange12h',
+  OpenInterestChange24h = 'openInterestChange24h',
+  OpenInterestUsd = 'openInterestUsd',
+  OpensAt = 'opensAt',
+  /** Score from phrase matching (for search queries) */
+  PhraseScore = 'phraseScore',
+  PriceCompetitiveness = 'priceCompetitiveness',
+  RelevanceScore1h = 'relevanceScore1h',
+  RelevanceScore1w = 'relevanceScore1w',
+  RelevanceScore4h = 'relevanceScore4h',
+  RelevanceScore5m = 'relevanceScore5m',
+  RelevanceScore12h = 'relevanceScore12h',
+  RelevanceScore24h = 'relevanceScore24h',
+  ResolvesAt = 'resolvesAt',
+  Timestamp = 'timestamp',
+  Trades1h = 'trades1h',
+  Trades1w = 'trades1w',
+  Trades4h = 'trades4h',
+  Trades5m = 'trades5m',
+  Trades12h = 'trades12h',
+  Trades24h = 'trades24h',
+  TradesChange1h = 'tradesChange1h',
+  TradesChange1w = 'tradesChange1w',
+  TradesChange4h = 'tradesChange4h',
+  TradesChange5m = 'tradesChange5m',
+  TradesChange12h = 'tradesChange12h',
+  TradesChange24h = 'tradesChange24h',
+  TrendingScore1h = 'trendingScore1h',
+  TrendingScore1w = 'trendingScore1w',
+  TrendingScore4h = 'trendingScore4h',
+  TrendingScore5m = 'trendingScore5m',
+  TrendingScore12h = 'trendingScore12h',
+  TrendingScore24h = 'trendingScore24h',
+  UniqueTraders1h = 'uniqueTraders1h',
+  UniqueTraders1w = 'uniqueTraders1w',
+  UniqueTraders4h = 'uniqueTraders4h',
+  UniqueTraders5m = 'uniqueTraders5m',
+  UniqueTraders12h = 'uniqueTraders12h',
+  UniqueTraders24h = 'uniqueTraders24h',
+  UniqueTradersChange1h = 'uniqueTradersChange1h',
+  UniqueTradersChange1w = 'uniqueTradersChange1w',
+  UniqueTradersChange4h = 'uniqueTradersChange4h',
+  UniqueTradersChange5m = 'uniqueTradersChange5m',
+  UniqueTradersChange12h = 'uniqueTradersChange12h',
+  UniqueTradersChange24h = 'uniqueTradersChange24h',
+  VenueVolumeCt = 'venueVolumeCT',
+  VenueVolumeUsd = 'venueVolumeUsd',
+  VolumeCtAll = 'volumeCTAll',
+  VolumeChange1h = 'volumeChange1h',
+  VolumeChange1w = 'volumeChange1w',
+  VolumeChange4h = 'volumeChange4h',
+  VolumeChange5m = 'volumeChange5m',
+  VolumeChange12h = 'volumeChange12h',
+  VolumeChange24h = 'volumeChange24h',
+  VolumeImbalance24h = 'volumeImbalance24h',
+  VolumeUsd1h = 'volumeUsd1h',
+  VolumeUsd1w = 'volumeUsd1w',
+  VolumeUsd4h = 'volumeUsd4h',
+  VolumeUsd5m = 'volumeUsd5m',
+  VolumeUsd12h = 'volumeUsd12h',
+  VolumeUsd24h = 'volumeUsd24h',
+  VolumeUsdAll = 'volumeUsdAll'
+}
+
+/** Multi-resolution bar data for a prediction market. */
+export type PredictionMarketResolutionBarData = {
+  __typename?: 'PredictionMarketResolutionBarData';
+  /** Data for the 1-day resolution. */
+  day1?: Maybe<PredictionMarketBar>;
+  /** Data for the 1-hour resolution. */
+  hour1?: Maybe<PredictionMarketBar>;
+  /** Data for the 4-hour resolution. */
+  hour4?: Maybe<PredictionMarketBar>;
+  /** Data for the 12-hour resolution. */
+  hour12?: Maybe<PredictionMarketBar>;
+  /** Data for the 1-minute resolution. */
+  min1?: Maybe<PredictionMarketBar>;
+  /** Data for the 5-minute resolution. */
+  min5?: Maybe<PredictionMarketBar>;
+  /** Data for the 15-minute resolution. */
+  min15?: Maybe<PredictionMarketBar>;
+  /** Data for the 30-minute resolution. */
+  min30?: Maybe<PredictionMarketBar>;
+  /** Data for the 1-week resolution. */
+  week1?: Maybe<PredictionMarketBar>;
+};
+
+/** Capped per-market role taxonomy. One per market within an event. */
+export enum PredictionMarketRole {
+  /** One bucket of a date ladder (e.g. "Before 2027"). */
+  DateBucket = 'DATE_BUCKET',
+  /** One entrant in a large-field tournament/championship outright (e.g. Kalshi "NBA Champion?" with one Yes/No market per team in the league). Distinct from MONEYLINE_OUTCOME by field size and event shape. */
+  Entrant = 'ENTRANT',
+  /** Exotic market (BTTS, correct score, method of victory, etc.). */
+  Exotic = 'EXOTIC',
+  /** Single-market outright winner (e.g. Polymarket two-outcome moneyline). */
+  Moneyline = 'MONEYLINE',
+  /** One side of a split head-to-head moneyline (typically 2-3 markets per event: per-team Yes/No for a single game/half/quarter/period, plus optional Tie). Group all markets in an event with this role to reconstruct the logical moneyline. */
+  MoneylineOutcome = 'MONEYLINE_OUTCOME',
+  /** Fallback. */
+  Other = 'OTHER',
+  /** Player or team prop. */
+  Prop = 'PROP',
+  /** Point spread / handicap. */
+  Spread = 'SPREAD',
+  /** One bucket of a price-threshold ladder (e.g. "BTC &gt; $80k"). */
+  ThresholdBucket = 'THRESHOLD_BUCKET',
+  /** Over/under total. */
+  Total = 'TOTAL'
+}
+
+/** Sports sub-event segment (period and/or stat). */
+export type PredictionMarketSegment = {
+  __typename?: 'PredictionMarketSegment';
+  /** Convenience grouping key. Equals `stat ?? period ?? "match"`. Use this when partitioning markets within an event into sub-event groups: stat takes precedence over period (a "1H Player Points" market groups with other points markets, not other 1H markets). */
+  groupingKey: Scalars['String']['output'];
+  /** Numeric segment value when the period/stat slug carries an ordinal or numeric component (for example set/game/map/round number). Null when no numeric segment value is available. */
+  numberValue?: Maybe<Scalars['Float']['output']>;
+  /** Period token if detected: e.g. "set_1", "1h", "game_2", "map_3", "period_2", "ot". Snake_case slug. Null when the market covers the full match. */
+  period?: Maybe<Scalars['String']['output']>;
+  /** Stat dimension if a stat keyword was detected (points, rebounds, assists, ...). Null otherwise. */
+  stat?: Maybe<PredictionMarketStatType>;
+  /** Which dimension dominates: STAT (a stat is present, regardless of period), PERIOD (only a period is present), or NONE (neither — full-match market). */
+  type: PredictionMarketSegmentType;
+};
+
+/** Discriminator for `PredictionMarketSegment.type`. */
+export enum PredictionMarketSegmentType {
+  /** Neither stat nor period — full-match market. */
+  None = 'NONE',
+  /** Only a period (set/half/game/...) was detected. */
+  Period = 'PERIOD',
+  /** A stat keyword was detected — group by stat regardless of period. */
+  Stat = 'STAT'
+}
+
+/** Closed list of stat dimensions the classifier recognises. */
+export enum PredictionMarketStatType {
+  Assists = 'ASSISTS',
+  Blocks = 'BLOCKS',
+  DoubleDouble = 'DOUBLE_DOUBLE',
+  FirstInningRuns = 'FIRST_INNING_RUNS',
+  Fouls = 'FOULS',
+  Points = 'POINTS',
+  Rebounds = 'REBOUNDS',
+  Steals = 'STEALS',
+  Threes = 'THREES',
+  TripleDouble = 'TRIPLE_DOUBLE',
+  Turnovers = 'TURNOVERS'
+}
+
+/** Numeric threshold-bucket metadata for THRESHOLD_BUCKET-role markets. */
+export type PredictionMarketThresholdBucket = {
+  __typename?: 'PredictionMarketThresholdBucket';
+  /** Lower bound for BETWEEN-style range buckets (e.g. "$80k-$90k" → 80000). */
+  lowerBound?: Maybe<Scalars['Float']['output']>;
+  /** What the rung is measuring (price, stock price, temperature in °C, social-media count, ...). */
+  metric: PredictionMarketLadderMetric;
+  /** Single comparison value for ABOVE / BELOW / EXACTLY (e.g. 80000 for "BTC &gt; $80k"). */
+  numericValue?: Maybe<Scalars['Float']['output']>;
+  /** How the rung relates to its bound(s). */
+  operator: PredictionMarketLadderOperator;
+  /** Upper bound for BETWEEN-style range buckets (e.g. "$80k-$90k" → 90000). */
+  upperBound?: Maybe<Scalars['Float']['output']>;
+};
+
+/** Trending, relevance, and competitive scores for a market window. */
+export type PredictionMarketWindowScores = {
+  __typename?: 'PredictionMarketWindowScores';
+  /** The competitive score. */
+  competitive: Scalars['Float']['output'];
+  /** The relevance score. */
+  relevance: Scalars['Float']['output'];
+  /** The trending score. */
+  trending: Scalars['Float']['output'];
+};
+
+/** Input type of `predictionMarkets`. */
+export type PredictionMarketsInput = {
+  /** Associated market IDs. */
+  marketIds: Array<Scalars['String']['input']>;
+};
+
+/** Discriminator for `enrichedMetadata`. New values added as we ingest new domains. */
+export enum PredictionMetadataType {
+  /** Sports games (league, teams, start times). */
+  Sports = 'SPORTS'
+}
+
+/** A single price level within a prediction outcome's order book. Polymarket and Kalshi. */
+export type PredictionOrderBookLevel = {
+  __typename?: 'PredictionOrderBookLevel';
+  /** The price in collateral token units. */
+  price: Scalars['Float']['output'];
+  /** The size at this price level, in shares. */
+  size: Scalars['Float']['output'];
+};
+
+/** Bar data for a single outcome within a prediction market. */
+export type PredictionOutcomeBar = {
+  __typename?: 'PredictionOutcomeBar';
+  /** The ask collateral token. */
+  askCollateralToken?: Maybe<PredictionMarketBarOhlc>;
+  /** The ask usd. */
+  askUsd?: Maybe<PredictionMarketBarOhlc>;
+  /** The bid collateral token. */
+  bidCollateralToken?: Maybe<PredictionMarketBarOhlc>;
+  /** The bid usd. */
+  bidUsd?: Maybe<PredictionMarketBarOhlc>;
+  /** Buy volume in collateral token units. */
+  buyVolumeCollateralToken?: Maybe<Scalars['String']['output']>;
+  /** Buy volume in shares. */
+  buyVolumeShares?: Maybe<Scalars['String']['output']>;
+  /** Buy volume in USD. */
+  buyVolumeUsd?: Maybe<Scalars['String']['output']>;
+  /** The number of buys. */
+  buys?: Maybe<Scalars['Int']['output']>;
+  /** The liquidity collateral token. */
+  liquidityCollateralToken?: Maybe<PredictionMarketBarOhlc>;
+  /** Liquidity in USD. */
+  liquidityUsd?: Maybe<PredictionMarketBarOhlc>;
+  /** The price collateral token. */
+  priceCollateralToken?: Maybe<PredictionMarketBarOhlc>;
+  /** The price usd. */
+  priceUsd?: Maybe<PredictionMarketBarOhlc>;
+  /** Sell volume in collateral token units. */
+  sellVolumeCollateralToken?: Maybe<Scalars['String']['output']>;
+  /** Sell volume in shares. */
+  sellVolumeShares?: Maybe<Scalars['String']['output']>;
+  /** Sell volume in USD. */
+  sellVolumeUsd?: Maybe<Scalars['String']['output']>;
+  /** The number of sells. */
+  sells?: Maybe<Scalars['Int']['output']>;
+  /** The number of trades. */
+  trades?: Maybe<Scalars['Int']['output']>;
+  /** The two percent ask depth collateral token. */
+  twoPercentAskDepthCollateralToken?: Maybe<PredictionMarketBarOhlc>;
+  /** The two percent ask depth usd. */
+  twoPercentAskDepthUsd?: Maybe<PredictionMarketBarOhlc>;
+  /** The two percent bid depth collateral token. */
+  twoPercentBidDepthCollateralToken?: Maybe<PredictionMarketBarOhlc>;
+  /** The two percent bid depth usd. */
+  twoPercentBidDepthUsd?: Maybe<PredictionMarketBarOhlc>;
+  /** The venue-specific outcome ID. */
+  venueOutcomeId: Scalars['String']['output'];
+  /** Volume in collateral token units. */
+  volumeCollateralToken?: Maybe<Scalars['String']['output']>;
+  /** Volume in shares. */
+  volumeShares?: Maybe<Scalars['String']['output']>;
+  /** Volume in USD. */
+  volumeUsd?: Maybe<Scalars['String']['output']>;
+};
+
+/** A prediction outcome matching a set of filter parameters. */
+export type PredictionOutcomeFilterResult = {
+  __typename?: 'PredictionOutcomeFilterResult';
+  /** The best ask ct. */
+  bestAskCT?: Maybe<Scalars['String']['output']>;
+  /** The best ask usd. */
+  bestAskUsd?: Maybe<Scalars['String']['output']>;
+  /** The best bid ct. */
+  bestBidCT?: Maybe<Scalars['String']['output']>;
+  /** The best bid usd. */
+  bestBidUsd?: Maybe<Scalars['String']['output']>;
+  /** Live top-of-book best ask in collateral token units, sourced from the venue's CLOB. Polymarket and Kalshi; null for other venues. Fetched on-demand only when selected. Cached for up to 10s. Selecting this caps the filter `limit` at 50. */
+  bestBookAskCT?: Maybe<Scalars['String']['output']>;
+  /** Live top-of-book best ask in USD, sourced from the venue's CLOB. Polymarket and Kalshi; null for other venues. Fetched on-demand only when selected. Cached for up to 10s. Selecting this caps the filter `limit` at 50. */
+  bestBookAskUsd?: Maybe<Scalars['String']['output']>;
+  /** Live top-of-book best bid in collateral token units, sourced from the venue's CLOB. Polymarket and Kalshi; null for other venues. Fetched on-demand only when selected. Cached for up to 10s. Selecting this caps the filter `limit` at 50. */
+  bestBookBidCT?: Maybe<Scalars['String']['output']>;
+  /** Live top-of-book best bid in USD, sourced from the venue's CLOB. Polymarket and Kalshi; null for other venues. Fetched on-demand only when selected. Cached for up to 10s. Selecting this caps the filter `limit` at 50. */
+  bestBookBidUsd?: Maybe<Scalars['String']['output']>;
+  /** Total bid-side notional liquidity in collateral token units across all bid levels in the venue's CLOB. Polymarket and Kalshi; null for other venues. Fetched on-demand only when selected. Cached for up to 10s. Selecting this caps the filter `limit` at 50. */
+  bookLiquidityCT?: Maybe<Scalars['String']['output']>;
+  /** Total bid-side notional liquidity in USD across all bid levels in the venue's CLOB. Polymarket and Kalshi; null for other venues. Fetched on-demand only when selected. Cached for up to 10s. Selecting this caps the filter `limit` at 50. */
+  bookLiquidityUsd?: Maybe<Scalars['String']['output']>;
+  /** Buy volume. */
+  buyVolumeUsd1h?: Maybe<Scalars['String']['output']>;
+  /** Buy volume. */
+  buyVolumeUsd1w?: Maybe<Scalars['String']['output']>;
+  /** Buy volume. */
+  buyVolumeUsd4h?: Maybe<Scalars['String']['output']>;
+  /** Buy volume. */
+  buyVolumeUsd5m?: Maybe<Scalars['String']['output']>;
+  /** Buy volume. */
+  buyVolumeUsd12h?: Maybe<Scalars['String']['output']>;
+  /** Buy volume. */
+  buyVolumeUsd24h?: Maybe<Scalars['String']['output']>;
+  /** The buys1h. */
+  buys1h?: Maybe<Scalars['Int']['output']>;
+  /** The buys1w. */
+  buys1w?: Maybe<Scalars['Int']['output']>;
+  /** The buys4h. */
+  buys4h?: Maybe<Scalars['Int']['output']>;
+  /** The buys5m. */
+  buys5m?: Maybe<Scalars['Int']['output']>;
+  /** The buys12h. */
+  buys12h?: Maybe<Scalars['Int']['output']>;
+  /** The buys24h. */
+  buys24h?: Maybe<Scalars['Int']['output']>;
+  /** The exchange contract address. */
+  exchangeAddress?: Maybe<Scalars['String']['output']>;
+  /** The high price usd1h. */
+  highPriceUsd1h?: Maybe<Scalars['String']['output']>;
+  /** The high price usd1w. */
+  highPriceUsd1w?: Maybe<Scalars['String']['output']>;
+  /** The high price usd4h. */
+  highPriceUsd4h?: Maybe<Scalars['String']['output']>;
+  /** The high price usd5m. */
+  highPriceUsd5m?: Maybe<Scalars['String']['output']>;
+  /** The high price usd12h. */
+  highPriceUsd12h?: Maybe<Scalars['String']['output']>;
+  /** The high price usd24h. */
+  highPriceUsd24h?: Maybe<Scalars['String']['output']>;
+  /** The unique identifier. */
+  id: Scalars['String']['output'];
+  /** The is winner. */
+  isWinner?: Maybe<Scalars['Boolean']['output']>;
+  /** The display label. */
+  label?: Maybe<Scalars['String']['output']>;
+  /** The last price ct. */
+  lastPriceCT?: Maybe<Scalars['String']['output']>;
+  /** The last price usd. */
+  lastPriceUsd?: Maybe<Scalars['String']['output']>;
+  /** Liquidity in collateral token units. */
+  liquidityCT?: Maybe<Scalars['String']['output']>;
+  /** Liquidity in USD. */
+  liquidityUsd?: Maybe<Scalars['String']['output']>;
+  /** The low price usd1h. */
+  lowPriceUsd1h?: Maybe<Scalars['String']['output']>;
+  /** The low price usd1w. */
+  lowPriceUsd1w?: Maybe<Scalars['String']['output']>;
+  /** The low price usd4h. */
+  lowPriceUsd4h?: Maybe<Scalars['String']['output']>;
+  /** The low price usd5m. */
+  lowPriceUsd5m?: Maybe<Scalars['String']['output']>;
+  /** The low price usd12h. */
+  lowPriceUsd12h?: Maybe<Scalars['String']['output']>;
+  /** The low price usd24h. */
+  lowPriceUsd24h?: Maybe<Scalars['String']['output']>;
+  /** The network ID. */
+  networkId?: Maybe<Scalars['Int']['output']>;
+  /** The percentage change. */
+  priceChange1h?: Maybe<Scalars['Float']['output']>;
+  /** The percentage change. */
+  priceChange1w?: Maybe<Scalars['Float']['output']>;
+  /** The percentage change. */
+  priceChange4h?: Maybe<Scalars['Float']['output']>;
+  /** The percentage change. */
+  priceChange5m?: Maybe<Scalars['Float']['output']>;
+  /** The percentage change. */
+  priceChange12h?: Maybe<Scalars['Float']['output']>;
+  /** The percentage change. */
+  priceChange24h?: Maybe<Scalars['Float']['output']>;
+  /** The price range1h. */
+  priceRange1h?: Maybe<Scalars['Float']['output']>;
+  /** The price range1w. */
+  priceRange1w?: Maybe<Scalars['Float']['output']>;
+  /** The price range4h. */
+  priceRange4h?: Maybe<Scalars['Float']['output']>;
+  /** The price range5m. */
+  priceRange5m?: Maybe<Scalars['Float']['output']>;
+  /** The price range12h. */
+  priceRange12h?: Maybe<Scalars['Float']['output']>;
+  /** The price range24h. */
+  priceRange24h?: Maybe<Scalars['Float']['output']>;
+  /** Sell volume. */
+  sellVolumeUsd1h?: Maybe<Scalars['String']['output']>;
+  /** Sell volume. */
+  sellVolumeUsd1w?: Maybe<Scalars['String']['output']>;
+  /** Sell volume. */
+  sellVolumeUsd4h?: Maybe<Scalars['String']['output']>;
+  /** Sell volume. */
+  sellVolumeUsd5m?: Maybe<Scalars['String']['output']>;
+  /** Sell volume. */
+  sellVolumeUsd12h?: Maybe<Scalars['String']['output']>;
+  /** Sell volume. */
+  sellVolumeUsd24h?: Maybe<Scalars['String']['output']>;
+  /** The sells1h. */
+  sells1h?: Maybe<Scalars['Int']['output']>;
+  /** The sells1w. */
+  sells1w?: Maybe<Scalars['Int']['output']>;
+  /** The sells4h. */
+  sells4h?: Maybe<Scalars['Int']['output']>;
+  /** The sells5m. */
+  sells5m?: Maybe<Scalars['Int']['output']>;
+  /** The sells12h. */
+  sells12h?: Maybe<Scalars['Int']['output']>;
+  /** The sells24h. */
+  sells24h?: Maybe<Scalars['Int']['output']>;
+  /** The spread ct. */
+  spreadCT?: Maybe<Scalars['String']['output']>;
+  /** The spread usd. */
+  spreadUsd?: Maybe<Scalars['String']['output']>;
+  /** A best-effort display label for the outcome: the outcome `label` when present and meaningful, otherwise the `question`. If the event name appears inside the label it is stripped out. */
+  suggestedLabel?: Maybe<Scalars['String']['output']>;
+  /** Tags associated with this entity. */
+  tags?: Maybe<Array<Scalars['String']['output']>>;
+  /** The token contract address. */
+  tokenAddress?: Maybe<Scalars['String']['output']>;
+  /** The trades1h. */
+  trades1h?: Maybe<Scalars['Int']['output']>;
+  /** The trades1w. */
+  trades1w?: Maybe<Scalars['Int']['output']>;
+  /** The trades4h. */
+  trades4h?: Maybe<Scalars['Int']['output']>;
+  /** The trades5m. */
+  trades5m?: Maybe<Scalars['Int']['output']>;
+  /** The trades12h. */
+  trades12h?: Maybe<Scalars['Int']['output']>;
+  /** The trades24h. */
+  trades24h?: Maybe<Scalars['Int']['output']>;
+  /** The percentage change. */
+  tradesChange1h?: Maybe<Scalars['Float']['output']>;
+  /** The percentage change. */
+  tradesChange1w?: Maybe<Scalars['Float']['output']>;
+  /** The percentage change. */
+  tradesChange4h?: Maybe<Scalars['Float']['output']>;
+  /** The percentage change. */
+  tradesChange5m?: Maybe<Scalars['Float']['output']>;
+  /** The percentage change. */
+  tradesChange12h?: Maybe<Scalars['Float']['output']>;
+  /** The percentage change. */
+  tradesChange24h?: Maybe<Scalars['Float']['output']>;
+  /** The two percent ask depth ct. */
+  twoPercentAskDepthCT?: Maybe<Scalars['String']['output']>;
+  /** The two percent ask depth usd. */
+  twoPercentAskDepthUsd?: Maybe<Scalars['String']['output']>;
+  /** The two percent bid depth ct. */
+  twoPercentBidDepthCT?: Maybe<Scalars['String']['output']>;
+  /** The two percent bid depth usd. */
+  twoPercentBidDepthUsd?: Maybe<Scalars['String']['output']>;
+  /** The venue-specific outcome ID. */
+  venueOutcomeId: Scalars['String']['output'];
+  /** The percentage change. */
+  volumeChange1h?: Maybe<Scalars['Float']['output']>;
+  /** The percentage change. */
+  volumeChange1w?: Maybe<Scalars['Float']['output']>;
+  /** The percentage change. */
+  volumeChange4h?: Maybe<Scalars['Float']['output']>;
+  /** The percentage change. */
+  volumeChange5m?: Maybe<Scalars['Float']['output']>;
+  /** The percentage change. */
+  volumeChange12h?: Maybe<Scalars['Float']['output']>;
+  /** The percentage change. */
+  volumeChange24h?: Maybe<Scalars['Float']['output']>;
+  /** Volume in shares. */
+  volumeShares1h?: Maybe<Scalars['String']['output']>;
+  /** Volume in shares. */
+  volumeShares1w?: Maybe<Scalars['String']['output']>;
+  /** Volume in shares. */
+  volumeShares4h?: Maybe<Scalars['String']['output']>;
+  /** Volume in shares. */
+  volumeShares5m?: Maybe<Scalars['String']['output']>;
+  /** Volume in shares. */
+  volumeShares12h?: Maybe<Scalars['String']['output']>;
+  /** Volume in shares. */
+  volumeShares24h?: Maybe<Scalars['String']['output']>;
+  /** Volume in USD. */
+  volumeUsd1h?: Maybe<Scalars['String']['output']>;
+  /** Volume in USD. */
+  volumeUsd1w?: Maybe<Scalars['String']['output']>;
+  /** Volume in USD. */
+  volumeUsd4h?: Maybe<Scalars['String']['output']>;
+  /** Volume in USD. */
+  volumeUsd5m?: Maybe<Scalars['String']['output']>;
+  /** Volume in USD. */
+  volumeUsd12h?: Maybe<Scalars['String']['output']>;
+  /** Volume in USD. */
+  volumeUsd24h?: Maybe<Scalars['String']['output']>;
+};
+
+/** Filters for prediction outcomes within a market. */
+export type PredictionOutcomeFilters = {
+  /** Best ask price in USD */
+  bestAskUsd?: InputMaybe<NumberFilter>;
+  /** Best bid price in USD */
+  bestBidUsd?: InputMaybe<NumberFilter>;
+  /** Last traded price in USD */
+  lastPriceUsd?: InputMaybe<NumberFilter>;
+  /** Price change percentage in the last 1 hour */
+  priceChange1h?: InputMaybe<NumberFilter>;
+  /** Price change percentage in the last week */
+  priceChange1w?: InputMaybe<NumberFilter>;
+  /** Price change percentage in the last 4 hours */
+  priceChange4h?: InputMaybe<NumberFilter>;
+  /** Price change percentage in the last 5 minutes */
+  priceChange5m?: InputMaybe<NumberFilter>;
+  /** Price change percentage in the last 12 hours */
+  priceChange12h?: InputMaybe<NumberFilter>;
+  /** Price change percentage in the last 24 hours */
+  priceChange24h?: InputMaybe<NumberFilter>;
+  /** Spread in USD (difference between best ask and best bid) */
+  spreadUsd?: InputMaybe<NumberFilter>;
+  /** Number of trades in the last 1 hour */
+  trades1h?: InputMaybe<NumberFilter>;
+  /** Number of trades in the last week */
+  trades1w?: InputMaybe<NumberFilter>;
+  /** Number of trades in the last 4 hours */
+  trades4h?: InputMaybe<NumberFilter>;
+  /** Number of trades in the last 5 minutes */
+  trades5m?: InputMaybe<NumberFilter>;
+  /** Number of trades in the last 12 hours */
+  trades12h?: InputMaybe<NumberFilter>;
+  /** Number of trades in the last 24 hours */
+  trades24h?: InputMaybe<NumberFilter>;
+};
+
+/** The index of an outcome within a prediction market. */
+export enum PredictionOutcomeIndex {
+  Outcome0 = 'outcome0',
+  Outcome1 = 'outcome1'
+}
+
+/** A live order book snapshot for a single prediction outcome, sourced from the venue's CLOB. Polymarket and Kalshi; outcomes from other venues return no book. Cached for up to 10s. */
+export type PredictionOutcomeOrderBook = {
+  __typename?: 'PredictionOutcomeOrderBook';
+  /** Asks ordered such that the last element is the best (lowest) ask. Empty when no book is available. */
+  asks: Array<PredictionOrderBookLevel>;
+  /** Bids ordered such that the last element is the best (highest) bid. Empty when no book is available. */
+  bids: Array<PredictionOrderBookLevel>;
+  /** Total bid-side notional liquidity in collateral token units across all bid levels in the venue's CLOB. Null when no book is available. */
+  bookLiquidityCT?: Maybe<Scalars['String']['output']>;
+  /** Total bid-side notional liquidity in USD across all bid levels in the venue's CLOB. Null when no book is available. */
+  bookLiquidityUsd?: Maybe<Scalars['String']['output']>;
+  /** The composite outcome ID. */
+  outcomeId: Scalars['String']['output'];
+  /** The protocol that provides this market. */
+  protocol: PredictionProtocol;
+  /** Venue-reported timestamp for the snapshot, in unix seconds. 0 when no book is available. */
+  timestamp: Scalars['Int']['output'];
+  /** The venue-specific outcome / asset / token ID used by the venue's CLOB. */
+  venueOutcomeId: Scalars['String']['output'];
+};
+
+/** The attribute used to rank prediction outcomes. */
+export enum PredictionOutcomeRankingAttribute {
+  BestAskCt = 'bestAskCT',
+  BestAskUsd = 'bestAskUsd',
+  BestBidCt = 'bestBidCT',
+  BestBidUsd = 'bestBidUsd',
+  BuyVolumeUsd1h = 'buyVolumeUsd1h',
+  BuyVolumeUsd1w = 'buyVolumeUsd1w',
+  BuyVolumeUsd4h = 'buyVolumeUsd4h',
+  BuyVolumeUsd5m = 'buyVolumeUsd5m',
+  BuyVolumeUsd12h = 'buyVolumeUsd12h',
+  BuyVolumeUsd24h = 'buyVolumeUsd24h',
+  Buys1h = 'buys1h',
+  Buys1w = 'buys1w',
+  Buys4h = 'buys4h',
+  Buys5m = 'buys5m',
+  Buys12h = 'buys12h',
+  Buys24h = 'buys24h',
+  HighPriceUsd1h = 'highPriceUsd1h',
+  HighPriceUsd1w = 'highPriceUsd1w',
+  HighPriceUsd4h = 'highPriceUsd4h',
+  HighPriceUsd5m = 'highPriceUsd5m',
+  HighPriceUsd12h = 'highPriceUsd12h',
+  HighPriceUsd24h = 'highPriceUsd24h',
+  LastPriceCt = 'lastPriceCT',
+  LastPriceUsd = 'lastPriceUsd',
+  LiquidityCt = 'liquidityCT',
+  LiquidityUsd = 'liquidityUsd',
+  LowPriceUsd1h = 'lowPriceUsd1h',
+  LowPriceUsd1w = 'lowPriceUsd1w',
+  LowPriceUsd4h = 'lowPriceUsd4h',
+  LowPriceUsd5m = 'lowPriceUsd5m',
+  LowPriceUsd12h = 'lowPriceUsd12h',
+  LowPriceUsd24h = 'lowPriceUsd24h',
+  PriceChange1h = 'priceChange1h',
+  PriceChange1w = 'priceChange1w',
+  PriceChange4h = 'priceChange4h',
+  PriceChange5m = 'priceChange5m',
+  PriceChange12h = 'priceChange12h',
+  PriceChange24h = 'priceChange24h',
+  PriceRange1h = 'priceRange1h',
+  PriceRange1w = 'priceRange1w',
+  PriceRange4h = 'priceRange4h',
+  PriceRange5m = 'priceRange5m',
+  PriceRange12h = 'priceRange12h',
+  PriceRange24h = 'priceRange24h',
+  SellVolumeUsd1h = 'sellVolumeUsd1h',
+  SellVolumeUsd1w = 'sellVolumeUsd1w',
+  SellVolumeUsd4h = 'sellVolumeUsd4h',
+  SellVolumeUsd5m = 'sellVolumeUsd5m',
+  SellVolumeUsd12h = 'sellVolumeUsd12h',
+  SellVolumeUsd24h = 'sellVolumeUsd24h',
+  Sells1h = 'sells1h',
+  Sells1w = 'sells1w',
+  Sells4h = 'sells4h',
+  Sells5m = 'sells5m',
+  Sells12h = 'sells12h',
+  Sells24h = 'sells24h',
+  SpreadCt = 'spreadCT',
+  SpreadUsd = 'spreadUsd',
+  Trades1h = 'trades1h',
+  Trades1w = 'trades1w',
+  Trades4h = 'trades4h',
+  Trades5m = 'trades5m',
+  Trades12h = 'trades12h',
+  Trades24h = 'trades24h',
+  TradesChange1h = 'tradesChange1h',
+  TradesChange1w = 'tradesChange1w',
+  TradesChange4h = 'tradesChange4h',
+  TradesChange5m = 'tradesChange5m',
+  TradesChange12h = 'tradesChange12h',
+  TradesChange24h = 'tradesChange24h',
+  TwoPercentAskDepthCt = 'twoPercentAskDepthCT',
+  TwoPercentAskDepthUsd = 'twoPercentAskDepthUsd',
+  TwoPercentBidDepthCt = 'twoPercentBidDepthCT',
+  TwoPercentBidDepthUsd = 'twoPercentBidDepthUsd',
+  VolumeChange1h = 'volumeChange1h',
+  VolumeChange1w = 'volumeChange1w',
+  VolumeChange4h = 'volumeChange4h',
+  VolumeChange5m = 'volumeChange5m',
+  VolumeChange12h = 'volumeChange12h',
+  VolumeChange24h = 'volumeChange24h',
+  VolumeShares1h = 'volumeShares1h',
+  VolumeShares1w = 'volumeShares1w',
+  VolumeShares4h = 'volumeShares4h',
+  VolumeShares5m = 'volumeShares5m',
+  VolumeShares12h = 'volumeShares12h',
+  VolumeShares24h = 'volumeShares24h',
+  VolumeUsd1h = 'volumeUsd1h',
+  VolumeUsd1w = 'volumeUsd1w',
+  VolumeUsd4h = 'volumeUsd4h',
+  VolumeUsd5m = 'volumeUsd5m',
+  VolumeUsd12h = 'volumeUsd12h',
+  VolumeUsd24h = 'volumeUsd24h'
+}
+
+/** The prediction protocol or venue. */
+export enum PredictionProtocol {
+  Kalshi = 'KALSHI',
+  Polymarket = 'POLYMARKET'
+}
+
+/** Resolution details for a settled prediction market or event. */
+export type PredictionResolution = {
+  __typename?: 'PredictionResolution';
+  /** The resolution result. */
+  result?: Maybe<Scalars['String']['output']>;
+  /** The resolution source. */
+  source?: Maybe<Scalars['String']['output']>;
+};
+
+/** The duration used to request windowed prediction stats. */
+export enum PredictionStatsDuration {
+  Day1 = 'day1',
+  Hour1 = 'hour1',
+  Hour4 = 'hour4',
+  Hour12 = 'hour12',
+  Min5 = 'min5',
+  Week1 = 'week1'
+}
+
+/** A prediction sub-subcategory (3rd level, terminal). */
+export type PredictionSubSubcategory = {
+  __typename?: 'PredictionSubSubcategory';
+  /** The display name. */
+  name: Scalars['String']['output'];
+  /** The URL slug. */
+  slug: Scalars['String']['output'];
+};
+
+/** A prediction subcategory (2nd level). */
+export type PredictionSubcategory = {
+  __typename?: 'PredictionSubcategory';
+  /** The display name. */
+  name: Scalars['String']['output'];
+  /** The URL slug. */
+  slug: Scalars['String']['output'];
+  /** Nested subcategories (3rd level). */
+  subcategories?: Maybe<Array<PredictionSubSubcategory>>;
+};
+
+/** A wallet's token balance for a prediction market. */
+export type PredictionTokenBalance = {
+  __typename?: 'PredictionTokenBalance';
+  /** The token amount. */
+  amount: Scalars['String']['output'];
+  /** The associated prediction trader. */
+  predictionTrader?: Maybe<PredictionTrader>;
+  /** The wallet address. */
+  walletAddress: Scalars['String']['output'];
+};
+
+/** A paginated list of prediction token holders. */
+export type PredictionTokenHoldersConnection = {
+  __typename?: 'PredictionTokenHoldersConnection';
+  /** Cursor for pagination. */
+  cursor?: Maybe<Scalars['String']['output']>;
+  /** The list of items. */
+  items: Array<PredictionTokenBalance>;
+  /** The total number of items. */
+  total: Scalars['Int']['output'];
+};
+
+/** Input type of `predictionTokenHolders`. */
+export type PredictionTokenHoldersInput = {
+  /** Cursor for pagination. */
+  cursor?: InputMaybe<Scalars['String']['input']>;
+  /** Maximum number of results to return. */
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  /** The ID of the prediction market. */
+  marketId: Scalars['String']['input'];
+  /** The token ID. */
+  tokenId: Scalars['String']['input'];
+};
+
+/** A single prediction trade. */
+export type PredictionTrade = {
+  __typename?: 'PredictionTrade';
+  /** The token amount. */
+  amount?: Maybe<Scalars['String']['output']>;
+  /** The amount collateral. */
+  amountCollateral?: Maybe<Scalars['String']['output']>;
+  /** The amount usd. */
+  amountUsd?: Maybe<Scalars['String']['output']>;
+  /** The block number. */
+  blockNumber?: Maybe<Scalars['Int']['output']>;
+  /** The exchange contract address. */
+  exchangeAddress?: Maybe<Scalars['String']['output']>;
+  /** The maker. */
+  maker?: Maybe<Scalars['String']['output']>;
+  /** The ID of the prediction market. */
+  marketId: Scalars['String']['output'];
+  /** The network ID. */
+  networkId?: Maybe<Scalars['Int']['output']>;
+  /** The ID of the prediction outcome. */
+  outcomeId: Scalars['String']['output'];
+  /** The outcome index. */
+  outcomeIndex?: Maybe<Scalars['Int']['output']>;
+  /** The label of the outcome. */
+  outcomeLabel: Scalars['String']['output'];
+  /** The prediction market. */
+  predictionMarket?: Maybe<PredictionMarket>;
+  /** The price collateral. */
+  priceCollateral?: Maybe<Scalars['String']['output']>;
+  /** The price usd. */
+  priceUsd?: Maybe<Scalars['String']['output']>;
+  /** The prediction protocol. */
+  protocol: PredictionProtocol;
+  /** The sort key. */
+  sortKey: Scalars['String']['output'];
+  /** The unix timestamp. */
+  timestamp: Scalars['Int']['output'];
+  /** The type of trade. */
+  tradeType: PredictionTradeType;
+  /** The ID of the prediction trader. */
+  traderId?: Maybe<Scalars['String']['output']>;
+  /** The transaction hash. */
+  transactionHash?: Maybe<Scalars['String']['output']>;
+  /** The transaction id. */
+  transactionId?: Maybe<Scalars['String']['output']>;
+};
+
+/** Prediction trade event types. */
+export enum PredictionTradeEventType {
+  Buy = 'BUY',
+  BuyCounterparty = 'BUY_COUNTERPARTY',
+  PayoutRedemption = 'PAYOUT_REDEMPTION',
+  Sell = 'SELL',
+  SellCounterparty = 'SELL_COUNTERPARTY',
+  Trade = 'TRADE'
+}
+
+/** Prediction trade event type condition. */
+export type PredictionTradeEventTypeCondition = {
+  __typename?: 'PredictionTradeEventTypeCondition';
+  /** The list of prediction trade event types. */
+  oneOf: Array<PredictionTradeEventType>;
+};
+
+/** Input for prediction trade event type condition. */
+export type PredictionTradeEventTypeConditionInput = {
+  /** The list of prediction trade event types to match. */
+  oneOf: Array<PredictionTradeEventType>;
+};
+
+/** The type of a prediction trade. */
+export enum PredictionTradeType {
+  Buy = 'BUY',
+  BuyCounterparty = 'BUY_COUNTERPARTY',
+  PayoutRedemption = 'PAYOUT_REDEMPTION',
+  Sell = 'SELL',
+  SellCounterparty = 'SELL_COUNTERPARTY',
+  Trade = 'TRADE'
+}
+
+/** Webhook conditions for a prediction trade event. */
+export type PredictionTradeWebhookCondition = {
+  __typename?: 'PredictionTradeWebhookCondition';
+  /** The amount of tokens/shares traded condition. */
+  amountToken?: Maybe<ComparisonOperator>;
+  /** The event ID the webhook is listening for. */
+  eventId?: Maybe<StringEqualsCondition>;
+  /** The trade event types the webhook is listening for. */
+  eventType?: Maybe<PredictionTradeEventTypeCondition>;
+  /** The market ID the webhook is listening for. */
+  marketId?: Maybe<StringEqualsCondition>;
+  /** The trade value in USD condition. */
+  tradeValueUsd?: Maybe<ComparisonOperator>;
+  /** The trader ID the webhook is listening for. */
+  traderId?: Maybe<StringEqualsCondition>;
+};
+
+/** Input conditions for a prediction trade webhook. */
+export type PredictionTradeWebhookConditionInput = {
+  /** The amount of tokens/shares traded condition. */
+  amountToken?: InputMaybe<ComparisonOperatorInput>;
+  /** The event ID to listen for. */
+  eventId?: InputMaybe<StringEqualsConditionInput>;
+  /** The trade event types to listen for. */
+  eventType?: InputMaybe<PredictionTradeEventTypeConditionInput>;
+  /** The market ID to listen for. */
+  marketId?: InputMaybe<StringEqualsConditionInput>;
+  /** The trade value in USD condition. */
+  tradeValueUsd?: InputMaybe<ComparisonOperatorInput>;
+  /** The trader ID to listen for. */
+  traderId?: InputMaybe<StringEqualsConditionInput>;
+};
+
+/** A prediction trader with aggregate stats and metadata. */
+export type PredictionTrader = {
+  __typename?: 'PredictionTrader';
+  /** The active markets count. */
+  activeMarketsCount: Scalars['Int']['output'];
+  /** The trader alias. */
+  alias?: Maybe<Scalars['String']['output']>;
+  /** The all time profit ct. */
+  allTimeProfitCT: Scalars['String']['output'];
+  /** The all time profit usd. */
+  allTimeProfitUsd: Scalars['String']['output'];
+  /** The biggest loss ct. */
+  biggestLossCT: Scalars['String']['output'];
+  /** The biggest loss usd. */
+  biggestLossUsd: Scalars['String']['output'];
+  /** The biggest win ct. */
+  biggestWinCT: Scalars['String']['output'];
+  /** The biggest win usd. */
+  biggestWinUsd: Scalars['String']['output'];
+  /** The creation timestamp. */
+  createdAt: Scalars['Int']['output'];
+  /** The timestamp of the first trade. */
+  firstTradeTimestamp: Scalars['Int']['output'];
+  /** The unique identifier. */
+  id: Scalars['String']['output'];
+  /** Labels applied to this entity. */
+  labels?: Maybe<Array<Scalars['String']['output']>>;
+  /** The timestamp of the last trade. */
+  lastTradeTimestamp: Scalars['Int']['output'];
+  /** The linked addresses. */
+  linkedAddresses?: Maybe<Array<Scalars['String']['output']>>;
+  /** The primary address. */
+  primaryAddress?: Maybe<Scalars['String']['output']>;
+  /** The profile image url. */
+  profileImageUrl?: Maybe<Scalars['String']['output']>;
+  /** The profile url. */
+  profileUrl?: Maybe<Scalars['String']['output']>;
+  /** The prediction protocol. */
+  protocol: PredictionProtocol;
+  /** The total trades count. */
+  totalTradesCount: Scalars['Int']['output'];
+  /** The total volume ct. */
+  totalVolumeCT: Scalars['String']['output'];
+  /** The total volume usd. */
+  totalVolumeUsd: Scalars['String']['output'];
+  /** The last update timestamp. */
+  updatedAt: Scalars['Int']['output'];
+  /** The venue trader id. */
+  venueTraderId: Scalars['String']['output'];
+};
+
+/** Bar data for a prediction trader at a single point in time. */
+export type PredictionTraderBar = {
+  __typename?: 'PredictionTraderBar';
+  /** Buy volume in collateral token units. */
+  buyVolumeCT?: Maybe<Scalars['String']['output']>;
+  /** Buy volume in USD. */
+  buyVolumeUsd?: Maybe<Scalars['String']['output']>;
+  /** The number of buys. */
+  buys?: Maybe<Scalars['Int']['output']>;
+  /** The cumulative realized pnl ct. */
+  cumulativeRealizedPnlCT?: Maybe<Scalars['String']['output']>;
+  /** The cumulative realized pnl usd. */
+  cumulativeRealizedPnlUsd?: Maybe<Scalars['String']['output']>;
+  /** The losses. */
+  losses?: Maybe<Scalars['Int']['output']>;
+  /** The realized pnl ct. */
+  realizedPnlCT?: Maybe<Scalars['String']['output']>;
+  /** The realized pnl usd. */
+  realizedPnlUsd?: Maybe<Scalars['String']['output']>;
+  /** Sell volume in collateral token units. */
+  sellVolumeCT?: Maybe<Scalars['String']['output']>;
+  /** Sell volume in USD. */
+  sellVolumeUsd?: Maybe<Scalars['String']['output']>;
+  /** The number of sells. */
+  sells?: Maybe<Scalars['Int']['output']>;
+  /** The unix timestamp for this bar. */
+  t: Scalars['Int']['output'];
+  /** The number of trades. */
+  trades?: Maybe<Scalars['Int']['output']>;
+  /** The number of unique markets. */
+  uniqueMarkets?: Maybe<Scalars['Int']['output']>;
+  /** Volume in collateral token units. */
+  volumeCT?: Maybe<Scalars['String']['output']>;
+  /** Volume in USD. */
+  volumeUsd?: Maybe<Scalars['String']['output']>;
+  /** The wins. */
+  wins?: Maybe<Scalars['Int']['output']>;
+};
+
+/** Input type of `predictionTraderBars`. */
+export type PredictionTraderBarsInput = {
+  /** Number of bars to return counting back from `to`. */
+  countback?: InputMaybe<Scalars['Int']['input']>;
+  /** The start timestamp (unix seconds). */
+  from: Scalars['Int']['input'];
+  /** Whether to omit bars with no activity. */
+  removeEmptyBars?: InputMaybe<Scalars['Boolean']['input']>;
+  /** The resolution details. */
+  resolution: PredictionTraderBarsResolution;
+  /** The end timestamp (unix seconds). */
+  to: Scalars['Int']['input'];
+  /** The ID of the prediction trader. */
+  traderId: Scalars['String']['input'];
+};
+
+/** The time resolution for prediction trader bar data. */
+export enum PredictionTraderBarsResolution {
+  Day1 = 'day1',
+  Hour1 = 'hour1',
+  Hour4 = 'hour4',
+  Week1 = 'week1'
+}
+
+/** Response returned by `predictionTraderBars`. */
+export type PredictionTraderBarsResponse = {
+  __typename?: 'PredictionTraderBarsResponse';
+  /** The bar data. */
+  bars: Array<PredictionTraderBar>;
+  /** The trader. */
+  trader?: Maybe<PredictionTrader>;
+  /** The ID of the prediction trader. */
+  traderId: Scalars['String']['output'];
+};
+
+/** Response returned by `filterPredictionTraders`. */
+export type PredictionTraderFilterConnection = {
+  __typename?: 'PredictionTraderFilterConnection';
+  /** Total number of matching results. */
+  count: Scalars['Int']['output'];
+  /** The current page number. */
+  page: Scalars['Int']['output'];
+  /** The list of results. */
+  results: Array<PredictionTraderFilterResult>;
+};
+
+/** A prediction trader matching a set of filter parameters. */
+export type PredictionTraderFilterResult = {
+  __typename?: 'PredictionTraderFilterResult';
+  /** Active markets count */
+  activeMarketsCount: Scalars['Int']['output'];
+  /** Average profit USD per trade 1m */
+  averageProfitUsdPerTrade1m: Scalars['String']['output'];
+  /** Average profit USD per trade 1w */
+  averageProfitUsdPerTrade1w: Scalars['String']['output'];
+  /** Average profit USD per trade 12h */
+  averageProfitUsdPerTrade12h: Scalars['String']['output'];
+  /** Average profit USD per trade 24h */
+  averageProfitUsdPerTrade24h: Scalars['String']['output'];
+  /** Average swap amount USD 1m */
+  averageSwapAmountUsd1m: Scalars['String']['output'];
+  /** Average swap amount USD 1w */
+  averageSwapAmountUsd1w: Scalars['String']['output'];
+  /** Average swap amount USD 12h */
+  averageSwapAmountUsd12h: Scalars['String']['output'];
+  /** Average swap amount USD 24h */
+  averageSwapAmountUsd24h: Scalars['String']['output'];
+  /** Biggest loss CT */
+  biggestLossCT: Scalars['String']['output'];
+  /** Biggest loss USD */
+  biggestLossUsd: Scalars['String']['output'];
+  /** Biggest win CT */
+  biggestWinCT: Scalars['String']['output'];
+  /** Biggest win USD */
+  biggestWinUsd: Scalars['String']['output'];
+  /** Buy volume USD 1m */
+  buyVolumeUsd1m: Scalars['String']['output'];
+  /** Buy volume USD 1w */
+  buyVolumeUsd1w: Scalars['String']['output'];
+  /** Buy volume USD 12h */
+  buyVolumeUsd12h: Scalars['String']['output'];
+  /** Buy volume USD 24h */
+  buyVolumeUsd24h: Scalars['String']['output'];
+  /** Buys 1m */
+  buys1m: Scalars['Int']['output'];
+  /** Buys 1w */
+  buys1w: Scalars['Int']['output'];
+  /** Buys 12h */
+  buys12h: Scalars['Int']['output'];
+  /** Buys 24h */
+  buys24h: Scalars['Int']['output'];
+  /** First trade timestamp */
+  firstTradeTimestamp: Scalars['Int']['output'];
+  /** Held token acquisition cost CT */
+  heldTokenAcquisitionCostCT: Scalars['String']['output'];
+  /** Held token acquisition cost USD */
+  heldTokenAcquisitionCostUsd: Scalars['String']['output'];
+  /** The unique identifier. */
+  id: Scalars['String']['output'];
+  /** Last trade timestamp */
+  lastTradeTimestamp: Scalars['Int']['output'];
+  /** Losses 1m */
+  losses1m: Scalars['Int']['output'];
+  /** Losses 1w */
+  losses1w: Scalars['Int']['output'];
+  /** Losses 12h */
+  losses12h: Scalars['Int']['output'];
+  /** Losses 24h */
+  losses24h: Scalars['Int']['output'];
+  /** All-time PnL per volume */
+  pnlPerVolumeAll: Scalars['Float']['output'];
+  /** Full trader entity (loaded via DataLoader) */
+  predictionTrader?: Maybe<PredictionTrader>;
+  /** Profit per trade USD all-time */
+  profitPerTradeUsdAll: Scalars['String']['output'];
+  /** Realized PnL CT 1m */
+  realizedPnlCT1m: Scalars['String']['output'];
+  /** Realized PnL CT 1w */
+  realizedPnlCT1w: Scalars['String']['output'];
+  /** Realized PnL CT 12h */
+  realizedPnlCT12h: Scalars['String']['output'];
+  /** Realized PnL CT 24h */
+  realizedPnlCT24h: Scalars['String']['output'];
+  /** Realized PnL change 1m */
+  realizedPnlChange1m: Scalars['Float']['output'];
+  /** Realized PnL change 1w */
+  realizedPnlChange1w: Scalars['Float']['output'];
+  /** Realized PnL change 12h */
+  realizedPnlChange12h: Scalars['Float']['output'];
+  /** Realized PnL change 24h */
+  realizedPnlChange24h: Scalars['Float']['output'];
+  /** Realized PnL USD 1m */
+  realizedPnlUsd1m: Scalars['String']['output'];
+  /** Realized PnL USD 1w */
+  realizedPnlUsd1w: Scalars['String']['output'];
+  /** Realized PnL USD 12h */
+  realizedPnlUsd12h: Scalars['String']['output'];
+  /** Realized PnL USD 24h */
+  realizedPnlUsd24h: Scalars['String']['output'];
+  /** Realized profit percentage 1m */
+  realizedProfitPercentage1m: Scalars['Float']['output'];
+  /** Realized profit percentage 1w */
+  realizedProfitPercentage1w: Scalars['Float']['output'];
+  /** Realized profit percentage 12h */
+  realizedProfitPercentage12h: Scalars['Float']['output'];
+  /** Realized profit percentage 24h */
+  realizedProfitPercentage24h: Scalars['Float']['output'];
+  /** Sell volume USD 1m */
+  sellVolumeUsd1m: Scalars['String']['output'];
+  /** Sell volume USD 1w */
+  sellVolumeUsd1w: Scalars['String']['output'];
+  /** Sell volume USD 12h */
+  sellVolumeUsd12h: Scalars['String']['output'];
+  /** Sell volume USD 24h */
+  sellVolumeUsd24h: Scalars['String']['output'];
+  /** Sells 1m */
+  sells1m: Scalars['Int']['output'];
+  /** Sells 1w */
+  sells1w: Scalars['Int']['output'];
+  /** Sells 12h */
+  sells12h: Scalars['Int']['output'];
+  /** Sells 24h */
+  sells24h: Scalars['Int']['output'];
+  /** The unix timestamp. */
+  timestamp: Scalars['Int']['output'];
+  /** All-time total profit CT */
+  totalProfitCTAll: Scalars['String']['output'];
+  /** All-time total profit USD */
+  totalProfitUsdAll: Scalars['String']['output'];
+  /** All-time total trades */
+  totalTradesAll: Scalars['Int']['output'];
+  /** All-time total volume CT */
+  totalVolumeCTAll: Scalars['String']['output'];
+  /** All-time total volume USD */
+  totalVolumeUsdAll: Scalars['String']['output'];
+  /** Minimal trader info embedded in the result */
+  trader: FilterTrader;
+  /** Trades 1m */
+  trades1m: Scalars['Int']['output'];
+  /** Trades 1w */
+  trades1w: Scalars['Int']['output'];
+  /** Trades 12h */
+  trades12h: Scalars['Int']['output'];
+  /** Trades 24h */
+  trades24h: Scalars['Int']['output'];
+  /** Unique markets 1m */
+  uniqueMarkets1m: Scalars['Int']['output'];
+  /** Unique markets 1w */
+  uniqueMarkets1w: Scalars['Int']['output'];
+  /** Unique markets 12h */
+  uniqueMarkets12h: Scalars['Int']['output'];
+  /** Unique markets 24h */
+  uniqueMarkets24h: Scalars['Int']['output'];
+  /** Volume CT 1m */
+  volumeCT1m: Scalars['String']['output'];
+  /** Volume CT 1w */
+  volumeCT1w: Scalars['String']['output'];
+  /** Volume CT 12h */
+  volumeCT12h: Scalars['String']['output'];
+  /** Volume CT 24h */
+  volumeCT24h: Scalars['String']['output'];
+  /** Volume change 1m */
+  volumeChange1m: Scalars['Float']['output'];
+  /** Volume change 1w */
+  volumeChange1w: Scalars['Float']['output'];
+  /** Volume change 12h */
+  volumeChange12h: Scalars['Float']['output'];
+  /** Volume change 24h */
+  volumeChange24h: Scalars['Float']['output'];
+  /** Volume per trade USD all-time */
+  volumePerTradeUsdAll: Scalars['String']['output'];
+  /** Volume USD 1m */
+  volumeUsd1m: Scalars['String']['output'];
+  /** Volume USD 1w */
+  volumeUsd1w: Scalars['String']['output'];
+  /** Volume USD 12h */
+  volumeUsd12h: Scalars['String']['output'];
+  /** Volume USD 24h */
+  volumeUsd24h: Scalars['String']['output'];
+  /** Win rate 1m (0-1) */
+  winRate1m: Scalars['Float']['output'];
+  /** Win rate 1w (0-1) */
+  winRate1w: Scalars['Float']['output'];
+  /** Win rate 12h (0-1) */
+  winRate12h: Scalars['Float']['output'];
+  /** Win rate 24h (0-1) */
+  winRate24h: Scalars['Float']['output'];
+  /** Wins 1m */
+  wins1m: Scalars['Int']['output'];
+  /** Wins 1w */
+  wins1w: Scalars['Int']['output'];
+  /** Wins 12h */
+  wins12h: Scalars['Int']['output'];
+  /** Wins 24h */
+  wins24h: Scalars['Int']['output'];
+};
+
+/** Filters for prediction traders. */
+export type PredictionTraderFilters = {
+  /** Filter by active markets count */
+  activeMarketsCount?: InputMaybe<NumberFilter>;
+  /** Filter by average profit USD per trade 1m */
+  averageProfitUsdPerTrade1m?: InputMaybe<NumberFilter>;
+  /** Filter by average profit USD per trade 1w */
+  averageProfitUsdPerTrade1w?: InputMaybe<NumberFilter>;
+  /** Filter by average profit USD per trade 12h */
+  averageProfitUsdPerTrade12h?: InputMaybe<NumberFilter>;
+  /** Filter by average profit USD per trade 24h */
+  averageProfitUsdPerTrade24h?: InputMaybe<NumberFilter>;
+  /** Filter by average swap amount USD 1m */
+  averageSwapAmountUsd1m?: InputMaybe<NumberFilter>;
+  /** Filter by average swap amount USD 1w */
+  averageSwapAmountUsd1w?: InputMaybe<NumberFilter>;
+  /** Filter by average swap amount USD 12h */
+  averageSwapAmountUsd12h?: InputMaybe<NumberFilter>;
+  /** Filter by average swap amount USD 24h */
+  averageSwapAmountUsd24h?: InputMaybe<NumberFilter>;
+  /** Filter by biggest loss CT */
+  biggestLossCT?: InputMaybe<NumberFilter>;
+  /** Filter by biggest loss USD */
+  biggestLossUsd?: InputMaybe<NumberFilter>;
+  /** Filter by biggest win CT */
+  biggestWinCT?: InputMaybe<NumberFilter>;
+  /** Filter by biggest win USD */
+  biggestWinUsd?: InputMaybe<NumberFilter>;
+  /** Filter by first trade timestamp */
+  firstTradeTimestamp?: InputMaybe<NumberFilter>;
+  /** Filter by held token acquisition cost CT */
+  heldTokenAcquisitionCostCT?: InputMaybe<NumberFilter>;
+  /** Filter by held token acquisition cost USD */
+  heldTokenAcquisitionCostUsd?: InputMaybe<NumberFilter>;
+  /** Filter by labels */
+  labels?: InputMaybe<Array<Scalars['String']['input']>>;
+  /** Filter by last trade timestamp */
+  lastTradeTimestamp?: InputMaybe<NumberFilter>;
+  /** Filter by losses 1m */
+  losses1m?: InputMaybe<NumberFilter>;
+  /** Filter by losses 1w */
+  losses1w?: InputMaybe<NumberFilter>;
+  /** Filter by losses 12h */
+  losses12h?: InputMaybe<NumberFilter>;
+  /** Filter by losses 24h */
+  losses24h?: InputMaybe<NumberFilter>;
+  /** Filter by all-time PnL per volume */
+  pnlPerVolumeAll?: InputMaybe<NumberFilter>;
+  /** Filter by profit per trade USD all-time */
+  profitPerTradeUsdAll?: InputMaybe<NumberFilter>;
+  /** Filter by protocol (e.g., POLYMARKET, KALSHI) */
+  protocol?: InputMaybe<Array<PredictionProtocol>>;
+  /** Filter by realized PnL change 1m */
+  realizedPnlChange1m?: InputMaybe<NumberFilter>;
+  /** Filter by realized PnL change 1w */
+  realizedPnlChange1w?: InputMaybe<NumberFilter>;
+  /** Filter by realized PnL change 12h */
+  realizedPnlChange12h?: InputMaybe<NumberFilter>;
+  /** Filter by realized PnL change 24h */
+  realizedPnlChange24h?: InputMaybe<NumberFilter>;
+  /** Filter by realized PnL USD 1m */
+  realizedPnlUsd1m?: InputMaybe<NumberFilter>;
+  /** Filter by realized PnL USD 1w */
+  realizedPnlUsd1w?: InputMaybe<NumberFilter>;
+  /** Filter by realized PnL USD 12h */
+  realizedPnlUsd12h?: InputMaybe<NumberFilter>;
+  /** Filter by realized PnL USD 24h */
+  realizedPnlUsd24h?: InputMaybe<NumberFilter>;
+  /** Filter by realized profit percentage 1m */
+  realizedProfitPercentage1m?: InputMaybe<NumberFilter>;
+  /** Filter by realized profit percentage 1w */
+  realizedProfitPercentage1w?: InputMaybe<NumberFilter>;
+  /** Filter by realized profit percentage 12h */
+  realizedProfitPercentage12h?: InputMaybe<NumberFilter>;
+  /** Filter by realized profit percentage 24h */
+  realizedProfitPercentage24h?: InputMaybe<NumberFilter>;
+  /** Filter by timestamp */
+  timestamp?: InputMaybe<NumberFilter>;
+  /** Filter by all-time total profit CT */
+  totalProfitCTAll?: InputMaybe<NumberFilter>;
+  /** Filter by all-time total profit USD */
+  totalProfitUsdAll?: InputMaybe<NumberFilter>;
+  /** Filter by all-time total trades */
+  totalTradesAll?: InputMaybe<NumberFilter>;
+  /** Filter by all-time total volume CT */
+  totalVolumeCTAll?: InputMaybe<NumberFilter>;
+  /** Filter by all-time total volume USD */
+  totalVolumeUsdAll?: InputMaybe<NumberFilter>;
+  /** Filter by trades 1m */
+  trades1m?: InputMaybe<NumberFilter>;
+  /** Filter by trades 1w */
+  trades1w?: InputMaybe<NumberFilter>;
+  /** Filter by trades 12h */
+  trades12h?: InputMaybe<NumberFilter>;
+  /** Filter by trades 24h */
+  trades24h?: InputMaybe<NumberFilter>;
+  /** Filter by unique markets 1m */
+  uniqueMarkets1m?: InputMaybe<NumberFilter>;
+  /** Filter by unique markets 1w */
+  uniqueMarkets1w?: InputMaybe<NumberFilter>;
+  /** Filter by unique markets 12h */
+  uniqueMarkets12h?: InputMaybe<NumberFilter>;
+  /** Filter by unique markets 24h */
+  uniqueMarkets24h?: InputMaybe<NumberFilter>;
+  /** Filter by volume change 1m */
+  volumeChange1m?: InputMaybe<NumberFilter>;
+  /** Filter by volume change 1w */
+  volumeChange1w?: InputMaybe<NumberFilter>;
+  /** Filter by volume change 12h */
+  volumeChange12h?: InputMaybe<NumberFilter>;
+  /** Filter by volume change 24h */
+  volumeChange24h?: InputMaybe<NumberFilter>;
+  /** Filter by volume per trade USD all-time */
+  volumePerTradeUsdAll?: InputMaybe<NumberFilter>;
+  /** Filter by volume USD 1m */
+  volumeUsd1m?: InputMaybe<NumberFilter>;
+  /** Filter by volume USD 1w */
+  volumeUsd1w?: InputMaybe<NumberFilter>;
+  /** Filter by volume USD 12h */
+  volumeUsd12h?: InputMaybe<NumberFilter>;
+  /** Filter by volume USD 24h */
+  volumeUsd24h?: InputMaybe<NumberFilter>;
+  /** Filter by win rate 1m */
+  winRate1m?: InputMaybe<NumberFilter>;
+  /** Filter by win rate 1w */
+  winRate1w?: InputMaybe<NumberFilter>;
+  /** Filter by win rate 12h */
+  winRate12h?: InputMaybe<NumberFilter>;
+  /** Filter by win rate 24h */
+  winRate24h?: InputMaybe<NumberFilter>;
+  /** Filter by wins 1m */
+  wins1m?: InputMaybe<NumberFilter>;
+  /** Filter by wins 1w */
+  wins1w?: InputMaybe<NumberFilter>;
+  /** Filter by wins 12h */
+  wins12h?: InputMaybe<NumberFilter>;
+  /** Filter by wins 24h */
+  wins24h?: InputMaybe<NumberFilter>;
+};
+
+/** A trader's token holding for a prediction outcome. */
+export type PredictionTraderHolding = {
+  __typename?: 'PredictionTraderHolding';
+  /** The token balance amount. */
+  amount: Scalars['String']['output'];
+  /** The prediction market this holding belongs to. */
+  market?: Maybe<PredictionMarket>;
+  /** The outcome index within the market (0 or 1). */
+  outcomeIndex?: Maybe<Scalars['Int']['output']>;
+  /** The token ID (venue outcome ID). */
+  tokenId: Scalars['String']['output'];
+  /** The trader ID. */
+  traderId: Scalars['String']['output'];
+  /** The venue trader ID (wallet address). */
+  venueTraderId: Scalars['String']['output'];
+};
+
+/** A paginated list of trader holdings. */
+export type PredictionTraderHoldingsConnection = {
+  __typename?: 'PredictionTraderHoldingsConnection';
+  /** Cursor for pagination. */
+  cursor?: Maybe<Scalars['String']['output']>;
+  /** The list of holdings. */
+  items: Array<PredictionTraderHolding>;
+};
+
+/** Input for `predictionTraderHoldings` query. */
+export type PredictionTraderHoldingsInput = {
+  /** Cursor for pagination. */
+  cursor?: InputMaybe<Scalars['String']['input']>;
+  /** Maximum number of results to return. */
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  /** The trader ID (format: {walletAddress}:{protocol}, e.g. 0x123...abc:Polymarket) */
+  traderId: Scalars['String']['input'];
+};
+
+/** Response returned by `filterPredictionTraderMarkets`. */
+export type PredictionTraderMarketFilterConnection = {
+  __typename?: 'PredictionTraderMarketFilterConnection';
+  /** Total number of matching results. */
+  count: Scalars['Int']['output'];
+  /** The current page number. */
+  page: Scalars['Int']['output'];
+  /** The list of results. */
+  results: Array<PredictionTraderMarketFilterResult>;
+};
+
+/** A trader-market record matching a set of filter parameters. */
+export type PredictionTraderMarketFilterResult = {
+  __typename?: 'PredictionTraderMarketFilterResult';
+  /** The ID of the prediction event. */
+  eventId: Scalars['String']['output'];
+  /** The timestamp of the first trade. */
+  firstTradeTimestamp: Scalars['Int']['output'];
+  /** Whether the trader has an open position. */
+  hasOpenPosition: Scalars['Boolean']['output'];
+  /** The unique identifier. */
+  id: Scalars['String']['output'];
+  /** The timestamp of the last trade. */
+  lastTradeTimestamp: Scalars['Int']['output'];
+  /** Minimal market info embedded in the result */
+  market: FilterTraderMarket;
+  /** The ID of the prediction market. */
+  marketId: Scalars['String']['output'];
+  /** Outcome 0 data. */
+  outcome0: PredictionTraderOutcomeFilterResult;
+  /** Outcome 1 data. */
+  outcome1: PredictionTraderOutcomeFilterResult;
+  /** The pnl per volume market. */
+  pnlPerVolumeMarket: Scalars['String']['output'];
+  /** Full market entity (loaded via DataLoader) */
+  predictionMarket?: Maybe<PredictionMarket>;
+  /** Full trader entity (loaded via DataLoader) */
+  predictionTrader?: Maybe<PredictionTrader>;
+  /** The profit per trade usd. */
+  profitPerTradeUsd: Scalars['String']['output'];
+  /** The unix timestamp. */
+  timestamp: Scalars['Int']['output'];
+  /** The total buys. */
+  totalBuys: Scalars['Int']['output'];
+  /** The total cost basis ct. */
+  totalCostBasisCT: Scalars['String']['output'];
+  /** The total cost basis usd. */
+  totalCostBasisUsd: Scalars['String']['output'];
+  /** The total current position value in collateral token units. Returns 0 when there are no open held positions; null when any open held position is missing latest price data. */
+  totalCurrentPositionValueCT?: Maybe<Scalars['String']['output']>;
+  /** The total current position value in USD. Returns 0 when there are no open held positions; null when any open held position is missing latest price data. */
+  totalCurrentPositionValueUsd?: Maybe<Scalars['String']['output']>;
+  /** The total realized pnl ct. */
+  totalRealizedPnlCT: Scalars['String']['output'];
+  /** The total realized pnl usd. */
+  totalRealizedPnlUsd: Scalars['String']['output'];
+  /** The total sells. */
+  totalSells: Scalars['Int']['output'];
+  /** The total shares held. */
+  totalSharesHeld: Scalars['String']['output'];
+  /** The total trades. */
+  totalTrades: Scalars['Int']['output'];
+  /** The total unrealized pnl in collateral token units. Returns 0 when there are no open held positions; null when any open held position is missing latest price data. */
+  totalUnrealizedPnlCT?: Maybe<Scalars['String']['output']>;
+  /** The total unrealized pnl in USD. Returns 0 when there are no open held positions; null when any open held position is missing latest price data. */
+  totalUnrealizedPnlUsd?: Maybe<Scalars['String']['output']>;
+  /** The total volume ct. */
+  totalVolumeCT: Scalars['String']['output'];
+  /** The total volume shares. */
+  totalVolumeShares: Scalars['String']['output'];
+  /** The total volume usd. */
+  totalVolumeUsd: Scalars['String']['output'];
+  /** Minimal trader info embedded in the result */
+  trader: FilterTrader;
+  /** The ID of the prediction trader. */
+  traderId: Scalars['String']['output'];
+  /** The ID of the winning outcome. */
+  winningOutcomeId?: Maybe<Scalars['String']['output']>;
+};
+
+/** Filters for trader-market records. */
+export type PredictionTraderMarketFilters = {
+  /** The timestamp of the first trade. */
+  firstTradeTimestamp?: InputMaybe<NumberFilter>;
+  /** Filter by whether trader has an open position */
+  hasOpenPosition?: InputMaybe<Scalars['Boolean']['input']>;
+  /** The timestamp of the last trade. */
+  lastTradeTimestamp?: InputMaybe<NumberFilter>;
+  /** Outcome 0 buys. */
+  outcome0Buys?: InputMaybe<NumberFilter>;
+  /** Outcome 0 cost basis usd. */
+  outcome0CostBasisUsd?: InputMaybe<NumberFilter>;
+  /** Filter by outcome 0 PnL status */
+  outcome0PnlStatus?: InputMaybe<Array<PredictionTraderMarketPnlStatus>>;
+  /** Outcome 0 realized pnl usd. */
+  outcome0RealizedPnlUsd?: InputMaybe<NumberFilter>;
+  /** Outcome 0 sells. */
+  outcome0Sells?: InputMaybe<NumberFilter>;
+  /** Outcome 0 shares held. */
+  outcome0SharesHeld?: InputMaybe<NumberFilter>;
+  /** Outcome 1 buys. */
+  outcome1Buys?: InputMaybe<NumberFilter>;
+  /** Outcome 1 cost basis usd. */
+  outcome1CostBasisUsd?: InputMaybe<NumberFilter>;
+  /** Filter by outcome 1 PnL status */
+  outcome1PnlStatus?: InputMaybe<Array<PredictionTraderMarketPnlStatus>>;
+  /** Outcome 1 realized pnl usd. */
+  outcome1RealizedPnlUsd?: InputMaybe<NumberFilter>;
+  /** Outcome 1 sells. */
+  outcome1Sells?: InputMaybe<NumberFilter>;
+  /** Outcome 1 shares held. */
+  outcome1SharesHeld?: InputMaybe<NumberFilter>;
+  /** The pnl per volume market. */
+  pnlPerVolumeMarket?: InputMaybe<NumberFilter>;
+  /** The profit per trade usd. */
+  profitPerTradeUsd?: InputMaybe<NumberFilter>;
+  /** Filter by prediction protocol */
+  protocol?: InputMaybe<Array<PredictionProtocol>>;
+  /** Filter by market status */
+  status?: InputMaybe<Array<PredictionEventStatus>>;
+  /** The unix timestamp. */
+  timestamp?: InputMaybe<NumberFilter>;
+  /** The total buys. */
+  totalBuys?: InputMaybe<NumberFilter>;
+  /** The total cost basis ct. */
+  totalCostBasisCT?: InputMaybe<NumberFilter>;
+  /** The total cost basis usd. */
+  totalCostBasisUsd?: InputMaybe<NumberFilter>;
+  /** The total realized pnl ct. */
+  totalRealizedPnlCT?: InputMaybe<NumberFilter>;
+  /** The total realized pnl usd. */
+  totalRealizedPnlUsd?: InputMaybe<NumberFilter>;
+  /** The total sells. */
+  totalSells?: InputMaybe<NumberFilter>;
+  /** The total shares held. */
+  totalSharesHeld?: InputMaybe<NumberFilter>;
+  /** The total trades. */
+  totalTrades?: InputMaybe<NumberFilter>;
+  /** The total volume ct. */
+  totalVolumeCT?: InputMaybe<NumberFilter>;
+  /** The total volume shares. */
+  totalVolumeShares?: InputMaybe<NumberFilter>;
+  /** The total volume usd. */
+  totalVolumeUsd?: InputMaybe<NumberFilter>;
+};
+
+/** The PnL status of a trader position in a market. */
+export enum PredictionTraderMarketPnlStatus {
+  Loss = 'LOSS',
+  Neutral = 'NEUTRAL',
+  Win = 'WIN'
+}
+
+/** A ranking to apply when sorting trader-market records. */
+export type PredictionTraderMarketRanking = {
+  /** The attribute to rank by. */
+  attribute: PredictionTraderMarketRankingAttribute;
+  /** The sort direction. */
+  direction?: InputMaybe<RankingDirection>;
+};
+
+/** The attribute used to rank trader-market records. */
+export enum PredictionTraderMarketRankingAttribute {
+  FirstTradeTimestamp = 'firstTradeTimestamp',
+  LastTradeTimestamp = 'lastTradeTimestamp',
+  Outcome0Buys = 'outcome0Buys',
+  Outcome0CostBasisUsd = 'outcome0CostBasisUsd',
+  Outcome0RealizedPnlUsd = 'outcome0RealizedPnlUsd',
+  Outcome0Sells = 'outcome0Sells',
+  Outcome0SharesHeld = 'outcome0SharesHeld',
+  Outcome1Buys = 'outcome1Buys',
+  Outcome1CostBasisUsd = 'outcome1CostBasisUsd',
+  Outcome1RealizedPnlUsd = 'outcome1RealizedPnlUsd',
+  Outcome1Sells = 'outcome1Sells',
+  Outcome1SharesHeld = 'outcome1SharesHeld',
+  PnlPerVolumeMarket = 'pnlPerVolumeMarket',
+  ProfitPerTradeUsd = 'profitPerTradeUsd',
+  Timestamp = 'timestamp',
+  TotalBuys = 'totalBuys',
+  TotalCostBasisCt = 'totalCostBasisCT',
+  TotalCostBasisUsd = 'totalCostBasisUsd',
+  TotalRealizedPnlCt = 'totalRealizedPnlCT',
+  TotalRealizedPnlUsd = 'totalRealizedPnlUsd',
+  TotalSells = 'totalSells',
+  TotalSharesHeld = 'totalSharesHeld',
+  TotalTrades = 'totalTrades',
+  TotalVolumeCt = 'totalVolumeCT',
+  TotalVolumeShares = 'totalVolumeShares',
+  TotalVolumeUsd = 'totalVolumeUsd'
+}
+
+/** Per-market stats for a trader. */
+export type PredictionTraderMarketStats = {
+  __typename?: 'PredictionTraderMarketStats';
+  /** The creation timestamp. */
+  createdAt: Scalars['Int']['output'];
+  /** Whether the trader has an open position. */
+  hasOpenPosition: Scalars['Boolean']['output'];
+  /** The ID of the prediction market. */
+  marketId: Scalars['String']['output'];
+  /** Outcome 0 stats. */
+  outcome0Stats: PredictionTraderOutcomeStats;
+  /** Outcome 1 stats. */
+  outcome1Stats: PredictionTraderOutcomeStats;
+  /** The prediction market. */
+  predictionMarket?: Maybe<PredictionMarket>;
+  /** The ID of the prediction trader. */
+  traderId: Scalars['String']['output'];
+  /** The last update timestamp. */
+  updatedAt: Scalars['Int']['output'];
+};
+
+/** Response returned by `predictionTraderMarketsStats`. */
+export type PredictionTraderMarketsStatsConnection = {
+  __typename?: 'PredictionTraderMarketsStatsConnection';
+  /** Cursor for pagination. */
+  cursor?: Maybe<Scalars['String']['output']>;
+  /** The list of items. */
+  items: Array<PredictionTraderMarketStats>;
+};
+
+/** Input type of `predictionTraderMarketsStats`. */
+export type PredictionTraderMarketsStatsInput = {
+  /** Cursor for pagination. */
+  cursor?: InputMaybe<Scalars['String']['input']>;
+  /** Maximum number of results to return. */
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  /** Associated market IDs. */
+  marketIds?: InputMaybe<Array<Scalars['String']['input']>>;
+  /** The ID of the prediction trader. */
+  traderId: Scalars['String']['input'];
+};
+
+/** Per-outcome stats within a trader-market filter result. */
+export type PredictionTraderOutcomeFilterResult = {
+  __typename?: 'PredictionTraderOutcomeFilterResult';
+  /** The avg entry price ct. */
+  avgEntryPriceCT: Scalars['String']['output'];
+  /** The avg entry price usd. */
+  avgEntryPriceUsd: Scalars['String']['output'];
+  /** Buy volume in collateral token units. */
+  buyVolumeCT: Scalars['String']['output'];
+  /** Buy volume in shares. */
+  buyVolumeShares: Scalars['String']['output'];
+  /** Buy volume in USD. */
+  buyVolumeUsd: Scalars['String']['output'];
+  /** The number of buys. */
+  buys: Scalars['Int']['output'];
+  /** The cost basis ct. */
+  costBasisCT: Scalars['String']['output'];
+  /** The cost basis usd. */
+  costBasisUsd: Scalars['String']['output'];
+  /** The current position value in collateral token units. Returns 0 for closed/no-share positions; null when latest price data is unavailable for an open position. */
+  currentPositionValueCT?: Maybe<Scalars['String']['output']>;
+  /** The current position value in USD. Returns 0 for closed/no-share positions; null when latest price data is unavailable for an open position. */
+  currentPositionValueUsd?: Maybe<Scalars['String']['output']>;
+  /** The current outcome price in collateral token units. Null when latest price data is unavailable. */
+  currentPriceCT?: Maybe<Scalars['String']['output']>;
+  /** The current outcome price in USD. Null when latest price data is unavailable. */
+  currentPriceUsd?: Maybe<Scalars['String']['output']>;
+  /** The timestamp of the first trade. */
+  firstTradeTimestamp: Scalars['Int']['output'];
+  /** The is winning outcome. */
+  isWinningOutcome: Scalars['Boolean']['output'];
+  /** The timestamp of the last trade. */
+  lastTradeTimestamp: Scalars['Int']['output'];
+  /** The ID of the prediction outcome. */
+  outcomeId: Scalars['String']['output'];
+  /** The pnl status. */
+  pnlStatus: PredictionTraderMarketPnlStatus;
+  /** The realized pnl ct. */
+  realizedPnlCT: Scalars['String']['output'];
+  /** The realized pnl usd. */
+  realizedPnlUsd: Scalars['String']['output'];
+  /** Sell volume in collateral token units. */
+  sellVolumeCT: Scalars['String']['output'];
+  /** Sell volume in shares. */
+  sellVolumeShares: Scalars['String']['output'];
+  /** Sell volume in USD. */
+  sellVolumeUsd: Scalars['String']['output'];
+  /** The number of sells. */
+  sells: Scalars['Int']['output'];
+  /** The shares held. */
+  sharesHeld: Scalars['String']['output'];
+  /** The unrealized pnl in collateral token units. Returns 0 for closed/no-share positions; null when latest price data is unavailable for an open position. */
+  unrealizedPnlCT?: Maybe<Scalars['String']['output']>;
+  /** The unrealized pnl in USD. Returns 0 for closed/no-share positions; null when latest price data is unavailable for an open position. */
+  unrealizedPnlUsd?: Maybe<Scalars['String']['output']>;
+};
+
+/** Per-outcome stats for a trader within a specific market. */
+export type PredictionTraderOutcomeStats = {
+  __typename?: 'PredictionTraderOutcomeStats';
+  /** The avg entry price ct. */
+  avgEntryPriceCT: Scalars['String']['output'];
+  /** The avg entry price usd. */
+  avgEntryPriceUsd: Scalars['String']['output'];
+  /** Buy volume in collateral token units. */
+  buyVolumeCT: Scalars['String']['output'];
+  /** Buy volume in shares. */
+  buyVolumeShares: Scalars['String']['output'];
+  /** Buy volume in USD. */
+  buyVolumeUsd: Scalars['String']['output'];
+  /** The number of buys. */
+  buys: Scalars['Int']['output'];
+  /** The cost basis ct. */
+  costBasisCT: Scalars['String']['output'];
+  /** The cost basis usd. */
+  costBasisUsd: Scalars['String']['output'];
+  /** The timestamp of the first trade. */
+  firstTradeTimestamp: Scalars['Int']['output'];
+  /** The timestamp of the last trade. */
+  lastTradeTimestamp: Scalars['Int']['output'];
+  /** The ID of the prediction outcome. */
+  outcomeId: Scalars['String']['output'];
+  /** The pnl status. */
+  pnlStatus: PredictionTraderMarketPnlStatus;
+  /** The realized pnl ct. */
+  realizedPnlCT: Scalars['String']['output'];
+  /** The realized pnl usd. */
+  realizedPnlUsd: Scalars['String']['output'];
+  /** Sell volume in collateral token units. */
+  sellVolumeCT: Scalars['String']['output'];
+  /** Sell volume in shares. */
+  sellVolumeShares: Scalars['String']['output'];
+  /** Sell volume in USD. */
+  sellVolumeUsd: Scalars['String']['output'];
+  /** The number of sells. */
+  sells: Scalars['Int']['output'];
+  /** The shares held. */
+  sharesHeld: Scalars['String']['output'];
+};
+
+/** A ranking to apply when sorting prediction traders. */
+export type PredictionTraderRanking = {
+  /** The attribute to rank by. */
+  attribute: PredictionTraderRankingAttribute;
+  /** The sort direction. */
+  direction?: InputMaybe<RankingDirection>;
+};
+
+/** The attribute used to rank prediction traders. */
+export enum PredictionTraderRankingAttribute {
+  ActiveMarketsCount = 'ACTIVE_MARKETS_COUNT',
+  AverageProfitUsdPerTrade_1M = 'AVERAGE_PROFIT_USD_PER_TRADE_1M',
+  AverageProfitUsdPerTrade_1W = 'AVERAGE_PROFIT_USD_PER_TRADE_1W',
+  AverageProfitUsdPerTrade_12H = 'AVERAGE_PROFIT_USD_PER_TRADE_12H',
+  AverageProfitUsdPerTrade_24H = 'AVERAGE_PROFIT_USD_PER_TRADE_24H',
+  AverageSwapAmountUsd_1M = 'AVERAGE_SWAP_AMOUNT_USD_1M',
+  AverageSwapAmountUsd_1W = 'AVERAGE_SWAP_AMOUNT_USD_1W',
+  AverageSwapAmountUsd_12H = 'AVERAGE_SWAP_AMOUNT_USD_12H',
+  AverageSwapAmountUsd_24H = 'AVERAGE_SWAP_AMOUNT_USD_24H',
+  BiggestLossCt = 'BIGGEST_LOSS_CT',
+  BiggestLossUsd = 'BIGGEST_LOSS_USD',
+  BiggestWinCt = 'BIGGEST_WIN_CT',
+  BiggestWinUsd = 'BIGGEST_WIN_USD',
+  FirstTradeTimestamp = 'FIRST_TRADE_TIMESTAMP',
+  HeldTokenAcquisitionCostCt = 'HELD_TOKEN_ACQUISITION_COST_CT',
+  HeldTokenAcquisitionCostUsd = 'HELD_TOKEN_ACQUISITION_COST_USD',
+  LastTradeTimestamp = 'LAST_TRADE_TIMESTAMP',
+  Losses_1M = 'LOSSES_1M',
+  Losses_1W = 'LOSSES_1W',
+  Losses_12H = 'LOSSES_12H',
+  Losses_24H = 'LOSSES_24H',
+  PnlPerVolumeAll = 'PNL_PER_VOLUME_ALL',
+  ProfitPerTradeUsdAll = 'PROFIT_PER_TRADE_USD_ALL',
+  RealizedPnlChange_1M = 'REALIZED_PNL_CHANGE_1M',
+  RealizedPnlChange_1W = 'REALIZED_PNL_CHANGE_1W',
+  RealizedPnlChange_12H = 'REALIZED_PNL_CHANGE_12H',
+  RealizedPnlChange_24H = 'REALIZED_PNL_CHANGE_24H',
+  RealizedPnlUsd_1M = 'REALIZED_PNL_USD_1M',
+  RealizedPnlUsd_1W = 'REALIZED_PNL_USD_1W',
+  RealizedPnlUsd_12H = 'REALIZED_PNL_USD_12H',
+  RealizedPnlUsd_24H = 'REALIZED_PNL_USD_24H',
+  RealizedProfitPercentage_1M = 'REALIZED_PROFIT_PERCENTAGE_1M',
+  RealizedProfitPercentage_1W = 'REALIZED_PROFIT_PERCENTAGE_1W',
+  RealizedProfitPercentage_12H = 'REALIZED_PROFIT_PERCENTAGE_12H',
+  RealizedProfitPercentage_24H = 'REALIZED_PROFIT_PERCENTAGE_24H',
+  Timestamp = 'TIMESTAMP',
+  TotalProfitCtAll = 'TOTAL_PROFIT_CT_ALL',
+  TotalProfitUsdAll = 'TOTAL_PROFIT_USD_ALL',
+  TotalTradesAll = 'TOTAL_TRADES_ALL',
+  TotalVolumeCtAll = 'TOTAL_VOLUME_CT_ALL',
+  TotalVolumeUsdAll = 'TOTAL_VOLUME_USD_ALL',
+  Trades_1M = 'TRADES_1M',
+  Trades_1W = 'TRADES_1W',
+  Trades_12H = 'TRADES_12H',
+  Trades_24H = 'TRADES_24H',
+  UniqueMarkets_1M = 'UNIQUE_MARKETS_1M',
+  UniqueMarkets_1W = 'UNIQUE_MARKETS_1W',
+  UniqueMarkets_12H = 'UNIQUE_MARKETS_12H',
+  UniqueMarkets_24H = 'UNIQUE_MARKETS_24H',
+  VolumeChange_1M = 'VOLUME_CHANGE_1M',
+  VolumeChange_1W = 'VOLUME_CHANGE_1W',
+  VolumeChange_12H = 'VOLUME_CHANGE_12H',
+  VolumeChange_24H = 'VOLUME_CHANGE_24H',
+  VolumePerTradeUsdAll = 'VOLUME_PER_TRADE_USD_ALL',
+  VolumeUsd_1M = 'VOLUME_USD_1M',
+  VolumeUsd_1W = 'VOLUME_USD_1W',
+  VolumeUsd_12H = 'VOLUME_USD_12H',
+  VolumeUsd_24H = 'VOLUME_USD_24H',
+  Wins_1M = 'WINS_1M',
+  Wins_1W = 'WINS_1W',
+  Wins_12H = 'WINS_12H',
+  Wins_24H = 'WINS_24H',
+  WinRate_1M = 'WIN_RATE_1M',
+  WinRate_1W = 'WIN_RATE_1W',
+  WinRate_12H = 'WIN_RATE_12H',
+  WinRate_24H = 'WIN_RATE_24H'
+}
+
+/** The duration used to request windowed trader stats. */
+export enum PredictionTraderStatsDuration {
+  Day1 = 'day1',
+  Day30 = 'day30',
+  Hour1 = 'hour1',
+  Hour4 = 'hour4',
+  Hour12 = 'hour12',
+  Week1 = 'week1'
+}
+
+/** Input type of `predictionTraders`. */
+export type PredictionTradersInput = {
+  /** The trader ids. */
+  traderIds: Array<Scalars['String']['input']>;
+};
+
+/** A paginated list of prediction trades. */
+export type PredictionTradesConnection = {
+  __typename?: 'PredictionTradesConnection';
+  /** Cursor for pagination. */
+  cursor?: Maybe<Scalars['String']['output']>;
+  /** The list of items. */
+  items: Array<PredictionTrade>;
+};
+
+/** Input type of `predictionTrades`. */
+export type PredictionTradesInput = {
+  /** Cursor for pagination. */
+  cursor?: InputMaybe<Scalars['String']['input']>;
+  /** The ID of the prediction event. */
+  eventId?: InputMaybe<Scalars['String']['input']>;
+  /** Maximum number of results to return. */
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  /** The ID of the prediction market. */
+  marketId?: InputMaybe<Scalars['String']['input']>;
+  /** The ID of the prediction trader. */
+  traderId?: InputMaybe<Scalars['String']['input']>;
+};
 
 /** Real-time or historical prices for a token. */
 export type Price = {
@@ -6487,6 +10711,28 @@ export type PriceEventWebhookConditionInput = {
   tokenAddress: StringEqualsConditionInput;
   /** The volume conditions to listen for. */
   volumeUsd?: InputMaybe<ComparisonOperatorInput>;
+};
+
+/** OHLC (Open/High/Low/Close) values for prices. */
+export type PriceOhlc = {
+  __typename?: 'PriceOHLC';
+  /** Closing price. */
+  close: PriceValuePair;
+  /** High price. */
+  high: PriceValuePair;
+  /** Low price. */
+  low: PriceValuePair;
+  /** Opening price. */
+  open: PriceValuePair;
+};
+
+/** A price value pair containing both USD and collateral token prices. */
+export type PriceValuePair = {
+  __typename?: 'PriceValuePair';
+  /** Price in collateral token units. */
+  ct: Scalars['String']['output'];
+  /** Price in USD. */
+  usd: Scalars['String']['output'];
 };
 
 /** An Echelon Prime Pool. */
@@ -6979,6 +11225,28 @@ export enum PublishingType {
   Single = 'SINGLE'
 }
 
+/** Cashback fee data for Pump AMM swaps. */
+export type PumpAmmCashbackFeeData = {
+  __typename?: 'PumpAmmCashbackFeeData';
+  /** Cashback amount in lamports. */
+  cashbackAmountLamports: Scalars['String']['output'];
+  /** Cashback fee rate in basis points. */
+  cashbackFeeBps: Scalars['Int']['output'];
+  /** Discriminant for the SupplementalFeeData union. */
+  type: Scalars['String']['output'];
+};
+
+/** Cashback fee data for Pump V1 swaps. */
+export type PumpCashbackFeeData = {
+  __typename?: 'PumpCashbackFeeData';
+  /** Cashback amount in lamports. */
+  cashbackAmountLamports: Scalars['String']['output'];
+  /** Cashback fee rate in basis points. */
+  cashbackFeeBps: Scalars['Int']['output'];
+  /** Discriminant for the SupplementalFeeData union. */
+  type: Scalars['String']['output'];
+};
+
 export type PumpData = {
   __typename?: 'PumpData';
   /** Creator from create instruction data */
@@ -6998,8 +11266,16 @@ export type Query = {
   blocks: Array<Block>;
   /** Returns a URL for a pair chart. */
   chartUrls?: Maybe<ChartUrlsResponse>;
+  /** Returns windowed and all-time stats for a prediction event. */
+  detailedPredictionEventStats?: Maybe<DetailedPredictionEventStats>;
+  /** Returns windowed and all-time stats for a prediction market. */
+  detailedPredictionMarketStats?: Maybe<DetailedPredictionMarketStats>;
+  /** Returns windowed and all-time stats for a prediction trader. */
+  detailedPredictionTraderStats?: Maybe<DetailedPredictionTraderStats>;
   /** Returns detailed stats for a wallet. */
   detailedWalletStats?: Maybe<DetailedWalletStats>;
+  /** Filters prediction markets within a single event and returns structured classification metadata for each market. Use this instead of `filterPredictionMarkets` when you need entrant/segment/ladder details (country codes, period+stat grouping, parsed numeric/date rungs) without re-parsing labels client-side. */
+  eventScopedFilterPredictionMarkets?: Maybe<EventScopedPredictionMarketFilterConnection>;
   /** Returns a list of exchanges based on a variety of filters. */
   filterExchanges?: Maybe<ExchangeFilterConnection>;
   /**
@@ -7029,9 +11305,17 @@ export type Query = {
   filterNftPools?: Maybe<NftPoolFilterConnection>;
   /** Returns a list of pairs based on a variety of filters. */
   filterPairs?: Maybe<PairFilterConnection>;
+  /** Filters prediction events using optional text, IDs, and ranking criteria. */
+  filterPredictionEvents?: Maybe<PredictionEventFilterConnection>;
+  /** Filters prediction markets using optional text, IDs, event constraints, and ranking criteria. */
+  filterPredictionMarkets?: Maybe<PredictionMarketFilterConnection>;
+  /** Filters trader-market records using trader, market, event, and ranking criteria. */
+  filterPredictionTraderMarkets?: Maybe<PredictionTraderMarketFilterConnection>;
+  /** Filters prediction traders using optional text, IDs, and ranking criteria. */
+  filterPredictionTraders?: Maybe<PredictionTraderFilterConnection>;
   /** Returns a list of wallets with stats narrowed down to a specific token. */
   filterTokenWallets: TokenWalletFilterConnection;
-  /** Returns a list of tokens based on a variety of filters. */
+  /** Discover, screen, and rank tokens across every supported network using 100+ on-chain signals: trading activity, liquidity, holder behavior, fee economics, and launchpad lifecycle. */
   filterTokens?: Maybe<TokenFilterConnection>;
   /** Returns a list of wallets based on a variety of filters. */
   filterWallets: WalletFilterConnection;
@@ -7059,11 +11343,6 @@ export type Query = {
   getEventLabels?: Maybe<EventLabelConnection>;
   /** Returns a list of decentralized exchange metadata. */
   getExchanges: Array<Exchange>;
-  /**
-   * Returns new tokens listed over the last three days.
-   * @deprecated This query is longer supported. Instead use filterPairs with sort order on createdAt DESC
-   */
-  getLatestPairs?: Maybe<LatestPairConnection>;
   /**
    * Returns a list of latest tokens.
    * @deprecated This query is no longer supported. Use `filterTokens` with a createdAt: DESC filter instead.
@@ -7154,11 +11433,11 @@ export type Query = {
   getPrimePools?: Maybe<PrimePoolConnection>;
   /** Returns charting metadata for a given pair. Used for implementing a Trading View datafeed. */
   getSymbol?: Maybe<SymbolResponse>;
-  /** Returns bar chart data to track price changes over time. */
+  /** Returns aggregated bar chart data to track price changes over time. */
   getTokenBars?: Maybe<TokenBarsResponse>;
   /** Returns transactions for a pair. */
   getTokenEvents?: Maybe<EventConnection>;
-  /** Returns a list of token events for a given maker across all pairs. */
+  /** Returns a list of token events for a given maker (wallet address). */
   getTokenEventsForMaker?: Maybe<MakerEventConnection>;
   /** Returns real-time or historical prices for a list of tokens, fetched in batches. */
   getTokenPrices?: Maybe<Array<Maybe<Price>>>;
@@ -7188,6 +11467,32 @@ export type Query = {
   nftHolders: NftHoldersResponse;
   /** Returns metadata for a pair of tokens. */
   pairMetadata: PairMetadata;
+  /** Returns available prediction categories and nested subcategories. */
+  predictionCategories: Array<PredictionCategory>;
+  /** Returns bar data for a prediction event. */
+  predictionEventBars?: Maybe<PredictionEventBarsResponse>;
+  /** Returns bar data for top markets inside a prediction event. */
+  predictionEventTopMarketsBars?: Maybe<PredictionEventTopMarketsBarsResponse>;
+  /** Returns OHLC-style bar data for a prediction market. */
+  predictionMarketBars?: Maybe<PredictionMarketBarsResponse>;
+  /** Returns price data for a prediction market at a specific timestamp or latest. */
+  predictionMarketPrice?: Maybe<PredictionMarketPrice>;
+  /** Returns prediction markets by ID. */
+  predictionMarkets: Array<PredictionMarket>;
+  /** Returns live order books for a set of prediction outcomes, fetched from the venue's CLOB. Polymarket and Kalshi; outcomes from other venues will return null. Cached for up to 10s. */
+  predictionOutcomeOrderBooks: Array<Maybe<PredictionOutcomeOrderBook>>;
+  /** Returns token holder balances for a prediction market. */
+  predictionTokenHolders?: Maybe<PredictionTokenHoldersConnection>;
+  /** Returns bar data for a prediction trader over a time range. */
+  predictionTraderBars: PredictionTraderBarsResponse;
+  /** Returns all prediction token holdings for a specific trader. */
+  predictionTraderHoldings?: Maybe<PredictionTraderHoldingsConnection>;
+  /** Returns per-market performance stats for a specific trader. */
+  predictionTraderMarketsStats: PredictionTraderMarketsStatsConnection;
+  /** Returns prediction traders by ID. */
+  predictionTraders: Array<PredictionTrader>;
+  /** Returns prediction trades with cursor-based pagination. */
+  predictionTrades?: Maybe<PredictionTradesConnection>;
   /**
    * Returns a list of NFT collections matching a given query string.
    * @deprecated NFT data coverage will be removed on March 31, 2026
@@ -7195,7 +11500,10 @@ export type Query = {
   searchNfts?: Maybe<NftSearchResponse>;
   /** Returns a single token by its address & network id. */
   token: EnhancedToken;
-  /** Returns a list of token lifecycle events. */
+  /**
+   * Returns a list of token lifecycle events.
+   * @deprecated Token lifecycle events are deprecated and support will be removed on July 15, 2026.
+   */
   tokenLifecycleEvents?: Maybe<TokenLifecycleEventConnection>;
   /** Returns a list of token simple chart data (sparklines) for the given tokens. */
   tokenSparklines: Array<TokenSparkline>;
@@ -7209,6 +11517,8 @@ export type Query = {
   walletAggregateBackfillState: WalletAggregateBackfillStateResponse;
   /** Returns a chart of a wallet's activity. */
   walletChart?: Maybe<WalletChartResponse>;
+  /** Returns the full vocabulary of wallet label types and their metadata. */
+  walletLabelTypes: Array<WalletLabelType>;
   /**
    * Returns list of NFT assets held by a given wallet for a single collection.
    * @deprecated NFT data coverage will be removed on March 31, 2026
@@ -7242,8 +11552,35 @@ export type QueryChartUrlsArgs = {
 };
 
 
+export type QueryDetailedPredictionEventStatsArgs = {
+  input: DetailedPredictionEventStatsInput;
+};
+
+
+export type QueryDetailedPredictionMarketStatsArgs = {
+  input: DetailedPredictionMarketStatsInput;
+};
+
+
+export type QueryDetailedPredictionTraderStatsArgs = {
+  input: DetailedPredictionTraderStatsInput;
+};
+
+
 export type QueryDetailedWalletStatsArgs = {
   input: DetailedWalletStatsInput;
+};
+
+
+export type QueryEventScopedFilterPredictionMarketsArgs = {
+  eventId: Scalars['String']['input'];
+  excludeMarketIds?: InputMaybe<Array<Scalars['String']['input']>>;
+  filters?: InputMaybe<PredictionMarketFilters>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  marketIds?: InputMaybe<Array<Scalars['String']['input']>>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+  phrase?: InputMaybe<Scalars['String']['input']>;
+  rankings?: InputMaybe<Array<PredictionMarketRanking>>;
 };
 
 
@@ -7311,6 +11648,57 @@ export type QueryFilterPairsArgs = {
 };
 
 
+export type QueryFilterPredictionEventsArgs = {
+  eventIds?: InputMaybe<Array<Scalars['String']['input']>>;
+  excludeEventIds?: InputMaybe<Array<Scalars['String']['input']>>;
+  filters?: InputMaybe<PredictionEventFilters>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  marketSort?: InputMaybe<PredictionEventMarketSort>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+  phrase?: InputMaybe<Scalars['String']['input']>;
+  rankings?: InputMaybe<Array<PredictionEventRanking>>;
+};
+
+
+export type QueryFilterPredictionMarketsArgs = {
+  eventIds?: InputMaybe<Array<Scalars['String']['input']>>;
+  excludeEventIds?: InputMaybe<Array<Scalars['String']['input']>>;
+  excludeMarketIds?: InputMaybe<Array<Scalars['String']['input']>>;
+  filters?: InputMaybe<PredictionMarketFilters>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  marketIds?: InputMaybe<Array<Scalars['String']['input']>>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+  phrase?: InputMaybe<Scalars['String']['input']>;
+  rankings?: InputMaybe<Array<PredictionMarketRanking>>;
+};
+
+
+export type QueryFilterPredictionTraderMarketsArgs = {
+  eventIds?: InputMaybe<Array<Scalars['String']['input']>>;
+  excludeEventIds?: InputMaybe<Array<Scalars['String']['input']>>;
+  excludeMarketIds?: InputMaybe<Array<Scalars['String']['input']>>;
+  excludeTraderIds?: InputMaybe<Array<Scalars['String']['input']>>;
+  filters?: InputMaybe<PredictionTraderMarketFilters>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  marketIds?: InputMaybe<Array<Scalars['String']['input']>>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+  phrase?: InputMaybe<Scalars['String']['input']>;
+  rankings?: InputMaybe<Array<PredictionTraderMarketRanking>>;
+  traderIds?: InputMaybe<Array<Scalars['String']['input']>>;
+};
+
+
+export type QueryFilterPredictionTradersArgs = {
+  excludeTraderIds?: InputMaybe<Array<Scalars['String']['input']>>;
+  filters?: InputMaybe<PredictionTraderFilters>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+  phrase?: InputMaybe<Scalars['String']['input']>;
+  rankings?: InputMaybe<Array<PredictionTraderRanking>>;
+  traderIds?: InputMaybe<Array<Scalars['String']['input']>>;
+};
+
+
 export type QueryFilterTokenWalletsArgs = {
   input: FilterTokenWalletsInput;
 };
@@ -7325,6 +11713,7 @@ export type QueryFilterTokensArgs = {
   rankings?: InputMaybe<Array<InputMaybe<TokenRanking>>>;
   statsType?: InputMaybe<TokenPairStatisticsType>;
   tokens?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  useAggregatedStats?: InputMaybe<Scalars['Boolean']['input']>;
 };
 
 
@@ -7409,15 +11798,6 @@ export type QueryGetEventLabelsArgs = {
 
 export type QueryGetExchangesArgs = {
   showNameless?: InputMaybe<Scalars['Boolean']['input']>;
-};
-
-
-export type QueryGetLatestPairsArgs = {
-  cursor?: InputMaybe<Scalars['String']['input']>;
-  exchangeFilter?: InputMaybe<Array<Scalars['String']['input']>>;
-  limit?: InputMaybe<Scalars['Int']['input']>;
-  minLiquidityFilter?: InputMaybe<Scalars['Int']['input']>;
-  networkFilter?: InputMaybe<Array<Scalars['Int']['input']>>;
 };
 
 
@@ -7685,6 +12065,66 @@ export type QueryPairMetadataArgs = {
 };
 
 
+export type QueryPredictionEventBarsArgs = {
+  input: PredictionEventBarsInput;
+};
+
+
+export type QueryPredictionEventTopMarketsBarsArgs = {
+  input: PredictionEventTopMarketsBarsInput;
+};
+
+
+export type QueryPredictionMarketBarsArgs = {
+  input: PredictionMarketBarsInput;
+};
+
+
+export type QueryPredictionMarketPriceArgs = {
+  input: PredictionMarketPriceInput;
+};
+
+
+export type QueryPredictionMarketsArgs = {
+  input: PredictionMarketsInput;
+};
+
+
+export type QueryPredictionOutcomeOrderBooksArgs = {
+  outcomeIds: Array<Scalars['String']['input']>;
+};
+
+
+export type QueryPredictionTokenHoldersArgs = {
+  input: PredictionTokenHoldersInput;
+};
+
+
+export type QueryPredictionTraderBarsArgs = {
+  input: PredictionTraderBarsInput;
+};
+
+
+export type QueryPredictionTraderHoldingsArgs = {
+  input: PredictionTraderHoldingsInput;
+};
+
+
+export type QueryPredictionTraderMarketsStatsArgs = {
+  input: PredictionTraderMarketsStatsInput;
+};
+
+
+export type QueryPredictionTradersArgs = {
+  input: PredictionTradersInput;
+};
+
+
+export type QueryPredictionTradesArgs = {
+  input: PredictionTradesInput;
+};
+
+
 export type QuerySearchNftsArgs = {
   filterWashTrading?: InputMaybe<Scalars['Boolean']['input']>;
   include?: InputMaybe<Array<NftSearchable>>;
@@ -7787,8 +12227,6 @@ export type RawTransactionWebhookCondition = {
   __typename?: 'RawTransactionWebhookCondition';
   /** The from address to listen for. */
   from?: Maybe<StringEqualsCondition>;
-  /** Do not trigger the webhook if the raw transaction is handled by the NftEvent webhook. */
-  ignoreNftEvents?: Maybe<Scalars['Boolean']['output']>;
   /** Do not trigger the webhook if the raw transaction is handled by the TokenPairEvent webhook. */
   ignoreTokenPairEvents?: Maybe<Scalars['Boolean']['output']>;
   /** Trigger the webhook if the contains or doesn't contain the specified string. */
@@ -7805,8 +12243,6 @@ export type RawTransactionWebhookCondition = {
 export type RawTransactionWebhookConditionInput = {
   /** The from address to listen for. */
   from?: InputMaybe<StringEqualsConditionInput>;
-  /** Do not trigger the webhook if the raw transaction is handled by the NftEvent webhook. */
-  ignoreNftEvents?: InputMaybe<Scalars['Boolean']['input']>;
   /** Do not trigger the webhook if the raw transaction is handled by the TokenPairEvent webhook. */
   ignoreTokenPairEvents?: InputMaybe<Scalars['Boolean']['input']>;
   /** Trigger the webhook if the input contains or doesn't contain the specified string. */
@@ -7911,6 +12347,92 @@ export type SandwichedLabelData = {
   token1DrainedAmount?: Maybe<Scalars['String']['output']>;
 };
 
+/** Metadata for a prediction event returned in search results. */
+export type SearchPredictionEvent = {
+  __typename?: 'SearchPredictionEvent';
+  /** The timestamp when this entity closes. */
+  closesAt?: Maybe<Scalars['Int']['output']>;
+  /** The creation timestamp. */
+  createdAt: Scalars['Int']['output'];
+  /** The description. */
+  description?: Maybe<Scalars['String']['output']>;
+  /** The exchange contract address. */
+  exchangeAddress?: Maybe<Scalars['String']['output']>;
+  /** The unique identifier. */
+  id: Scalars['String']['output'];
+  /** URL of the thumbnail image. */
+  imageThumbUrl?: Maybe<Scalars['String']['output']>;
+  /** The network ID. */
+  networkId?: Maybe<Scalars['Int']['output']>;
+  /** The timestamp when this entity opens. */
+  opensAt: Scalars['Int']['output'];
+  /** The prediction protocol. */
+  protocol: PredictionProtocol;
+  /** The question or title. */
+  question: Scalars['String']['output'];
+  /** The actual resolution timestamp. */
+  resolvedAt?: Maybe<Scalars['Int']['output']>;
+  /** The expected resolution timestamp. */
+  resolvesAt?: Maybe<Scalars['Int']['output']>;
+  /** The URL slug. */
+  slug: Scalars['String']['output'];
+  /** The current status. */
+  status: PredictionEventStatus;
+  /** Tags associated with this entity. */
+  tags: Array<Scalars['String']['output']>;
+  /** The venue-specific event ID. */
+  venueEventId: Scalars['String']['output'];
+  /** The venue-specific series ID. */
+  venueSeriesId?: Maybe<Scalars['String']['output']>;
+  /** The venue url. */
+  venueUrl: Scalars['String']['output'];
+};
+
+/** Metadata for a prediction market returned in search results. */
+export type SearchPredictionMarket = {
+  __typename?: 'SearchPredictionMarket';
+  /** The timestamp when this entity closes. */
+  closesAt?: Maybe<Scalars['Int']['output']>;
+  /** The collateral backing this market. */
+  collateral: Scalars['String']['output'];
+  /** The creation timestamp. */
+  createdAt: Scalars['Int']['output'];
+  /** The ID of the prediction event. */
+  eventId: Scalars['String']['output'];
+  /** The exchange contract address. */
+  exchangeAddress?: Maybe<Scalars['String']['output']>;
+  /** The unique identifier. */
+  id: Scalars['String']['output'];
+  /** URL of the thumbnail image. */
+  imageThumbUrl?: Maybe<Scalars['String']['output']>;
+  /** The display label. */
+  label?: Maybe<Scalars['String']['output']>;
+  /** The network ID. */
+  networkId?: Maybe<Scalars['Int']['output']>;
+  /** The timestamp when this entity opens. */
+  opensAt?: Maybe<Scalars['Int']['output']>;
+  /** The prediction protocol. */
+  protocol: PredictionProtocol;
+  /** The question or title. */
+  question?: Maybe<Scalars['String']['output']>;
+  /** The actual resolution timestamp. */
+  resolvedAt?: Maybe<Scalars['Int']['output']>;
+  /** The expected resolution timestamp. */
+  resolvesAt?: Maybe<Scalars['Int']['output']>;
+  /** The current status. */
+  status: PredictionEventStatus;
+  /** A best-effort display label for the market: the market `label` when present and meaningful, otherwise the `question`. If the event name appears inside the label it is stripped out. */
+  suggestedLabel?: Maybe<Scalars['String']['output']>;
+  /** Tags associated with this entity. */
+  tags?: Maybe<Array<Scalars['String']['output']>>;
+  /** The venue-specific event ID. */
+  venueEventId?: Maybe<Scalars['String']['output']>;
+  /** The venue-specific market ID. */
+  venueMarketId: Scalars['String']['output'];
+  /** The venue-specific market slug. */
+  venueMarketSlug?: Maybe<Scalars['String']['output']>;
+};
+
 /** Community gathered links for the socials of this contract. */
 export type SocialLinks = {
   __typename?: 'SocialLinks';
@@ -7967,6 +12489,73 @@ export type SparklineValue = {
   timestamp: Scalars['Int']['output'];
   value: Scalars['Float']['output'];
 };
+
+/** Sports-domain enrichment for an event (game). */
+export type SportsEventEnrichedMetadata = {
+  __typename?: 'SportsEventEnrichedMetadata';
+  /** Decomposed venue ticker (parsed components from the venue's native event identifier). Useful for cross-venue matching when canonical league/teams fields don't disambiguate. */
+  decomposedVenueTicker?: Maybe<DecomposedVenueTicker>;
+  /** Game-start date in UTC ("YYYY-MM-DD"). Derived from `gameStartTime` when present. */
+  gameStartDate?: Maybe<Scalars['String']['output']>;
+  /** Game-start clock value as canonical UTC ISO-8601. */
+  gameStartTime?: Maybe<Scalars['String']['output']>;
+  /** Game-start as Unix seconds (UTC). */
+  gameStartTimeSeconds?: Maybe<Scalars['Int']['output']>;
+  /** Timezone discriminator for `gameStartTime` / `gameStartDate`. Always UTC for any record produced after the ET→UTC normalisation rollout. */
+  gameStartTimezone?: Maybe<SportsTimezone>;
+  /** Soft-normalised league/sport identifier (e.g. NBA, NFL, EPL). Free string to tolerate new venues; well-known values match the canonical set. */
+  league?: Maybe<Scalars['String']['output']>;
+  /** Teams participating in the game, when known. Null when the venue does not expose teams. */
+  teams?: Maybe<Array<SportsTeam>>;
+};
+
+/** Sports-domain enrichment for a market within an event. */
+export type SportsMarketEnrichedMetadata = {
+  __typename?: 'SportsMarketEnrichedMetadata';
+  /** Game-start date in UTC ("YYYY-MM-DD"). Derived from `gameStartTime` when present. */
+  gameStartDate?: Maybe<Scalars['String']['output']>;
+  /** Game-start clock value as canonical UTC ISO-8601. */
+  gameStartTime?: Maybe<Scalars['String']['output']>;
+  /** Game-start as Unix seconds (UTC). */
+  gameStartTimeSeconds?: Maybe<Scalars['Int']['output']>;
+  /** Timezone discriminator for `gameStartTime` / `gameStartDate`. Always UTC for any record produced after the ET→UTC normalisation rollout. */
+  gameStartTimezone?: Maybe<SportsTimezone>;
+  /** Soft-normalised league identifier (mirrors the parent event). */
+  league?: Maybe<Scalars['String']['output']>;
+  /** Market template slug (e.g. "moneyline", "spreads", "totals", "ufc_method_of_victory"). Free string — list grows as venues add templates. */
+  sportsMarketType?: Maybe<Scalars['String']['output']>;
+  /** Teams referenced by this market, when known. */
+  teams?: Maybe<Array<SportsTeam>>;
+};
+
+/** Cross-venue sports team identifier. Only `abbreviation` is required; other fields populated when the venue exposes them. Match teams across venues using `abbreviation ∪ altAbbreviations`. */
+export type SportsTeam = {
+  __typename?: 'SportsTeam';
+  /** Lowercased venue-canonical abbreviation. */
+  abbreviation: Scalars['String']['output'];
+  /** Display alias. */
+  alias?: Maybe<Scalars['String']['output']>;
+  /** Known alternate forms for the same team (rebrands, relocations, 2-vs-3-letter conventions). Excludes `abbreviation`. */
+  altAbbreviations?: Maybe<Array<Scalars['String']['output']>>;
+  /** Brand colour. */
+  color?: Maybe<Scalars['String']['output']>;
+  /** Whether this team is the home team in the event. */
+  isHome?: Maybe<Scalars['Boolean']['output']>;
+  /** Soft-normalised league for this team. */
+  league?: Maybe<Scalars['String']['output']>;
+  /** Logo URL. */
+  logo?: Maybe<Scalars['String']['output']>;
+  /** Display name. */
+  name?: Maybe<Scalars['String']['output']>;
+  /** Provider-side identifier (e.g. Polymarket gamma id). */
+  providerId?: Maybe<Scalars['Int']['output']>;
+};
+
+/** How to interpret companion date/time fields. */
+export enum SportsTimezone {
+  /** UTC. `gameStartTime` is canonical ISO-8601; `gameStartTimeSeconds` populated. */
+  Utc = 'UTC'
+}
 
 export type StarknetNetworkConfig = {
   __typename?: 'StarknetNetworkConfig';
@@ -8042,12 +12631,17 @@ export type StringFilter = {
   lte?: InputMaybe<Scalars['String']['input']>;
 };
 
+/** Live-streamed prediction data subscriptions for trades, stats, and bar updates. */
 export type Subscription = {
   __typename?: 'Subscription';
   /** Live-streamed balance updates for a given wallet. */
   onBalanceUpdated: Balance;
-  /** Live-streamed bar chart data to track price changes over time. */
+  /** Live-streamed bar chart data to track price changes over time. Processed updates are projected into `aggregates` using the confirmed bar shape. */
   onBarsUpdated?: Maybe<OnBarsUpdatedResponse>;
+  /** Streams updated detailed stats for a specific prediction event. */
+  onDetailedPredictionEventStatsUpdated?: Maybe<DetailedSubscriptionPredictionEventStats>;
+  /** Streams updated detailed stats for a specific prediction market. */
+  onDetailedPredictionMarketStatsUpdated?: Maybe<DetailedSubscriptionPredictionMarketStats>;
   /** Live-streamed bucketed stats for a given token within a pair. */
   onDetailedStatsUpdated?: Maybe<DetailedStats>;
   /** Live-streamed bucketed stats for a given token. */
@@ -8058,13 +12652,10 @@ export type Subscription = {
   onEventsCreated?: Maybe<AddEventsOutput>;
   /** Live-streamed transactions for a maker. */
   onEventsCreatedByMaker?: Maybe<AddEventsByMakerOutput>;
+  /** Live-streamed filter token updates for the current `filterTokens` result set. */
+  onFilterTokensUpdated?: Maybe<FilterTokenUpdates>;
   /** Live-streamed list of wallets that hold a given token. Also has the unique count of holders for that token. */
   onHoldersUpdated?: Maybe<HoldersUpdate>;
-  /**
-   * Live-streamed updates for newly listed pairs.
-   * @deprecated No longer supported
-   */
-  onLatestPairUpdated?: Maybe<LatestPair>;
   /**
    * Live-streamed updates for newly listed tokens.
    * @deprecated No longer supported
@@ -8091,76 +12682,127 @@ export type Subscription = {
   onNftPoolEventsCreated?: Maybe<AddNftPoolEventsOutput>;
   /** Live-streamed stat updates for a given token within a pair. */
   onPairMetadataUpdated?: Maybe<PairMetadata>;
+  /** Live-streamed bar chart data to track price changes over time for a prediction event. */
+  onPredictionEventBarsUpdated?: Maybe<OnPredictionEventBarsUpdatedResponse>;
+  /** Live-streamed bar chart data to track price changes over time for a prediction market. */
+  onPredictionMarketBarsUpdated?: Maybe<OnPredictionMarketBarsUpdatedResponse>;
+  /** Streams new prediction trades as they are ingested. */
+  onPredictionTradesCreated?: Maybe<AddPredictionTradeOutput>;
   /** Live-streamed price updates for a token. */
   onPriceUpdated?: Maybe<Price>;
   /** Live-streamed price updates for multiple tokens. */
   onPricesUpdated: Price;
-  /** Live-streamed bar chart data to track price changes over time for a token. */
+  /** Live-streamed aggregate bar chart data to track price changes over time for a token. */
   onTokenBarsUpdated?: Maybe<OnTokenBarsUpdatedResponse>;
   /** Live-streamed events for a given token across all it's pools */
   onTokenEventsCreated: AddTokenEventsOutput;
-  /** Live-streamed token lifecycle events (mints and burns). */
+  /**
+   * Live-streamed token lifecycle events (mints and burns).
+   * @deprecated Token lifecycle events are deprecated and support will be removed on July 15, 2026.
+   */
   onTokenLifecycleEventsCreated: AddTokenLifecycleEventsOutput;
-  /** Unconfirmed live-streamed bar chart data to track price changes over time. (Solana only) */
+  /**
+   * Deprecated unconfirmed live-streamed bar chart data to track price changes over time. Use `onBarsUpdated` instead. (Solana only)
+   * @deprecated Use onBarsUpdated instead
+   */
   onUnconfirmedBarsUpdated?: Maybe<OnUnconfirmedBarsUpdated>;
-  /** Live-streamed unconfirmed transactions for a token. (Solana only) */
+  /**
+   * Deprecated unconfirmed live-streamed transactions for a token. Use `onEventsCreated` instead. (Solana only)
+   * @deprecated Use onEventsCreated instead
+   */
   onUnconfirmedEventsCreated?: Maybe<AddUnconfirmedEventsOutput>;
-  /** Live-streamed unconfirmed transactions for a maker. (Solana only) */
+  /**
+   * Deprecated unconfirmed live-streamed transactions for a maker. Use `onEventsCreatedByMaker` instead. (Solana only)
+   * @deprecated Use onEventsCreatedByMaker instead
+   */
   onUnconfirmedEventsCreatedByMaker?: Maybe<AddUnconfirmedEventsByMakerOutput>;
 };
 
 
+/** Live-streamed prediction data subscriptions for trades, stats, and bar updates. */
 export type SubscriptionOnBalanceUpdatedArgs = {
   walletAddress: Scalars['String']['input'];
 };
 
 
+/** Live-streamed prediction data subscriptions for trades, stats, and bar updates. */
 export type SubscriptionOnBarsUpdatedArgs = {
+  commitmentLevel?: InputMaybe<Array<BarCommitmentLevel>>;
   pairId?: InputMaybe<Scalars['String']['input']>;
   quoteToken?: InputMaybe<QuoteToken>;
 };
 
 
+/** Live-streamed prediction data subscriptions for trades, stats, and bar updates. */
+export type SubscriptionOnDetailedPredictionEventStatsUpdatedArgs = {
+  eventId: Scalars['String']['input'];
+};
+
+
+/** Live-streamed prediction data subscriptions for trades, stats, and bar updates. */
+export type SubscriptionOnDetailedPredictionMarketStatsUpdatedArgs = {
+  marketId: Scalars['String']['input'];
+};
+
+
+/** Live-streamed prediction data subscriptions for trades, stats, and bar updates. */
 export type SubscriptionOnDetailedStatsUpdatedArgs = {
   pairId?: InputMaybe<Scalars['String']['input']>;
   tokenOfInterest?: InputMaybe<TokenOfInterest>;
 };
 
 
+/** Live-streamed prediction data subscriptions for trades, stats, and bar updates. */
 export type SubscriptionOnDetailedTokenStatsUpdatedArgs = {
   tokenId?: InputMaybe<Scalars['String']['input']>;
 };
 
 
+/** Live-streamed prediction data subscriptions for trades, stats, and bar updates. */
 export type SubscriptionOnEventLabelCreatedArgs = {
   id?: InputMaybe<Scalars['String']['input']>;
 };
 
 
+/** Live-streamed prediction data subscriptions for trades, stats, and bar updates. */
 export type SubscriptionOnEventsCreatedArgs = {
   address?: InputMaybe<Scalars['String']['input']>;
+  commitmentLevel?: InputMaybe<Array<EventCommitmentLevel>>;
   id?: InputMaybe<Scalars['String']['input']>;
   networkId?: InputMaybe<Scalars['Int']['input']>;
   quoteToken?: InputMaybe<QuoteToken>;
 };
 
 
+/** Live-streamed prediction data subscriptions for trades, stats, and bar updates. */
 export type SubscriptionOnEventsCreatedByMakerArgs = {
+  commitmentLevel?: InputMaybe<Array<EventCommitmentLevel>>;
   input: OnEventsCreatedByMakerInput;
 };
 
 
+/** Live-streamed prediction data subscriptions for trades, stats, and bar updates. */
+export type SubscriptionOnFilterTokensUpdatedArgs = {
+  excludeTokens?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  filters?: InputMaybe<TokenFilters>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+  phrase?: InputMaybe<Scalars['String']['input']>;
+  rankings?: InputMaybe<Array<InputMaybe<TokenRanking>>>;
+  statsType?: InputMaybe<TokenPairStatisticsType>;
+  tokens?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  updatePeriod?: InputMaybe<Scalars['Int']['input']>;
+  useAggregatedStats?: InputMaybe<Scalars['Boolean']['input']>;
+};
+
+
+/** Live-streamed prediction data subscriptions for trades, stats, and bar updates. */
 export type SubscriptionOnHoldersUpdatedArgs = {
   tokenId: Scalars['String']['input'];
 };
 
 
-export type SubscriptionOnLatestPairUpdatedArgs = {
-  id?: InputMaybe<Scalars['String']['input']>;
-  networkId?: InputMaybe<Scalars['Int']['input']>;
-};
-
-
+/** Live-streamed prediction data subscriptions for trades, stats, and bar updates. */
 export type SubscriptionOnLatestTokensArgs = {
   id?: InputMaybe<Scalars['String']['input']>;
   networkId?: InputMaybe<Scalars['Int']['input']>;
@@ -8168,16 +12810,19 @@ export type SubscriptionOnLatestTokensArgs = {
 };
 
 
+/** Live-streamed prediction data subscriptions for trades, stats, and bar updates. */
 export type SubscriptionOnLaunchpadTokenEventArgs = {
   input?: InputMaybe<OnLaunchpadTokenEventInput>;
 };
 
 
+/** Live-streamed prediction data subscriptions for trades, stats, and bar updates. */
 export type SubscriptionOnLaunchpadTokenEventBatchArgs = {
   input?: InputMaybe<OnLaunchpadTokenEventBatchInput>;
 };
 
 
+/** Live-streamed prediction data subscriptions for trades, stats, and bar updates. */
 export type SubscriptionOnNftAssetsCreatedArgs = {
   address?: InputMaybe<Scalars['String']['input']>;
   networkId?: InputMaybe<Scalars['Int']['input']>;
@@ -8185,12 +12830,14 @@ export type SubscriptionOnNftAssetsCreatedArgs = {
 };
 
 
+/** Live-streamed prediction data subscriptions for trades, stats, and bar updates. */
 export type SubscriptionOnNftEventsCreatedArgs = {
   address?: InputMaybe<Scalars['String']['input']>;
   networkId?: InputMaybe<Scalars['Int']['input']>;
 };
 
 
+/** Live-streamed prediction data subscriptions for trades, stats, and bar updates. */
 export type SubscriptionOnNftPoolEventsCreatedArgs = {
   collectionAddress?: InputMaybe<Scalars['String']['input']>;
   exchangeAddress?: InputMaybe<Scalars['String']['input']>;
@@ -8199,6 +12846,7 @@ export type SubscriptionOnNftPoolEventsCreatedArgs = {
 };
 
 
+/** Live-streamed prediction data subscriptions for trades, stats, and bar updates. */
 export type SubscriptionOnPairMetadataUpdatedArgs = {
   id?: InputMaybe<Scalars['String']['input']>;
   quoteToken?: InputMaybe<QuoteToken>;
@@ -8206,41 +12854,70 @@ export type SubscriptionOnPairMetadataUpdatedArgs = {
 };
 
 
+/** Live-streamed prediction data subscriptions for trades, stats, and bar updates. */
+export type SubscriptionOnPredictionEventBarsUpdatedArgs = {
+  eventId: Scalars['String']['input'];
+};
+
+
+/** Live-streamed prediction data subscriptions for trades, stats, and bar updates. */
+export type SubscriptionOnPredictionMarketBarsUpdatedArgs = {
+  marketId: Scalars['String']['input'];
+};
+
+
+/** Live-streamed prediction data subscriptions for trades, stats, and bar updates. */
+export type SubscriptionOnPredictionTradesCreatedArgs = {
+  input?: InputMaybe<OnPredictionTradesCreatedInput>;
+};
+
+
+/** Live-streamed prediction data subscriptions for trades, stats, and bar updates. */
 export type SubscriptionOnPriceUpdatedArgs = {
   address?: InputMaybe<Scalars['String']['input']>;
   networkId?: InputMaybe<Scalars['Int']['input']>;
   sourcePairAddress?: InputMaybe<Scalars['String']['input']>;
+  useWeightedPrices?: InputMaybe<Scalars['Boolean']['input']>;
 };
 
 
+/** Live-streamed prediction data subscriptions for trades, stats, and bar updates. */
 export type SubscriptionOnPricesUpdatedArgs = {
   input: Array<OnPricesUpdatedInput>;
+  useWeightedPrices?: InputMaybe<Scalars['Boolean']['input']>;
 };
 
 
+/** Live-streamed prediction data subscriptions for trades, stats, and bar updates. */
 export type SubscriptionOnTokenBarsUpdatedArgs = {
+  commitmentLevel?: InputMaybe<Array<BarCommitmentLevel>>;
   networkId?: InputMaybe<Scalars['Int']['input']>;
   tokenId?: InputMaybe<Scalars['String']['input']>;
 };
 
 
+/** Live-streamed prediction data subscriptions for trades, stats, and bar updates. */
 export type SubscriptionOnTokenEventsCreatedArgs = {
+  commitmentLevel?: InputMaybe<Array<EventCommitmentLevel>>;
   input: OnTokenEventsCreatedInput;
 };
 
 
+/** Live-streamed prediction data subscriptions for trades, stats, and bar updates. */
 export type SubscriptionOnTokenLifecycleEventsCreatedArgs = {
   address?: InputMaybe<Scalars['String']['input']>;
   networkId?: InputMaybe<Scalars['Int']['input']>;
 };
 
 
+/** Live-streamed prediction data subscriptions for trades, stats, and bar updates. */
 export type SubscriptionOnUnconfirmedBarsUpdatedArgs = {
   pairId?: InputMaybe<Scalars['String']['input']>;
   quoteToken?: InputMaybe<QuoteToken>;
 };
 
 
+/** Live-streamed prediction data subscriptions for trades, stats, and bar updates. */
 export type SubscriptionOnUnconfirmedEventsCreatedArgs = {
   address?: InputMaybe<Scalars['String']['input']>;
   id?: InputMaybe<Scalars['String']['input']>;
@@ -8248,6 +12925,7 @@ export type SubscriptionOnUnconfirmedEventsCreatedArgs = {
 };
 
 
+/** Live-streamed prediction data subscriptions for trades, stats, and bar updates. */
 export type SubscriptionOnUnconfirmedEventsCreatedByMakerArgs = {
   input: OnUnconfirmedEventsCreatedByMakerInput;
 };
@@ -8273,6 +12951,9 @@ export type SuiNetworkConfig = {
   stableCoinAddresses?: Maybe<Array<Scalars['String']['output']>>;
   wrappedBaseTokenSymbol: Scalars['String']['output'];
 };
+
+/** Protocol-specific supplemental fee data. */
+export type SupplementalFeeData = PumpAmmCashbackFeeData | PumpCashbackFeeData;
 
 /** Event data for a token swap event. */
 export type SwapEventData = {
@@ -8464,6 +13145,12 @@ export enum SymbolType {
 /** Bar chart data to track price changes over time. */
 export type TokenBarsResponse = {
   __typename?: 'TokenBarsResponse';
+  /** Average total fee cost per transaction in USD (totalFees / transactions). Null when there are no transactions. */
+  averageCostPerTrade?: Maybe<Array<Maybe<Scalars['String']['output']>>>;
+  /** The aggregate base fees (gas) in USD */
+  baseFees?: Maybe<Array<Maybe<Scalars['String']['output']>>>;
+  /** The aggregate builder tips (MEV) in USD */
+  builderTips?: Maybe<Array<Maybe<Scalars['String']['output']>>>;
   /** The buy volume in USD */
   buyVolume: Array<Maybe<Scalars['String']['output']>>;
   /** The number of unique buyers */
@@ -8472,16 +13159,34 @@ export type TokenBarsResponse = {
   buys: Array<Maybe<Scalars['Int']['output']>>;
   /** The closing price. */
   c: Array<Maybe<Scalars['Float']['output']>>;
+  /** Dominant fee component: gas-dominated (gas &gt;50% of fees), mev-dominated (tips &gt;20%), or pool-fee-dominated. Null when no fees. */
+  feeRegimeClassification?: Maybe<Array<Maybe<Scalars['String']['output']>>>;
+  /** Ratio of total fees to volume (totalFees / volume). Null when volume is zero. */
+  feeToVolumeRatio?: Maybe<Array<Maybe<Scalars['String']['output']>>>;
+  /** Gas cost per dollar of volume ((baseFees + priorityFees + l1DataFees) / volume). Null when volume is zero. */
+  gasPerVolume?: Maybe<Array<Maybe<Scalars['String']['output']>>>;
   /** The high price. */
   h: Array<Maybe<Scalars['Float']['output']>>;
   /** The low price. */
   l: Array<Maybe<Scalars['Float']['output']>>;
+  /** The aggregate L1 data posting fees in USD (L2 rollups only) */
+  l1DataFees?: Maybe<Array<Maybe<Scalars['String']['output']>>>;
   /** Liquidity in USD */
   liquidity: Array<Maybe<Scalars['String']['output']>>;
+  /** MEV risk level for this bar: low (&lt;3% builder tips), medium (3-30%), or high (&gt;30%). Null for pre-genesis bars. */
+  mevRiskLevel?: Maybe<Array<Maybe<Scalars['String']['output']>>>;
+  /** Ratio of builder tips (MEV) to total fees (builderTips / totalFees). Null when totalFees is zero. */
+  mevToTotalFeesRatio?: Maybe<Array<Maybe<Scalars['String']['output']>>>;
   /** The opening price. */
   o: Array<Maybe<Scalars['Float']['output']>>;
+  /** The aggregate pool/DEX fees in USD */
+  poolFees?: Maybe<Array<Maybe<Scalars['String']['output']>>>;
+  /** The aggregate priority fees in USD */
+  priorityFees?: Maybe<Array<Maybe<Scalars['String']['output']>>>;
   /** The status code for the batch: `ok` for successful data retrieval and `no_data` for empty responses signaling the end of server data. */
   s: Scalars['String']['output'];
+  /** Rate of sandwich attacks per transaction (sandwichedEventCount / transactions). Null when no transaction data. */
+  sandwichRate?: Maybe<Array<Maybe<Scalars['String']['output']>>>;
   /** The sell volume in USD */
   sellVolume: Array<Maybe<Scalars['String']['output']>>;
   /** The number of unique sellers */
@@ -8492,6 +13197,8 @@ export type TokenBarsResponse = {
   t: Array<Scalars['Int']['output']>;
   /** The token that is being returned */
   token: EnhancedToken;
+  /** The total fees in USD (sum of poolFees + baseFees + priorityFees + builderTips + l1DataFees) */
+  totalFees?: Maybe<Array<Maybe<Scalars['String']['output']>>>;
   /** The number of traders */
   traders: Array<Maybe<Scalars['Int']['output']>>;
   /** The number of transactions */
@@ -8500,6 +13207,16 @@ export type TokenBarsResponse = {
   volume?: Maybe<Array<Maybe<Scalars['String']['output']>>>;
   /** The volume in the native token for the network */
   volumeNativeToken?: Maybe<Array<Maybe<Scalars['String']['output']>>>;
+};
+
+/** Boolean expression for combining token filters. */
+export type TokenBoolFilter = {
+  /** All nested filters must match. */
+  and?: InputMaybe<Array<TokenFilters>>;
+  /** The nested filter must not match. */
+  not?: InputMaybe<TokenFilters>;
+  /** At least one nested filter must match. */
+  or?: InputMaybe<Array<TokenFilters>>;
 };
 
 /** Token burn event data. */
@@ -8511,6 +13228,41 @@ export type TokenBurnEventData = {
   circulatingSupply?: Maybe<Scalars['String']['output']>;
   /** The new total supply for the token. */
   totalSupply?: Maybe<Scalars['String']['output']>;
+};
+
+/** All-time high and low price and market cap data for a token. */
+export type TokenExtrema = {
+  __typename?: 'TokenExtrema';
+  /** The contract address of the token. */
+  address: Scalars['String']['output'];
+  /** The all-time high circulating market cap. */
+  athCircMc: Scalars['String']['output'];
+  /** The unix timestamp when the all-time high circulating market cap was reached. */
+  athCircMcTimestamp: Scalars['Int']['output'];
+  /** The all-time high fully diluted market cap. */
+  athFdv: Scalars['String']['output'];
+  /** The unix timestamp when the all-time high FDV was reached. */
+  athFdvTimestamp: Scalars['Int']['output'];
+  /** The all-time high price in USD. */
+  athPrice: Scalars['String']['output'];
+  /** The unix timestamp when the all-time high price was reached. */
+  athPriceTimestamp: Scalars['Int']['output'];
+  /** The all-time low circulating market cap. */
+  atlCircMc: Scalars['String']['output'];
+  /** The unix timestamp when the all-time low circulating market cap was reached. */
+  atlCircMcTimestamp: Scalars['Int']['output'];
+  /** The all-time low fully diluted market cap. */
+  atlFdv: Scalars['String']['output'];
+  /** The unix timestamp when the all-time low FDV was reached. */
+  atlFdvTimestamp: Scalars['Int']['output'];
+  /** The all-time low price in USD. */
+  atlPrice: Scalars['String']['output'];
+  /** The unix timestamp when the all-time low price was reached. */
+  atlPriceTimestamp: Scalars['Int']['output'];
+  /** The token ID (`address:networkId`). */
+  id: Scalars['String']['output'];
+  /** The network ID the token is deployed on. */
+  networkId: Scalars['Int']['output'];
 };
 
 /** Response returned by `filterTokens`. */
@@ -8529,6 +13281,50 @@ export type TokenFilterResult = {
   __typename?: 'TokenFilterResult';
   /** @deprecated Age isn't supported - use createdAt instead */
   age?: Maybe<Scalars['Int']['output']>;
+  /** The all-time high circulating market cap. */
+  athCircMc?: Maybe<Scalars['String']['output']>;
+  /** The unix timestamp when the all-time high circulating market cap was reached. */
+  athCircMcTimestamp?: Maybe<Scalars['Int']['output']>;
+  /** The all-time high fully diluted market cap. */
+  athFdv?: Maybe<Scalars['String']['output']>;
+  /** The unix timestamp when the all-time high FDV was reached. */
+  athFdvTimestamp?: Maybe<Scalars['Int']['output']>;
+  /** The all-time high price in USD. */
+  athPrice?: Maybe<Scalars['String']['output']>;
+  /** The unix timestamp when the all-time high price was reached. */
+  athPriceTimestamp?: Maybe<Scalars['Int']['output']>;
+  /** The all-time low circulating market cap. */
+  atlCircMc?: Maybe<Scalars['String']['output']>;
+  /** The unix timestamp when the all-time low circulating market cap was reached. */
+  atlCircMcTimestamp?: Maybe<Scalars['Int']['output']>;
+  /** The all-time low fully diluted market cap. */
+  atlFdv?: Maybe<Scalars['String']['output']>;
+  /** The unix timestamp when the all-time low FDV was reached. */
+  atlFdvTimestamp?: Maybe<Scalars['Int']['output']>;
+  /** The all-time low price in USD. */
+  atlPrice?: Maybe<Scalars['String']['output']>;
+  /** The unix timestamp when the all-time low price was reached. */
+  atlPriceTimestamp?: Maybe<Scalars['Int']['output']>;
+  /** The total base gas fees in USD in the past hour. */
+  baseFees1?: Maybe<Scalars['String']['output']>;
+  /** The total base gas fees in USD in the past 4 hours. */
+  baseFees4?: Maybe<Scalars['String']['output']>;
+  /** The total base gas fees in USD in the past 5 minutes. */
+  baseFees5m?: Maybe<Scalars['String']['output']>;
+  /** The total base gas fees in USD in the past 12 hours. */
+  baseFees12?: Maybe<Scalars['String']['output']>;
+  /** The total base gas fees in USD in the past 24 hours. */
+  baseFees24?: Maybe<Scalars['String']['output']>;
+  /** The total builder tips (MEV) in USD in the past hour. */
+  builderTips1?: Maybe<Scalars['String']['output']>;
+  /** The total builder tips (MEV) in USD in the past 4 hours. */
+  builderTips4?: Maybe<Scalars['String']['output']>;
+  /** The total builder tips (MEV) in USD in the past 5 minutes. */
+  builderTips5m?: Maybe<Scalars['String']['output']>;
+  /** The total builder tips (MEV) in USD in the past 12 hours. */
+  builderTips12?: Maybe<Scalars['String']['output']>;
+  /** The total builder tips (MEV) in USD in the past 24 hours. */
+  builderTips24?: Maybe<Scalars['String']['output']>;
   /** The number of wallets that have bundled the token */
   bundlerCount?: Maybe<Scalars['Int']['output']>;
   /** The percentage of tokens held by bundlers */
@@ -8573,6 +13369,16 @@ export type TokenFilterResult = {
   exchanges?: Maybe<Array<Maybe<Exchange>>>;
   /** @deprecated FDV isn't supported - use marketCap instead */
   fdv?: Maybe<Scalars['String']['output']>;
+  /** The ratio of total fees to volume in the past hour. Decimal format. */
+  feeToVolumeRatio1?: Maybe<Scalars['String']['output']>;
+  /** The ratio of total fees to volume in the past 4 hours. Decimal format. */
+  feeToVolumeRatio4?: Maybe<Scalars['String']['output']>;
+  /** The ratio of total fees to volume in the past 5 minutes. Decimal format. */
+  feeToVolumeRatio5m?: Maybe<Scalars['String']['output']>;
+  /** The ratio of total fees to volume in the past 12 hours. Decimal format. */
+  feeToVolumeRatio12?: Maybe<Scalars['String']['output']>;
+  /** The ratio of total fees to volume in the past 24 hours. Decimal format. */
+  feeToVolumeRatio24?: Maybe<Scalars['String']['output']>;
   /** The highest price in USD in the past hour. */
   high1?: Maybe<Scalars['String']['output']>;
   /** The highest price in USD in the past 4 hours. */
@@ -8591,6 +13397,16 @@ export type TokenFilterResult = {
   insiderHeldPercentage?: Maybe<Scalars['Float']['output']>;
   /** Whether the token has been flagged as a scam. */
   isScam?: Maybe<Scalars['Boolean']['output']>;
+  /** The total L1 data fees in USD in the past hour. */
+  l1DataFees1?: Maybe<Scalars['String']['output']>;
+  /** The total L1 data fees in USD in the past 4 hours. */
+  l1DataFees4?: Maybe<Scalars['String']['output']>;
+  /** The total L1 data fees in USD in the past 5 minutes. */
+  l1DataFees5m?: Maybe<Scalars['String']['output']>;
+  /** The total L1 data fees in USD in the past 12 hours. */
+  l1DataFees12?: Maybe<Scalars['String']['output']>;
+  /** The total L1 data fees in USD in the past 24 hours. */
+  l1DataFees24?: Maybe<Scalars['String']['output']>;
   /** The unix timestamp for the token's last transaction. */
   lastTransaction?: Maybe<Scalars['Int']['output']>;
   /** Metadata for the token's most liquid pair */
@@ -8615,8 +13431,30 @@ export type TokenFilterResult = {
   marketCap?: Maybe<Scalars['String']['output']>;
   /** Metadata for the token's top pair. */
   pair?: Maybe<Pair>;
+  /** The total pool fees in USD in the past hour. */
+  poolFees1?: Maybe<Scalars['String']['output']>;
+  /** The total pool fees in USD in the past 4 hours. */
+  poolFees4?: Maybe<Scalars['String']['output']>;
+  /** The total pool fees in USD in the past 5 minutes. */
+  poolFees5m?: Maybe<Scalars['String']['output']>;
+  /** The total pool fees in USD in the past 12 hours. */
+  poolFees12?: Maybe<Scalars['String']['output']>;
+  /** The total pool fees in USD in the past 24 hours. */
+  poolFees24?: Maybe<Scalars['String']['output']>;
+  /** The reasons the token has been flagged as a potential scam. */
+  potentialScamReasons?: Maybe<Array<Maybe<PotentialScamReason>>>;
   /** The token price in USD. */
   priceUSD?: Maybe<Scalars['String']['output']>;
+  /** The total priority fees in USD in the past hour. */
+  priorityFees1?: Maybe<Scalars['String']['output']>;
+  /** The total priority fees in USD in the past 4 hours. */
+  priorityFees4?: Maybe<Scalars['String']['output']>;
+  /** The total priority fees in USD in the past 5 minutes. */
+  priorityFees5m?: Maybe<Scalars['String']['output']>;
+  /** The total priority fees in USD in the past 12 hours. */
+  priorityFees12?: Maybe<Scalars['String']['output']>;
+  /** The total priority fees in USD in the past 24 hours. */
+  priorityFees24?: Maybe<Scalars['String']['output']>;
   /** The token of interest. Can be `token0` or `token1`. */
   quoteToken?: Maybe<Scalars['String']['output']>;
   /** The number of sells in the past hour. */
@@ -8643,6 +13481,10 @@ export type TokenFilterResult = {
   sniperCount?: Maybe<Scalars['Int']['output']>;
   /** The percentage of tokens held by snipers */
   sniperHeldPercentage?: Maybe<Scalars['Float']['output']>;
+  /** The number of suspicious wallets (deduplicated union of snipers, bundlers, and insiders) */
+  suspiciousCount?: Maybe<Scalars['Int']['output']>;
+  /** The percentage of tokens held by suspicious wallets */
+  suspiciousHeldPercentage?: Maybe<Scalars['Float']['output']>;
   /** The percentage of wallets that are less than 1d old that have traded in the last 24h */
   swapPct1dOldWallet?: Maybe<Scalars['String']['output']>;
   /** The percentage of wallets that are less than 7d old that have traded in the last 24h */
@@ -8651,6 +13493,18 @@ export type TokenFilterResult = {
   token?: Maybe<EnhancedToken>;
   /** The percentage of total supply held by the top 10 holders. */
   top10HoldersPercent?: Maybe<Scalars['Float']['output']>;
+  /** The total trading fees (pool + gas + tips) in USD in the past hour. */
+  totalFees1?: Maybe<Scalars['String']['output']>;
+  /** The total trading fees (pool + gas + tips) in USD in the past 4 hours. */
+  totalFees4?: Maybe<Scalars['String']['output']>;
+  /** The total trading fees (pool + gas + tips) in USD in the past 5 minutes. */
+  totalFees5m?: Maybe<Scalars['String']['output']>;
+  /** The total trading fees (pool + gas + tips) in USD in the past 12 hours. */
+  totalFees12?: Maybe<Scalars['String']['output']>;
+  /** The total trading fees (pool + gas + tips) in USD in the past 24 hours. */
+  totalFees24?: Maybe<Scalars['String']['output']>;
+  /** A heuristic based on various factors used to rank tokens based on how trending they are. */
+  trendingScore?: Maybe<Scalars['Float']['output']>;
   /** The number of transactions in the past hour. */
   txnCount1?: Maybe<Scalars['Int']['output']>;
   /** The number of transactions in the past 4 hours. */
@@ -8721,6 +13575,22 @@ export type TokenFilterResult = {
 export type TokenFilters = {
   /** @deprecated Age isn't supported - use createdAt instead */
   age?: InputMaybe<NumberFilter>;
+  /** Filter by all-time high circulating market cap. */
+  athCircMc?: InputMaybe<NumberFilter>;
+  /** Filter by all-time high FDV. */
+  athFdv?: InputMaybe<NumberFilter>;
+  /** Filter by all-time high price. */
+  athPrice?: InputMaybe<NumberFilter>;
+  /** Filter by all-time low circulating market cap. */
+  atlCircMc?: InputMaybe<NumberFilter>;
+  /** Filter by all-time low FDV. */
+  atlFdv?: InputMaybe<NumberFilter>;
+  /** Filter by all-time low price. */
+  atlPrice?: InputMaybe<NumberFilter>;
+  /** Filter by Grid bluechip ratings. Returns tokens matching any of the provided ratings. */
+  bluechipRatings?: InputMaybe<Array<Scalars['String']['input']>>;
+  /** Recursive boolean expression for combining token filters. */
+  boolFilter?: InputMaybe<TokenBoolFilter>;
   /** Filter by number of wallets that have bundled the token */
   bundlerCount?: InputMaybe<NumberFilter>;
   /** Filter by percentage of tokens held by bundlers */
@@ -8757,6 +13627,14 @@ export type TokenFilters = {
   change24?: InputMaybe<NumberFilter>;
   /** The circulating market cap. */
   circulatingMarketCap?: InputMaybe<NumberFilter>;
+  /** Filter by unix timestamp for the most recent post in the token's coin community. */
+  coinCommunityLastPostAt?: InputMaybe<NumberFilter>;
+  /** Filter by number of likes in the token's coin community. */
+  coinCommunityLikeCount?: InputMaybe<NumberFilter>;
+  /** Filter by number of members in the token's coin community. */
+  coinCommunityMemberCount?: InputMaybe<NumberFilter>;
+  /** Filter by number of posts in the token's coin community. */
+  coinCommunityPostCount?: InputMaybe<NumberFilter>;
   /** The unix timestamp for the creation of the token's first pair. */
   createdAt?: InputMaybe<NumberFilter>;
   /**
@@ -8774,8 +13652,12 @@ export type TokenFilters = {
   exchangeId?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
   /** @deprecated FDV isn't supported - use marketCap instead */
   fdv?: InputMaybe<NumberFilter>;
+  /** Filter by fee to volume ratio in the past 24 hours. */
+  feeToVolumeRatio24?: InputMaybe<NumberFilter>;
   /** The token is freezable. */
   freezable?: InputMaybe<Scalars['Boolean']['input']>;
+  /** Filter by whether the token has linked Grid asset data. */
+  hasGridData?: InputMaybe<Scalars['Boolean']['input']>;
   /** The highest price in USD in the past hour. */
   high1?: InputMaybe<NumberFilter>;
   /** The highest price in USD in the past 4 hours. */
@@ -8810,7 +13692,7 @@ export type TokenFilters = {
   launchpadMigrated?: InputMaybe<Scalars['Boolean']['input']>;
   /** The timestamp when the launchpad was migrated. */
   launchpadMigratedAt?: InputMaybe<NumberFilter>;
-  /** A list of launchpad names. Any of the following: Pump.fun, Pump Mayhem, Bonk, BONAD.fun, Nad.Fun, Baseapp, Baseapp Creator, Zora, Zora Creator, Four.meme, Four.meme Fair, Believe, Moonshot, Jupiter Studio, boop, Heaven, TokenMill V2, Virtuals, Clanker, Clanker V4, ArenaTrade, Moonit, LaunchLab, MeteoraDBC, Zora Solana, Cooking.City, time.fun, BAGS, Circus, Dealr, OhFuckFun, PrintFun, Trend, shout.fun, xApple, Sendshot, DubDub, cults, OpenGameProtocol, AMERICA.fun, Kumbaya, Printr, Bankr, Noice, Flaunch, Coinbarrel, Blowfish. */
+  /** A list of launchpad names. Any of the following: Pump.fun, Pump Mayhem, Bonk, BONAD.fun, Nad.Fun, Baseapp, Baseapp Creator, Zora, Zora Creator, Four.meme, Four.meme Fair, Believe, Moonshot, Jupiter Studio, boop, Heaven, TokenMill V2, Virtuals, Clanker, Clanker V4, ArenaTrade, Moonit, LaunchLab, MeteoraDBC, Meteora Alpha Vault, Zora Solana, Cooking.City, time.fun, BAGS, Circus, Dealr, OhFuckFun, PrintFun, Trend, shout.fun, xApple, Sendshot, DubDub, cults, OpenGameProtocol, AMERICA.fun, Kumbaya, Printr, Bankr, Liquid, Noice, Flaunch, Coinbarrel, Blowfish, MeMoo, Metaplex, Scale, Eitherway, Livo, Flap. */
   launchpadName?: InputMaybe<Array<Scalars['String']['input']>>;
   /** A list of launchpad protocols. */
   launchpadProtocol?: InputMaybe<Array<Scalars['String']['input']>>;
@@ -8826,16 +13708,20 @@ export type TokenFilters = {
   low12?: InputMaybe<NumberFilter>;
   /** The lowest price in USD in the past 24 hours. */
   low24?: InputMaybe<NumberFilter>;
-  /** The market cap of circulating supply. */
+  /** The fully diluted market cap. */
   marketCap?: InputMaybe<NumberFilter>;
   /** The token is mintable. */
   mintable?: InputMaybe<Scalars['Boolean']['input']>;
   /** The list of network IDs to filter by. Applied in conjunction with `exchangeId` filter using an OR condition. When used together, the query returns results that match either the specified exchanges or the specified network. */
   network?: InputMaybe<Array<InputMaybe<Scalars['Int']['input']>>>;
+  /** Filter by pool fees in the past 24 hours. */
+  poolFees24?: InputMaybe<NumberFilter>;
   /** Filter potential Scams */
   potentialScam?: InputMaybe<Scalars['Boolean']['input']>;
   /** The token price in USD. */
   priceUSD?: InputMaybe<NumberFilter>;
+  /** Whether the token name or symbol contains profanity. */
+  profanity?: InputMaybe<Scalars['Boolean']['input']>;
   /** The number of sells in the past hour. */
   sellCount1?: InputMaybe<NumberFilter>;
   /** The number of sells in the past 4 hours. */
@@ -8860,6 +13746,10 @@ export type TokenFilters = {
   sniperCount?: InputMaybe<NumberFilter>;
   /** Filter by percentage of tokens held by snipers */
   sniperHeldPercentage?: InputMaybe<NumberFilter>;
+  /** Filter by number of suspicious wallets (deduplicated union of snipers, bundlers, and insiders) */
+  suspiciousCount?: InputMaybe<NumberFilter>;
+  /** Filter by percentage of tokens held by suspicious wallets */
+  suspiciousHeldPercentage?: InputMaybe<NumberFilter>;
   /** The percentage of wallets that are less than 1d old that have traded in the last 24h. */
   swapPct1dOldWallet?: InputMaybe<NumberFilter>;
   /** The percentage of wallets that are less than 7d old that have traded in the last 24h. */
@@ -8868,6 +13758,16 @@ export type TokenFilters = {
   tokenCreatedAt?: InputMaybe<NumberFilter>;
   /** Filter by top 10 holders percentage. */
   top10HoldersPercent?: InputMaybe<NumberFilter>;
+  /** Filter by total fees in the past hour. */
+  totalFees1?: InputMaybe<NumberFilter>;
+  /** Filter by total fees in the past 4 hours. */
+  totalFees4?: InputMaybe<NumberFilter>;
+  /** Filter by total fees in the past 5 minutes. */
+  totalFees5m?: InputMaybe<NumberFilter>;
+  /** Filter by total fees in the past 12 hours. */
+  totalFees12?: InputMaybe<NumberFilter>;
+  /** Filter by total fees in the past 24 hours. */
+  totalFees24?: InputMaybe<NumberFilter>;
   /** Whether to ignore pairs/tokens not relevant to trending. This is done checking against a few factors and ignoring uninteresting tokens like stables / network tokens. If you want all tokens regardless of these checks, then don't include this field. (default) If you want only tokens that fail the trending ignore checks, then set it to `true`. (i.e. stablecoins, rugs, network base tokens) If you want only tokens that pass the trending ignore checks, then set it to `false`. */
   trendingIgnored?: InputMaybe<Scalars['Boolean']['input']>;
   /** The number of transactions in the past hour. */
@@ -8941,12 +13841,16 @@ export type TokenInfo = {
   __typename?: 'TokenInfo';
   /** The contract address of the token. */
   address: Scalars['String']['output'];
+  /** The Grid bluechip rating for this token (e.g. `A+`, `B-`). */
+  bluechipRating?: Maybe<Scalars['String']['output']>;
   /** The circulating supply of the token. */
   circulatingSupply?: Maybe<Scalars['String']['output']>;
   /** The token ID on CoinMarketCap. */
   cmcId?: Maybe<Scalars['Int']['output']>;
   /** A description of the token. */
   description?: Maybe<Scalars['String']['output']>;
+  /** The Grid asset ID, if this token is linked to a Grid asset. */
+  gridAssetId?: Maybe<Scalars['String']['output']>;
   /** Uniquely identifies the token. */
   id: Scalars['String']['output'];
   /** The token banner URL. */
@@ -9030,9 +13934,9 @@ export enum TokenLifecycleEventType {
 
 /** Input type of `tokenLifecycleEvents` query. */
 export type TokenLifecycleEventsQueryInput = {
-  /** The token contract address to filter by. */
+  /** The token contract address to filter events by. In conjunction with `networkId`, this will filter events for a specific token on a specific network. */
   address: Scalars['String']['input'];
-  /** The networkId to filter by. */
+  /** The networkId to filter events by. */
   networkId: Scalars['Int']['input'];
 };
 
@@ -9154,6 +14058,18 @@ export type TokenRanking = {
 export enum TokenRankingAttribute {
   /** @deprecated Use createdAt instead */
   Age = 'age',
+  BaseFees1 = 'baseFees1',
+  BaseFees4 = 'baseFees4',
+  BaseFees5m = 'baseFees5m',
+  BaseFees12 = 'baseFees12',
+  BaseFees24 = 'baseFees24',
+  BuilderTips1 = 'builderTips1',
+  BuilderTips4 = 'builderTips4',
+  BuilderTips5m = 'builderTips5m',
+  BuilderTips12 = 'builderTips12',
+  BuilderTips24 = 'builderTips24',
+  BundlerCount = 'bundlerCount',
+  BundlerHeldPercentage = 'bundlerHeldPercentage',
   BuyCount1 = 'buyCount1',
   BuyCount4 = 'buyCount4',
   BuyCount5m = 'buyCount5m',
@@ -9170,7 +14086,17 @@ export enum TokenRankingAttribute {
   Change12 = 'change12',
   Change24 = 'change24',
   CirculatingMarketCap = 'circulatingMarketCap',
+  CoinCommunityLastPostAt = 'coinCommunityLastPostAt',
+  CoinCommunityLikeCount = 'coinCommunityLikeCount',
+  CoinCommunityMemberCount = 'coinCommunityMemberCount',
+  CoinCommunityPostCount = 'coinCommunityPostCount',
   CreatedAt = 'createdAt',
+  DevHeldPercentage = 'devHeldPercentage',
+  FeeToVolumeRatio1 = 'feeToVolumeRatio1',
+  FeeToVolumeRatio4 = 'feeToVolumeRatio4',
+  FeeToVolumeRatio5m = 'feeToVolumeRatio5m',
+  FeeToVolumeRatio12 = 'feeToVolumeRatio12',
+  FeeToVolumeRatio24 = 'feeToVolumeRatio24',
   GraduationPercent = 'graduationPercent',
   High1 = 'high1',
   High4 = 'high4',
@@ -9178,6 +14104,13 @@ export enum TokenRankingAttribute {
   High12 = 'high12',
   High24 = 'high24',
   Holders = 'holders',
+  InsiderCount = 'insiderCount',
+  InsiderHeldPercentage = 'insiderHeldPercentage',
+  L1DataFees1 = 'l1DataFees1',
+  L1DataFees4 = 'l1DataFees4',
+  L1DataFees5m = 'l1DataFees5m',
+  L1DataFees12 = 'l1DataFees12',
+  L1DataFees24 = 'l1DataFees24',
   LastTransaction = 'lastTransaction',
   LaunchpadCompletedAt = 'launchpadCompletedAt',
   LaunchpadMigratedAt = 'launchpadMigratedAt',
@@ -9189,7 +14122,17 @@ export enum TokenRankingAttribute {
   Low24 = 'low24',
   MarketCap = 'marketCap',
   NotableHolderCount = 'notableHolderCount',
+  PoolFees1 = 'poolFees1',
+  PoolFees4 = 'poolFees4',
+  PoolFees5m = 'poolFees5m',
+  PoolFees12 = 'poolFees12',
+  PoolFees24 = 'poolFees24',
   PriceUsd = 'priceUSD',
+  PriorityFees1 = 'priorityFees1',
+  PriorityFees4 = 'priorityFees4',
+  PriorityFees5m = 'priorityFees5m',
+  PriorityFees12 = 'priorityFees12',
+  PriorityFees24 = 'priorityFees24',
   SellCount1 = 'sellCount1',
   SellCount4 = 'sellCount4',
   SellCount5m = 'sellCount5m',
@@ -9200,10 +14143,19 @@ export enum TokenRankingAttribute {
   SellVolume5m = 'sellVolume5m',
   SellVolume12 = 'sellVolume12',
   SellVolume24 = 'sellVolume24',
+  SniperCount = 'sniperCount',
+  SniperHeldPercentage = 'sniperHeldPercentage',
+  SuspiciousCount = 'suspiciousCount',
+  SuspiciousHeldPercentage = 'suspiciousHeldPercentage',
   SwapPct1dOldWallet = 'swapPct1dOldWallet',
   SwapPct7dOldWallet = 'swapPct7dOldWallet',
   TokenCreatedAt = 'tokenCreatedAt',
   Top10HoldersPercent = 'top10HoldersPercent',
+  TotalFees1 = 'totalFees1',
+  TotalFees4 = 'totalFees4',
+  TotalFees5m = 'totalFees5m',
+  TotalFees12 = 'totalFees12',
+  TotalFees24 = 'totalFees24',
   TrendingScore = 'trendingScore',
   TrendingScore1 = 'trendingScore1',
   TrendingScore4 = 'trendingScore4',
@@ -9387,6 +14339,10 @@ export type TokenWalletActivity = {
   sniperCount: Scalars['Int']['output'];
   /** The percentage of token supply held by sniper wallets. */
   sniperHeldPercentage: Scalars['Float']['output'];
+  /** The number of suspicious wallets — the deduplicated union of snipers, bundlers, and insiders — that hold this token. */
+  suspiciousCount: Scalars['Int']['output'];
+  /** The percentage of token supply held by suspicious wallets (deduplicated union of snipers, bundlers, and insiders). */
+  suspiciousHeldPercentage: Scalars['Float']['output'];
 };
 
 /** A connection of wallets matching a filter on a specific token. */
@@ -9429,6 +14385,14 @@ export type TokenWalletFilterResult = {
   amountSoldUsdAll1y: Scalars['String']['output'];
   /** Amount sold USD all in the past 30 days */
   amountSoldUsdAll30d: Scalars['String']['output'];
+  /** Average hold period, in seconds, for positions sold during the past day. Calculated from cost-basis turnover using sold cost basis. Returns null when there are no sells. */
+  avgHoldPeriodSec1d?: Maybe<Scalars['Float']['output']>;
+  /** Average hold period, in seconds, for positions sold during the past week. Calculated from cost-basis turnover using sold cost basis. Returns null when there are no sells. */
+  avgHoldPeriodSec1w?: Maybe<Scalars['Float']['output']>;
+  /** Average hold period, in seconds, for positions sold during the past year. Calculated from cost-basis turnover using sold cost basis. Returns null when there are no sells. */
+  avgHoldPeriodSec1y?: Maybe<Scalars['Float']['output']>;
+  /** Average hold period, in seconds, for positions sold during the past 30 days. Calculated from cost-basis turnover using sold cost basis. Returns null when there are no sells. */
+  avgHoldPeriodSec30d?: Maybe<Scalars['Float']['output']>;
   /** The backfill state of the wallet. */
   backfillState?: Maybe<WalletAggregateBackfillState>;
   /** The bot score for the wallet. */
@@ -9550,7 +14514,7 @@ export type TokenWithMetadata = {
   lastTransaction?: Maybe<Scalars['Int']['output']>;
   /** The total liquidity of the token's top pair in USD. */
   liquidity: Scalars['String']['output'];
-  /** The market cap of circulating supply. */
+  /** The fully diluted market cap. */
   marketCap?: Maybe<Scalars['String']['output']>;
   /** The name of the token. */
   name: Scalars['String']['output'];
@@ -9743,8 +14707,55 @@ export type UniswapV4Data = {
 export type Wallet = {
   __typename?: 'Wallet';
   address: Scalars['String']['output'];
+  /** Resolved profile avatar URL (best available source) */
+  avatarUrl?: Maybe<Scalars['String']['output']>;
+  category?: Maybe<WalletCategory>;
+  /** A community-contributed description of the wallet */
+  description?: Maybe<Scalars['String']['output']>;
+  /** Discord numeric ID */
+  discordId?: Maybe<Scalars['String']['output']>;
+  /** Discord username */
+  discordUsername?: Maybe<Scalars['String']['output']>;
+  /** A human-readable display name for the wallet */
+  displayName?: Maybe<Scalars['String']['output']>;
+  /** Ethos credibility tier (1-10) */
+  ethosLevel?: Maybe<Scalars['String']['output']>;
+  /** Ethos credibility score (0-2800, higher = more trustworthy) */
+  ethosScore?: Maybe<Scalars['Int']['output']>;
+  /** Ethos Network verification status */
+  ethosVerified?: Maybe<Scalars['Boolean']['output']>;
+  /** Farcaster numeric ID */
+  farcasterId?: Maybe<Scalars['String']['output']>;
+  /** Farcaster username */
+  farcasterUsername?: Maybe<Scalars['String']['output']>;
   firstFunding?: Maybe<WalletFunding>;
   firstSeenTimestamp?: Maybe<Scalars['Int']['output']>;
+  /** GitHub numeric ID */
+  githubId?: Maybe<Scalars['String']['output']>;
+  /** GitHub username */
+  githubUsername?: Maybe<Scalars['String']['output']>;
+  /** Identity labels describing what this wallet is (e.g. CEX, DEX, bridge, team) */
+  identityLabels?: Maybe<Array<Scalars['String']['output']>>;
+  /** Source of identity data (e.g. ethos, manual, polymarket-backfill) */
+  identitySource?: Maybe<Scalars['String']['output']>;
+  /** When identity data was last updated (unix timestamp) */
+  identityUpdatedAt?: Maybe<Scalars['Int']['output']>;
+  /** Raw Polymarket profile data when this wallet is a Polymarket proxy. Polymarket takes priority over contributed/ethos for resolved displayName, twitterUsername, and avatarUrl. */
+  polymarket?: Maybe<WalletPolymarketProfile>;
+  /** Telegram numeric ID */
+  telegramId?: Maybe<Scalars['String']['output']>;
+  /** Telegram username */
+  telegramUsername?: Maybe<Scalars['String']['output']>;
+  /** Total number of tokens created by this wallet across all networks (where the creator is known). */
+  tokensCreatedCount?: Maybe<Scalars['Int']['output']>;
+  /** Total number of launchpad tokens migrated (graduated) by this wallet across all networks. */
+  tokensMigratedCount?: Maybe<Scalars['Int']['output']>;
+  /** Twitter/X numeric ID */
+  twitterId?: Maybe<Scalars['String']['output']>;
+  /** Twitter/X username */
+  twitterUsername?: Maybe<Scalars['String']['output']>;
+  /** Website URL */
+  website?: Maybe<Scalars['String']['output']>;
 };
 
 /** Input arguments for the `backfillWalletAggregates` mutation. */
@@ -9779,6 +14790,19 @@ export type WalletAggregateBackfillStateResponse = {
   status: WalletAggregateBackfillState;
   walletAddress: Scalars['String']['output'];
 };
+
+/** Wallet behavior classification. */
+export enum WalletCategory {
+  DefiExchange = 'DEFI_EXCHANGE',
+  Exchange = 'EXCHANGE',
+  Normie = 'NORMIE',
+  Notorious = 'NOTORIOUS',
+  Pair = 'PAIR',
+  PairTokenHolder = 'PAIR_TOKEN_HOLDER',
+  PoolAuthority = 'POOL_AUTHORITY',
+  StakingVault = 'STAKING_VAULT',
+  TokenCreator = 'TOKEN_CREATOR'
+}
 
 /** The data for a chart of a wallet's activity. */
 export type WalletChartData = {
@@ -9865,12 +14889,22 @@ export type WalletFilterResult = {
   averageSwapAmountUsd1y: Scalars['String']['output'];
   /** Average swap amount in USD in the past 30 days */
   averageSwapAmountUsd30d: Scalars['String']['output'];
+  /** Average hold period, in seconds, for positions sold during the past day. Calculated from cost-basis turnover using sold cost basis. Returns null when there are no sells. */
+  avgHoldPeriodSec1d?: Maybe<Scalars['Float']['output']>;
+  /** Average hold period, in seconds, for positions sold during the past week. Calculated from cost-basis turnover using sold cost basis. Returns null when there are no sells. */
+  avgHoldPeriodSec1w?: Maybe<Scalars['Float']['output']>;
+  /** Average hold period, in seconds, for positions sold during the past year. Calculated from cost-basis turnover using sold cost basis. Returns null when there are no sells. */
+  avgHoldPeriodSec1y?: Maybe<Scalars['Float']['output']>;
+  /** Average hold period, in seconds, for positions sold during the past 30 days. Calculated from cost-basis turnover using sold cost basis. Returns null when there are no sells. */
+  avgHoldPeriodSec30d?: Maybe<Scalars['Float']['output']>;
   /** The backfill state of the wallet. */
   backfillState?: Maybe<WalletAggregateBackfillState>;
   /** The bot score for the wallet. */
   botScore?: Maybe<Scalars['Int']['output']>;
   /** The unix timestamp for the first transaction from this wallet */
   firstTransactionAt?: Maybe<Scalars['Int']['output']>;
+  /** Manual or proposal-derived identity vocabulary (e.g. WHALE, KOL). Distinct from behavioral `labels`. */
+  identityLabels?: Maybe<Array<Scalars['String']['output']>>;
   /** The labels associated with the wallet */
   labels: Array<Scalars['String']['output']>;
   /** The unix timestamp for the last transaction from this wallet */
@@ -9917,7 +14951,10 @@ export type WalletFilterResult = {
   uniqueTokens1d: Scalars['Int']['output'];
   /** Number of unique tokens traded in the past week */
   uniqueTokens1w: Scalars['Int']['output'];
-  /** Number of unique tokens traded in the past year */
+  /**
+   * Number of unique tokens traded in the past year
+   * @deprecated uniqueTokens1y is no longer supported and will be removed on 2026-07-10.
+   */
   uniqueTokens1y: Scalars['Int']['output'];
   /** Number of unique tokens traded in the past 30 days */
   uniqueTokens30d: Scalars['Int']['output'];
@@ -9937,6 +14974,8 @@ export type WalletFilterResult = {
   volumeUsdAll1y: Scalars['String']['output'];
   /** Total volume in USD in the past 30 days including all tokens */
   volumeUsdAll30d: Scalars['String']['output'];
+  /** The wallet identity and profile data */
+  wallet?: Maybe<Wallet>;
   /** Win rate in the past day */
   winRate1d: Scalars['Float']['output'];
   /** Win rate in the past week */
@@ -9965,10 +15004,34 @@ export type WalletFilters = {
   averageSwapAmountUsd1y?: InputMaybe<NumberFilter>;
   /** Average swap amount in USD in the past 30 days */
   averageSwapAmountUsd30d?: InputMaybe<NumberFilter>;
+  /** Average hold period, in seconds, for positions sold during the past day. Calculated from cost-basis turnover using sold cost basis. Returns null when there are no sells. */
+  avgHoldPeriodSec1d?: InputMaybe<NumberFilter>;
+  /** Average hold period, in seconds, for positions sold during the past week. Calculated from cost-basis turnover using sold cost basis. Returns null when there are no sells. */
+  avgHoldPeriodSec1w?: InputMaybe<NumberFilter>;
+  /** Average hold period, in seconds, for positions sold during the past year. Calculated from cost-basis turnover using sold cost basis. Returns null when there are no sells. */
+  avgHoldPeriodSec1y?: InputMaybe<NumberFilter>;
+  /** Average hold period, in seconds, for positions sold during the past 30 days. Calculated from cost-basis turnover using sold cost basis. Returns null when there are no sells. */
+  avgHoldPeriodSec30d?: InputMaybe<NumberFilter>;
   /** The bot score for the wallet. */
   botScore?: InputMaybe<NumberFilter>;
+  /** Ethos credibility score (0-2800) */
+  ethosScore?: InputMaybe<NumberFilter>;
   /** The unix timestamp for the first transaction from this wallet. */
   firstTransactionAt?: InputMaybe<NumberFilter>;
+  /** Filter by whether the wallet has a Discord account */
+  hasDiscord?: InputMaybe<Scalars['Boolean']['input']>;
+  /** Filter by whether the wallet has a display name set */
+  hasDisplayName?: InputMaybe<Scalars['Boolean']['input']>;
+  /** Filter by whether the wallet has a Farcaster account */
+  hasFarcaster?: InputMaybe<Scalars['Boolean']['input']>;
+  /** Filter by whether the wallet has a GitHub account */
+  hasGithub?: InputMaybe<Scalars['Boolean']['input']>;
+  /** Filter by whether the wallet has any linked social account */
+  hasSocials?: InputMaybe<Scalars['Boolean']['input']>;
+  /** Filter by whether the wallet has a Telegram account */
+  hasTelegram?: InputMaybe<Scalars['Boolean']['input']>;
+  /** Filter by whether the wallet has a Twitter/X account */
+  hasTwitter?: InputMaybe<Scalars['Boolean']['input']>;
   /** The unix timestamp for the last transaction from this wallet. */
   lastTransactionAt?: InputMaybe<NumberFilter>;
   /** The native token balance of the wallet. Can only be used in conjunction with `networkId` filter. */
@@ -10009,11 +15072,18 @@ export type WalletFilters = {
   swapsAll1y?: InputMaybe<NumberFilter>;
   /** Total number of swaps in the past 30 days including all tokens */
   swapsAll30d?: InputMaybe<NumberFilter>;
+  /** Number of tokens created by this wallet across all networks. */
+  tokensCreatedCount?: InputMaybe<NumberFilter>;
+  /** Number of launchpad tokens migrated (graduated) by this wallet across all networks. */
+  tokensMigratedCount?: InputMaybe<NumberFilter>;
   /** Number of unique tokens traded in the past day */
   uniqueTokens1d?: InputMaybe<NumberFilter>;
   /** Number of unique tokens traded in the past week */
   uniqueTokens1w?: InputMaybe<NumberFilter>;
-  /** Number of unique tokens traded in the past year */
+  /**
+   * Number of unique tokens traded in the past year
+   * @deprecated uniqueTokens1y is no longer supported and will be removed on 2026-07-10.
+   */
   uniqueTokens1y?: InputMaybe<NumberFilter>;
   /** Number of unique tokens traded in the past 30 days */
   uniqueTokens30d?: InputMaybe<NumberFilter>;
@@ -10072,6 +15142,17 @@ export enum WalletLabel {
   Wealthy = 'WEALTHY'
 }
 
+/** Metadata for a wallet label from the WALLET_LABEL_TYPES vocabulary */
+export type WalletLabelType = {
+  __typename?: 'WalletLabelType';
+  /** Description of what this label means */
+  description: Scalars['String']['output'];
+  /** Human-readable display name */
+  displayName: Scalars['String']['output'];
+  /** Label name (e.g. WHALE, CEX, KOL) */
+  name: Scalars['String']['output'];
+};
+
 /** Filters for a wallet on a specific network. */
 export type WalletNetworkFilters = {
   /** Average profit in USD per trade in the past day */
@@ -10090,10 +15171,34 @@ export type WalletNetworkFilters = {
   averageSwapAmountUsd1y?: InputMaybe<NumberFilter>;
   /** Average swap amount in USD in the past 30 days */
   averageSwapAmountUsd30d?: InputMaybe<NumberFilter>;
+  /** Average hold period, in seconds, for positions sold during the past day. Calculated from cost-basis turnover using sold cost basis. Returns null when there are no sells. */
+  avgHoldPeriodSec1d?: InputMaybe<NumberFilter>;
+  /** Average hold period, in seconds, for positions sold during the past week. Calculated from cost-basis turnover using sold cost basis. Returns null when there are no sells. */
+  avgHoldPeriodSec1w?: InputMaybe<NumberFilter>;
+  /** Average hold period, in seconds, for positions sold during the past year. Calculated from cost-basis turnover using sold cost basis. Returns null when there are no sells. */
+  avgHoldPeriodSec1y?: InputMaybe<NumberFilter>;
+  /** Average hold period, in seconds, for positions sold during the past 30 days. Calculated from cost-basis turnover using sold cost basis. Returns null when there are no sells. */
+  avgHoldPeriodSec30d?: InputMaybe<NumberFilter>;
   /** The bot score for the wallet. Indicates the likelihood of the wallet being a bot. Zero being not a bot and 100 being a definite bot. */
   botScore?: InputMaybe<NumberFilter>;
+  /** Ethos credibility score (0-2800) */
+  ethosScore?: InputMaybe<NumberFilter>;
   /** The unix timestamp for the first transaction from this wallet. */
   firstTransactionAt?: InputMaybe<NumberFilter>;
+  /** Filter by whether the wallet has a Discord account */
+  hasDiscord?: InputMaybe<Scalars['Boolean']['input']>;
+  /** Filter by whether the wallet has a display name set */
+  hasDisplayName?: InputMaybe<Scalars['Boolean']['input']>;
+  /** Filter by whether the wallet has a Farcaster account */
+  hasFarcaster?: InputMaybe<Scalars['Boolean']['input']>;
+  /** Filter by whether the wallet has a GitHub account */
+  hasGithub?: InputMaybe<Scalars['Boolean']['input']>;
+  /** Filter by whether the wallet has any linked social account */
+  hasSocials?: InputMaybe<Scalars['Boolean']['input']>;
+  /** Filter by whether the wallet has a Telegram account */
+  hasTelegram?: InputMaybe<Scalars['Boolean']['input']>;
+  /** Filter by whether the wallet has a Twitter/X account */
+  hasTwitter?: InputMaybe<Scalars['Boolean']['input']>;
   /** The unix timestamp for the last transaction from this wallet. */
   lastTransactionAt?: InputMaybe<NumberFilter>;
   /** The native token balance of the wallet. */
@@ -10136,7 +15241,10 @@ export type WalletNetworkFilters = {
   uniqueTokens1d?: InputMaybe<NumberFilter>;
   /** Number of unique tokens traded in the past week */
   uniqueTokens1w?: InputMaybe<NumberFilter>;
-  /** Number of unique tokens traded in the past year */
+  /**
+   * Number of unique tokens traded in the past year
+   * @deprecated uniqueTokens1y is no longer supported and will be removed on 2026-07-10.
+   */
   uniqueTokens1y?: InputMaybe<NumberFilter>;
   /** Number of unique tokens traded in the past 30 days */
   uniqueTokens30d?: InputMaybe<NumberFilter>;
@@ -10184,7 +15292,16 @@ export enum WalletNetworkRankingAttribute {
   AverageSwapAmountUsd1w = 'averageSwapAmountUsd1w',
   AverageSwapAmountUsd1y = 'averageSwapAmountUsd1y',
   AverageSwapAmountUsd30d = 'averageSwapAmountUsd30d',
+  /** Average hold period, in seconds, for positions sold during the past day. */
+  AvgHoldPeriodSec1d = 'avgHoldPeriodSec1d',
+  /** Average hold period, in seconds, for positions sold during the past week. */
+  AvgHoldPeriodSec1w = 'avgHoldPeriodSec1w',
+  /** Average hold period, in seconds, for positions sold during the past year. */
+  AvgHoldPeriodSec1y = 'avgHoldPeriodSec1y',
+  /** Average hold period, in seconds, for positions sold during the past 30 days. */
+  AvgHoldPeriodSec30d = 'avgHoldPeriodSec30d',
   BotScore = 'botScore',
+  EthosScore = 'ethosScore',
   FirstTransactionAt = 'firstTransactionAt',
   LastTransactionAt = 'lastTransactionAt',
   NativeTokenBalance = 'nativeTokenBalance',
@@ -10207,6 +15324,7 @@ export enum WalletNetworkRankingAttribute {
   SwapsAll30d = 'swapsAll30d',
   UniqueTokens1d = 'uniqueTokens1d',
   UniqueTokens1w = 'uniqueTokens1w',
+  /** @deprecated uniqueTokens1y is no longer supported and will be removed on 2026-07-10. */
   UniqueTokens1y = 'uniqueTokens1y',
   UniqueTokens30d = 'uniqueTokens30d',
   VolumeUsd1d = 'volumeUsd1d',
@@ -10277,6 +15395,27 @@ export type WalletNftCollectionsResponse = {
   items: Array<WalletNftCollection>;
 };
 
+/** Polymarket public profile. proxyWallet is a Polymarket-managed proxy, not the user's signing wallet. */
+export type WalletPolymarketProfile = {
+  __typename?: 'WalletPolymarketProfile';
+  /** Display name set by the user on Polymarket. */
+  displayName?: Maybe<Scalars['String']['output']>;
+  /** Whether the user has opted to display their username publicly. */
+  displayUsernamePublic?: Maybe<Scalars['Boolean']['output']>;
+  /** Unix timestamp of when this Polymarket profile was last fetched. */
+  fetchedAt: Scalars['Int']['output'];
+  /** Profile image URL set by the user on Polymarket. */
+  profileImageUrl?: Maybe<Scalars['String']['output']>;
+  /** On-chain proxy wallet address used by Polymarket to represent the user. */
+  proxyWallet: Scalars['String']['output'];
+  /** Auto-generated pseudonym assigned by Polymarket (e.g. Incompatible-Standoff). */
+  pseudonym?: Maybe<Scalars['String']['output']>;
+  /** Whether the user has a verified badge on Polymarket. */
+  verifiedBadge?: Maybe<Scalars['Boolean']['output']>;
+  /** Self-claimed X (Twitter) username on Polymarket, if set by the user. */
+  xUsername?: Maybe<Scalars['String']['output']>;
+};
+
 /** A wallet ranking. */
 export type WalletRanking = {
   /** The attribute to rank wallets by. */
@@ -10295,7 +15434,12 @@ export enum WalletRankingAttribute {
   AverageSwapAmountUsd1w = 'averageSwapAmountUsd1w',
   AverageSwapAmountUsd1y = 'averageSwapAmountUsd1y',
   AverageSwapAmountUsd30d = 'averageSwapAmountUsd30d',
+  AvgHoldPeriodSec1d = 'avgHoldPeriodSec1d',
+  AvgHoldPeriodSec1w = 'avgHoldPeriodSec1w',
+  AvgHoldPeriodSec1y = 'avgHoldPeriodSec1y',
+  AvgHoldPeriodSec30d = 'avgHoldPeriodSec30d',
   BotScore = 'botScore',
+  EthosScore = 'ethosScore',
   FirstTransactionAt = 'firstTransactionAt',
   LastTransactionAt = 'lastTransactionAt',
   NativeTokenBalance = 'nativeTokenBalance',
@@ -10318,6 +15462,7 @@ export enum WalletRankingAttribute {
   SwapsAll30d = 'swapsAll30d',
   UniqueTokens1d = 'uniqueTokens1d',
   UniqueTokens1w = 'uniqueTokens1w',
+  /** @deprecated uniqueTokens1y is no longer supported and will be removed on 2026-07-10. */
   UniqueTokens1y = 'uniqueTokens1y',
   UniqueTokens30d = 'uniqueTokens30d',
   VolumeUsd1d = 'volumeUsd1d',
@@ -10368,6 +15513,14 @@ export type WalletTokenFilters = {
   amountSoldUsd1y?: InputMaybe<WalletTokenFilterRange>;
   /** Filter by amount sold in USD in the past 30 days */
   amountSoldUsd30d?: InputMaybe<WalletTokenFilterRange>;
+  /** Average hold period, in seconds, for positions sold during the past day. Calculated from cost-basis turnover using sold cost basis. Returns null when there are no sells. */
+  avgHoldPeriodSec1d?: InputMaybe<WalletTokenFilterRange>;
+  /** Average hold period, in seconds, for positions sold during the past week. Calculated from cost-basis turnover using sold cost basis. Returns null when there are no sells. */
+  avgHoldPeriodSec1w?: InputMaybe<WalletTokenFilterRange>;
+  /** Average hold period, in seconds, for positions sold during the past year. Calculated from cost-basis turnover using sold cost basis. Returns null when there are no sells. */
+  avgHoldPeriodSec1y?: InputMaybe<WalletTokenFilterRange>;
+  /** Average hold period, in seconds, for positions sold during the past 30 days. Calculated from cost-basis turnover using sold cost basis. Returns null when there are no sells. */
+  avgHoldPeriodSec30d?: InputMaybe<WalletTokenFilterRange>;
   /** Filter by bot score */
   botScore?: InputMaybe<WalletTokenFilterRange>;
   /** Filter by number of buys in the past day */
@@ -10450,6 +15603,14 @@ export type WalletTokenFiltersV2 = {
   amountSoldUsd1y?: InputMaybe<NumberFilter>;
   /** Filter by amount sold in USD in the past 30 days */
   amountSoldUsd30d?: InputMaybe<NumberFilter>;
+  /** Average hold period, in seconds, for positions sold during the past day. Calculated from cost-basis turnover using sold cost basis. Returns null when there are no sells. */
+  avgHoldPeriodSec1d?: InputMaybe<NumberFilter>;
+  /** Average hold period, in seconds, for positions sold during the past week. Calculated from cost-basis turnover using sold cost basis. Returns null when there are no sells. */
+  avgHoldPeriodSec1w?: InputMaybe<NumberFilter>;
+  /** Average hold period, in seconds, for positions sold during the past year. Calculated from cost-basis turnover using sold cost basis. Returns null when there are no sells. */
+  avgHoldPeriodSec1y?: InputMaybe<NumberFilter>;
+  /** Average hold period, in seconds, for positions sold during the past 30 days. Calculated from cost-basis turnover using sold cost basis. Returns null when there are no sells. */
+  avgHoldPeriodSec30d?: InputMaybe<NumberFilter>;
   /** Filter by bot score */
   botScore?: InputMaybe<NumberFilter>;
   /** Filter by number of buys in the past day */
@@ -10540,6 +15701,14 @@ export enum WalletTokenRankingAttribute {
   AmountSoldUsd1y = 'amountSoldUsd1y',
   /** Amount sold in USD in the past 30 days */
   AmountSoldUsd30d = 'amountSoldUsd30d',
+  /** Average hold period, in seconds, for positions sold during the past day. */
+  AvgHoldPeriodSec1d = 'avgHoldPeriodSec1d',
+  /** Average hold period, in seconds, for positions sold during the past week. */
+  AvgHoldPeriodSec1w = 'avgHoldPeriodSec1w',
+  /** Average hold period, in seconds, for positions sold during the past year. */
+  AvgHoldPeriodSec1y = 'avgHoldPeriodSec1y',
+  /** Average hold period, in seconds, for positions sold during the past 30 days. */
+  AvgHoldPeriodSec30d = 'avgHoldPeriodSec30d',
   /** The bot score for the wallet. */
   BotScore = 'botScore',
   /** Number of buys in the past day */
@@ -10641,43 +15810,18 @@ export type Webhook = {
   retrySettings?: Maybe<RetrySettings>;
   /** The status of the webhook. Can be `ACTIVE` or `INACTIVE`. */
   status: Scalars['String']['output'];
-  /** The type of webhook. Can be `PRICE_EVENT`, `NFT_EVENT`, or `TOKEN_PAIR_EVENT`. */
+  /** The type of webhook. Can be `PRICE_EVENT`, `TOKEN_PAIR_EVENT`, or `RAW_TRANSACTION`. */
   webhookType: WebhookType;
 };
 
 /** Webhook conditions that must be met for each webhook type. */
-export type WebhookCondition = MarketCapEventWebhookCondition | NftEventWebhookCondition | PriceEventWebhookCondition | RawTransactionWebhookCondition | TokenPairEventWebhookCondition | TokenPriceEventWebhookCondition | TokenTransferEventWebhookCondition;
-
-/** NFT marketplace names. */
-export enum WebhookNftEventFillSource {
-  Blur = 'BLUR',
-  Coinbase = 'COINBASE',
-  Echelon = 'ECHELON',
-  Element = 'ELEMENT',
-  Ensvision = 'ENSVISION',
-  Flipxyz = 'FLIPXYZ',
-  Gem = 'GEM',
-  Genie = 'GENIE',
-  Kodex = 'KODEX',
-  Magiceden = 'MAGICEDEN',
-  Nftnerds = 'NFTNERDS',
-  Opensea = 'OPENSEA',
-  Rarible = 'RARIBLE',
-  Reservoirtools = 'RESERVOIRTOOLS',
-  Soundxyz = 'SOUNDXYZ'
-}
-
-/** NFT event types. */
-export enum WebhookNftEventType {
-  Mint = 'MINT',
-  Sale = 'SALE',
-  Transfer = 'TRANSFER'
-}
+export type WebhookCondition = MarketCapEventWebhookCondition | PredictionMarketMetricsEventWebhookCondition | PredictionTradeWebhookCondition | PriceEventWebhookCondition | RawTransactionWebhookCondition | TokenPairEventWebhookCondition | TokenPriceEventWebhookCondition | TokenTransferEventWebhookCondition;
 
 /** The type of webhook. */
 export enum WebhookType {
   MarketCapEvent = 'MARKET_CAP_EVENT',
-  NftEvent = 'NFT_EVENT',
+  PredictionMarketMetricsEvent = 'PREDICTION_MARKET_METRICS_EVENT',
+  PredictionTrade = 'PREDICTION_TRADE',
   PriceEvent = 'PRICE_EVENT',
   RawTransaction = 'RAW_TRANSACTION',
   TokenPairEvent = 'TOKEN_PAIR_EVENT',
@@ -10804,12 +15948,27 @@ export type WindowedDetailedNonCurrencyPairStats = {
 /** The non-currency stats for a wallet over a time window. */
 export type WindowedDetailedNonCurrencyWalletStats = {
   __typename?: 'WindowedDetailedNonCurrencyWalletStats';
+  /** Average hold period, in seconds, for positions sold during the window. Calculated from cost-basis turnover using sold cost basis. Returns null when there are no sells in the window. */
+  avgHoldPeriodSec?: Maybe<Scalars['Float']['output']>;
   /** The number of losses */
   losses: Scalars['Int']['output'];
   /** The number of swaps */
   swaps: Scalars['Int']['output'];
   /** The number of unique tokens */
   uniqueTokens: Scalars['Int']['output'];
+  /** The number of wins */
+  wins: Scalars['Int']['output'];
+};
+
+/** The non-currency stats for a wallet over the 1-year window. Mirrors `WindowedDetailedNonCurrencyWalletStats`, but scopes the deprecation of `uniqueTokens` to the 1-year window only. */
+export type WindowedDetailedNonCurrencyWalletStatsYear = {
+  __typename?: 'WindowedDetailedNonCurrencyWalletStatsYear';
+  /** Average hold period, in seconds, for positions sold during the window. Calculated from cost-basis turnover using sold cost basis. Returns null when there are no sells in the window. */
+  avgHoldPeriodSec?: Maybe<Scalars['Float']['output']>;
+  /** The number of losses */
+  losses: Scalars['Int']['output'];
+  /** The number of swaps */
+  swaps: Scalars['Int']['output'];
   /** The number of wins */
   wins: Scalars['Int']['output'];
 };
@@ -10879,6 +16038,328 @@ export type WindowedDetailedTokenStats = {
   timestamps: Array<Maybe<DetailedPairStatsBucketTimestamp>>;
 };
 
+/** All-time stats containing volume data. */
+export type WindowedPredictionAllTimeStats = {
+  __typename?: 'WindowedPredictionAllTimeStats';
+  /** Venue-specific volume (optional). */
+  venueVolume?: Maybe<CurrencyValuePair>;
+  /** Total volume. */
+  volume: CurrencyValuePair;
+};
+
+/** Buy/sell volume breakdown for an event. */
+export type WindowedPredictionEventBuySellStats = {
+  __typename?: 'WindowedPredictionEventBuySellStats';
+  /** Buy volume. */
+  buyVolume: CurrencyValuePair;
+  /** Sell volume. */
+  sellVolume: CurrencyValuePair;
+};
+
+/** Change percentages for a prediction event over a time window. */
+export type WindowedPredictionEventChangeStats = {
+  __typename?: 'WindowedPredictionEventChangeStats';
+  /** Buy volume change percentage (optional). */
+  buyVolumeChange?: Maybe<Scalars['Float']['output']>;
+  /** Liquidity change percentage (optional). */
+  liquidityChange?: Maybe<Scalars['Float']['output']>;
+  /** Open interest change percentage (optional). */
+  openInterestChange?: Maybe<Scalars['Float']['output']>;
+  /** Sell volume change percentage (optional). */
+  sellVolumeChange?: Maybe<Scalars['Float']['output']>;
+  /** Trades change percentage. */
+  tradesChange: Scalars['Float']['output'];
+  /** Unique traders change percentage (optional). */
+  uniqueTradersChange?: Maybe<Scalars['Float']['output']>;
+  /** Volume change percentage. */
+  volumeChange: Scalars['Float']['output'];
+};
+
+/** Core event stats that are always available. */
+export type WindowedPredictionEventCoreStats = {
+  __typename?: 'WindowedPredictionEventCoreStats';
+  /** Number of trades during this window. */
+  trades: Scalars['Int']['output'];
+  /** Volume during this window. */
+  volume: CurrencyValuePair;
+};
+
+/** Event-level liquidity OHLC data. */
+export type WindowedPredictionEventLiquidityStats = {
+  __typename?: 'WindowedPredictionEventLiquidityStats';
+  /** Liquidity OHLC values. */
+  liquidity: CurrencyOhlc;
+};
+
+/** Event-level open interest OHLC data. */
+export type WindowedPredictionEventOpenInterestStats = {
+  __typename?: 'WindowedPredictionEventOpenInterestStats';
+  /** Open interest OHLC values. */
+  openInterest: CurrencyOhlc;
+};
+
+/** Unique trader count during the period. */
+export type WindowedPredictionEventUniqueTraderStats = {
+  __typename?: 'WindowedPredictionEventUniqueTraderStats';
+  /** Number of unique traders. */
+  uniqueTraders: Scalars['Int']['output'];
+};
+
+/** Change percentages for a prediction market over a time window. */
+export type WindowedPredictionMarketChangeStats = {
+  __typename?: 'WindowedPredictionMarketChangeStats';
+  /** Liquidity change percentage (optional). */
+  liquidityChange?: Maybe<Scalars['Float']['output']>;
+  /** Open interest change percentage (optional). */
+  openInterestChange?: Maybe<Scalars['Float']['output']>;
+  /** Trades change percentage. */
+  tradesChange: Scalars['Float']['output'];
+  /** Unique traders change percentage (optional). */
+  uniqueTradersChange?: Maybe<Scalars['Float']['output']>;
+  /** Volume change percentage. */
+  volumeChange: Scalars['Float']['output'];
+};
+
+/** Core market stats that are always available. */
+export type WindowedPredictionMarketCoreStats = {
+  __typename?: 'WindowedPredictionMarketCoreStats';
+  /** Number of trades during this window. */
+  trades: Scalars['Int']['output'];
+  /** Volume during this window. */
+  volume: CurrencyValuePair;
+};
+
+/** Market-level liquidity OHLC data. */
+export type WindowedPredictionMarketLiquidityStats = {
+  __typename?: 'WindowedPredictionMarketLiquidityStats';
+  /** Liquidity OHLC values. */
+  liquidity: CurrencyOhlc;
+};
+
+/** Per-window market-level stat conditions for a prediction market metrics event webhook. */
+export type WindowedPredictionMarketMetricsEventMarketCondition = {
+  __typename?: 'WindowedPredictionMarketMetricsEventMarketCondition';
+  /** The number of trades condition. */
+  trades?: Maybe<ComparisonOperator>;
+  /** The trades change condition. */
+  tradesChange?: Maybe<ComparisonOperator>;
+  /** The volume change condition. */
+  volumeChange?: Maybe<ComparisonOperator>;
+  /** The volume in USD condition. */
+  volumeUsd?: Maybe<ComparisonOperator>;
+};
+
+/** Per-window market-level stat thresholds. All present fields ANDed. */
+export type WindowedPredictionMarketMetricsEventMarketConditionInput = {
+  trades?: InputMaybe<ComparisonOperatorInput>;
+  tradesChange?: InputMaybe<ComparisonOperatorInput>;
+  volumeChange?: InputMaybe<ComparisonOperatorInput>;
+  volumeUsd?: InputMaybe<ComparisonOperatorInput>;
+};
+
+/** Per-window outcome stat conditions for a prediction market metrics event webhook. */
+export type WindowedPredictionMarketMetricsEventOutcomeCondition = {
+  __typename?: 'WindowedPredictionMarketMetricsEventOutcomeCondition';
+  /** The price condition. */
+  price?: Maybe<ComparisonOperator>;
+  /** The price change condition. */
+  priceChange?: Maybe<ComparisonOperator>;
+  /** The number of trades condition. */
+  trades?: Maybe<ComparisonOperator>;
+  /** The trades change condition. */
+  tradesChange?: Maybe<ComparisonOperator>;
+  /** The volume change condition. */
+  volumeChange?: Maybe<ComparisonOperator>;
+  /** The volume in USD condition. */
+  volumeUsd?: Maybe<ComparisonOperator>;
+};
+
+/** Per-window stat thresholds for a PredictionMarketMetricsEvent webhook outcome. All present fields are ANDed. */
+export type WindowedPredictionMarketMetricsEventOutcomeConditionInput = {
+  price?: InputMaybe<ComparisonOperatorInput>;
+  priceChange?: InputMaybe<ComparisonOperatorInput>;
+  trades?: InputMaybe<ComparisonOperatorInput>;
+  tradesChange?: InputMaybe<ComparisonOperatorInput>;
+  volumeChange?: InputMaybe<ComparisonOperatorInput>;
+  volumeUsd?: InputMaybe<ComparisonOperatorInput>;
+};
+
+/** Market-level open interest OHLC data. */
+export type WindowedPredictionMarketOpenInterestStats = {
+  __typename?: 'WindowedPredictionMarketOpenInterestStats';
+  /** Open interest OHLC values. */
+  openInterest: CurrencyOhlc;
+};
+
+/** Unique trader count during the period. */
+export type WindowedPredictionMarketUniqueTraderStats = {
+  __typename?: 'WindowedPredictionMarketUniqueTraderStats';
+  /** Number of unique traders. */
+  uniqueTraders: Scalars['Int']['output'];
+};
+
+/** Buy/sell trade breakdown for an outcome. */
+export type WindowedPredictionOutcomeBuySellStats = {
+  __typename?: 'WindowedPredictionOutcomeBuySellStats';
+  /** Buy volume breakdown. */
+  buyVolume: OutcomeBuySellVolumeStats;
+  /** Number of buys. */
+  buys: Scalars['Int']['output'];
+  /** Sell volume breakdown. */
+  sellVolume: OutcomeBuySellVolumeStats;
+  /** Number of sells. */
+  sells: Scalars['Int']['output'];
+};
+
+/** Change percentages for a prediction outcome over a time window. */
+export type WindowedPredictionOutcomeChangeStats = {
+  __typename?: 'WindowedPredictionOutcomeChangeStats';
+  /** Buys change percentage (optional). */
+  buysChange?: Maybe<Scalars['Float']['output']>;
+  /** Liquidity change percentage (optional). */
+  liquidityChange?: Maybe<Scalars['Float']['output']>;
+  /** Price change percentage. */
+  priceChange: Scalars['Float']['output'];
+  /** Price range over the window (volatility proxy). */
+  priceRange: Scalars['Float']['output'];
+  /** Sells change percentage (optional). */
+  sellsChange?: Maybe<Scalars['Float']['output']>;
+  /** Trades change percentage. */
+  tradesChange: Scalars['Float']['output'];
+  /** Volume change percentage. */
+  volumeChange: Scalars['Float']['output'];
+  /** Volume shares change percentage. */
+  volumeSharesChange: Scalars['Float']['output'];
+};
+
+/** Core outcome stats that are always available. */
+export type WindowedPredictionOutcomeCoreStats = {
+  __typename?: 'WindowedPredictionOutcomeCoreStats';
+  /** Price OHLC data. */
+  price: PriceOhlc;
+  /** Number of trades. */
+  trades: Scalars['Int']['output'];
+  /** The venue-specific outcome ID. */
+  venueOutcomeId: Scalars['String']['output'];
+  /** Volume stats including shares. */
+  volume: OutcomeVolumeStats;
+};
+
+/** Two percent depth OHLC data for bid and ask. */
+export type WindowedPredictionOutcomeDepthStats = {
+  __typename?: 'WindowedPredictionOutcomeDepthStats';
+  /** Ask depth OHLC. */
+  askDepth: CurrencyOhlc;
+  /** Bid depth OHLC. */
+  bidDepth: CurrencyOhlc;
+};
+
+/** Outcome-level liquidity OHLC data. */
+export type WindowedPredictionOutcomeLiquidityStats = {
+  __typename?: 'WindowedPredictionOutcomeLiquidityStats';
+  /** Liquidity OHLC values. */
+  liquidity: CurrencyOhlc;
+};
+
+/** Orderbook bid/ask OHLC data. */
+export type WindowedPredictionOutcomeOrderbookStats = {
+  __typename?: 'WindowedPredictionOutcomeOrderbookStats';
+  /** Ask price OHLC. */
+  ask: PriceOhlc;
+  /** Bid price OHLC. */
+  bid: PriceOhlc;
+};
+
+/** All-time stats for a prediction trader in a windowed context. */
+export type WindowedPredictionTraderAllTimeStats = {
+  __typename?: 'WindowedPredictionTraderAllTimeStats';
+  /** The total profit ct. */
+  totalProfitCT: Scalars['String']['output'];
+  /** The total profit usd. */
+  totalProfitUsd: Scalars['String']['output'];
+  /** The total volume ct. */
+  totalVolumeCT: Scalars['String']['output'];
+  /** The total volume usd. */
+  totalVolumeUsd: Scalars['String']['output'];
+};
+
+/** Change percentages for a prediction trader over a time window. */
+export type WindowedPredictionTraderChangeStats = {
+  __typename?: 'WindowedPredictionTraderChangeStats';
+  /** Buy volume. */
+  buyVolumeChange: Scalars['Float']['output'];
+  /** The percentage change. */
+  lossesChange: Scalars['Float']['output'];
+  /** The percentage change. */
+  realizedPnlChange: Scalars['Float']['output'];
+  /** Sell volume. */
+  sellVolumeChange: Scalars['Float']['output'];
+  /** Trades change percentage. */
+  tradesChange: Scalars['Float']['output'];
+  /** The percentage change. */
+  uniqueMarketsChange: Scalars['Float']['output'];
+  /** Volume change percentage. */
+  volumeChange: Scalars['Float']['output'];
+  /** The percentage change. */
+  winsChange: Scalars['Float']['output'];
+};
+
+/** Currency stats for a prediction trader over a time window. */
+export type WindowedPredictionTraderCurrencyStats = {
+  __typename?: 'WindowedPredictionTraderCurrencyStats';
+  /** The average profit ctper trade. */
+  averageProfitCTPerTrade: Scalars['String']['output'];
+  /** The average profit usd per trade. */
+  averageProfitUsdPerTrade: Scalars['String']['output'];
+  /** The average swap amount ct. */
+  averageSwapAmountCT: Scalars['String']['output'];
+  /** The average swap amount usd. */
+  averageSwapAmountUsd: Scalars['String']['output'];
+  /** Buy volume in collateral token units. */
+  buyVolumeCT: Scalars['String']['output'];
+  /** Buy volume in USD. */
+  buyVolumeUsd: Scalars['String']['output'];
+  /** The held token acquisition cost ct. */
+  heldTokenAcquisitionCostCT: Scalars['String']['output'];
+  /** The held token acquisition cost usd. */
+  heldTokenAcquisitionCostUsd: Scalars['String']['output'];
+  /** The realized pnl ct. */
+  realizedPnlCT: Scalars['String']['output'];
+  /** The realized pnl usd. */
+  realizedPnlUsd: Scalars['String']['output'];
+  /** The realized profit percentage. */
+  realizedProfitPercentage: Scalars['Float']['output'];
+  /** Sell volume in collateral token units. */
+  sellVolumeCT: Scalars['String']['output'];
+  /** Sell volume in USD. */
+  sellVolumeUsd: Scalars['String']['output'];
+  /** The sold token acquisition cost ct. */
+  soldTokenAcquisitionCostCT: Scalars['String']['output'];
+  /** The sold token acquisition cost usd. */
+  soldTokenAcquisitionCostUsd: Scalars['String']['output'];
+  /** Volume in collateral token units. */
+  volumeCT: Scalars['String']['output'];
+  /** Volume in USD. */
+  volumeUsd: Scalars['String']['output'];
+};
+
+/** Non-currency stats for a prediction trader over a time window. */
+export type WindowedPredictionTraderNonCurrencyStats = {
+  __typename?: 'WindowedPredictionTraderNonCurrencyStats';
+  /** The number of buys. */
+  buys: Scalars['Int']['output'];
+  /** The losses. */
+  losses: Scalars['Int']['output'];
+  /** The number of sells. */
+  sells: Scalars['Int']['output'];
+  /** The number of trades. */
+  trades: Scalars['Int']['output'];
+  /** The number of unique markets. */
+  uniqueMarkets: Scalars['Int']['output'];
+  /** The wins. */
+  wins: Scalars['Int']['output'];
+};
+
 /** The stats for a wallet over a time window. */
 export type WindowedWalletStats = {
   __typename?: 'WindowedWalletStats';
@@ -10892,6 +16373,25 @@ export type WindowedWalletStats = {
   start: Scalars['Int']['output'];
   /** The stats related to non-currency */
   statsNonCurrency: WindowedDetailedNonCurrencyWalletStats;
+  /** The stats related to currency */
+  statsUsd: WindowedDetailedCurrencyWalletStats;
+  /** The wallet address */
+  walletAddress: Scalars['String']['output'];
+};
+
+/** The stats for a wallet over the 1-year window. Mirrors `WindowedWalletStats`, but exposes 1-year-scoped non-currency stats so `uniqueTokens` can be deprecated for the 1-year window only. */
+export type WindowedWalletStatsYear = {
+  __typename?: 'WindowedWalletStatsYear';
+  /** The end timestamp */
+  end: Scalars['Int']['output'];
+  /** The last transaction timestamp */
+  lastTransactionAt: Scalars['Int']['output'];
+  /** The network ID */
+  networkId?: Maybe<Scalars['Int']['output']>;
+  /** The start timestamp */
+  start: Scalars['Int']['output'];
+  /** The stats related to non-currency */
+  statsNonCurrency: WindowedDetailedNonCurrencyWalletStatsYear;
   /** The stats related to currency */
   statsUsd: WindowedDetailedCurrencyWalletStats;
   /** The wallet address */
