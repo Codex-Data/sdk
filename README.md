@@ -332,7 +332,7 @@ const result = await sdk.send<{
 console.log("Networks:", result.getNetworks);
 ```
 
-Instead of writing types by hand, you can reuse the SDK's exported query types with `DeepPartial`, which makes every field optional — keeping the compiler honest about fields your query didn't select:
+Instead of writing types by hand, you can reuse the SDK's exported query types with `DeepPartial`, which makes every field optional:
 
 ```typescript
 import { Codex, DeepPartial, FilterTokensQuery } from "@codex-data/sdk";
