@@ -176,14 +176,18 @@ sdk.subscriptions.onPriceUpdated(
 
 ### Custom GraphQL Query
 
-```typescript
-import { GetNetworksQuery } from "@codex-data/sdk";
+Custom queries let you request only the fields you need — you're billed for the fields your query requests, so this is the recommended pattern for production. Wrap the SDK's exported query types in `DeepPartial` so the compiler stays honest about fields your query didn't select:
 
-const result = await sdk.send<GetNetworksQuery>(
+```typescript
+import { DeepPartial, GetNetworksQuery } from "@codex-data/sdk";
+
+const result = await sdk.send<DeepPartial<GetNetworksQuery>>(
   `query GetNetworks { getNetworks { id name } }`,
   {},
 );
 ```
+
+For exact types inferred from your query (no `DeepPartial` needed), see the [codegen example](./codegen/).
 
 ### Mutation Example
 
