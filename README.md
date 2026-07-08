@@ -33,7 +33,7 @@ const networks = await sdk.queries.getNetworks({});
 console.log(networks.getNetworks); // [{ id: 1, name: "ethereum" }, { id: 1399811149, name: "solana" }, ...]
 ```
 
-> **Tip:** The built-in `sdk.queries.*` methods request **every** available field, and Codex pricing is based on the fields your query requests. They're great for exploring the API, but for production we recommend [writing a custom query](#custom-queries-request-only-the-fields-you-need) that selects only the fields you need.
+> **Tip:** The built-in `sdk.queries.*` methods request **every** available field. They're great for exploring the API, but for production we recommend [writing a custom query](#custom-queries-request-only-the-fields-you-need) that selects only the fields you need.
 
 ## Get Token Prices
 
@@ -307,7 +307,7 @@ const unsubscribe = sdk.subscriptions.onEventsCreated(
 
 ## Custom Queries: Request Only the Fields You Need
 
-Codex pricing is based on the fields your query requests, and some nested fields (like the full `token` object) carry their own cost. The built-in `sdk.queries.*` methods select every available field, so the recipes above are the most expensive way to call each endpoint. Writing your own query means you pay only for what you use — and get smaller, faster responses.
+The built-in `sdk.queries.*` methods select every available field, so the recipes above are the most expensive way to call each endpoint. Writing your own query means you get smaller, faster responses.
 
 There are two ways to do it:
 
