@@ -1,8 +1,13 @@
 name: Bump version
 
-# Bumps the patch version, commits, and pushes a v* tag.
-# Pushing the tag triggers release.yml, which builds, publishes to npm,
-# and cuts a GitHub Release.
+# Fetches the latest supergraph schema, diffs it against the committed copy,
+# commits the schema update, bumps the version (minor if the schema diff has
+# breaking changes, patch otherwise), and pushes a v* tag. Pushing the tag
+# triggers release.yml, which builds and publishes to npm. The GitHub Release
+# notes lead with the schema diff, followed by auto-generated PR notes.
+#
+# If the schema is unchanged and there are no commits since the last tag,
+# the run skips the release instead of publishing an empty one.
 
 on:
   workflow_dispatch:
@@ -21,18 +26,46 @@ jobs:
         with:
           node-version: 20
       - uses: pnpm/action-setup@v4
+      - run: pnpm install --frozen-lockfile
       - name: Configure git
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-      - name: Bump patch version and tag
+      - name: Fetch latest schema and diff against committed copy
+        id: diff
+        run: |
+          cp src/resources/schema.graphql /tmp/old-schema.graphql
+          pnpm run fetch:schema
+          pnpm --silent run schema:diff /tmp/old-schema.graphql src/resources/schema.graphql > /tmp/schema-changes.md
+          cat /tmp/schema-changes.md >> "$GITHUB_STEP_SUMMARY"
+      - name: Decide whether to release
+        id: gate
+        run: |
+          LAST_TAG=$(git describe --tags --abbrev=0 2>/dev/null || true)
+          if [ "${{ steps.diff.outputs.changed }}" = "true" ] || [ -z "$LAST_TAG" ] || [ -n "$(git log "$LAST_TAG"..HEAD --oneline)" ]; then
+            echo "release=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "release=false" >> "$GITHUB_OUTPUT"
+            echo "Schema unchanged and no commits since $LAST_TAG — skipping release." >> "$GITHUB_STEP_SUMMARY"
+          fi
+      - name: Commit schema update
+        if: steps.gate.outputs.release == 'true' && steps.diff.outputs.changed == 'true'
+        run: |
+          git add src/resources/schema.graphql
+          git commit -m "chore: update supergraph schema"
+      - name: Bump version and tag
+        if: steps.gate.outputs.release == 'true'
         id: bump
         run: |
-          echo "tag=$(pnpm version patch -m 'chore(release): %s')" >> "$GITHUB_OUTPUT"
+          if [ "${{ steps.diff.outputs.level }}" = "breaking" ]; then BUMP=minor; else BUMP=patch; fi
+          echo "tag=$(pnpm version $BUMP -m 'chore(release): %s')" >> "$GITHUB_OUTPUT"
       - name: Push commit and tag
+        if: steps.gate.outputs.release == 'true'
         run: git push --follow-tags
       - name: Create GitHub Release
+        if: steps.gate.outputs.release == 'true'
         uses: softprops/action-gh-release@v2
         with:
           tag_name: ${{ steps.bump.outputs.tag }}
+          body_path: /tmp/schema-changes.md
           generate_release_notes: true
