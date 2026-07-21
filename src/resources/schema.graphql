@@ -4863,6 +4863,8 @@ type Price {
   priceUsd: Float!
   """The pool that emitted the swap generating this price"""
   blockNumber: Int
+  """The token's cumulative route-backed liquidity in USD, summed across the token's pairs with valid routing liquidity. Null when this stat has not been computed for the token yet. Not available via subscription."""
+  liquidityUsd: String
   """The percent price change in the past 24 hours. Decimal format. Not available via subscription."""
   priceChange24: Float
   """The pool that emitted the swap generating this price"""
@@ -11086,7 +11088,7 @@ type Balance {
   firstHeldTimestamp: Int
   """Metadata for the token."""
   token: EnhancedToken
-  """The liquidity of the token in USD."""
+  """The token's route-backed liquidity in USD: the real liquidity supporting the token price, summed across the token's pairs with valid routing liquidity. Null when this stat has not been computed for the token yet."""
   liquidityUsd: String
   """Unix timestamp (seconds) of the token's most recent trade/market event across all pools we track. Token-level (not specific to this wallet). Useful for filtering out dead/worthless tokens, e.g. no activity in months."""
   tokenLastTradedTimestamp: Int
