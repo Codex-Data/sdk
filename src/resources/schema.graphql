@@ -1,10 +1,4 @@
 type Query {
-  """Get all active short-lived api tokens for this api key"""
-  apiTokens: [ApiToken!]!
-  """Get the active short-lived api token for this api key by the short-lived token"""
-  apiToken(
-    token: String!
-  ): ApiToken!
   """Returns an NFT pool."""
   getNftPool(
     """The contract address of the NFT pool."""
@@ -478,34 +472,6 @@ type Query {
     """Where in the list the server should start when returning items."""
     offset: Int
   ): PredictionTraderFilterConnection
-  """Returns block data for the input blockNumbers or timestamps, maximum 25 inputs."""
-  blocks(
-    input: BlocksInput!
-  ): [Block!]!
-  """Returns a list of all networks supported on Codex."""
-  getNetworks: [Network!]!
-  """Returns the status of a list of networks supported on Codex."""
-  getNetworkStatus(
-    """The list of network IDs."""
-    networkIds: [Int!]!
-  ): [MetadataResponse!]
-  """Returns a user's list of webhooks."""
-  getWebhooks(
-    """The cursor to use for pagination."""
-    cursor: String
-    """webhookId: The id of the webhook you want to retrieve."""
-    webhookId: String
-    """bucketId: The bucketId of the webhooks you want to retrieve. Note that bucketId and webhookId are mutually exclusive, do not send both."""
-    bucketId: String
-    """bucketSortkey: The bucketSortkey of the webhooks you want to retrieve."""
-    bucketSortkey: String
-    """limit: The maximum number of webhooks to return."""
-    limit: Int
-  ): GetWebhooksResponse
-  """Returns a list of network configurations."""
-  getNetworkConfigs(
-    networkIds: [Int!]
-  ): [NetworkConfig!]!
   """Discover, screen, and rank tokens across every supported network using 100+ on-chain signals: trading activity, liquidity, holder behavior, fee economics, and launchpad lifecycle."""
   filterTokens(
     """A set of filters to apply."""
@@ -888,17 +854,51 @@ type Query {
   walletChart(
     input: WalletChartInput!
   ): WalletChartResponse
+  """Returns block data for the input blockNumbers or timestamps, maximum 25 inputs."""
+  blocks(
+    input: BlocksInput!
+  ): [Block!]!
+  """Returns a list of all networks supported on Codex."""
+  getNetworks: [Network!]!
+  """Returns the status of a list of networks supported on Codex."""
+  getNetworkStatus(
+    """The list of network IDs."""
+    networkIds: [Int!]!
+  ): [MetadataResponse!]
+  """Returns a user's list of webhooks."""
+  getWebhooks(
+    """The cursor to use for pagination."""
+    cursor: String
+    """webhookId: The id of the webhook you want to retrieve."""
+    webhookId: String
+    """bucketId: The bucketId of the webhooks you want to retrieve. Note that bucketId and webhookId are mutually exclusive, do not send both."""
+    bucketId: String
+    """bucketSortkey: The bucketSortkey of the webhooks you want to retrieve."""
+    bucketSortkey: String
+    """limit: The maximum number of webhooks to return."""
+    limit: Int
+  ): GetWebhooksResponse
+  """Returns a list of network configurations."""
+  getNetworkConfigs(
+    networkIds: [Int!]
+  ): [NetworkConfig!]!
+  """Get all active short-lived api tokens for this api key"""
+  apiTokens: [ApiToken!]!
+  """Get the active short-lived api token for this api key by the short-lived token"""
+  apiToken(
+    token: String!
+  ): ApiToken!
 }
 
 type Mutation {
-  """Create a new set of short-lived api access tokens"""
-  createApiTokens(
-    input: CreateApiTokensInput!
-  ): [ApiToken!]!
-  """Delete a single short-lived api access token by id"""
-  deleteApiToken(
-    id: String!
-  ): String!
+  """Force refreshes the balance for a token in a wallet. EVM only."""
+  refreshBalances(
+    input: [RefreshBalancesInput!]!
+  ): [Balance!]!
+  """Backfill wallet aggregates (trading stats) for a given wallet. This is the data used in the filterWallet/filterTokenWallets and detailedWalletStats queries."""
+  backfillWalletAggregates(
+    input: WalletAggregateBackfillInput!
+  ): WalletAggregateBackfillStateResponse!
   """Create event webhooks for price, token/pair, transfer, market cap, and prediction market trades."""
   createWebhooks(
     """input: Input for creating webhooks."""
@@ -909,14 +909,14 @@ type Mutation {
     """input: Input for deleting webhooks."""
     input: DeleteWebhooksInput!
   ): DeleteWebhooksOutput
-  """Force refreshes the balance for a token in a wallet. EVM only."""
-  refreshBalances(
-    input: [RefreshBalancesInput!]!
-  ): [Balance!]!
-  """Backfill wallet aggregates (trading stats) for a given wallet. This is the data used in the filterWallet/filterTokenWallets and detailedWalletStats queries."""
-  backfillWalletAggregates(
-    input: WalletAggregateBackfillInput!
-  ): WalletAggregateBackfillStateResponse!
+  """Create a new set of short-lived api access tokens"""
+  createApiTokens(
+    input: CreateApiTokensInput!
+  ): [ApiToken!]!
+  """Delete a single short-lived api access token by id"""
+  deleteApiToken(
+    id: String!
+  ): String!
 }
 
 """Live-streamed prediction data subscriptions for trades, stats, and bar updates."""
@@ -1134,30 +1134,6 @@ type Subscription {
   onLaunchpadTokenEvent(
     input: OnLaunchpadTokenEventInput
   ): LaunchpadTokenEventOutput!
-}
-
-scalar JSON
-
-type ApiToken {
-  """Unique identifier for the token"""
-  id: String!
-  """JWT to be passed into the Authorization header for API requests"""
-  token: String!
-  """ISO time string for the expiry of the token"""
-  expiresTimeString: String!
-  """Number of root fields this api token is allowed to resolve before it's rate limited"""
-  requestLimit: String!
-  """Approximate number of remaining resolutions before this token is rate limited"""
-  remaining: String
-}
-
-input CreateApiTokensInput {
-  """Number of tokens to create, default is 1"""
-  count: Int
-  """Number of requests allowed per token, represented as a string, default is 5000"""
-  requestLimit: String
-  """Number of milliseconds until the token expires, defaults to 1 hour (3600000)"""
-  expiresIn: Int
 }
 
 """The display type for the NFT asset attribute."""
@@ -4676,6 +4652,8 @@ type AddNftPoolEventsOutput {
   id: String!
   events: [NftPoolEvent]!
 }
+
+scalar JSON
 
 scalar Void
 
@@ -9594,1095 +9572,6 @@ enum PredictionEventMarketSort {
   NONE @deprecated(reason: "No longer affects market ordering.")
 }
 
-"""The quote token within the pair."""
-enum QuoteToken {
-  token0
-  token1
-}
-
-enum NetworkConfigType {
-  SOLANA
-  EVM
-  SUI
-  APTOS
-  STARKNET
-}
-
-type ExplorerConfig {
-  checksummed: Boolean!
-  icon: String!
-  name: String!
-  url: String!
-}
-
-interface NetworkConfigBase {
-  id: ID!
-  networkId: Int!
-  baseTokenAddress: String!
-  baseTokenSymbol: String!
-  color: String
-  defaultPairAddress: String!
-  defaultPairQuoteToken: QuoteToken!
-  enabled: Boolean!
-  newTokensEnabled: Boolean
-  explorer: ExplorerConfig!
-  mainnet: Boolean!
-  name: String!
-  networkIconUrl: String!
-  networkName: String!
-  networkShortName: String!
-  networkType: NetworkConfigType!
-  wrappedBaseTokenSymbol: String!
-  stableCoinAddresses: [String!]
-}
-
-union NetworkConfig = EvmNetworkConfig | SolanaNetworkConfig | SuiNetworkConfig | AptosNetworkConfig | StarknetNetworkConfig
-
-"""The type of webhook."""
-enum WebhookType {
-  PRICE_EVENT
-  TOKEN_PAIR_EVENT
-  RAW_TRANSACTION
-  MARKET_CAP_EVENT
-  TOKEN_PRICE_EVENT
-  TOKEN_TRANSFER_EVENT
-  PREDICTION_TRADE
-  PREDICTION_MARKET_METRICS_EVENT
-}
-
-"""Input for deleting webhooks."""
-input DeleteWebhooksInput {
-  """A list of webhook IDs to delete."""
-  webhookIds: [String!]!
-}
-
-"""Result returned by `deleteWebhooks`."""
-type DeleteWebhooksOutput {
-  """The list of webhook IDs that were deleted."""
-  deletedIds: [String]
-}
-
-"""Input for creating webhooks."""
-input CreateWebhooksInput {
-  """Input for creating price webhooks."""
-  priceWebhooksInput: CreatePriceWebhooksInput @deprecated(reason: "Use tokenPriceEventWebhooksInput instead.")
-  """Input for creating token pair event webhooks."""
-  tokenPairEventWebhooksInput: CreateTokenPairEventWebhooksInput
-  """Input for creating raw transaction webhooks."""
-  rawTransactionWebhooksInput: CreateRawTransactionWebhooksInput
-  """Input for creating market cap webhooks."""
-  marketCapWebhooksInput: CreateMarketCapWebhooksInput
-  """Input for creating token price event webhooks."""
-  tokenPriceEventWebhooksInput: CreateTokenPriceEventWebhooksInput
-  """Input for creating token transfer event webhooks."""
-  tokenTransferEventWebhooksInput: CreateTokenTransferEventWebhooksInput
-  """Input for creating prediction trade webhooks."""
-  predictionTradeWebhooksInput: CreatePredictionTradeWebhooksInput
-  """Input for creating prediction market metrics event webhooks."""
-  predictionMarketMetricsEventWebhooksInput: CreatePredictionMarketMetricsEventWebhooksInput
-}
-
-"""A bucket identifier for grouping and querying webhooks. Provide both fields together so bucket-based queries work correctly."""
-input BucketKeyInput {
-  """The bucket ID for the webhook."""
-  bucketId: String!
-  """The bucket sort key for the webhook."""
-  bucketSortKey: String!
-}
-
-"""Input for creating price webhooks."""
-input CreatePriceWebhooksInput {
-  """A list of price webhooks to create."""
-  webhooks: [CreatePriceWebhookArgs!]!
-}
-
-"""Input for creating a price webhook."""
-input CreatePriceWebhookArgs {
-  """The name of the webhook (max 128 characters)."""
-  name: String!
-  """The url to which the webhook message should be sent."""
-  callbackUrl: String!
-  """A string value to hash along with `deduplicationId` using SHA-256. Included in the webhook message for added security."""
-  securityToken: String!
-  """The recurrence of the webhook. Can be `INDEFINITE` or `ONCE`."""
-  alertRecurrence: AlertRecurrence!
-  """A webhook group ID (max 64 characters). Can be used to group webhooks so that their messages are kept in order as a group rather than by individual webhook."""
-  groupId: String @deprecated(reason: "GroupId is deprecated and will be removed in the future. Messages will be grouped by webhookId")
-  """The conditions which must be met in order for the webhook to send a message."""
-  conditions: PriceEventWebhookConditionInput!
-  """The settings for retrying failed webhook messages."""
-  retrySettings: RetrySettingsInput
-  """An optional bucket key for grouping and querying webhooks. Prefer this over the deprecated flat bucket fields."""
-  bucketKey: BucketKeyInput
-  """Deprecated. Use `bucketKey.bucketId` instead. Existing webhooks created with `bucketId` and `bucketSortkey` will continue to work."""
-  bucketId: String @deprecated(reason: "Use bucketKey.bucketId instead.")
-  """Deprecated. Use `bucketKey.bucketSortKey` instead. Existing webhooks created with `bucketId` and `bucketSortkey` will continue to work."""
-  bucketSortkey: String @deprecated(reason: "Use bucketKey.bucketSortKey instead.")
-  """The type of publishing for the webhook. If not set, it defaults to `SINGLE`."""
-  publishingType: PublishingType
-  """If enabled, new webhooks won't be created if a webhook with the same parameters already exists. If callbackUrl, conditions, publishingType, and alertRecurrence all match, then we return the existing webhook."""
-  deduplicate: Boolean
-}
-
-"""Input for creating market cap webhooks."""
-input CreateMarketCapWebhooksInput {
-  """A list of market cap webhooks to create."""
-  webhooks: [CreateMarketCapWebhookArgs!]!
-}
-
-"""Input for creating a market cap webhook."""
-input CreateMarketCapWebhookArgs {
-  """The name of the webhook (max 128 characters)."""
-  name: String!
-  """The url to which the webhook message should be sent."""
-  callbackUrl: String!
-  """A string value to hash along with `deduplicationId` using SHA-256. Included in the webhook message for added security."""
-  securityToken: String!
-  """The recurrence of the webhook. Can be `INDEFINITE` or `ONCE`."""
-  alertRecurrence: AlertRecurrence!
-  """A webhook group ID (max 64 characters). Can be used to group webhooks so that their messages are kept in order as a group rather than by individual webhook."""
-  groupId: String @deprecated(reason: "GroupId is deprecated and will be removed in the future. Messages will be grouped by webhookId")
-  """The conditions which must be met in order for the webhook to send a message."""
-  conditions: MarketCapEventWebhookConditionInput!
-  """The settings for retrying failed webhook messages."""
-  retrySettings: RetrySettingsInput
-  """An optional bucket key for grouping and querying webhooks. Prefer this over the deprecated flat bucket fields."""
-  bucketKey: BucketKeyInput
-  """Deprecated. Use `bucketKey.bucketId` instead. Existing webhooks created with `bucketId` and `bucketSortkey` will continue to work."""
-  bucketId: String @deprecated(reason: "Use bucketKey.bucketId instead.")
-  """Deprecated. Use `bucketKey.bucketSortKey` instead. Existing webhooks created with `bucketId` and `bucketSortkey` will continue to work."""
-  bucketSortkey: String @deprecated(reason: "Use bucketKey.bucketSortKey instead.")
-  """The type of publishing for the webhook. If not set, it defaults to `SINGLE`."""
-  publishingType: PublishingType
-  """If enabled, new webhooks won't be created if a webhook with the same parameters already exists. If callbackUrl, conditions, publishingType, and alertRecurrence all match, then we return the existing webhook."""
-  deduplicate: Boolean
-}
-
-"""Config input for retrying failed webhook messages."""
-input RetrySettingsInput {
-  """The maximum time in seconds that the webhook will retry sending a message"""
-  maxTimeElapsed: Int
-  """The minimum time in seconds that the webhook will wait before retrying a failed message"""
-  minRetryDelay: Int
-  """The maximum time in seconds that the webhook will wait before retrying a failed message"""
-  maxRetryDelay: Int
-  """The maximum number of times the webhook will retry sending a message"""
-  maxRetries: Int
-}
-
-"""Input conditions for a price event webhook."""
-input PriceEventWebhookConditionInput {
-  """The contract address of the token to listen for."""
-  tokenAddress: StringEqualsConditionInput!
-  """The network ID to listen on."""
-  networkId: IntEqualsConditionInput!
-  """The price conditions to listen for."""
-  priceUsd: ComparisonOperatorInput!
-  """The contract address of the pair to listen for."""
-  pairAddress: StringEqualsConditionInput
-  """The volume conditions to listen for."""
-  volumeUsd: ComparisonOperatorInput
-  """The liquidity conditions to listen for."""
-  liquidityUsd: ComparisonOperatorInput
-}
-
-"""Input conditions for a market cap event webhook."""
-input MarketCapEventWebhookConditionInput {
-  """The contract address of the token to listen for."""
-  tokenAddress: StringEqualsConditionInput!
-  """The network ID to listen on."""
-  networkId: IntEqualsConditionInput!
-  """The price conditions to listen for."""
-  fdvMarketCapUsd: ComparisonOperatorInput
-  """The circulating market cap conditions to listen for."""
-  circulatingMarketCapUsd: ComparisonOperatorInput
-  """The contract address of the pair to listen for."""
-  pairAddress: StringEqualsConditionInput
-  """The volume conditions to listen for."""
-  volumeUsd: ComparisonOperatorInput
-  """The liquidity conditions to listen for."""
-  liquidityUsd: ComparisonOperatorInput
-}
-
-"""Input for creating token price event webhooks."""
-input CreateTokenPriceEventWebhooksInput {
-  """A list of token price event webhooks to create."""
-  webhooks: [CreateTokenPriceEventWebhookArgs!]!
-}
-
-"""Input for creating a token price event webhook."""
-input CreateTokenPriceEventWebhookArgs {
-  """The name of the webhook (max 128 characters)."""
-  name: String!
-  """The url to which the webhook message should be sent."""
-  callbackUrl: String!
-  """A string value to hash along with `deduplicationId` using SHA-256. Included in the webhook message for added security."""
-  securityToken: String!
-  """The recurrence of the webhook. Can be `INDEFINITE` or `ONCE`."""
-  alertRecurrence: AlertRecurrence!
-  """The conditions which must be met in order for the webhook to send a message."""
-  conditions: TokenPriceEventWebhookConditionInput!
-  """The settings for retrying failed webhook messages."""
-  retrySettings: RetrySettingsInput
-  """An optional bucket key for grouping and querying webhooks. Prefer this over the deprecated flat bucket fields."""
-  bucketKey: BucketKeyInput
-  """Deprecated. Use `bucketKey.bucketId` instead. Existing webhooks created with `bucketId` and `bucketSortkey` will continue to work."""
-  bucketId: String @deprecated(reason: "Use bucketKey.bucketId instead.")
-  """Deprecated. Use `bucketKey.bucketSortKey` instead. Existing webhooks created with `bucketId` and `bucketSortkey` will continue to work."""
-  bucketSortkey: String @deprecated(reason: "Use bucketKey.bucketSortKey instead.")
-  """The type of publishing for the webhook. If not set, it defaults to `SINGLE`."""
-  publishingType: PublishingType
-  """If enabled, new webhooks won't be created if a webhook with the same parameters already exists. If callbackUrl, conditions, publishingType, and alertRecurrence all match, then we return the existing webhook."""
-  deduplicate: Boolean
-}
-
-"""Input conditions for a token price event webhook."""
-input TokenPriceEventWebhookConditionInput {
-  """The contract address of the token to listen for."""
-  address: StringEqualsConditionInput!
-  """The network ID to listen on."""
-  networkId: IntEqualsConditionInput!
-  """The price conditions to listen for."""
-  priceUsd: ComparisonOperatorInput!
-}
-
-"""Input for creating token transfer event webhooks."""
-input CreateTokenTransferEventWebhooksInput {
-  """A list of token transfer event webhooks to create."""
-  webhooks: [CreateTokenTransferEventWebhookArgs!]!
-}
-
-"""Input for creating a token transfer event webhook."""
-input CreateTokenTransferEventWebhookArgs {
-  """The name of the webhook (max 128 characters)."""
-  name: String!
-  """The url to which the webhook message should be sent."""
-  callbackUrl: String!
-  """A string value to hash along with `deduplicationId` using SHA-256. Included in the webhook message for added security."""
-  securityToken: String!
-  """The recurrence of the webhook. Can be `INDEFINITE` or `ONCE`."""
-  alertRecurrence: AlertRecurrence!
-  """The conditions which must be met in order for the webhook to send a message."""
-  conditions: TokenTransferEventWebhookConditionInput!
-  """The settings for retrying failed webhook messages."""
-  retrySettings: RetrySettingsInput
-  """An optional bucket key for grouping and querying webhooks. Prefer this over the deprecated flat bucket fields."""
-  bucketKey: BucketKeyInput
-  """Deprecated. Use `bucketKey.bucketId` instead. Existing webhofoks created with `bucketId` and `bucketSortkey` will continue to work."""
-  bucketId: String @deprecated(reason: "Use bucketKey.bucketId instead.")
-  """Deprecated. Use `bucketKey.bucketSortKey` instead. Existing webhooks created with `bucketId` and `bucketSortkey` will continue to work."""
-  bucketSortkey: String @deprecated(reason: "Use bucketKey.bucketSortKey instead.")
-  """The type of publishing for the webhook. If not set, it defaults to `SINGLE`."""
-  publishingType: PublishingType
-  """If enabled, new webhooks won't be created if a webhook with the same parameters already exists. If callbackUrl, conditions, publishingType, and alertRecurrence all match, then we return the existing webhook."""
-  deduplicate: Boolean
-}
-
-"""Input conditions for a token transfer event webhook."""
-input TokenTransferEventWebhookConditionInput {
-  """The contract address of the token to listen for."""
-  tokenAddress: StringEqualsConditionInput
-  """The list of network IDs to listen on."""
-  networkId: OneOfNumberConditionInput
-  """The wallet address to listen for transfers from or to."""
-  address: StringEqualsConditionInput
-  """The direction of the transfer (TO, FROM). Defaults to [TO, FROM] if not specified."""
-  direction: OneOfTokenTransferDirectionConditionInput
-}
-
-"""Input for token transfer direction list condition."""
-input OneOfTokenTransferDirectionConditionInput {
-  """The list of transfer directions to listen for."""
-  oneOf: [TokenTransferDirection!]!
-}
-
-"""Input for creating prediction trade webhooks."""
-input CreatePredictionTradeWebhooksInput {
-  """A list of prediction trade webhooks to create."""
-  webhooks: [CreatePredictionTradeWebhookArgs!]!
-}
-
-"""Input for creating a prediction trade webhook."""
-input CreatePredictionTradeWebhookArgs {
-  """The name of the webhook (max 128 characters)."""
-  name: String!
-  """The url to which the webhook message should be sent."""
-  callbackUrl: String!
-  """A string value to hash along with `deduplicationId` using SHA-256. Included in the webhook message for added security."""
-  securityToken: String!
-  """The recurrence of the webhook. Can be `INDEFINITE` or `ONCE`."""
-  alertRecurrence: AlertRecurrence!
-  """The conditions which must be met in order for the webhook to send a message."""
-  conditions: PredictionTradeWebhookConditionInput!
-  """The settings for retrying failed webhook messages."""
-  retrySettings: RetrySettingsInput
-  """An optional bucket key for grouping and querying webhooks. Prefer this over the deprecated flat bucket fields."""
-  bucketKey: BucketKeyInput
-}
-
-"""Input conditions for a prediction trade webhook."""
-input PredictionTradeWebhookConditionInput {
-  """The trader ID to listen for."""
-  traderId: StringEqualsConditionInput
-  """The market ID to listen for."""
-  marketId: StringEqualsConditionInput
-  """The event ID to listen for."""
-  eventId: StringEqualsConditionInput
-  """The trade event types to listen for."""
-  eventType: PredictionTradeEventTypeConditionInput
-  """The trade value in USD condition."""
-  tradeValueUsd: ComparisonOperatorInput
-  """The amount of tokens/shares traded condition."""
-  amountToken: ComparisonOperatorInput
-}
-
-"""Per-window stat thresholds for a PredictionMarketMetricsEvent webhook outcome. All present fields are ANDed."""
-input WindowedPredictionMarketMetricsEventOutcomeConditionInput {
-  price: ComparisonOperatorInput
-  priceChange: ComparisonOperatorInput
-  volumeUsd: ComparisonOperatorInput
-  volumeChange: ComparisonOperatorInput
-  trades: ComparisonOperatorInput
-  tradesChange: ComparisonOperatorInput
-}
-
-"""Per-window market-level stat thresholds. All present fields ANDed."""
-input WindowedPredictionMarketMetricsEventMarketConditionInput {
-  volumeUsd: ComparisonOperatorInput
-  trades: ComparisonOperatorInput
-  volumeChange: ComparisonOperatorInput
-  tradesChange: ComparisonOperatorInput
-}
-
-"""Per-window market-level conditions across all 6 windows."""
-input PredictionMarketMetricsEventMarketConditionInput {
-  min5: WindowedPredictionMarketMetricsEventMarketConditionInput
-  hour1: WindowedPredictionMarketMetricsEventMarketConditionInput
-  hour4: WindowedPredictionMarketMetricsEventMarketConditionInput
-  hour12: WindowedPredictionMarketMetricsEventMarketConditionInput
-  day1: WindowedPredictionMarketMetricsEventMarketConditionInput
-  week1: WindowedPredictionMarketMetricsEventMarketConditionInput
-}
-
-"""Input conditions for a PredictionMarketMetricsEvent webhook."""
-input PredictionMarketMetricsEventWebhookConditionInput {
-  """The market ID to listen for."""
-  marketId: StringEqualsConditionInput!
-  """Conditions evaluated against market-level aggregate stats. ANDed with other clauses when also present."""
-  market: PredictionMarketMetricsEventMarketConditionInput
-  """Conditions evaluated against outcome 0's stats. ANDed with outcome1 and anyOutcome when also present."""
-  outcome0: PredictionMarketMetricsEventOutcomeConditionInput
-  """Conditions evaluated against outcome 1's stats. ANDed with outcome0 and anyOutcome when also present."""
-  outcome1: PredictionMarketMetricsEventOutcomeConditionInput
-  """Conditions evaluated against both outcomes; matches if at least one outcome satisfies. ANDed with outcome0 and outcome1 when also present."""
-  anyOutcome: PredictionMarketMetricsEventOutcomeConditionInput
-}
-
-"""Per-outcome conditions for a PredictionMarketMetricsEvent webhook."""
-input PredictionMarketMetricsEventOutcomeConditionInput {
-  """Conditions for the 5-minute window."""
-  min5: WindowedPredictionMarketMetricsEventOutcomeConditionInput
-  """Conditions for the 1-hour window."""
-  hour1: WindowedPredictionMarketMetricsEventOutcomeConditionInput
-  """Conditions for the 4-hour window."""
-  hour4: WindowedPredictionMarketMetricsEventOutcomeConditionInput
-  """Conditions for the 12-hour window."""
-  hour12: WindowedPredictionMarketMetricsEventOutcomeConditionInput
-  """Conditions for the 1-day window."""
-  day1: WindowedPredictionMarketMetricsEventOutcomeConditionInput
-  """Conditions for the 1-week window."""
-  week1: WindowedPredictionMarketMetricsEventOutcomeConditionInput
-}
-
-"""Input for creating a prediction market metrics event webhook."""
-input CreatePredictionMarketMetricsEventWebhookArgs {
-  """The name of the webhook (max 128 characters)."""
-  name: String!
-  """The url to which the webhook message should be sent."""
-  callbackUrl: String!
-  """A string value to hash along with `deduplicationId` using SHA-256. Included in the webhook message for added security."""
-  securityToken: String!
-  """The recurrence of the webhook. Can be `INDEFINITE` or `ONCE`."""
-  alertRecurrence: AlertRecurrence!
-  """The conditions which must be met in order for the webhook to send a message."""
-  conditions: PredictionMarketMetricsEventWebhookConditionInput!
-  """The settings for retrying failed webhook messages."""
-  retrySettings: RetrySettingsInput
-  """An optional bucket key for grouping and querying webhooks. Prefer this over the deprecated flat bucket fields."""
-  bucketKey: BucketKeyInput
-  """The type of publishing for the webhook. If not set, it defaults to `SINGLE`."""
-  publishingType: PublishingType
-  """If enabled, new webhooks won't be created if a webhook with the same parameters already exists. If callbackUrl, conditions, publishingType, and alertRecurrence all match, then we return the existing webhook."""
-  deduplicate: Boolean
-}
-
-"""Input for creating prediction market metrics event webhooks."""
-input CreatePredictionMarketMetricsEventWebhooksInput {
-  """A list of prediction market metrics event webhooks to create."""
-  webhooks: [CreatePredictionMarketMetricsEventWebhookArgs!]!
-}
-
-"""Input for prediction trade event type condition."""
-input PredictionTradeEventTypeConditionInput {
-  """The list of prediction trade event types to match."""
-  oneOf: [PredictionTradeEventType!]!
-}
-
-"""Prediction trade event types."""
-enum PredictionTradeEventType {
-  TRADE
-  BUY
-  SELL
-  BUY_COUNTERPARTY
-  SELL_COUNTERPARTY
-  PAYOUT_REDEMPTION @deprecated(reason: "PAYOUT_REDEMPTION is deprecated and will be removed in the future. Use POSITION_REDEEMED instead.")
-  POSITION_REDEEMED
-}
-
-"""Input for creating token pair event webhooks."""
-input CreateTokenPairEventWebhooksInput {
-  """A list of token pair event webhooks to create."""
-  webhooks: [CreateTokenPairEventWebhookArgs!]!
-}
-
-"""Input for creating a token pair event webhook."""
-input CreateTokenPairEventWebhookArgs {
-  """The name of the webhook (max 128 characters)."""
-  name: String!
-  """The url to which the webhook message should be sent."""
-  callbackUrl: String!
-  """A string value to hash along with `deduplicationId` using SHA-256. Included in the webhook message for added security."""
-  securityToken: String!
-  """The recurrence of the webhook. Can be `INDEFINITE` or `ONCE`."""
-  alertRecurrence: AlertRecurrence!
-  """A webhook group ID (max 64 characters). Can be used to group webhooks so that their messages are kept in order as a group rather than by individual webhook."""
-  groupId: String @deprecated(reason: "GroupId is deprecated and will be removed in the future. Messages will be grouped by webhookId")
-  """The conditions which must be met in order for the webhook to send a message."""
-  conditions: TokenPairEventWebhookConditionInput!
-  """The settings for retrying failed webhook messages."""
-  retrySettings: RetrySettingsInput
-  """An optional bucket key for grouping and querying webhooks. Prefer this over the deprecated flat bucket fields."""
-  bucketKey: BucketKeyInput
-  """Deprecated. Use `bucketKey.bucketId` instead. Existing webhooks created with `bucketId` and `bucketSortkey` will continue to work."""
-  bucketId: String @deprecated(reason: "Use bucketKey.bucketId instead.")
-  """Deprecated. Use `bucketKey.bucketSortKey` instead. Existing webhooks created with `bucketId` and `bucketSortkey` will continue to work."""
-  bucketSortkey: String @deprecated(reason: "Use bucketKey.bucketSortKey instead.")
-  """The type of publishing for the webhook. If not set, it defaults to `SINGLE`."""
-  publishingType: PublishingType
-  """If enabled, new webhooks won't be created if a webhook with the same parameters already exists. If callbackUrl, conditions, publishingType, and alertRecurrence all match, then we return the existing webhook."""
-  deduplicate: Boolean
-}
-
-"""Input conditions for a token pair event webhook."""
-input TokenPairEventWebhookConditionInput {
-  """A list of network IDs to listen on."""
-  networkId: OneOfNumberConditionInput
-  """The maker wallet address to listen for."""
-  maker: StringEqualsConditionInput
-  """The pair contract address to listen for."""
-  pairAddress: StringEqualsConditionInput
-  """The exchange contract address to listen for."""
-  exchangeAddress: StringEqualsConditionInput
-  """The token contract address to listen for."""
-  tokenAddress: StringEqualsConditionInput
-  """The swap values to listen for."""
-  swapValue: ComparisonOperatorInput
-  """The token event type to listen for."""
-  eventType: TokenPairEventTypeConditionInput
-}
-
-"""Input for token pair event type condition."""
-input TokenPairEventTypeConditionInput {
-  """The list of token event types to equal."""
-  oneOf: [TokenPairEventType!]!
-}
-
-"""Token pair event types."""
-enum TokenPairEventType {
-  SWAP
-  MINT
-  BURN
-  SYNC
-  BUY
-  SELL
-  COLLECT
-  COLLECT_PROTOCOL
-}
-
-"""The direction of a token transfer."""
-enum TokenTransferDirection {
-  """Tokens sent from the address."""
-  FROM
-  """Tokens received to the address."""
-  TO
-}
-
-"""Input for creating Raw Transaction webhooks."""
-input CreateRawTransactionWebhooksInput {
-  """A list of Raw Transaction webhooks to create."""
-  webhooks: [CreateRawTransactionWebhookArgs!]!
-}
-
-"""Input for creating a Raw Transaction webhook."""
-input CreateRawTransactionWebhookArgs {
-  """The name of the webhook (max 128 characters)."""
-  name: String!
-  """The url to which the webhook message should be sent."""
-  callbackUrl: String!
-  """A string value to hash along with `deduplicationId` using SHA-256. Included in the webhook message for added security."""
-  securityToken: String!
-  """The recurrence of the webhook. Can be `INDEFINITE` or `ONCE`."""
-  alertRecurrence: AlertRecurrence!
-  """A webhook group ID (max 64 characters). Can be used to group webhooks so that their messages are kept in order as a group rather than by individual webhook."""
-  groupId: String @deprecated(reason: "GroupId is deprecated and will be removed in the future. Messages will be grouped by webhookId")
-  """The conditions which must be met in order for the webhook to send a message."""
-  conditions: RawTransactionWebhookConditionInput!
-  """The settings for retrying failed webhook messages."""
-  retrySettings: RetrySettingsInput
-  """An optional bucket key for grouping and querying webhooks. Prefer this over the deprecated flat bucket fields."""
-  bucketKey: BucketKeyInput
-  """Deprecated. Use `bucketKey.bucketId` instead. Existing webhooks created with `bucketId` and `bucketSortkey` will continue to work."""
-  bucketId: String @deprecated(reason: "Use bucketKey.bucketId instead.")
-  """Deprecated. Use `bucketKey.bucketSortKey` instead. Existing webhooks created with `bucketId` and `bucketSortkey` will continue to work."""
-  bucketSortkey: String @deprecated(reason: "Use bucketKey.bucketSortKey instead.")
-  """The type of publishing for the webhook. If not set, it defaults to `SINGLE`."""
-  publishingType: PublishingType
-  """If enabled, new webhooks won't be created if a webhook with the same parameters already exists. If callbackUrl, conditions, publishingType, and alertRecurrence all match, then we return the existing webhook."""
-  deduplicate: Boolean
-}
-
-"""Input conditions for a Raw Transaction webhook."""
-input RawTransactionWebhookConditionInput {
-  """A list of network IDs to listen on."""
-  networkId: OneOfNumberConditionInput
-  """The to address to listen for."""
-  to: StringEqualsConditionInput
-  """The from address to listen for."""
-  from: StringEqualsConditionInput
-  """Trigger the webhook if either the to or the from address matches."""
-  toOrFrom: StringEqualsConditionInput
-  """Trigger the webhook if the input contains or doesn't contain the specified string."""
-  input: StringContainsConditionInput
-  """Do not trigger the webhook if the raw transaction is handled by the TokenPairEvent webhook."""
-  ignoreTokenPairEvents: Boolean
-}
-
-"""Input for string contains condition."""
-input StringContainsConditionInput {
-  """A list of substrings to be included within the string."""
-  contains: [String!]
-  """A list of substrings not to be included within the string."""
-  notContains: [String!]
-}
-
-"""Input for integer list condition."""
-input OneOfNumberConditionInput {
-  """The list of integers."""
-  oneOf: [Int!]!
-}
-
-"""Input for comparison operators."""
-input ComparisonOperatorInput {
-  """Greater than."""
-  gt: String
-  """Greater than or equal."""
-  gte: String
-  """Less than."""
-  lt: String
-  """Less than or equal."""
-  lte: String
-  """Equal to."""
-  eq: String
-}
-
-"""Input for string equals condition."""
-input StringEqualsConditionInput {
-  """The string to equal."""
-  eq: String!
-}
-
-"""Input for integer equals condition."""
-input IntEqualsConditionInput {
-  """The integer to equal."""
-  eq: Int!
-}
-
-"""The recurrence of the webhook. Can be `INDEFINITE` or `ONCE`."""
-enum AlertRecurrence {
-  INDEFINITE
-  ONCE
-}
-
-"""The type of publishing for the webhook. If not set, it defaults to `SINGLE`."""
-enum PublishingType {
-  BATCH
-  SINGLE
-}
-
-"""Result returned by `createWebhooks`."""
-type CreateWebhooksOutput {
-  """The list of price webhooks that were created."""
-  priceWebhooks: [Webhook]!
-  """The list of token pair event webhooks that were created."""
-  tokenPairEventWebhooks: [Webhook]!
-  """The list of raw transaction webhooks that were created."""
-  rawTransactionWebhooks: [Webhook]!
-  """The list of market cap event webhooks that were created."""
-  marketCapWebhooks: [Webhook]!
-  """The list of token price event webhooks that were created."""
-  tokenPriceEventWebhooks: [Webhook]!
-  """The list of token transfer event webhooks that were created."""
-  tokenTransferEventWebhooks: [Webhook]!
-  """The list of prediction trade webhooks that were created."""
-  predictionTradeWebhooks: [Webhook]!
-  """The list of prediction market metrics event webhooks that were created."""
-  predictionMarketMetricsEventWebhooks: [Webhook]!
-}
-
-"""Metadata for a webhook."""
-type Webhook {
-  """The ID of the webhook."""
-  id: String!
-  """The type of webhook. Can be `PRICE_EVENT`, `TOKEN_PAIR_EVENT`, or `RAW_TRANSACTION`."""
-  webhookType: WebhookType!
-  """The given name of the webhook."""
-  name: String!
-  """The unix timestamp for the time the webhook was created."""
-  created: Int!
-  """The recurrence of the webhook. Can be `INDEFINITE` or `ONCE`."""
-  alertRecurrence: AlertRecurrence!
-  """The url to which the webhook message should be sent."""
-  callbackUrl: String!
-  """The status of the webhook. Can be `ACTIVE` or `INACTIVE`."""
-  status: String!
-  """The webhook group ID used to group webhooks together for ordered message sending."""
-  groupId: String @deprecated(reason: "GroupId is deprecated and will be removed in the future. Messages will be grouped by webhookId")
-  """The conditions which must be met in order for the webhook to send a message."""
-  conditions: WebhookCondition!
-  """The settings for retrying failed webhook messages."""
-  retrySettings: RetrySettings
-  """An optional bucket ID (max 64 characters). Can be used to query for subgroups of webhooks (useful if you have a large number of webhooks)."""
-  bucketId: String
-  """An optional bucket sort key (max 64 characters). Can be used to query for subgroups of webhooks (useful if you have a large number of webhooks)."""
-  bucketSortkey: String
-  """The type of publishing for the webhook. If not set, it defaults to `SINGLE`."""
-  publishingType: PublishingType
-}
-
-"""Response returned by `getWebhooks`."""
-type GetWebhooksResponse {
-  """A list of webhooks belonging to a user."""
-  items: [Webhook]
-  """A cursor for use in pagination."""
-  cursor: String
-}
-
-"""Config for retrying failed webhook messages."""
-type RetrySettings {
-  """The maximum time in seconds that the webhook will retry sending a message"""
-  maxTimeElapsed: Int
-  """The minimum time in seconds that the webhook will wait before retrying a failed message"""
-  minRetryDelay: Int
-  """The maximum time in seconds that the webhook will wait before retrying a failed message"""
-  maxRetryDelay: Int
-  """The maximum number of times the webhook will retry sending a message"""
-  maxRetries: Int
-}
-
-"""Webhook conditions that must be met for each webhook type."""
-union WebhookCondition = PriceEventWebhookCondition | MarketCapEventWebhookCondition | TokenPairEventWebhookCondition | RawTransactionWebhookCondition | TokenPriceEventWebhookCondition | TokenTransferEventWebhookCondition | PredictionTradeWebhookCondition | PredictionMarketMetricsEventWebhookCondition
-
-"""Webhook conditions for a price event."""
-type PriceEventWebhookCondition {
-  """The token contract address the webhook is listening for."""
-  tokenAddress: StringEqualsCondition!
-  """The network ID the webhook is listening on."""
-  networkId: IntEqualsCondition!
-  """The price condition that must be met in order for the webhook to send."""
-  priceUsd: ComparisonOperator!
-  """The pair contract address the webhook is listening for."""
-  pairAddress: StringEqualsCondition
-  """The liquidity condition (for the source pair) that must be met in order for the webhook to send."""
-  liquidityUsd: ComparisonOperator
-  """The volume condition (for the source pair) that must be met in order for the webhook to send."""
-  volumeUsd: ComparisonOperator
-}
-
-"""Webhook conditions for a market cap event."""
-type MarketCapEventWebhookCondition {
-  """The token contract address the webhook is listening for."""
-  tokenAddress: StringEqualsCondition!
-  """The network ID the webhook is listening on."""
-  networkId: IntEqualsCondition!
-  """The market cap condition that must be met in order for the webhook to send."""
-  fdvMarketCapUsd: ComparisonOperator
-  """The circulating market cap condition that must be met in order for the webhook to send."""
-  circulatingMarketCapUsd: ComparisonOperator
-  """The pair contract address the webhook is listening for."""
-  pairAddress: StringEqualsCondition
-  """The liquidity condition (for the source pair) that must be met in order for the webhook to send."""
-  liquidityUsd: ComparisonOperator
-  """The volume condition (for the source pair) that must be met in order for the webhook to send."""
-  volumeUsd: ComparisonOperator
-}
-
-"""Webhook conditions for a token price event."""
-type TokenPriceEventWebhookCondition {
-  """The token contract address the webhook is listening for."""
-  address: StringEqualsCondition!
-  """The network ID the webhook is listening on."""
-  networkId: IntEqualsCondition!
-  """The price condition that must be met in order for the webhook to send."""
-  priceUsd: ComparisonOperator!
-}
-
-"""Webhook conditions for a token transfer event."""
-type TokenTransferEventWebhookCondition {
-  """The token contract address the webhook is listening for."""
-  tokenAddress: StringEqualsCondition
-  """The list of network IDs the webhook is listening on."""
-  networkId: OneOfNumberCondition
-  """The wallet address the webhook is listening for transfers from or to."""
-  address: StringEqualsCondition
-  """The directions of the transfer the webhook is listening for."""
-  direction: OneOfTokenTransferDirectionCondition
-}
-
-"""Token transfer direction list condition."""
-type OneOfTokenTransferDirectionCondition {
-  """The list of transfer directions."""
-  oneOf: [TokenTransferDirection!]!
-}
-
-"""Webhook conditions for a prediction trade event."""
-type PredictionTradeWebhookCondition {
-  """The trader ID the webhook is listening for."""
-  traderId: StringEqualsCondition
-  """The market ID the webhook is listening for."""
-  marketId: StringEqualsCondition
-  """The event ID the webhook is listening for."""
-  eventId: StringEqualsCondition
-  """The trade event types the webhook is listening for."""
-  eventType: PredictionTradeEventTypeCondition
-  """The trade value in USD condition."""
-  tradeValueUsd: ComparisonOperator
-  """The amount of tokens/shares traded condition."""
-  amountToken: ComparisonOperator
-}
-
-"""Per-window outcome stat conditions for a prediction market metrics event webhook."""
-type WindowedPredictionMarketMetricsEventOutcomeCondition {
-  """The price condition."""
-  price: ComparisonOperator
-  """The price change condition."""
-  priceChange: ComparisonOperator
-  """The volume in USD condition."""
-  volumeUsd: ComparisonOperator
-  """The volume change condition."""
-  volumeChange: ComparisonOperator
-  """The number of trades condition."""
-  trades: ComparisonOperator
-  """The trades change condition."""
-  tradesChange: ComparisonOperator
-}
-
-"""Per-window market-level stat conditions for a prediction market metrics event webhook."""
-type WindowedPredictionMarketMetricsEventMarketCondition {
-  """The volume in USD condition."""
-  volumeUsd: ComparisonOperator
-  """The number of trades condition."""
-  trades: ComparisonOperator
-  """The volume change condition."""
-  volumeChange: ComparisonOperator
-  """The trades change condition."""
-  tradesChange: ComparisonOperator
-}
-
-"""Market-level conditions across all windows for a prediction market metrics event webhook."""
-type PredictionMarketMetricsEventMarketCondition {
-  """Conditions for the 5-minute window."""
-  min5: WindowedPredictionMarketMetricsEventMarketCondition
-  """Conditions for the 1-hour window."""
-  hour1: WindowedPredictionMarketMetricsEventMarketCondition
-  """Conditions for the 4-hour window."""
-  hour4: WindowedPredictionMarketMetricsEventMarketCondition
-  """Conditions for the 12-hour window."""
-  hour12: WindowedPredictionMarketMetricsEventMarketCondition
-  """Conditions for the 1-day window."""
-  day1: WindowedPredictionMarketMetricsEventMarketCondition
-  """Conditions for the 1-week window."""
-  week1: WindowedPredictionMarketMetricsEventMarketCondition
-}
-
-"""Webhook conditions for a prediction market metrics event."""
-type PredictionMarketMetricsEventWebhookCondition {
-  """The market ID the webhook is listening for."""
-  marketId: StringEqualsCondition!
-  """Conditions evaluated against market-level aggregate stats. ANDed with other clauses when also present."""
-  market: PredictionMarketMetricsEventMarketCondition
-  """Conditions evaluated against outcome 0's stats. ANDed with outcome1 and anyOutcome when also present."""
-  outcome0: PredictionMarketMetricsEventOutcomeCondition
-  """Conditions evaluated against outcome 1's stats. ANDed with outcome0 and anyOutcome when also present."""
-  outcome1: PredictionMarketMetricsEventOutcomeCondition
-  """Conditions evaluated against both outcomes; matches if at least one outcome satisfies. ANDed with outcome0 and outcome1 when also present."""
-  anyOutcome: PredictionMarketMetricsEventOutcomeCondition
-}
-
-"""Per-outcome conditions for a prediction market metrics event webhook."""
-type PredictionMarketMetricsEventOutcomeCondition {
-  """Conditions for the 5-minute window."""
-  min5: WindowedPredictionMarketMetricsEventOutcomeCondition
-  """Conditions for the 1-hour window."""
-  hour1: WindowedPredictionMarketMetricsEventOutcomeCondition
-  """Conditions for the 4-hour window."""
-  hour4: WindowedPredictionMarketMetricsEventOutcomeCondition
-  """Conditions for the 12-hour window."""
-  hour12: WindowedPredictionMarketMetricsEventOutcomeCondition
-  """Conditions for the 1-day window."""
-  day1: WindowedPredictionMarketMetricsEventOutcomeCondition
-  """Conditions for the 1-week window."""
-  week1: WindowedPredictionMarketMetricsEventOutcomeCondition
-}
-
-"""Prediction trade event type condition."""
-type PredictionTradeEventTypeCondition {
-  """The list of prediction trade event types."""
-  oneOf: [PredictionTradeEventType!]!
-}
-
-"""Webhook conditions for a token pair event."""
-type TokenPairEventWebhookCondition {
-  """The token contract address the webhook is listening for."""
-  tokenAddress: StringEqualsCondition
-  """The list of network IDs the webhook is listening on."""
-  networkId: OneOfNumberCondition
-  """The swap values the webhook is listening for."""
-  swapValue: ComparisonOperator
-  """The maker wallet address the webhook is listening for."""
-  maker: StringEqualsCondition
-  """The pair contract address the webhook is listening for."""
-  pairAddress: StringEqualsCondition
-  """The exchange contract address the webhook is listening for."""
-  exchangeAddress: StringEqualsCondition
-  """The event type the webhook is listening for."""
-  eventType: TokenPairEventTypeCondition
-}
-
-"""Webhook condition for token pair event type."""
-type TokenPairEventTypeCondition {
-  """The list of token pair event types."""
-  oneOf: [TokenPairEventType!]!
-}
-
-"""Webhook conditions for a raw transaction."""
-type RawTransactionWebhookCondition {
-  """A list of network IDs to listen on."""
-  networkId: OneOfNumberCondition
-  """The to address to listen for."""
-  to: StringEqualsCondition
-  """The from address to listen for."""
-  from: StringEqualsCondition
-  """Trigger the webhook if either the to or the from address matches."""
-  toOrFrom: StringEqualsCondition
-  """Trigger the webhook if the contains or doesn't contain the specified string."""
-  input: StringContainsCondition
-  """Do not trigger the webhook if the raw transaction is handled by the TokenPairEvent webhook."""
-  ignoreTokenPairEvents: Boolean
-}
-
-"""String contains condition."""
-type StringContainsCondition {
-  """A list of substrings included within the string."""
-  contains: [String!]
-  """A list of substrings not included within the string."""
-  notContains: [String!]
-}
-
-"""Integer list condition."""
-type OneOfNumberCondition {
-  """The list of integers."""
-  oneOf: [Int!]!
-}
-
-"""Comparison operators."""
-type ComparisonOperator {
-  """Greater than."""
-  gt: String
-  """Greater than or equal to."""
-  gte: String
-  """Less than."""
-  lt: String
-  """Less than or equal to."""
-  lte: String
-  """Equal to."""
-  eq: String
-}
-
-"""String equals condition."""
-type StringEqualsCondition {
-  """The string to equal."""
-  eq: String!
-}
-
-"""Integer equals condition."""
-type IntEqualsCondition {
-  """The integer to equal."""
-  eq: Int!
-}
-
-"""A network supported on Defined."""
-type Network {
-  """The name of the network. For example, `arbitrum`."""
-  name: String!
-  """The network ID. For example, `42161` for `arbitrum`."""
-  id: Int!
-  networkShortName: String
-}
-
-"""The status for a network supported on Defined."""
-type MetadataResponse {
-  """The last processed block on the network."""
-  lastProcessedBlock: Int
-  """The unix timestamp for the last processed block on the network."""
-  lastProcessedTimestamp: Int
-  """The network ID."""
-  networkId: Int!
-  """The name of the network."""
-  networkName: String!
-}
-
-input BlocksInput {
-  networkId: Int!
-  blockNumbers: [Int!]
-  timestamps: [Int!]
-}
-
-type Block {
-  blockNumber: Int!
-  timestamp: Int!
-  hash: String!
-}
-
-"""A wallet matching a filter."""
-type WalletFilterResult {
-  """The wallet address"""
-  address: String!
-  """The network ID of the wallet (only present if filtered by network)"""
-  networkId: Int
-  """The unix timestamp for the first transaction from this wallet"""
-  firstTransactionAt: Int
-  """The unix timestamp for the last transaction from this wallet"""
-  lastTransactionAt: Int!
-  """The labels associated with the wallet"""
-  labels: [String!]!
-  """Manual or proposal-derived identity vocabulary (e.g. WHALE, KOL). Distinct from behavioral `labels`."""
-  identityLabels: [String!]
-  """Volume in USD in the past day"""
-  volumeUsd1d: String!
-  """Total volume in USD in the past day including all tokens"""
-  volumeUsdAll1d: String!
-  """Realized profit in USD in the past day"""
-  realizedProfitUsd1d: String!
-  """Average profit in USD per trade in the past day"""
-  averageProfitUsdPerTrade1d: String!
-  """Average swap amount in USD in the past day"""
-  averageSwapAmountUsd1d: String!
-  """Realized profit percentage in the past day"""
-  realizedProfitPercentage1d: Float!
-  """Average hold period, in seconds, for positions sold during the past day. Estimated with average-cost accounting: sells realize the age of the sold cost basis, so unsold holdings do not affect the result. A lower bound, capped at the window length. Returns null when under $1 of cost basis was sold."""
-  avgHoldPeriodSec1d: Float
-  """Number of swaps in the past day"""
-  swaps1d: Int!
-  """Total number of swaps in the past day including all tokens"""
-  swapsAll1d: Int!
-  """Number of unique tokens traded in the past day"""
-  uniqueTokens1d: Int!
-  """Win rate in the past day"""
-  winRate1d: Float!
-  """Volume in USD in the past week"""
-  volumeUsd1w: String!
-  """Total volume in USD in the past week including all tokens"""
-  volumeUsdAll1w: String!
-  """Realized profit in USD in the past week"""
-  realizedProfitUsd1w: String!
-  """Average profit in USD per trade in the past week"""
-  averageProfitUsdPerTrade1w: String!
-  """Average swap amount in USD in the past week"""
-  averageSwapAmountUsd1w: String!
-  """Realized profit percentage in the past week"""
-  realizedProfitPercentage1w: Float!
-  """Average hold period, in seconds, for positions sold during the past week. Estimated with average-cost accounting: sells realize the age of the sold cost basis, so unsold holdings do not affect the result. A lower bound, capped at the window length. Returns null when under $1 of cost basis was sold."""
-  avgHoldPeriodSec1w: Float
-  """Number of swaps in the past week"""
-  swaps1w: Int!
-  """Total number of swaps in the past week including all tokens"""
-  swapsAll1w: Int!
-  """Number of unique tokens traded in the past week"""
-  uniqueTokens1w: Int!
-  """Win rate in the past week"""
-  winRate1w: Float!
-  """Volume in USD in the past 30 days"""
-  volumeUsd30d: String!
-  """Total volume in USD in the past 30 days including all tokens"""
-  volumeUsdAll30d: String!
-  """Realized profit in USD in the past 30 days"""
-  realizedProfitUsd30d: String!
-  """Average profit in USD per trade in the past 30 days"""
-  averageProfitUsdPerTrade30d: String!
-  """Average swap amount in USD in the past 30 days"""
-  averageSwapAmountUsd30d: String!
-  """Realized profit percentage in the past 30 days"""
-  realizedProfitPercentage30d: Float!
-  """Average hold period, in seconds, for positions sold during the past 30 days. Estimated with average-cost accounting: sells realize the age of the sold cost basis, so unsold holdings do not affect the result. A lower bound, capped at the window length. Returns null when under $1 of cost basis was sold."""
-  avgHoldPeriodSec30d: Float
-  """Number of swaps in the past 30 days"""
-  swaps30d: Int!
-  """Total number of swaps in the past 30 days including all tokens"""
-  swapsAll30d: Int!
-  """Number of unique tokens traded in the past 30 days"""
-  uniqueTokens30d: Int!
-  """Win rate in the past 30 days"""
-  winRate30d: Float!
-  """Volume in USD in the past year"""
-  volumeUsd1y: String!
-  """Total volume in USD in the past year including all tokens"""
-  volumeUsdAll1y: String!
-  """Realized profit in USD in the past year"""
-  realizedProfitUsd1y: String!
-  """Average profit in USD per trade in the past year"""
-  averageProfitUsdPerTrade1y: String!
-  """Average swap amount in USD in the past year"""
-  averageSwapAmountUsd1y: String!
-  """Realized profit percentage in the past year"""
-  realizedProfitPercentage1y: Float!
-  """Average hold period, in seconds, for positions sold during the past year. Estimated with average-cost accounting: sells realize the age of the sold cost basis, so unsold holdings do not affect the result. A lower bound, capped at the window length. Returns null when under $1 of cost basis was sold."""
-  avgHoldPeriodSec1y: Float
-  """Number of swaps in the past year"""
-  swaps1y: Int!
-  """Total number of swaps in the past year including all tokens"""
-  swapsAll1y: Int!
-  """Number of unique tokens traded in the past year"""
-  uniqueTokens1y: Int! @deprecated(reason: "uniqueTokens1y is no longer available as a distinct 1-year value; it now reflects the 30-day value (uniqueTokens30d).")
-  """Win rate in the past year"""
-  winRate1y: Float!
-  """The scammer score for the wallet."""
-  scammerScore: Int
-  """The bot score for the wallet."""
-  botScore: Int
-  """Total number of tokens created by this wallet across all networks."""
-  tokensCreatedCount: Int
-  """Total number of launchpad tokens migrated (graduated) by this wallet across all networks."""
-  tokensMigratedCount: Int
-  """Wallet behavior classification. Null is equivalent to NORMIE."""
-  category: WalletCategory
-  """The native token balance of the wallet (only present if filtered by network)"""
-  nativeTokenBalance: String
-  """The backfill state of the wallet."""
-  backfillState: WalletAggregateBackfillState
-  """The wallet identity and profile data"""
-  wallet: Wallet
-}
-
 enum SparklineAttribute {
   PRICE
 }
@@ -10759,6 +9648,12 @@ enum DetailedStatsWindowSize {
 
 """The token of interest within a pair. Can be `token0` or `token1`."""
 enum TokenOfInterest {
+  token0
+  token1
+}
+
+"""The quote token within the pair."""
+enum QuoteToken {
   token0
   token1
 }
@@ -12417,7 +11312,7 @@ input TokenFilters {
   creatorAddresses: [String!]
   """A list of launchpad protocols."""
   launchpadProtocol: [String!]
-  """A list of launchpad names. Any of the following: Pump.fun, Pump Mayhem, Bonk, BONAD.fun, Nad.Fun, Baseapp, Baseapp Creator, Zora, Zora Creator, Four.meme, Four.meme Fair, Believe, Moonshot, Jupiter Studio, boop, Heaven, TokenMill V2, Virtuals, Clanker, Clanker V4, ArenaTrade, Moonit, LaunchLab, MeteoraDBC, Meteora Alpha Vault, Zora Solana, Cooking.City, time.fun, BAGS, Circus, Dealr, OhFuckFun, PrintFun, Trend, shout.fun, xApple, Sendshot, DubDub, cults, OpenGameProtocol, AMERICA.fun, Kumbaya, bow.fun, Printr, Bankr, Liquid, Noice, Flaunch, Coinbarrel, Blowfish, MeMoo, Metaplex, Scale, Eitherway, Livo, Trench, Flap, NOXA Fun, hood.fun, pons, EasyA Kickstart."""
+  """A list of launchpad names. Any of the following: Pump.fun, Pump Mayhem, Bonk, BONAD.fun, Nad.Fun, Baseapp, Baseapp Creator, Zora, Zora Creator, Four.meme, Four.meme Fair, Believe, Moonshot, Jupiter Studio, boop, Heaven, TokenMill V2, Virtuals, Clanker, Clanker V4, ArenaTrade, Moonit, LaunchLab, MeteoraDBC, Meteora Alpha Vault, Zora Solana, Cooking.City, time.fun, BAGS, Circus, Dealr, OhFuckFun, PrintFun, Trend, shout.fun, xApple, Sendshot, DubDub, cults, OpenGameProtocol, AMERICA.fun, Kumbaya, bow.fun, Printr, Bankr, Liquid, Noice, Flaunch, Coinbarrel, Blowfish, MeMoo, Metaplex, Scale, Eitherway, Livo, Trench, Flap, NOXA Fun, hood.fun, pons, LONG, EasyA Kickstart."""
   launchpadName: [String!]
   """Indicates if the launchpad is completed."""
   launchpadCompleted: Boolean
@@ -13722,9 +12617,9 @@ input OnLaunchpadTokenEventInput {
   protocol: LaunchpadTokenProtocol
   """A list of launchpad protocols."""
   protocols: [LaunchpadTokenProtocol!]
-  """The name of the launchpad. One of the following: Pump.fun, Pump Mayhem, Bonk, BONAD.fun, Nad.Fun, Baseapp, Baseapp Creator, Zora, Zora Creator, Four.meme, Four.meme Fair, Believe, Moonshot, Jupiter Studio, boop, Heaven, TokenMill V2, Virtuals, Clanker, Clanker V4, ArenaTrade, Moonit, LaunchLab, MeteoraDBC, Meteora Alpha Vault, Zora Solana, Cooking.City, time.fun, BAGS, Circus, Dealr, OhFuckFun, PrintFun, Trend, shout.fun, xApple, Sendshot, DubDub, cults, OpenGameProtocol, AMERICA.fun, Kumbaya, bow.fun, Printr, Bankr, Liquid, Noice, Flaunch, Coinbarrel, Blowfish, MeMoo, Metaplex, Scale, Eitherway, Livo, Trench, Flap, NOXA Fun, hood.fun, pons, EasyA Kickstart."""
+  """The name of the launchpad. One of the following: Pump.fun, Pump Mayhem, Bonk, BONAD.fun, Nad.Fun, Baseapp, Baseapp Creator, Zora, Zora Creator, Four.meme, Four.meme Fair, Believe, Moonshot, Jupiter Studio, boop, Heaven, TokenMill V2, Virtuals, Clanker, Clanker V4, ArenaTrade, Moonit, LaunchLab, MeteoraDBC, Meteora Alpha Vault, Zora Solana, Cooking.City, time.fun, BAGS, Circus, Dealr, OhFuckFun, PrintFun, Trend, shout.fun, xApple, Sendshot, DubDub, cults, OpenGameProtocol, AMERICA.fun, Kumbaya, bow.fun, Printr, Bankr, Liquid, Noice, Flaunch, Coinbarrel, Blowfish, MeMoo, Metaplex, Scale, Eitherway, Livo, Trench, Flap, NOXA Fun, hood.fun, pons, LONG, EasyA Kickstart."""
   launchpadName: String
-  """A list of launchpad names. Any of the following: Pump.fun, Pump Mayhem, Bonk, BONAD.fun, Nad.Fun, Baseapp, Baseapp Creator, Zora, Zora Creator, Four.meme, Four.meme Fair, Believe, Moonshot, Jupiter Studio, boop, Heaven, TokenMill V2, Virtuals, Clanker, Clanker V4, ArenaTrade, Moonit, LaunchLab, MeteoraDBC, Meteora Alpha Vault, Zora Solana, Cooking.City, time.fun, BAGS, Circus, Dealr, OhFuckFun, PrintFun, Trend, shout.fun, xApple, Sendshot, DubDub, cults, OpenGameProtocol, AMERICA.fun, Kumbaya, bow.fun, Printr, Bankr, Liquid, Noice, Flaunch, Coinbarrel, Blowfish, MeMoo, Metaplex, Scale, Eitherway, Livo, Trench, Flap, NOXA Fun, hood.fun, pons, EasyA Kickstart."""
+  """A list of launchpad names. Any of the following: Pump.fun, Pump Mayhem, Bonk, BONAD.fun, Nad.Fun, Baseapp, Baseapp Creator, Zora, Zora Creator, Four.meme, Four.meme Fair, Believe, Moonshot, Jupiter Studio, boop, Heaven, TokenMill V2, Virtuals, Clanker, Clanker V4, ArenaTrade, Moonit, LaunchLab, MeteoraDBC, Meteora Alpha Vault, Zora Solana, Cooking.City, time.fun, BAGS, Circus, Dealr, OhFuckFun, PrintFun, Trend, shout.fun, xApple, Sendshot, DubDub, cults, OpenGameProtocol, AMERICA.fun, Kumbaya, bow.fun, Printr, Bankr, Liquid, Noice, Flaunch, Coinbarrel, Blowfish, MeMoo, Metaplex, Scale, Eitherway, Livo, Trench, Flap, NOXA Fun, hood.fun, pons, LONG, EasyA Kickstart."""
   launchpadNames: [String!]
   """The type of event."""
   eventType: LaunchpadTokenEventType
@@ -13943,9 +12838,9 @@ input OnLaunchpadTokenEventBatchInput {
   protocols: [LaunchpadTokenProtocol!]
   """The network ID that the token is deployed on."""
   networkId: Int
-  """The name of the launchpad. One of the following: Pump.fun, Pump Mayhem, Bonk, BONAD.fun, Nad.Fun, Baseapp, Baseapp Creator, Zora, Zora Creator, Four.meme, Four.meme Fair, Believe, Moonshot, Jupiter Studio, boop, Heaven, TokenMill V2, Virtuals, Clanker, Clanker V4, ArenaTrade, Moonit, LaunchLab, MeteoraDBC, Meteora Alpha Vault, Zora Solana, Cooking.City, time.fun, BAGS, Circus, Dealr, OhFuckFun, PrintFun, Trend, shout.fun, xApple, Sendshot, DubDub, cults, OpenGameProtocol, AMERICA.fun, Kumbaya, bow.fun, Printr, Bankr, Liquid, Noice, Flaunch, Coinbarrel, Blowfish, MeMoo, Metaplex, Scale, Eitherway, Livo, Trench, Flap, NOXA Fun, hood.fun, pons, EasyA Kickstart."""
+  """The name of the launchpad. One of the following: Pump.fun, Pump Mayhem, Bonk, BONAD.fun, Nad.Fun, Baseapp, Baseapp Creator, Zora, Zora Creator, Four.meme, Four.meme Fair, Believe, Moonshot, Jupiter Studio, boop, Heaven, TokenMill V2, Virtuals, Clanker, Clanker V4, ArenaTrade, Moonit, LaunchLab, MeteoraDBC, Meteora Alpha Vault, Zora Solana, Cooking.City, time.fun, BAGS, Circus, Dealr, OhFuckFun, PrintFun, Trend, shout.fun, xApple, Sendshot, DubDub, cults, OpenGameProtocol, AMERICA.fun, Kumbaya, bow.fun, Printr, Bankr, Liquid, Noice, Flaunch, Coinbarrel, Blowfish, MeMoo, Metaplex, Scale, Eitherway, Livo, Trench, Flap, NOXA Fun, hood.fun, pons, LONG, EasyA Kickstart."""
   launchpadName: String
-  """A list of launchpad names. Any of the following: Pump.fun, Pump Mayhem, Bonk, BONAD.fun, Nad.Fun, Baseapp, Baseapp Creator, Zora, Zora Creator, Four.meme, Four.meme Fair, Believe, Moonshot, Jupiter Studio, boop, Heaven, TokenMill V2, Virtuals, Clanker, Clanker V4, ArenaTrade, Moonit, LaunchLab, MeteoraDBC, Meteora Alpha Vault, Zora Solana, Cooking.City, time.fun, BAGS, Circus, Dealr, OhFuckFun, PrintFun, Trend, shout.fun, xApple, Sendshot, DubDub, cults, OpenGameProtocol, AMERICA.fun, Kumbaya, bow.fun, Printr, Bankr, Liquid, Noice, Flaunch, Coinbarrel, Blowfish, MeMoo, Metaplex, Scale, Eitherway, Livo, Trench, Flap, NOXA Fun, hood.fun, pons, EasyA Kickstart."""
+  """A list of launchpad names. Any of the following: Pump.fun, Pump Mayhem, Bonk, BONAD.fun, Nad.Fun, Baseapp, Baseapp Creator, Zora, Zora Creator, Four.meme, Four.meme Fair, Believe, Moonshot, Jupiter Studio, boop, Heaven, TokenMill V2, Virtuals, Clanker, Clanker V4, ArenaTrade, Moonit, LaunchLab, MeteoraDBC, Meteora Alpha Vault, Zora Solana, Cooking.City, time.fun, BAGS, Circus, Dealr, OhFuckFun, PrintFun, Trend, shout.fun, xApple, Sendshot, DubDub, cults, OpenGameProtocol, AMERICA.fun, Kumbaya, bow.fun, Printr, Bankr, Liquid, Noice, Flaunch, Coinbarrel, Blowfish, MeMoo, Metaplex, Scale, Eitherway, Livo, Trench, Flap, NOXA Fun, hood.fun, pons, LONG, EasyA Kickstart."""
   launchpadNames: [String!]
   """The type of event."""
   eventType: LaunchpadTokenEventType
@@ -14055,6 +12950,7 @@ enum LiquidityLockProtocol {
   BURN
   BITBOND
   METEORA_DAMM_V2
+  DOPPLER
 }
 
 """Protocols that create trading pairs."""
@@ -14935,6 +13831,126 @@ type WalletFilterConnection {
   offset: Int!
 }
 
+"""A wallet matching a filter."""
+type WalletFilterResult {
+  """The wallet address"""
+  address: String!
+  """The unix timestamp for the first transaction from this wallet"""
+  firstTransactionAt: Int
+  """The unix timestamp for the last transaction from this wallet"""
+  lastTransactionAt: Int!
+  """The labels associated with the wallet"""
+  labels: [String!]!
+  """Manual or proposal-derived identity vocabulary (e.g. WHALE, KOL). Distinct from behavioral `labels`."""
+  identityLabels: [String!]
+  """Volume in USD in the past day"""
+  volumeUsd1d: String!
+  """Total volume in USD in the past day including all tokens"""
+  volumeUsdAll1d: String!
+  """Realized profit in USD in the past day"""
+  realizedProfitUsd1d: String!
+  """Average profit in USD per trade in the past day"""
+  averageProfitUsdPerTrade1d: String!
+  """Average swap amount in USD in the past day"""
+  averageSwapAmountUsd1d: String!
+  """Realized profit percentage in the past day"""
+  realizedProfitPercentage1d: Float!
+  """Average hold period, in seconds, for positions sold during the past day. Estimated with average-cost accounting: sells realize the age of the sold cost basis, so unsold holdings do not affect the result. A lower bound, capped at the window length. Returns null when under $1 of cost basis was sold."""
+  avgHoldPeriodSec1d: Float
+  """Number of swaps in the past day"""
+  swaps1d: Int!
+  """Total number of swaps in the past day including all tokens"""
+  swapsAll1d: Int!
+  """Number of unique tokens traded in the past day"""
+  uniqueTokens1d: Int!
+  """Win rate in the past day"""
+  winRate1d: Float!
+  """Volume in USD in the past week"""
+  volumeUsd1w: String!
+  """Total volume in USD in the past week including all tokens"""
+  volumeUsdAll1w: String!
+  """Realized profit in USD in the past week"""
+  realizedProfitUsd1w: String!
+  """Average profit in USD per trade in the past week"""
+  averageProfitUsdPerTrade1w: String!
+  """Average swap amount in USD in the past week"""
+  averageSwapAmountUsd1w: String!
+  """Realized profit percentage in the past week"""
+  realizedProfitPercentage1w: Float!
+  """Average hold period, in seconds, for positions sold during the past week. Estimated with average-cost accounting: sells realize the age of the sold cost basis, so unsold holdings do not affect the result. A lower bound, capped at the window length. Returns null when under $1 of cost basis was sold."""
+  avgHoldPeriodSec1w: Float
+  """Number of swaps in the past week"""
+  swaps1w: Int!
+  """Total number of swaps in the past week including all tokens"""
+  swapsAll1w: Int!
+  """Number of unique tokens traded in the past week"""
+  uniqueTokens1w: Int!
+  """Win rate in the past week"""
+  winRate1w: Float!
+  """Volume in USD in the past 30 days"""
+  volumeUsd30d: String!
+  """Total volume in USD in the past 30 days including all tokens"""
+  volumeUsdAll30d: String!
+  """Realized profit in USD in the past 30 days"""
+  realizedProfitUsd30d: String!
+  """Average profit in USD per trade in the past 30 days"""
+  averageProfitUsdPerTrade30d: String!
+  """Average swap amount in USD in the past 30 days"""
+  averageSwapAmountUsd30d: String!
+  """Realized profit percentage in the past 30 days"""
+  realizedProfitPercentage30d: Float!
+  """Average hold period, in seconds, for positions sold during the past 30 days. Estimated with average-cost accounting: sells realize the age of the sold cost basis, so unsold holdings do not affect the result. A lower bound, capped at the window length. Returns null when under $1 of cost basis was sold."""
+  avgHoldPeriodSec30d: Float
+  """Number of swaps in the past 30 days"""
+  swaps30d: Int!
+  """Total number of swaps in the past 30 days including all tokens"""
+  swapsAll30d: Int!
+  """Number of unique tokens traded in the past 30 days"""
+  uniqueTokens30d: Int!
+  """Win rate in the past 30 days"""
+  winRate30d: Float!
+  """Volume in USD in the past year"""
+  volumeUsd1y: String!
+  """Total volume in USD in the past year including all tokens"""
+  volumeUsdAll1y: String!
+  """Realized profit in USD in the past year"""
+  realizedProfitUsd1y: String!
+  """Average profit in USD per trade in the past year"""
+  averageProfitUsdPerTrade1y: String!
+  """Average swap amount in USD in the past year"""
+  averageSwapAmountUsd1y: String!
+  """Realized profit percentage in the past year"""
+  realizedProfitPercentage1y: Float!
+  """Average hold period, in seconds, for positions sold during the past year. Estimated with average-cost accounting: sells realize the age of the sold cost basis, so unsold holdings do not affect the result. A lower bound, capped at the window length. Returns null when under $1 of cost basis was sold."""
+  avgHoldPeriodSec1y: Float
+  """Number of swaps in the past year"""
+  swaps1y: Int!
+  """Total number of swaps in the past year including all tokens"""
+  swapsAll1y: Int!
+  """Number of unique tokens traded in the past year"""
+  uniqueTokens1y: Int! @deprecated(reason: "uniqueTokens1y is no longer available as a distinct 1-year value; it now reflects the 30-day value (uniqueTokens30d).")
+  """Win rate in the past year"""
+  winRate1y: Float!
+  """The scammer score for the wallet."""
+  scammerScore: Int
+  """The bot score for the wallet."""
+  botScore: Int
+  """Total number of tokens created by this wallet across all networks."""
+  tokensCreatedCount: Int
+  """Total number of launchpad tokens migrated (graduated) by this wallet across all networks."""
+  tokensMigratedCount: Int
+  """Wallet behavior classification. Null is equivalent to NORMIE."""
+  category: WalletCategory
+  """The network ID of the wallet (only present if filtered by network)"""
+  networkId: Int
+  """The native token balance of the wallet (only present if filtered by network)"""
+  nativeTokenBalance: String
+  """The backfill state of the wallet."""
+  backfillState: WalletAggregateBackfillState
+  """The wallet identity and profile data"""
+  wallet: Wallet
+}
+
 """A wallet matching a filter on a specific network."""
 type NetworkWalletFilterResult {
   """The wallet address"""
@@ -15625,6 +14641,991 @@ type WalletFunding {
   transactionHash: String!
 }
 
+enum NetworkConfigType {
+  SOLANA
+  EVM
+  SUI
+  APTOS
+  STARKNET
+}
+
+type ExplorerConfig {
+  checksummed: Boolean!
+  icon: String!
+  name: String!
+  url: String!
+}
+
+interface NetworkConfigBase {
+  id: ID!
+  networkId: Int!
+  baseTokenAddress: String!
+  baseTokenSymbol: String!
+  color: String
+  defaultPairAddress: String!
+  defaultPairQuoteToken: QuoteToken!
+  enabled: Boolean!
+  newTokensEnabled: Boolean
+  explorer: ExplorerConfig!
+  mainnet: Boolean!
+  name: String!
+  networkIconUrl: String!
+  networkName: String!
+  networkShortName: String!
+  networkType: NetworkConfigType!
+  wrappedBaseTokenSymbol: String!
+  stableCoinAddresses: [String!]
+}
+
+union NetworkConfig = EvmNetworkConfig | SolanaNetworkConfig | SuiNetworkConfig | AptosNetworkConfig | StarknetNetworkConfig
+
+"""The type of webhook."""
+enum WebhookType {
+  PRICE_EVENT
+  TOKEN_PAIR_EVENT
+  RAW_TRANSACTION
+  MARKET_CAP_EVENT
+  TOKEN_PRICE_EVENT
+  TOKEN_TRANSFER_EVENT
+  PREDICTION_TRADE
+  PREDICTION_MARKET_METRICS_EVENT
+}
+
+"""Input for deleting webhooks."""
+input DeleteWebhooksInput {
+  """A list of webhook IDs to delete."""
+  webhookIds: [String!]!
+}
+
+"""Result returned by `deleteWebhooks`."""
+type DeleteWebhooksOutput {
+  """The list of webhook IDs that were deleted."""
+  deletedIds: [String]
+}
+
+"""Input for creating webhooks."""
+input CreateWebhooksInput {
+  """Input for creating price webhooks."""
+  priceWebhooksInput: CreatePriceWebhooksInput @deprecated(reason: "Use tokenPriceEventWebhooksInput instead.")
+  """Input for creating token pair event webhooks."""
+  tokenPairEventWebhooksInput: CreateTokenPairEventWebhooksInput
+  """Input for creating raw transaction webhooks."""
+  rawTransactionWebhooksInput: CreateRawTransactionWebhooksInput
+  """Input for creating market cap webhooks."""
+  marketCapWebhooksInput: CreateMarketCapWebhooksInput
+  """Input for creating token price event webhooks."""
+  tokenPriceEventWebhooksInput: CreateTokenPriceEventWebhooksInput
+  """Input for creating token transfer event webhooks."""
+  tokenTransferEventWebhooksInput: CreateTokenTransferEventWebhooksInput
+  """Input for creating prediction trade webhooks."""
+  predictionTradeWebhooksInput: CreatePredictionTradeWebhooksInput
+  """Input for creating prediction market metrics event webhooks."""
+  predictionMarketMetricsEventWebhooksInput: CreatePredictionMarketMetricsEventWebhooksInput
+}
+
+"""A bucket identifier for grouping and querying webhooks. Provide both fields together so bucket-based queries work correctly."""
+input BucketKeyInput {
+  """The bucket ID for the webhook."""
+  bucketId: String!
+  """The bucket sort key for the webhook."""
+  bucketSortKey: String!
+}
+
+"""Input for creating price webhooks."""
+input CreatePriceWebhooksInput {
+  """A list of price webhooks to create."""
+  webhooks: [CreatePriceWebhookArgs!]!
+}
+
+"""Input for creating a price webhook."""
+input CreatePriceWebhookArgs {
+  """The name of the webhook (max 128 characters)."""
+  name: String!
+  """The url to which the webhook message should be sent."""
+  callbackUrl: String!
+  """A string value to hash along with `deduplicationId` using SHA-256. Included in the webhook message for added security."""
+  securityToken: String!
+  """The recurrence of the webhook. Can be `INDEFINITE` or `ONCE`."""
+  alertRecurrence: AlertRecurrence!
+  """A webhook group ID (max 64 characters). Can be used to group webhooks so that their messages are kept in order as a group rather than by individual webhook."""
+  groupId: String @deprecated(reason: "GroupId is deprecated and will be removed in the future. Messages will be grouped by webhookId")
+  """The conditions which must be met in order for the webhook to send a message."""
+  conditions: PriceEventWebhookConditionInput!
+  """The settings for retrying failed webhook messages."""
+  retrySettings: RetrySettingsInput
+  """An optional bucket key for grouping and querying webhooks. Prefer this over the deprecated flat bucket fields."""
+  bucketKey: BucketKeyInput
+  """Deprecated. Use `bucketKey.bucketId` instead. Existing webhooks created with `bucketId` and `bucketSortkey` will continue to work."""
+  bucketId: String @deprecated(reason: "Use bucketKey.bucketId instead.")
+  """Deprecated. Use `bucketKey.bucketSortKey` instead. Existing webhooks created with `bucketId` and `bucketSortkey` will continue to work."""
+  bucketSortkey: String @deprecated(reason: "Use bucketKey.bucketSortKey instead.")
+  """The type of publishing for the webhook. If not set, it defaults to `SINGLE`."""
+  publishingType: PublishingType
+  """If enabled, new webhooks won't be created if a webhook with the same parameters already exists. If callbackUrl, conditions, publishingType, and alertRecurrence all match, then we return the existing webhook."""
+  deduplicate: Boolean
+}
+
+"""Input for creating market cap webhooks."""
+input CreateMarketCapWebhooksInput {
+  """A list of market cap webhooks to create."""
+  webhooks: [CreateMarketCapWebhookArgs!]!
+}
+
+"""Input for creating a market cap webhook."""
+input CreateMarketCapWebhookArgs {
+  """The name of the webhook (max 128 characters)."""
+  name: String!
+  """The url to which the webhook message should be sent."""
+  callbackUrl: String!
+  """A string value to hash along with `deduplicationId` using SHA-256. Included in the webhook message for added security."""
+  securityToken: String!
+  """The recurrence of the webhook. Can be `INDEFINITE` or `ONCE`."""
+  alertRecurrence: AlertRecurrence!
+  """A webhook group ID (max 64 characters). Can be used to group webhooks so that their messages are kept in order as a group rather than by individual webhook."""
+  groupId: String @deprecated(reason: "GroupId is deprecated and will be removed in the future. Messages will be grouped by webhookId")
+  """The conditions which must be met in order for the webhook to send a message."""
+  conditions: MarketCapEventWebhookConditionInput!
+  """The settings for retrying failed webhook messages."""
+  retrySettings: RetrySettingsInput
+  """An optional bucket key for grouping and querying webhooks. Prefer this over the deprecated flat bucket fields."""
+  bucketKey: BucketKeyInput
+  """Deprecated. Use `bucketKey.bucketId` instead. Existing webhooks created with `bucketId` and `bucketSortkey` will continue to work."""
+  bucketId: String @deprecated(reason: "Use bucketKey.bucketId instead.")
+  """Deprecated. Use `bucketKey.bucketSortKey` instead. Existing webhooks created with `bucketId` and `bucketSortkey` will continue to work."""
+  bucketSortkey: String @deprecated(reason: "Use bucketKey.bucketSortKey instead.")
+  """The type of publishing for the webhook. If not set, it defaults to `SINGLE`."""
+  publishingType: PublishingType
+  """If enabled, new webhooks won't be created if a webhook with the same parameters already exists. If callbackUrl, conditions, publishingType, and alertRecurrence all match, then we return the existing webhook."""
+  deduplicate: Boolean
+}
+
+"""Config input for retrying failed webhook messages."""
+input RetrySettingsInput {
+  """The maximum time in seconds that the webhook will retry sending a message"""
+  maxTimeElapsed: Int
+  """The minimum time in seconds that the webhook will wait before retrying a failed message"""
+  minRetryDelay: Int
+  """The maximum time in seconds that the webhook will wait before retrying a failed message"""
+  maxRetryDelay: Int
+  """The maximum number of times the webhook will retry sending a message"""
+  maxRetries: Int
+}
+
+"""Input conditions for a price event webhook."""
+input PriceEventWebhookConditionInput {
+  """The contract address of the token to listen for."""
+  tokenAddress: StringEqualsConditionInput!
+  """The network ID to listen on."""
+  networkId: IntEqualsConditionInput!
+  """The price conditions to listen for."""
+  priceUsd: ComparisonOperatorInput!
+  """The contract address of the pair to listen for."""
+  pairAddress: StringEqualsConditionInput
+  """The volume conditions to listen for."""
+  volumeUsd: ComparisonOperatorInput
+  """The liquidity conditions to listen for."""
+  liquidityUsd: ComparisonOperatorInput
+}
+
+"""Input conditions for a market cap event webhook."""
+input MarketCapEventWebhookConditionInput {
+  """The contract address of the token to listen for."""
+  tokenAddress: StringEqualsConditionInput!
+  """The network ID to listen on."""
+  networkId: IntEqualsConditionInput!
+  """The price conditions to listen for."""
+  fdvMarketCapUsd: ComparisonOperatorInput
+  """The circulating market cap conditions to listen for."""
+  circulatingMarketCapUsd: ComparisonOperatorInput
+  """The contract address of the pair to listen for."""
+  pairAddress: StringEqualsConditionInput
+  """The volume conditions to listen for."""
+  volumeUsd: ComparisonOperatorInput
+  """The liquidity conditions to listen for."""
+  liquidityUsd: ComparisonOperatorInput
+}
+
+"""Input for creating token price event webhooks."""
+input CreateTokenPriceEventWebhooksInput {
+  """A list of token price event webhooks to create."""
+  webhooks: [CreateTokenPriceEventWebhookArgs!]!
+}
+
+"""Input for creating a token price event webhook."""
+input CreateTokenPriceEventWebhookArgs {
+  """The name of the webhook (max 128 characters)."""
+  name: String!
+  """The url to which the webhook message should be sent."""
+  callbackUrl: String!
+  """A string value to hash along with `deduplicationId` using SHA-256. Included in the webhook message for added security."""
+  securityToken: String!
+  """The recurrence of the webhook. Can be `INDEFINITE` or `ONCE`."""
+  alertRecurrence: AlertRecurrence!
+  """The conditions which must be met in order for the webhook to send a message."""
+  conditions: TokenPriceEventWebhookConditionInput!
+  """The settings for retrying failed webhook messages."""
+  retrySettings: RetrySettingsInput
+  """An optional bucket key for grouping and querying webhooks. Prefer this over the deprecated flat bucket fields."""
+  bucketKey: BucketKeyInput
+  """Deprecated. Use `bucketKey.bucketId` instead. Existing webhooks created with `bucketId` and `bucketSortkey` will continue to work."""
+  bucketId: String @deprecated(reason: "Use bucketKey.bucketId instead.")
+  """Deprecated. Use `bucketKey.bucketSortKey` instead. Existing webhooks created with `bucketId` and `bucketSortkey` will continue to work."""
+  bucketSortkey: String @deprecated(reason: "Use bucketKey.bucketSortKey instead.")
+  """The type of publishing for the webhook. If not set, it defaults to `SINGLE`."""
+  publishingType: PublishingType
+  """If enabled, new webhooks won't be created if a webhook with the same parameters already exists. If callbackUrl, conditions, publishingType, and alertRecurrence all match, then we return the existing webhook."""
+  deduplicate: Boolean
+}
+
+"""Input conditions for a token price event webhook."""
+input TokenPriceEventWebhookConditionInput {
+  """The contract address of the token to listen for."""
+  address: StringEqualsConditionInput!
+  """The network ID to listen on."""
+  networkId: IntEqualsConditionInput!
+  """The price conditions to listen for."""
+  priceUsd: ComparisonOperatorInput!
+}
+
+"""Input for creating token transfer event webhooks."""
+input CreateTokenTransferEventWebhooksInput {
+  """A list of token transfer event webhooks to create."""
+  webhooks: [CreateTokenTransferEventWebhookArgs!]!
+}
+
+"""Input for creating a token transfer event webhook."""
+input CreateTokenTransferEventWebhookArgs {
+  """The name of the webhook (max 128 characters)."""
+  name: String!
+  """The url to which the webhook message should be sent."""
+  callbackUrl: String!
+  """A string value to hash along with `deduplicationId` using SHA-256. Included in the webhook message for added security."""
+  securityToken: String!
+  """The recurrence of the webhook. Can be `INDEFINITE` or `ONCE`."""
+  alertRecurrence: AlertRecurrence!
+  """The conditions which must be met in order for the webhook to send a message."""
+  conditions: TokenTransferEventWebhookConditionInput!
+  """The settings for retrying failed webhook messages."""
+  retrySettings: RetrySettingsInput
+  """An optional bucket key for grouping and querying webhooks. Prefer this over the deprecated flat bucket fields."""
+  bucketKey: BucketKeyInput
+  """Deprecated. Use `bucketKey.bucketId` instead. Existing webhofoks created with `bucketId` and `bucketSortkey` will continue to work."""
+  bucketId: String @deprecated(reason: "Use bucketKey.bucketId instead.")
+  """Deprecated. Use `bucketKey.bucketSortKey` instead. Existing webhooks created with `bucketId` and `bucketSortkey` will continue to work."""
+  bucketSortkey: String @deprecated(reason: "Use bucketKey.bucketSortKey instead.")
+  """The type of publishing for the webhook. If not set, it defaults to `SINGLE`."""
+  publishingType: PublishingType
+  """If enabled, new webhooks won't be created if a webhook with the same parameters already exists. If callbackUrl, conditions, publishingType, and alertRecurrence all match, then we return the existing webhook."""
+  deduplicate: Boolean
+}
+
+"""Input conditions for a token transfer event webhook."""
+input TokenTransferEventWebhookConditionInput {
+  """The contract address of the token to listen for."""
+  tokenAddress: StringEqualsConditionInput
+  """The list of network IDs to listen on."""
+  networkId: OneOfNumberConditionInput
+  """The wallet address to listen for transfers from or to."""
+  address: StringEqualsConditionInput
+  """The direction of the transfer (TO, FROM). Defaults to [TO, FROM] if not specified."""
+  direction: OneOfTokenTransferDirectionConditionInput
+}
+
+"""Input for token transfer direction list condition."""
+input OneOfTokenTransferDirectionConditionInput {
+  """The list of transfer directions to listen for."""
+  oneOf: [TokenTransferDirection!]!
+}
+
+"""Input for creating prediction trade webhooks."""
+input CreatePredictionTradeWebhooksInput {
+  """A list of prediction trade webhooks to create."""
+  webhooks: [CreatePredictionTradeWebhookArgs!]!
+}
+
+"""Input for creating a prediction trade webhook."""
+input CreatePredictionTradeWebhookArgs {
+  """The name of the webhook (max 128 characters)."""
+  name: String!
+  """The url to which the webhook message should be sent."""
+  callbackUrl: String!
+  """A string value to hash along with `deduplicationId` using SHA-256. Included in the webhook message for added security."""
+  securityToken: String!
+  """The recurrence of the webhook. Can be `INDEFINITE` or `ONCE`."""
+  alertRecurrence: AlertRecurrence!
+  """The conditions which must be met in order for the webhook to send a message."""
+  conditions: PredictionTradeWebhookConditionInput!
+  """The settings for retrying failed webhook messages."""
+  retrySettings: RetrySettingsInput
+  """An optional bucket key for grouping and querying webhooks. Prefer this over the deprecated flat bucket fields."""
+  bucketKey: BucketKeyInput
+}
+
+"""Input conditions for a prediction trade webhook."""
+input PredictionTradeWebhookConditionInput {
+  """The trader ID to listen for."""
+  traderId: StringEqualsConditionInput
+  """The market ID to listen for."""
+  marketId: StringEqualsConditionInput
+  """The event ID to listen for."""
+  eventId: StringEqualsConditionInput
+  """The trade event types to listen for."""
+  eventType: PredictionTradeEventTypeConditionInput
+  """The trade value in USD condition."""
+  tradeValueUsd: ComparisonOperatorInput
+  """The amount of tokens/shares traded condition."""
+  amountToken: ComparisonOperatorInput
+}
+
+"""Per-window stat thresholds for a PredictionMarketMetricsEvent webhook outcome. All present fields are ANDed."""
+input WindowedPredictionMarketMetricsEventOutcomeConditionInput {
+  price: ComparisonOperatorInput
+  priceChange: ComparisonOperatorInput
+  volumeUsd: ComparisonOperatorInput
+  volumeChange: ComparisonOperatorInput
+  trades: ComparisonOperatorInput
+  tradesChange: ComparisonOperatorInput
+}
+
+"""Per-window market-level stat thresholds. All present fields ANDed."""
+input WindowedPredictionMarketMetricsEventMarketConditionInput {
+  volumeUsd: ComparisonOperatorInput
+  trades: ComparisonOperatorInput
+  volumeChange: ComparisonOperatorInput
+  tradesChange: ComparisonOperatorInput
+}
+
+"""Per-window market-level conditions across all 6 windows."""
+input PredictionMarketMetricsEventMarketConditionInput {
+  min5: WindowedPredictionMarketMetricsEventMarketConditionInput
+  hour1: WindowedPredictionMarketMetricsEventMarketConditionInput
+  hour4: WindowedPredictionMarketMetricsEventMarketConditionInput
+  hour12: WindowedPredictionMarketMetricsEventMarketConditionInput
+  day1: WindowedPredictionMarketMetricsEventMarketConditionInput
+  week1: WindowedPredictionMarketMetricsEventMarketConditionInput
+}
+
+"""Input conditions for a PredictionMarketMetricsEvent webhook."""
+input PredictionMarketMetricsEventWebhookConditionInput {
+  """The market ID to listen for."""
+  marketId: StringEqualsConditionInput!
+  """Conditions evaluated against market-level aggregate stats. ANDed with other clauses when also present."""
+  market: PredictionMarketMetricsEventMarketConditionInput
+  """Conditions evaluated against outcome 0's stats. ANDed with outcome1 and anyOutcome when also present."""
+  outcome0: PredictionMarketMetricsEventOutcomeConditionInput
+  """Conditions evaluated against outcome 1's stats. ANDed with outcome0 and anyOutcome when also present."""
+  outcome1: PredictionMarketMetricsEventOutcomeConditionInput
+  """Conditions evaluated against both outcomes; matches if at least one outcome satisfies. ANDed with outcome0 and outcome1 when also present."""
+  anyOutcome: PredictionMarketMetricsEventOutcomeConditionInput
+}
+
+"""Per-outcome conditions for a PredictionMarketMetricsEvent webhook."""
+input PredictionMarketMetricsEventOutcomeConditionInput {
+  """Conditions for the 5-minute window."""
+  min5: WindowedPredictionMarketMetricsEventOutcomeConditionInput
+  """Conditions for the 1-hour window."""
+  hour1: WindowedPredictionMarketMetricsEventOutcomeConditionInput
+  """Conditions for the 4-hour window."""
+  hour4: WindowedPredictionMarketMetricsEventOutcomeConditionInput
+  """Conditions for the 12-hour window."""
+  hour12: WindowedPredictionMarketMetricsEventOutcomeConditionInput
+  """Conditions for the 1-day window."""
+  day1: WindowedPredictionMarketMetricsEventOutcomeConditionInput
+  """Conditions for the 1-week window."""
+  week1: WindowedPredictionMarketMetricsEventOutcomeConditionInput
+}
+
+"""Input for creating a prediction market metrics event webhook."""
+input CreatePredictionMarketMetricsEventWebhookArgs {
+  """The name of the webhook (max 128 characters)."""
+  name: String!
+  """The url to which the webhook message should be sent."""
+  callbackUrl: String!
+  """A string value to hash along with `deduplicationId` using SHA-256. Included in the webhook message for added security."""
+  securityToken: String!
+  """The recurrence of the webhook. Can be `INDEFINITE` or `ONCE`."""
+  alertRecurrence: AlertRecurrence!
+  """The conditions which must be met in order for the webhook to send a message."""
+  conditions: PredictionMarketMetricsEventWebhookConditionInput!
+  """The settings for retrying failed webhook messages."""
+  retrySettings: RetrySettingsInput
+  """An optional bucket key for grouping and querying webhooks. Prefer this over the deprecated flat bucket fields."""
+  bucketKey: BucketKeyInput
+  """The type of publishing for the webhook. If not set, it defaults to `SINGLE`."""
+  publishingType: PublishingType
+  """If enabled, new webhooks won't be created if a webhook with the same parameters already exists. If callbackUrl, conditions, publishingType, and alertRecurrence all match, then we return the existing webhook."""
+  deduplicate: Boolean
+}
+
+"""Input for creating prediction market metrics event webhooks."""
+input CreatePredictionMarketMetricsEventWebhooksInput {
+  """A list of prediction market metrics event webhooks to create."""
+  webhooks: [CreatePredictionMarketMetricsEventWebhookArgs!]!
+}
+
+"""Input for prediction trade event type condition."""
+input PredictionTradeEventTypeConditionInput {
+  """The list of prediction trade event types to match."""
+  oneOf: [PredictionTradeEventType!]!
+}
+
+"""Prediction trade event types."""
+enum PredictionTradeEventType {
+  TRADE
+  BUY
+  SELL
+  BUY_COUNTERPARTY
+  SELL_COUNTERPARTY
+  PAYOUT_REDEMPTION @deprecated(reason: "PAYOUT_REDEMPTION is deprecated and will be removed in the future. Use POSITION_REDEEMED instead.")
+  POSITION_REDEEMED
+}
+
+"""Input for creating token pair event webhooks."""
+input CreateTokenPairEventWebhooksInput {
+  """A list of token pair event webhooks to create."""
+  webhooks: [CreateTokenPairEventWebhookArgs!]!
+}
+
+"""Input for creating a token pair event webhook."""
+input CreateTokenPairEventWebhookArgs {
+  """The name of the webhook (max 128 characters)."""
+  name: String!
+  """The url to which the webhook message should be sent."""
+  callbackUrl: String!
+  """A string value to hash along with `deduplicationId` using SHA-256. Included in the webhook message for added security."""
+  securityToken: String!
+  """The recurrence of the webhook. Can be `INDEFINITE` or `ONCE`."""
+  alertRecurrence: AlertRecurrence!
+  """A webhook group ID (max 64 characters). Can be used to group webhooks so that their messages are kept in order as a group rather than by individual webhook."""
+  groupId: String @deprecated(reason: "GroupId is deprecated and will be removed in the future. Messages will be grouped by webhookId")
+  """The conditions which must be met in order for the webhook to send a message."""
+  conditions: TokenPairEventWebhookConditionInput!
+  """The settings for retrying failed webhook messages."""
+  retrySettings: RetrySettingsInput
+  """An optional bucket key for grouping and querying webhooks. Prefer this over the deprecated flat bucket fields."""
+  bucketKey: BucketKeyInput
+  """Deprecated. Use `bucketKey.bucketId` instead. Existing webhooks created with `bucketId` and `bucketSortkey` will continue to work."""
+  bucketId: String @deprecated(reason: "Use bucketKey.bucketId instead.")
+  """Deprecated. Use `bucketKey.bucketSortKey` instead. Existing webhooks created with `bucketId` and `bucketSortkey` will continue to work."""
+  bucketSortkey: String @deprecated(reason: "Use bucketKey.bucketSortKey instead.")
+  """The type of publishing for the webhook. If not set, it defaults to `SINGLE`."""
+  publishingType: PublishingType
+  """If enabled, new webhooks won't be created if a webhook with the same parameters already exists. If callbackUrl, conditions, publishingType, and alertRecurrence all match, then we return the existing webhook."""
+  deduplicate: Boolean
+}
+
+"""Input conditions for a token pair event webhook."""
+input TokenPairEventWebhookConditionInput {
+  """A list of network IDs to listen on."""
+  networkId: OneOfNumberConditionInput
+  """The maker wallet address to listen for."""
+  maker: StringEqualsConditionInput
+  """The pair contract address to listen for."""
+  pairAddress: StringEqualsConditionInput
+  """The exchange contract address to listen for."""
+  exchangeAddress: StringEqualsConditionInput
+  """The token contract address to listen for."""
+  tokenAddress: StringEqualsConditionInput
+  """The swap values to listen for."""
+  swapValue: ComparisonOperatorInput
+  """The token event type to listen for."""
+  eventType: TokenPairEventTypeConditionInput
+}
+
+"""Input for token pair event type condition."""
+input TokenPairEventTypeConditionInput {
+  """The list of token event types to equal."""
+  oneOf: [TokenPairEventType!]!
+}
+
+"""Token pair event types."""
+enum TokenPairEventType {
+  SWAP
+  MINT
+  BURN
+  SYNC
+  BUY
+  SELL
+  COLLECT
+  COLLECT_PROTOCOL
+}
+
+"""The direction of a token transfer."""
+enum TokenTransferDirection {
+  """Tokens sent from the address."""
+  FROM
+  """Tokens received to the address."""
+  TO
+}
+
+"""Input for creating Raw Transaction webhooks."""
+input CreateRawTransactionWebhooksInput {
+  """A list of Raw Transaction webhooks to create."""
+  webhooks: [CreateRawTransactionWebhookArgs!]!
+}
+
+"""Input for creating a Raw Transaction webhook."""
+input CreateRawTransactionWebhookArgs {
+  """The name of the webhook (max 128 characters)."""
+  name: String!
+  """The url to which the webhook message should be sent."""
+  callbackUrl: String!
+  """A string value to hash along with `deduplicationId` using SHA-256. Included in the webhook message for added security."""
+  securityToken: String!
+  """The recurrence of the webhook. Can be `INDEFINITE` or `ONCE`."""
+  alertRecurrence: AlertRecurrence!
+  """A webhook group ID (max 64 characters). Can be used to group webhooks so that their messages are kept in order as a group rather than by individual webhook."""
+  groupId: String @deprecated(reason: "GroupId is deprecated and will be removed in the future. Messages will be grouped by webhookId")
+  """The conditions which must be met in order for the webhook to send a message."""
+  conditions: RawTransactionWebhookConditionInput!
+  """The settings for retrying failed webhook messages."""
+  retrySettings: RetrySettingsInput
+  """An optional bucket key for grouping and querying webhooks. Prefer this over the deprecated flat bucket fields."""
+  bucketKey: BucketKeyInput
+  """Deprecated. Use `bucketKey.bucketId` instead. Existing webhooks created with `bucketId` and `bucketSortkey` will continue to work."""
+  bucketId: String @deprecated(reason: "Use bucketKey.bucketId instead.")
+  """Deprecated. Use `bucketKey.bucketSortKey` instead. Existing webhooks created with `bucketId` and `bucketSortkey` will continue to work."""
+  bucketSortkey: String @deprecated(reason: "Use bucketKey.bucketSortKey instead.")
+  """The type of publishing for the webhook. If not set, it defaults to `SINGLE`."""
+  publishingType: PublishingType
+  """If enabled, new webhooks won't be created if a webhook with the same parameters already exists. If callbackUrl, conditions, publishingType, and alertRecurrence all match, then we return the existing webhook."""
+  deduplicate: Boolean
+}
+
+"""Input conditions for a Raw Transaction webhook."""
+input RawTransactionWebhookConditionInput {
+  """A list of network IDs to listen on."""
+  networkId: OneOfNumberConditionInput
+  """The to address to listen for."""
+  to: StringEqualsConditionInput
+  """The from address to listen for."""
+  from: StringEqualsConditionInput
+  """Trigger the webhook if either the to or the from address matches."""
+  toOrFrom: StringEqualsConditionInput
+  """Trigger the webhook if the input contains or doesn't contain the specified string."""
+  input: StringContainsConditionInput
+  """Do not trigger the webhook if the raw transaction is handled by the TokenPairEvent webhook."""
+  ignoreTokenPairEvents: Boolean
+}
+
+"""Input for string contains condition."""
+input StringContainsConditionInput {
+  """A list of substrings to be included within the string."""
+  contains: [String!]
+  """A list of substrings not to be included within the string."""
+  notContains: [String!]
+}
+
+"""Input for integer list condition."""
+input OneOfNumberConditionInput {
+  """The list of integers."""
+  oneOf: [Int!]!
+}
+
+"""Input for comparison operators."""
+input ComparisonOperatorInput {
+  """Greater than."""
+  gt: String
+  """Greater than or equal."""
+  gte: String
+  """Less than."""
+  lt: String
+  """Less than or equal."""
+  lte: String
+  """Equal to."""
+  eq: String
+}
+
+"""Input for string equals condition."""
+input StringEqualsConditionInput {
+  """The string to equal."""
+  eq: String!
+}
+
+"""Input for integer equals condition."""
+input IntEqualsConditionInput {
+  """The integer to equal."""
+  eq: Int!
+}
+
+"""The recurrence of the webhook. Can be `INDEFINITE` or `ONCE`."""
+enum AlertRecurrence {
+  INDEFINITE
+  ONCE
+}
+
+"""The type of publishing for the webhook. If not set, it defaults to `SINGLE`."""
+enum PublishingType {
+  BATCH
+  SINGLE
+}
+
+"""Result returned by `createWebhooks`."""
+type CreateWebhooksOutput {
+  """The list of price webhooks that were created."""
+  priceWebhooks: [Webhook]!
+  """The list of token pair event webhooks that were created."""
+  tokenPairEventWebhooks: [Webhook]!
+  """The list of raw transaction webhooks that were created."""
+  rawTransactionWebhooks: [Webhook]!
+  """The list of market cap event webhooks that were created."""
+  marketCapWebhooks: [Webhook]!
+  """The list of token price event webhooks that were created."""
+  tokenPriceEventWebhooks: [Webhook]!
+  """The list of token transfer event webhooks that were created."""
+  tokenTransferEventWebhooks: [Webhook]!
+  """The list of prediction trade webhooks that were created."""
+  predictionTradeWebhooks: [Webhook]!
+  """The list of prediction market metrics event webhooks that were created."""
+  predictionMarketMetricsEventWebhooks: [Webhook]!
+}
+
+"""Metadata for a webhook."""
+type Webhook {
+  """The ID of the webhook."""
+  id: String!
+  """The type of webhook. Can be `PRICE_EVENT`, `TOKEN_PAIR_EVENT`, or `RAW_TRANSACTION`."""
+  webhookType: WebhookType!
+  """The given name of the webhook."""
+  name: String!
+  """The unix timestamp for the time the webhook was created."""
+  created: Int!
+  """The recurrence of the webhook. Can be `INDEFINITE` or `ONCE`."""
+  alertRecurrence: AlertRecurrence!
+  """The url to which the webhook message should be sent."""
+  callbackUrl: String!
+  """The status of the webhook. Can be `ACTIVE` or `INACTIVE`."""
+  status: String!
+  """The webhook group ID used to group webhooks together for ordered message sending."""
+  groupId: String @deprecated(reason: "GroupId is deprecated and will be removed in the future. Messages will be grouped by webhookId")
+  """The conditions which must be met in order for the webhook to send a message."""
+  conditions: WebhookCondition!
+  """The settings for retrying failed webhook messages."""
+  retrySettings: RetrySettings
+  """An optional bucket ID (max 64 characters). Can be used to query for subgroups of webhooks (useful if you have a large number of webhooks)."""
+  bucketId: String
+  """An optional bucket sort key (max 64 characters). Can be used to query for subgroups of webhooks (useful if you have a large number of webhooks)."""
+  bucketSortkey: String
+  """The type of publishing for the webhook. If not set, it defaults to `SINGLE`."""
+  publishingType: PublishingType
+}
+
+"""Response returned by `getWebhooks`."""
+type GetWebhooksResponse {
+  """A list of webhooks belonging to a user."""
+  items: [Webhook]
+  """A cursor for use in pagination."""
+  cursor: String
+}
+
+"""Config for retrying failed webhook messages."""
+type RetrySettings {
+  """The maximum time in seconds that the webhook will retry sending a message"""
+  maxTimeElapsed: Int
+  """The minimum time in seconds that the webhook will wait before retrying a failed message"""
+  minRetryDelay: Int
+  """The maximum time in seconds that the webhook will wait before retrying a failed message"""
+  maxRetryDelay: Int
+  """The maximum number of times the webhook will retry sending a message"""
+  maxRetries: Int
+}
+
+"""Webhook conditions that must be met for each webhook type."""
+union WebhookCondition = PriceEventWebhookCondition | MarketCapEventWebhookCondition | TokenPairEventWebhookCondition | RawTransactionWebhookCondition | TokenPriceEventWebhookCondition | TokenTransferEventWebhookCondition | PredictionTradeWebhookCondition | PredictionMarketMetricsEventWebhookCondition
+
+"""Webhook conditions for a price event."""
+type PriceEventWebhookCondition {
+  """The token contract address the webhook is listening for."""
+  tokenAddress: StringEqualsCondition!
+  """The network ID the webhook is listening on."""
+  networkId: IntEqualsCondition!
+  """The price condition that must be met in order for the webhook to send."""
+  priceUsd: ComparisonOperator!
+  """The pair contract address the webhook is listening for."""
+  pairAddress: StringEqualsCondition
+  """The liquidity condition (for the source pair) that must be met in order for the webhook to send."""
+  liquidityUsd: ComparisonOperator
+  """The volume condition (for the source pair) that must be met in order for the webhook to send."""
+  volumeUsd: ComparisonOperator
+}
+
+"""Webhook conditions for a market cap event."""
+type MarketCapEventWebhookCondition {
+  """The token contract address the webhook is listening for."""
+  tokenAddress: StringEqualsCondition!
+  """The network ID the webhook is listening on."""
+  networkId: IntEqualsCondition!
+  """The market cap condition that must be met in order for the webhook to send."""
+  fdvMarketCapUsd: ComparisonOperator
+  """The circulating market cap condition that must be met in order for the webhook to send."""
+  circulatingMarketCapUsd: ComparisonOperator
+  """The pair contract address the webhook is listening for."""
+  pairAddress: StringEqualsCondition
+  """The liquidity condition (for the source pair) that must be met in order for the webhook to send."""
+  liquidityUsd: ComparisonOperator
+  """The volume condition (for the source pair) that must be met in order for the webhook to send."""
+  volumeUsd: ComparisonOperator
+}
+
+"""Webhook conditions for a token price event."""
+type TokenPriceEventWebhookCondition {
+  """The token contract address the webhook is listening for."""
+  address: StringEqualsCondition!
+  """The network ID the webhook is listening on."""
+  networkId: IntEqualsCondition!
+  """The price condition that must be met in order for the webhook to send."""
+  priceUsd: ComparisonOperator!
+}
+
+"""Webhook conditions for a token transfer event."""
+type TokenTransferEventWebhookCondition {
+  """The token contract address the webhook is listening for."""
+  tokenAddress: StringEqualsCondition
+  """The list of network IDs the webhook is listening on."""
+  networkId: OneOfNumberCondition
+  """The wallet address the webhook is listening for transfers from or to."""
+  address: StringEqualsCondition
+  """The directions of the transfer the webhook is listening for."""
+  direction: OneOfTokenTransferDirectionCondition
+}
+
+"""Token transfer direction list condition."""
+type OneOfTokenTransferDirectionCondition {
+  """The list of transfer directions."""
+  oneOf: [TokenTransferDirection!]!
+}
+
+"""Webhook conditions for a prediction trade event."""
+type PredictionTradeWebhookCondition {
+  """The trader ID the webhook is listening for."""
+  traderId: StringEqualsCondition
+  """The market ID the webhook is listening for."""
+  marketId: StringEqualsCondition
+  """The event ID the webhook is listening for."""
+  eventId: StringEqualsCondition
+  """The trade event types the webhook is listening for."""
+  eventType: PredictionTradeEventTypeCondition
+  """The trade value in USD condition."""
+  tradeValueUsd: ComparisonOperator
+  """The amount of tokens/shares traded condition."""
+  amountToken: ComparisonOperator
+}
+
+"""Per-window outcome stat conditions for a prediction market metrics event webhook."""
+type WindowedPredictionMarketMetricsEventOutcomeCondition {
+  """The price condition."""
+  price: ComparisonOperator
+  """The price change condition."""
+  priceChange: ComparisonOperator
+  """The volume in USD condition."""
+  volumeUsd: ComparisonOperator
+  """The volume change condition."""
+  volumeChange: ComparisonOperator
+  """The number of trades condition."""
+  trades: ComparisonOperator
+  """The trades change condition."""
+  tradesChange: ComparisonOperator
+}
+
+"""Per-window market-level stat conditions for a prediction market metrics event webhook."""
+type WindowedPredictionMarketMetricsEventMarketCondition {
+  """The volume in USD condition."""
+  volumeUsd: ComparisonOperator
+  """The number of trades condition."""
+  trades: ComparisonOperator
+  """The volume change condition."""
+  volumeChange: ComparisonOperator
+  """The trades change condition."""
+  tradesChange: ComparisonOperator
+}
+
+"""Market-level conditions across all windows for a prediction market metrics event webhook."""
+type PredictionMarketMetricsEventMarketCondition {
+  """Conditions for the 5-minute window."""
+  min5: WindowedPredictionMarketMetricsEventMarketCondition
+  """Conditions for the 1-hour window."""
+  hour1: WindowedPredictionMarketMetricsEventMarketCondition
+  """Conditions for the 4-hour window."""
+  hour4: WindowedPredictionMarketMetricsEventMarketCondition
+  """Conditions for the 12-hour window."""
+  hour12: WindowedPredictionMarketMetricsEventMarketCondition
+  """Conditions for the 1-day window."""
+  day1: WindowedPredictionMarketMetricsEventMarketCondition
+  """Conditions for the 1-week window."""
+  week1: WindowedPredictionMarketMetricsEventMarketCondition
+}
+
+"""Webhook conditions for a prediction market metrics event."""
+type PredictionMarketMetricsEventWebhookCondition {
+  """The market ID the webhook is listening for."""
+  marketId: StringEqualsCondition!
+  """Conditions evaluated against market-level aggregate stats. ANDed with other clauses when also present."""
+  market: PredictionMarketMetricsEventMarketCondition
+  """Conditions evaluated against outcome 0's stats. ANDed with outcome1 and anyOutcome when also present."""
+  outcome0: PredictionMarketMetricsEventOutcomeCondition
+  """Conditions evaluated against outcome 1's stats. ANDed with outcome0 and anyOutcome when also present."""
+  outcome1: PredictionMarketMetricsEventOutcomeCondition
+  """Conditions evaluated against both outcomes; matches if at least one outcome satisfies. ANDed with outcome0 and outcome1 when also present."""
+  anyOutcome: PredictionMarketMetricsEventOutcomeCondition
+}
+
+"""Per-outcome conditions for a prediction market metrics event webhook."""
+type PredictionMarketMetricsEventOutcomeCondition {
+  """Conditions for the 5-minute window."""
+  min5: WindowedPredictionMarketMetricsEventOutcomeCondition
+  """Conditions for the 1-hour window."""
+  hour1: WindowedPredictionMarketMetricsEventOutcomeCondition
+  """Conditions for the 4-hour window."""
+  hour4: WindowedPredictionMarketMetricsEventOutcomeCondition
+  """Conditions for the 12-hour window."""
+  hour12: WindowedPredictionMarketMetricsEventOutcomeCondition
+  """Conditions for the 1-day window."""
+  day1: WindowedPredictionMarketMetricsEventOutcomeCondition
+  """Conditions for the 1-week window."""
+  week1: WindowedPredictionMarketMetricsEventOutcomeCondition
+}
+
+"""Prediction trade event type condition."""
+type PredictionTradeEventTypeCondition {
+  """The list of prediction trade event types."""
+  oneOf: [PredictionTradeEventType!]!
+}
+
+"""Webhook conditions for a token pair event."""
+type TokenPairEventWebhookCondition {
+  """The token contract address the webhook is listening for."""
+  tokenAddress: StringEqualsCondition
+  """The list of network IDs the webhook is listening on."""
+  networkId: OneOfNumberCondition
+  """The swap values the webhook is listening for."""
+  swapValue: ComparisonOperator
+  """The maker wallet address the webhook is listening for."""
+  maker: StringEqualsCondition
+  """The pair contract address the webhook is listening for."""
+  pairAddress: StringEqualsCondition
+  """The exchange contract address the webhook is listening for."""
+  exchangeAddress: StringEqualsCondition
+  """The event type the webhook is listening for."""
+  eventType: TokenPairEventTypeCondition
+}
+
+"""Webhook condition for token pair event type."""
+type TokenPairEventTypeCondition {
+  """The list of token pair event types."""
+  oneOf: [TokenPairEventType!]!
+}
+
+"""Webhook conditions for a raw transaction."""
+type RawTransactionWebhookCondition {
+  """A list of network IDs to listen on."""
+  networkId: OneOfNumberCondition
+  """The to address to listen for."""
+  to: StringEqualsCondition
+  """The from address to listen for."""
+  from: StringEqualsCondition
+  """Trigger the webhook if either the to or the from address matches."""
+  toOrFrom: StringEqualsCondition
+  """Trigger the webhook if the contains or doesn't contain the specified string."""
+  input: StringContainsCondition
+  """Do not trigger the webhook if the raw transaction is handled by the TokenPairEvent webhook."""
+  ignoreTokenPairEvents: Boolean
+}
+
+"""String contains condition."""
+type StringContainsCondition {
+  """A list of substrings included within the string."""
+  contains: [String!]
+  """A list of substrings not included within the string."""
+  notContains: [String!]
+}
+
+"""Integer list condition."""
+type OneOfNumberCondition {
+  """The list of integers."""
+  oneOf: [Int!]!
+}
+
+"""Comparison operators."""
+type ComparisonOperator {
+  """Greater than."""
+  gt: String
+  """Greater than or equal to."""
+  gte: String
+  """Less than."""
+  lt: String
+  """Less than or equal to."""
+  lte: String
+  """Equal to."""
+  eq: String
+}
+
+"""String equals condition."""
+type StringEqualsCondition {
+  """The string to equal."""
+  eq: String!
+}
+
+"""Integer equals condition."""
+type IntEqualsCondition {
+  """The integer to equal."""
+  eq: Int!
+}
+
+"""A network supported on Defined."""
+type Network {
+  """The name of the network. For example, `arbitrum`."""
+  name: String!
+  """The network ID. For example, `42161` for `arbitrum`."""
+  id: Int!
+  networkShortName: String
+}
+
+"""The status for a network supported on Defined."""
+type MetadataResponse {
+  """The last processed block on the network."""
+  lastProcessedBlock: Int
+  """The unix timestamp for the last processed block on the network."""
+  lastProcessedTimestamp: Int
+  """The network ID."""
+  networkId: Int!
+  """The name of the network."""
+  networkName: String!
+}
+
+input BlocksInput {
+  networkId: Int!
+  blockNumbers: [Int!]
+  timestamps: [Int!]
+}
+
+type Block {
+  blockNumber: Int!
+  timestamp: Int!
+  hash: String!
+}
+
+type ApiToken {
+  """Unique identifier for the token"""
+  id: String!
+  """JWT to be passed into the Authorization header for API requests"""
+  token: String!
+  """ISO time string for the expiry of the token"""
+  expiresTimeString: String!
+  """Number of root fields this api token is allowed to resolve before it's rate limited"""
+  requestLimit: String!
+  """Approximate number of remaining resolutions before this token is rate limited"""
+  remaining: String
+}
+
+input CreateApiTokensInput {
+  """Number of tokens to create, default is 1"""
+  count: Int
+  """Number of requests allowed per token, represented as a string, default is 5000"""
+  requestLimit: String
+  """Number of milliseconds until the token expires, defaults to 1 hour (3600000)"""
+  expiresIn: Int
+}
+
 """An NFT collection transaction."""
 type NftEvent {
   """The ID of the NFT event (`contractAddress`:`tokenId`:`networkId`)."""
@@ -15738,6 +15739,70 @@ type NftEventTokenTradeItem {
   priceError: String
 }
 
+"""A token transaction."""
+type Event {
+  """The contract address of the token's top pair."""
+  address: String!
+  """The commitment level of the event within the live stream."""
+  commitmentLevel: EventCommitmentLevel!
+  """The price of the network's base token."""
+  baseTokenPrice: String
+  """The hash of the block where the transaction occurred."""
+  blockHash: String!
+  """The block number for the transaction."""
+  blockNumber: Int!
+  """The event-specific data for the transaction. Can be `BurnEventData` or `MintEventData` or `SwapEventData`."""
+  data: EventData
+  """The type of transaction event. Can be `Burn`, `Mint`, `Swap`, `Sync`, `Collect`, or `CollectProtocol`."""
+  eventType: EventType!
+  """The ID of the event (`address:networkId`). For example, `0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2:1`."""
+  id: String!
+  """The contract address of the token with higher liquidity in the token's top pair."""
+  liquidityToken: String
+  """The index of the log in the block."""
+  logIndex: Int!
+  """The wallet address that performed the transaction."""
+  maker: String
+  """The network ID that the token is deployed on."""
+  networkId: Int!
+  """The token of interest within the token's top pair. Can be `token0` or `token1`."""
+  quoteToken: QuoteToken
+  """The unix timestamp for when the transaction occurred."""
+  timestamp: Int!
+  """The address of the event's token0."""
+  token0Address: String
+  """The address of the event's token1."""
+  token1Address: String
+  """The price of `token0` paid/received in USD, including any fees."""
+  token0SwapValueUsd: String
+  """The price of `token1` paid/received in USD, including any fees."""
+  token1SwapValueUsd: String
+  """The price of `token0` paid/received in the network's base token, including fees."""
+  token0ValueBase: String
+  """The price of `token1` paid/received in the network's base token, including fees."""
+  token1ValueBase: String
+  """The updated price of `token0` in USD, calculated after the transaction."""
+  token0PoolValueUsd: String
+  """The updated price of `token1` in USD, calculated after the transaction."""
+  token1PoolValueUsd: String
+  """The unique hash for the transaction."""
+  transactionHash: String!
+  """The index of the transaction within the block."""
+  transactionIndex: Int!
+  """An optional unique identifier describing where the event appears within the transaction."""
+  supplementalIndex: Int
+  """A more specific breakdown of `eventType`. Splits `Swap` into `Buy` or `Sell`."""
+  eventDisplayType: EventDisplayType
+  """Labels attributed to the event."""
+  labels: LabelsForEvent
+  """Fee breakdown for this event."""
+  feeData: EventFeeData
+  """The age of the wallet in seconds."""
+  walletAge: Int
+  """Labels attributed to the wallet."""
+  walletLabels: [String!]
+}
+
 type EvmNetworkConfig {
   id: ID!
   networkId: Int!
@@ -15841,69 +15906,5 @@ type StarknetNetworkConfig {
   networkType: NetworkConfigType!
   stableCoinAddresses: [String!]
   wrappedBaseTokenSymbol: String!
-}
-
-"""A token transaction."""
-type Event {
-  """The contract address of the token's top pair."""
-  address: String!
-  """The commitment level of the event within the live stream."""
-  commitmentLevel: EventCommitmentLevel!
-  """The price of the network's base token."""
-  baseTokenPrice: String
-  """The hash of the block where the transaction occurred."""
-  blockHash: String!
-  """The block number for the transaction."""
-  blockNumber: Int!
-  """The event-specific data for the transaction. Can be `BurnEventData` or `MintEventData` or `SwapEventData`."""
-  data: EventData
-  """The type of transaction event. Can be `Burn`, `Mint`, `Swap`, `Sync`, `Collect`, or `CollectProtocol`."""
-  eventType: EventType!
-  """The ID of the event (`address:networkId`). For example, `0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2:1`."""
-  id: String!
-  """The contract address of the token with higher liquidity in the token's top pair."""
-  liquidityToken: String
-  """The index of the log in the block."""
-  logIndex: Int!
-  """The wallet address that performed the transaction."""
-  maker: String
-  """The network ID that the token is deployed on."""
-  networkId: Int!
-  """The token of interest within the token's top pair. Can be `token0` or `token1`."""
-  quoteToken: QuoteToken
-  """The unix timestamp for when the transaction occurred."""
-  timestamp: Int!
-  """The address of the event's token0."""
-  token0Address: String
-  """The address of the event's token1."""
-  token1Address: String
-  """The price of `token0` paid/received in USD, including any fees."""
-  token0SwapValueUsd: String
-  """The price of `token1` paid/received in USD, including any fees."""
-  token1SwapValueUsd: String
-  """The price of `token0` paid/received in the network's base token, including fees."""
-  token0ValueBase: String
-  """The price of `token1` paid/received in the network's base token, including fees."""
-  token1ValueBase: String
-  """The updated price of `token0` in USD, calculated after the transaction."""
-  token0PoolValueUsd: String
-  """The updated price of `token1` in USD, calculated after the transaction."""
-  token1PoolValueUsd: String
-  """The unique hash for the transaction."""
-  transactionHash: String!
-  """The index of the transaction within the block."""
-  transactionIndex: Int!
-  """An optional unique identifier describing where the event appears within the transaction."""
-  supplementalIndex: Int
-  """A more specific breakdown of `eventType`. Splits `Swap` into `Buy` or `Sell`."""
-  eventDisplayType: EventDisplayType
-  """Labels attributed to the event."""
-  labels: LabelsForEvent
-  """Fee breakdown for this event."""
-  feeData: EventFeeData
-  """The age of the wallet in seconds."""
-  walletAge: Int
-  """Labels attributed to the wallet."""
-  walletLabels: [String!]
 }
 
