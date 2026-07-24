@@ -527,16 +527,19 @@ type Query {
     """Where in the list the server should start when returning items. Use `count`+`page` from the previous query to request the next page of results."""
     offset: Int
   ): TokenFilterConnection
+  """Returns the list of token categories, optionally filtered by kind (canonical or narrative) and lifecycle status. Defaults to active categories."""
   categories(
     """Filter by category kind."""
     type: CategoryType
     """Filter by lifecycle status. Defaults to `ACTIVE`."""
     status: CategoryStatus
   ): [Category!]!
+  """Returns a single token category by its slug, or null if none matches."""
   category(
     """The category slug."""
     slug: String!
   ): Category
+  """Returns the tokens assigned to a category (including its subcategories), with optional `filterTokens`-style filters and rankings applied."""
   categoryTokens(
     """The category slug."""
     slug: String!
@@ -11098,6 +11101,8 @@ type Balance {
   tokenPriceUsd: String
   """The time that this address first held a token."""
   firstHeldTimestamp: Int
+  """The block number at which this balance was last updated. Null when the block is unknown (e.g. native balances) or the underlying balance record cannot be found."""
+  updatedAtBlock: Int
   """Metadata for the token."""
   token: EnhancedToken
   """The token's route-backed liquidity in USD: the real liquidity supporting the token price, summed across the token's pairs with valid routing liquidity. Null when this stat has not been computed for the token yet."""
