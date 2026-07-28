@@ -4989,6 +4989,8 @@ type TokenFilterResult {
   high4: String
   """Amount of liquidity in the token's top pair."""
   liquidity: String
+  """The token's cumulative route-backed liquidity in USD, summed across the token's pairs with valid routing liquidity. Distinct from `liquidity`, which covers the top pair only. Null when this stat has not been computed for the token yet."""
+  totalLiquidityUsd: String
   """The token of interest. Can be `token0` or `token1`."""
   quoteToken: String
   """The lowest price in USD in the past 5 minutes."""
