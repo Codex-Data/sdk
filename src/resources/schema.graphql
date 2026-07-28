@@ -12691,10 +12691,18 @@ type TokenExtensions {
 }
 
 type B20Extensions {
-  """Current rebasing multiplier as a decimal string (e.g. "1.5"); absent means 1.0×."""
+  """Current rebasing multiplier as a decimal string (e.g. "1.5"); absent means 1.0× or a non-asset variant."""
   multiplier: String
-  """Unix-seconds timestamp when this multiplier value was observed (the MultiplierUpdated block time, or the enrichment read time when seeded)."""
+  """Unix-seconds timestamp when the multiplier value was last read from chain by us."""
   multiplierObservedAt: String
+  """Whether token transfers are currently paused. B20 pausing is granular — transfers, mints, and burns pause independently."""
+  pausedTransfer: Boolean
+  """Whether minting is currently paused."""
+  pausedMint: Boolean
+  """Whether burning is currently paused."""
+  pausedBurn: Boolean
+  """Maximum mintable supply in raw (pre-multiplier) units, as a decimal string. The sentinel value 340282366920938463463374607431768211455 (2^128-1) means uncapped."""
+  supplyCap: String
 }
 
 type Token2022Extensions {
