@@ -12574,7 +12574,7 @@ type Category {
   bannerUrl: String @deprecated(reason: "Categories no longer carry imagery. Will be null.")
   """The parent category id, for hierarchical categories."""
   parentId: String
-  """The number of tokens currently assigned to the category."""
+  """The number of tokens currently assigned to the category. Null when the count has not been computed yet."""
   memberCount: Int
 }
 
