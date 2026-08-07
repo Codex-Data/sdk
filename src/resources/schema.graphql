@@ -912,7 +912,7 @@ type Mutation {
     """input: Input for deleting webhooks."""
     input: DeleteWebhooksInput!
   ): DeleteWebhooksOutput
-  """Force refreshes the balance for a token in a wallet. EVM only."""
+  """Force refreshes the balance for a token in a wallet, persisting the result so subsequent `balances` queries reflect it. Supports contract tokens (`&lt;tokenAddress&gt;:&lt;networkId&gt;`, EVM only) and native token balances (`native:&lt;networkId&gt;`, EVM, Solana, and Starknet). Entries that cannot be refreshed (e.g. an unreachable network) are omitted from the response rather than erroring."""
   refreshBalances(
     input: [RefreshBalancesInput!]!
   ): [Balance!]!
@@ -13540,9 +13540,9 @@ type LatestTokenSimResults {
 }
 
 input RefreshBalancesInput {
-  """The wallet address(es) in question"""
+  """The ID of the wallet to refresh (`walletAddress:networkId`)."""
   walletId: String!
-  """The token to check balance of"""
+  """The ID of the token to refresh (`tokenAddress:networkId`), or `native:&lt;networkId&gt;` to refresh the wallet's native token balance."""
   tokenId: String!
 }
 
