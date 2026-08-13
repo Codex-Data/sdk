@@ -11066,7 +11066,7 @@ input BalancesInput {
   limit: Int
   """A cursor for use in pagination."""
   cursor: String
-  """Whether to remove scam tokens from the response. Removes tokens labelled as scams, plus unlabelled tokens whose trading data identifies them as dead dust: no trade in the last 24 hours, or $1,000 or less of pool liquidity. Tokens with no trading history anywhere are kept: filtering is deliberately conservative, and clients wanting aggressive spam removal (e.g. by token symbol) should filter client-side."""
+  """Whether to remove scam tokens from the response. Removes only tokens explicitly labelled as scams; unlabelled tokens are always kept. Clients wanting aggressive spam removal (e.g. by token symbol or liquidity) should filter client-side."""
   removeScams: Boolean
   """The ID of the wallet (`walletAddress:networkId`)."""
   walletId: String @deprecated(reason: "Use walletAddress and networkId instead")
