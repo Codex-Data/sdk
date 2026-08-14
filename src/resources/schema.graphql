@@ -599,6 +599,23 @@ type Query {
     """Where in the list the server should start when returning items. Use `count`+`offset` from the previous query to request the next page of results."""
     offset: Int
   ): NetworkFilterConnection
+  """Returns a list of launchpads based on a variety of filters."""
+  filterLaunchpads(
+    """A set of filters to apply."""
+    filters: LaunchpadFilters
+    """A list of launchpad names. Any of the following: Pump.fun, Pump Mayhem, Bonk, BONAD.fun, Nad.Fun, Baseapp, Baseapp Creator, Zora, Zora Creator, Four.meme, Four.meme Fair, Believe, Moonshot, Jupiter Studio, boop, Heaven, TokenMill V2, Virtuals, Clanker, Clanker V4, ArenaTrade, Moonit, LaunchLab, MeteoraDBC, Meteora Alpha Vault, Zora Solana, Cooking.City, time.fun, BAGS, Circus, Dealr, OhFuckFun, PrintFun, Trend, shout.fun, xApple, Sendshot, DubDub, cults, OpenGameProtocol, AMERICA.fun, Kumbaya, bow.fun, Sushi Launch, Printr, Bankr, Liquid, Noice, Flaunch, Coinbarrel, Blowfish, MeMoo, Metaplex, Scale, Eitherway, Livo, Trench, Flap, NOXA Fun, hood.fun, pons, LONG, EasyA Kickstart, Doppler, o1.exchange, UniswapCCA, tren.ch, StonkFun."""
+    launchpads: [String!]
+    """A list of network IDs to include. If not provided, all networks are considered."""
+    networks: [Int!]
+    """The document scope to read: per-network stats (the default) or global all-network rollups."""
+    scope: LaunchpadFilterScope
+    """A list of ranking attributes to apply."""
+    rankings: [LaunchpadRanking!]
+    """The maximum number of launchpads to return."""
+    limit: Int
+    """Where in the list the server should start when returning items. Use `count`+`offset` from the previous query to request the next page of results."""
+    offset: Int
+  ): LaunchpadFilterConnection
   """Returns bucketed stats for a given token within a pair."""
   getDetailedStats(
     """The ID of the pair (`address:networkId`)."""
@@ -639,7 +656,7 @@ type Query {
     networkId: Int!
     """The unix timestamp for the stats. Defaults to current."""
     timestamp: Int
-    """The list of durations to get detailed token stats for."""
+    """The list of durations to get detailed token stats for. Supported durations are `day1`, `hour12`, `hour4`, `hour1`, and `min5`; other values are ignored and have no corresponding field on `DetailedTokenStats`."""
     durations: [DetailedTokenStatsDuration]
     """The number of aggregated values to receive. Note: Each duration has predetermined bucket sizes. The first n-1 buckets are historical. The last bucket is a snapshot of current data. duration `day1`: 6 buckets (4 hours each) plus 1 partial bucket duration `hour12`: 12 buckets (1 hour each) plus 1 partial bucket duration `hour4`: 8 buckets (30 min each) plus 1 partial bucket duration `hour1`: 12 buckets (5 min each) plus 1 partial bucket duration `min5`: 5 buckets (1 min each) plus 1 partial bucket For example, requesting 11 buckets for a `min5` duration will return the last 10 minutes worth of data plus a snapshot for the current minute."""
     bucketCount: Int
@@ -10756,13 +10773,13 @@ enum DetailedPairStatsDuration {
 
 """The duration used to request detailed token stats."""
 enum DetailedTokenStatsDuration {
-  day30
-  week1
+  day30 @deprecated(reason: "Not supported for token-level stats; DetailedTokenStats has no stats_day30 field.")
+  week1 @deprecated(reason: "Not supported for token-level stats; DetailedTokenStats has no stats_week1 field.")
   day1
   hour12
   hour4
   hour1
-  min15
+  min15 @deprecated(reason: "Not supported for token-level stats; DetailedTokenStats has no stats_min15 field.")
   min5
 }
 
@@ -10910,6 +10927,97 @@ enum NetworkRankingAttribute {
   transactions24
 }
 
+"""The attribute used to rank launchpads. Rankings apply to the combined stats by default; set `phase` on the ranking to rank by `pre` or `post` phase stats instead (stats attributes only)."""
+enum LaunchpadRankingAttribute {
+  volume1
+  volume4
+  volume12
+  volume24
+  buyVolume1
+  buyVolume4
+  buyVolume12
+  buyVolume24
+  sellVolume1
+  sellVolume4
+  sellVolume12
+  sellVolume24
+  volumeChange1
+  volumeChange4
+  volumeChange12
+  volumeChange24
+  transactions1
+  transactions4
+  transactions12
+  transactions24
+  buys1
+  buys4
+  buys12
+  buys24
+  sells1
+  sells4
+  sells12
+  sells24
+  activeTokens1
+  activeTokens4
+  activeTokens12
+  activeTokens24
+  liquidity
+  marketCap
+  poolFees1
+  poolFees4
+  poolFees12
+  poolFees24
+  totalFees1
+  totalFees4
+  totalFees12
+  totalFees24
+  feeToVolumeRatio1
+  feeToVolumeRatio4
+  feeToVolumeRatio12
+  feeToVolumeRatio24
+  timestamp
+  tokensTotal
+  tokensCompletedTotal
+  tokensMigratedTotal
+  migrationRate
+  avgGraduationPercent
+  tokensCreated1
+  tokensCreated4
+  tokensCreated12
+  tokensCreated24
+  tokensCreated1w
+  tokensCompleted1
+  tokensCompleted4
+  tokensCompleted12
+  tokensCompleted24
+  tokensCompleted1w
+  tokensMigrated1
+  tokensMigrated4
+  tokensMigrated12
+  tokensMigrated24
+  tokensMigrated1w
+  migrationRate24
+  migrationRate1w
+}
+
+"""The launchpad stats phase a ranking attribute applies to."""
+enum LaunchpadStatsPhase {
+  """Combined stats across all of the launchpad's tokens."""
+  combined
+  """Tokens still on the bonding curve."""
+  pre
+  """Tokens that have migrated."""
+  post
+}
+
+"""The launchpad document scope to read. Global rollup documents duplicate their per-network documents, so a query always reads exactly one scope."""
+enum LaunchpadFilterScope {
+  """One document per launchpad and network (the default)."""
+  network
+  """One global rollup document per launchpad, aggregated across all of its networks."""
+  global
+}
+
 """The attribute used to rank exchanges."""
 enum ExchangeRankingAttribute {
   txnCount1
@@ -11041,6 +11149,16 @@ input NetworkRanking {
   attribute: NetworkRankingAttribute
   """The direction to apply to the ranking attribute."""
   direction: RankingDirection
+}
+
+"""Input type of `LaunchpadRanking`."""
+input LaunchpadRanking {
+  """The attribute to rank launchpads by."""
+  attribute: LaunchpadRankingAttribute!
+  """The direction to apply to the ranking attribute."""
+  direction: RankingDirection
+  """The stats phase to rank by. Defaults to `combined`. Only valid for stats attributes, not funnel counts, rates, or `timestamp`."""
+  phase: LaunchpadStatsPhase
 }
 
 """Event-specific data for a token transaction."""
@@ -11875,6 +11993,282 @@ type NetworkFilterConnection {
   offset: Int
 }
 
+"""Activity stats for one phase of a launchpad's tokens. Used for the `pre` (bonding curve) and `post` (migrated) breakdowns of a launchpad; the same stats for all tokens combined live at the root of `LaunchpadFilterResult`."""
+type LaunchpadStats {
+  """The trade volume in USD in the past hour."""
+  volume1: String
+  """The trade volume in USD in the past 4 hours."""
+  volume4: String
+  """The trade volume in USD in the past 12 hours."""
+  volume12: String
+  """The trade volume in USD in the past 24 hours."""
+  volume24: String
+  """The buy volume in USD in the past hour."""
+  buyVolume1: String
+  """The buy volume in USD in the past 4 hours."""
+  buyVolume4: String
+  """The buy volume in USD in the past 12 hours."""
+  buyVolume12: String
+  """The buy volume in USD in the past 24 hours."""
+  buyVolume24: String
+  """The sell volume in USD in the past hour."""
+  sellVolume1: String
+  """The sell volume in USD in the past 4 hours."""
+  sellVolume4: String
+  """The sell volume in USD in the past 12 hours."""
+  sellVolume12: String
+  """The sell volume in USD in the past 24 hours."""
+  sellVolume24: String
+  """The percent volume change in the past hour. Decimal format."""
+  volumeChange1: Float
+  """The percent volume change in the past 4 hours. Decimal format."""
+  volumeChange4: Float
+  """The percent volume change in the past 12 hours. Decimal format."""
+  volumeChange12: Float
+  """The percent volume change in the past 24 hours. Decimal format."""
+  volumeChange24: Float
+  """The number of transactions in the past hour."""
+  transactions1: Int
+  """The number of transactions in the past 4 hours."""
+  transactions4: Int
+  """The number of transactions in the past 12 hours."""
+  transactions12: Int
+  """The number of transactions in the past 24 hours."""
+  transactions24: Int
+  """The number of buys in the past hour."""
+  buys1: Int
+  """The number of buys in the past 4 hours."""
+  buys4: Int
+  """The number of buys in the past 12 hours."""
+  buys12: Int
+  """The number of buys in the past 24 hours."""
+  buys24: Int
+  """The number of sells in the past hour."""
+  sells1: Int
+  """The number of sells in the past 4 hours."""
+  sells4: Int
+  """The number of sells in the past 12 hours."""
+  sells12: Int
+  """The number of sells in the past 24 hours."""
+  sells24: Int
+  """The number of tokens with trading activity in the past hour."""
+  activeTokens1: Int
+  """The number of tokens with trading activity in the past 4 hours."""
+  activeTokens4: Int
+  """The number of tokens with trading activity in the past 12 hours."""
+  activeTokens12: Int
+  """The number of tokens with trading activity in the past 24 hours."""
+  activeTokens24: Int
+  """The total liquidity in USD."""
+  liquidity: String
+  """The total market cap in USD."""
+  marketCap: String
+  """The pool fees in USD in the past hour. Null when the launchpad has no fee data."""
+  poolFees1: String
+  """The pool fees in USD in the past 4 hours. Null when the launchpad has no fee data."""
+  poolFees4: String
+  """The pool fees in USD in the past 12 hours. Null when the launchpad has no fee data."""
+  poolFees12: String
+  """The pool fees in USD in the past 24 hours. Null when the launchpad has no fee data."""
+  poolFees24: String
+  """The total fees in USD in the past hour. Null when the launchpad has no fee data."""
+  totalFees1: String
+  """The total fees in USD in the past 4 hours. Null when the launchpad has no fee data."""
+  totalFees4: String
+  """The total fees in USD in the past 12 hours. Null when the launchpad has no fee data."""
+  totalFees12: String
+  """The total fees in USD in the past 24 hours. Null when the launchpad has no fee data."""
+  totalFees24: String
+  """The ratio of fees to volume in the past hour. Null when the window has no fee data or no volume."""
+  feeToVolumeRatio1: Float
+  """The ratio of fees to volume in the past 4 hours. Null when the window has no fee data or no volume."""
+  feeToVolumeRatio4: Float
+  """The ratio of fees to volume in the past 12 hours. Null when the window has no fee data or no volume."""
+  feeToVolumeRatio12: Float
+  """The ratio of fees to volume in the past 24 hours. Null when the window has no fee data or no volume."""
+  feeToVolumeRatio24: Float
+}
+
+"""A launchpad matching a set of filter parameters. Combined stats across all of the launchpad's tokens are at the root; `pre` and `post` break the same stats down by migration phase."""
+type LaunchpadFilterResult {
+  """The ID of the launchpad (`launchpadName:networkId`, with the name slugged — e.g. `pump.fun:1399811149`). Global rollup documents use networkId 0."""
+  id: String!
+  """The name of the launchpad."""
+  launchpadName: String
+  """The display name of the launchpad."""
+  displayName: String
+  """The URL of the launchpad's website."""
+  launchpadUrl: String
+  """The URL of the launchpad's icon."""
+  iconUrl: String
+  """The launchpad's brand color as a hex string."""
+  color: String
+  """Whether the launchpad is a third-party launchpad."""
+  isThirdParty: Boolean
+  """The launchpad protocol."""
+  launchpadProtocol: String
+  """The ID of the network. `0` for global rollup documents."""
+  networkId: Int
+  """The IDs of the networks the launchpad is active on."""
+  networkIds: [Int!]
+  """The scope of the document: `network` for per-network stats, `global` for the all-network rollup."""
+  scope: LaunchpadFilterScope
+  """The unix timestamp for when the launchpad stats were last updated."""
+  timestamp: Int
+  """Whether the document is for a testnet network."""
+  isTestnet: Boolean
+  """The total number of tokens created by the launchpad."""
+  tokensTotal: Int
+  """The total number of tokens that completed their bonding curve."""
+  tokensCompletedTotal: Int
+  """The total number of tokens that migrated."""
+  tokensMigratedTotal: Int
+  """The all-time share of tokens that migrated. Decimal format."""
+  migrationRate: Float
+  """The average bonding curve progress of non-migrated tokens, from 0 to 100."""
+  avgGraduationPercent: Float
+  """The number of tokens created in the past hour."""
+  tokensCreated1: Int
+  """The number of tokens created in the past 4 hours."""
+  tokensCreated4: Int
+  """The number of tokens created in the past 12 hours."""
+  tokensCreated12: Int
+  """The number of tokens created in the past 24 hours."""
+  tokensCreated24: Int
+  """The number of tokens created in the past week."""
+  tokensCreated1w: Int
+  """The number of tokens that completed their bonding curve in the past hour."""
+  tokensCompleted1: Int
+  """The number of tokens that completed their bonding curve in the past 4 hours."""
+  tokensCompleted4: Int
+  """The number of tokens that completed their bonding curve in the past 12 hours."""
+  tokensCompleted12: Int
+  """The number of tokens that completed their bonding curve in the past 24 hours."""
+  tokensCompleted24: Int
+  """The number of tokens that completed their bonding curve in the past week."""
+  tokensCompleted1w: Int
+  """The number of tokens that migrated in the past hour."""
+  tokensMigrated1: Int
+  """The number of tokens that migrated in the past 4 hours."""
+  tokensMigrated4: Int
+  """The number of tokens that migrated in the past 12 hours."""
+  tokensMigrated12: Int
+  """The number of tokens that migrated in the past 24 hours."""
+  tokensMigrated24: Int
+  """The number of tokens that migrated in the past week."""
+  tokensMigrated1w: Int
+  """The share of tokens that migrated in the past 24 hours. Decimal format."""
+  migrationRate24: Float
+  """The share of tokens that migrated in the past week. Decimal format."""
+  migrationRate1w: Float
+  """The trade volume in USD in the past hour."""
+  volume1: String
+  """The trade volume in USD in the past 4 hours."""
+  volume4: String
+  """The trade volume in USD in the past 12 hours."""
+  volume12: String
+  """The trade volume in USD in the past 24 hours."""
+  volume24: String
+  """The buy volume in USD in the past hour."""
+  buyVolume1: String
+  """The buy volume in USD in the past 4 hours."""
+  buyVolume4: String
+  """The buy volume in USD in the past 12 hours."""
+  buyVolume12: String
+  """The buy volume in USD in the past 24 hours."""
+  buyVolume24: String
+  """The sell volume in USD in the past hour."""
+  sellVolume1: String
+  """The sell volume in USD in the past 4 hours."""
+  sellVolume4: String
+  """The sell volume in USD in the past 12 hours."""
+  sellVolume12: String
+  """The sell volume in USD in the past 24 hours."""
+  sellVolume24: String
+  """The percent volume change in the past hour. Decimal format."""
+  volumeChange1: Float
+  """The percent volume change in the past 4 hours. Decimal format."""
+  volumeChange4: Float
+  """The percent volume change in the past 12 hours. Decimal format."""
+  volumeChange12: Float
+  """The percent volume change in the past 24 hours. Decimal format."""
+  volumeChange24: Float
+  """The number of transactions in the past hour."""
+  transactions1: Int
+  """The number of transactions in the past 4 hours."""
+  transactions4: Int
+  """The number of transactions in the past 12 hours."""
+  transactions12: Int
+  """The number of transactions in the past 24 hours."""
+  transactions24: Int
+  """The number of buys in the past hour."""
+  buys1: Int
+  """The number of buys in the past 4 hours."""
+  buys4: Int
+  """The number of buys in the past 12 hours."""
+  buys12: Int
+  """The number of buys in the past 24 hours."""
+  buys24: Int
+  """The number of sells in the past hour."""
+  sells1: Int
+  """The number of sells in the past 4 hours."""
+  sells4: Int
+  """The number of sells in the past 12 hours."""
+  sells12: Int
+  """The number of sells in the past 24 hours."""
+  sells24: Int
+  """The number of tokens with trading activity in the past hour."""
+  activeTokens1: Int
+  """The number of tokens with trading activity in the past 4 hours."""
+  activeTokens4: Int
+  """The number of tokens with trading activity in the past 12 hours."""
+  activeTokens12: Int
+  """The number of tokens with trading activity in the past 24 hours."""
+  activeTokens24: Int
+  """The total liquidity in USD."""
+  liquidity: String
+  """The total market cap in USD."""
+  marketCap: String
+  """The pool fees in USD in the past hour. Null when the launchpad has no fee data."""
+  poolFees1: String
+  """The pool fees in USD in the past 4 hours. Null when the launchpad has no fee data."""
+  poolFees4: String
+  """The pool fees in USD in the past 12 hours. Null when the launchpad has no fee data."""
+  poolFees12: String
+  """The pool fees in USD in the past 24 hours. Null when the launchpad has no fee data."""
+  poolFees24: String
+  """The total fees in USD in the past hour. Null when the launchpad has no fee data."""
+  totalFees1: String
+  """The total fees in USD in the past 4 hours. Null when the launchpad has no fee data."""
+  totalFees4: String
+  """The total fees in USD in the past 12 hours. Null when the launchpad has no fee data."""
+  totalFees12: String
+  """The total fees in USD in the past 24 hours. Null when the launchpad has no fee data."""
+  totalFees24: String
+  """The ratio of fees to volume in the past hour. Null when the window has no fee data or no volume."""
+  feeToVolumeRatio1: Float
+  """The ratio of fees to volume in the past 4 hours. Null when the window has no fee data or no volume."""
+  feeToVolumeRatio4: Float
+  """The ratio of fees to volume in the past 12 hours. Null when the window has no fee data or no volume."""
+  feeToVolumeRatio12: Float
+  """The ratio of fees to volume in the past 24 hours. Null when the window has no fee data or no volume."""
+  feeToVolumeRatio24: Float
+  """Stats for tokens still on the bonding curve."""
+  pre: LaunchpadStats
+  """Stats for tokens that have migrated."""
+  post: LaunchpadStats
+}
+
+"""Response returned by `filterLaunchpads`."""
+type LaunchpadFilterConnection {
+  """The list of launchpads matching the filter parameters."""
+  results: [LaunchpadFilterResult]
+  """The number of launchpads returned."""
+  count: Int
+  """Where in the list the server started when returning items."""
+  offset: Int
+}
+
 """Metadata for an exchange."""
 type FilterExchange {
   """The address for the exchange factory contract."""
@@ -12439,7 +12833,7 @@ input TokenFilters {
   creatorAddresses: [String!]
   """A list of launchpad protocols."""
   launchpadProtocol: [String!]
-  """A list of launchpad names. Any of the following: Pump.fun, Pump Mayhem, Bonk, BONAD.fun, Nad.Fun, Baseapp, Baseapp Creator, Zora, Zora Creator, Four.meme, Four.meme Fair, Believe, Moonshot, Jupiter Studio, boop, Heaven, TokenMill V2, Virtuals, Clanker, Clanker V4, ArenaTrade, Moonit, LaunchLab, MeteoraDBC, Meteora Alpha Vault, Zora Solana, Cooking.City, time.fun, BAGS, Circus, Dealr, OhFuckFun, PrintFun, Trend, shout.fun, xApple, Sendshot, DubDub, cults, OpenGameProtocol, AMERICA.fun, Kumbaya, bow.fun, Sushi Launch, Printr, Bankr, Liquid, Noice, Flaunch, Coinbarrel, Blowfish, MeMoo, Metaplex, Scale, Eitherway, Livo, Trench, Flap, NOXA Fun, hood.fun, pons, LONG, EasyA Kickstart, Doppler, o1.exchange, UniswapCCA, tren.ch."""
+  """A list of launchpad names. Any of the following: Pump.fun, Pump Mayhem, Bonk, BONAD.fun, Nad.Fun, Baseapp, Baseapp Creator, Zora, Zora Creator, Four.meme, Four.meme Fair, Believe, Moonshot, Jupiter Studio, boop, Heaven, TokenMill V2, Virtuals, Clanker, Clanker V4, ArenaTrade, Moonit, LaunchLab, MeteoraDBC, Meteora Alpha Vault, Zora Solana, Cooking.City, time.fun, BAGS, Circus, Dealr, OhFuckFun, PrintFun, Trend, shout.fun, xApple, Sendshot, DubDub, cults, OpenGameProtocol, AMERICA.fun, Kumbaya, bow.fun, Sushi Launch, Printr, Bankr, Liquid, Noice, Flaunch, Coinbarrel, Blowfish, MeMoo, Metaplex, Scale, Eitherway, Livo, Trench, Flap, NOXA Fun, hood.fun, pons, LONG, EasyA Kickstart, Doppler, o1.exchange, UniswapCCA, tren.ch, StonkFun."""
   launchpadName: [String!]
   """Indicates if the launchpad is completed."""
   launchpadCompleted: Boolean
@@ -13036,6 +13430,254 @@ input NetworkFilters {
   transactions12: NumberFilter
   """The number of transactions in the past 24 hours."""
   transactions24: NumberFilter
+}
+
+"""Phase-level stats filters for `filterLaunchpads`. Each field is a numeric range filter applied to one phase's stats."""
+input LaunchpadStatsFilters {
+  """The trade volume in USD in the past hour."""
+  volume1: NumberFilter
+  """The trade volume in USD in the past 4 hours."""
+  volume4: NumberFilter
+  """The trade volume in USD in the past 12 hours."""
+  volume12: NumberFilter
+  """The trade volume in USD in the past 24 hours."""
+  volume24: NumberFilter
+  """The buy volume in USD in the past hour."""
+  buyVolume1: NumberFilter
+  """The buy volume in USD in the past 4 hours."""
+  buyVolume4: NumberFilter
+  """The buy volume in USD in the past 12 hours."""
+  buyVolume12: NumberFilter
+  """The buy volume in USD in the past 24 hours."""
+  buyVolume24: NumberFilter
+  """The sell volume in USD in the past hour."""
+  sellVolume1: NumberFilter
+  """The sell volume in USD in the past 4 hours."""
+  sellVolume4: NumberFilter
+  """The sell volume in USD in the past 12 hours."""
+  sellVolume12: NumberFilter
+  """The sell volume in USD in the past 24 hours."""
+  sellVolume24: NumberFilter
+  """The percent volume change in the past hour. Decimal format."""
+  volumeChange1: NumberFilter
+  """The percent volume change in the past 4 hours. Decimal format."""
+  volumeChange4: NumberFilter
+  """The percent volume change in the past 12 hours. Decimal format."""
+  volumeChange12: NumberFilter
+  """The percent volume change in the past 24 hours. Decimal format."""
+  volumeChange24: NumberFilter
+  """The number of transactions in the past hour."""
+  transactions1: NumberFilter
+  """The number of transactions in the past 4 hours."""
+  transactions4: NumberFilter
+  """The number of transactions in the past 12 hours."""
+  transactions12: NumberFilter
+  """The number of transactions in the past 24 hours."""
+  transactions24: NumberFilter
+  """The number of buys in the past hour."""
+  buys1: NumberFilter
+  """The number of buys in the past 4 hours."""
+  buys4: NumberFilter
+  """The number of buys in the past 12 hours."""
+  buys12: NumberFilter
+  """The number of buys in the past 24 hours."""
+  buys24: NumberFilter
+  """The number of sells in the past hour."""
+  sells1: NumberFilter
+  """The number of sells in the past 4 hours."""
+  sells4: NumberFilter
+  """The number of sells in the past 12 hours."""
+  sells12: NumberFilter
+  """The number of sells in the past 24 hours."""
+  sells24: NumberFilter
+  """The number of tokens with trading activity in the past hour."""
+  activeTokens1: NumberFilter
+  """The number of tokens with trading activity in the past 4 hours."""
+  activeTokens4: NumberFilter
+  """The number of tokens with trading activity in the past 12 hours."""
+  activeTokens12: NumberFilter
+  """The number of tokens with trading activity in the past 24 hours."""
+  activeTokens24: NumberFilter
+  """The total liquidity in USD."""
+  liquidity: NumberFilter
+  """The total market cap in USD."""
+  marketCap: NumberFilter
+  """The pool fees in USD in the past hour. Null when the launchpad has no fee data."""
+  poolFees1: NumberFilter
+  """The pool fees in USD in the past 4 hours. Null when the launchpad has no fee data."""
+  poolFees4: NumberFilter
+  """The pool fees in USD in the past 12 hours. Null when the launchpad has no fee data."""
+  poolFees12: NumberFilter
+  """The pool fees in USD in the past 24 hours. Null when the launchpad has no fee data."""
+  poolFees24: NumberFilter
+  """The total fees in USD in the past hour. Null when the launchpad has no fee data."""
+  totalFees1: NumberFilter
+  """The total fees in USD in the past 4 hours. Null when the launchpad has no fee data."""
+  totalFees4: NumberFilter
+  """The total fees in USD in the past 12 hours. Null when the launchpad has no fee data."""
+  totalFees12: NumberFilter
+  """The total fees in USD in the past 24 hours. Null when the launchpad has no fee data."""
+  totalFees24: NumberFilter
+  """The ratio of fees to volume in the past hour. Null when the window has no fee data or no volume."""
+  feeToVolumeRatio1: NumberFilter
+  """The ratio of fees to volume in the past 4 hours. Null when the window has no fee data or no volume."""
+  feeToVolumeRatio4: NumberFilter
+  """The ratio of fees to volume in the past 12 hours. Null when the window has no fee data or no volume."""
+  feeToVolumeRatio12: NumberFilter
+  """The ratio of fees to volume in the past 24 hours. Null when the window has no fee data or no volume."""
+  feeToVolumeRatio24: NumberFilter
+}
+
+"""Input type of `filterLaunchpads`. Numeric filters apply to the combined stats at the root; use `pre`/`post` for phase-level stats filters."""
+input LaunchpadFilters {
+  """A list of launchpad protocols."""
+  launchpadProtocol: [String!]
+  """Whether the launchpad is a third-party launchpad."""
+  isThirdParty: Boolean
+  """Whether the document is for a testnet network."""
+  isTestnet: Boolean
+  """The unix timestamp for when the launchpad stats were last updated."""
+  timestamp: NumberFilter
+  """The total number of tokens created by the launchpad."""
+  tokensTotal: NumberFilter
+  """The total number of tokens that completed their bonding curve."""
+  tokensCompletedTotal: NumberFilter
+  """The total number of tokens that migrated."""
+  tokensMigratedTotal: NumberFilter
+  """The all-time share of tokens that migrated. Decimal format."""
+  migrationRate: NumberFilter
+  """The average bonding curve progress of non-migrated tokens, from 0 to 100."""
+  avgGraduationPercent: NumberFilter
+  """The number of tokens created in the past hour."""
+  tokensCreated1: NumberFilter
+  """The number of tokens created in the past 4 hours."""
+  tokensCreated4: NumberFilter
+  """The number of tokens created in the past 12 hours."""
+  tokensCreated12: NumberFilter
+  """The number of tokens created in the past 24 hours."""
+  tokensCreated24: NumberFilter
+  """The number of tokens created in the past week."""
+  tokensCreated1w: NumberFilter
+  """The number of tokens that completed their bonding curve in the past hour."""
+  tokensCompleted1: NumberFilter
+  """The number of tokens that completed their bonding curve in the past 4 hours."""
+  tokensCompleted4: NumberFilter
+  """The number of tokens that completed their bonding curve in the past 12 hours."""
+  tokensCompleted12: NumberFilter
+  """The number of tokens that completed their bonding curve in the past 24 hours."""
+  tokensCompleted24: NumberFilter
+  """The number of tokens that completed their bonding curve in the past week."""
+  tokensCompleted1w: NumberFilter
+  """The number of tokens that migrated in the past hour."""
+  tokensMigrated1: NumberFilter
+  """The number of tokens that migrated in the past 4 hours."""
+  tokensMigrated4: NumberFilter
+  """The number of tokens that migrated in the past 12 hours."""
+  tokensMigrated12: NumberFilter
+  """The number of tokens that migrated in the past 24 hours."""
+  tokensMigrated24: NumberFilter
+  """The number of tokens that migrated in the past week."""
+  tokensMigrated1w: NumberFilter
+  """The share of tokens that migrated in the past 24 hours. Decimal format."""
+  migrationRate24: NumberFilter
+  """The share of tokens that migrated in the past week. Decimal format."""
+  migrationRate1w: NumberFilter
+  """The trade volume in USD in the past hour."""
+  volume1: NumberFilter
+  """The trade volume in USD in the past 4 hours."""
+  volume4: NumberFilter
+  """The trade volume in USD in the past 12 hours."""
+  volume12: NumberFilter
+  """The trade volume in USD in the past 24 hours."""
+  volume24: NumberFilter
+  """The buy volume in USD in the past hour."""
+  buyVolume1: NumberFilter
+  """The buy volume in USD in the past 4 hours."""
+  buyVolume4: NumberFilter
+  """The buy volume in USD in the past 12 hours."""
+  buyVolume12: NumberFilter
+  """The buy volume in USD in the past 24 hours."""
+  buyVolume24: NumberFilter
+  """The sell volume in USD in the past hour."""
+  sellVolume1: NumberFilter
+  """The sell volume in USD in the past 4 hours."""
+  sellVolume4: NumberFilter
+  """The sell volume in USD in the past 12 hours."""
+  sellVolume12: NumberFilter
+  """The sell volume in USD in the past 24 hours."""
+  sellVolume24: NumberFilter
+  """The percent volume change in the past hour. Decimal format."""
+  volumeChange1: NumberFilter
+  """The percent volume change in the past 4 hours. Decimal format."""
+  volumeChange4: NumberFilter
+  """The percent volume change in the past 12 hours. Decimal format."""
+  volumeChange12: NumberFilter
+  """The percent volume change in the past 24 hours. Decimal format."""
+  volumeChange24: NumberFilter
+  """The number of transactions in the past hour."""
+  transactions1: NumberFilter
+  """The number of transactions in the past 4 hours."""
+  transactions4: NumberFilter
+  """The number of transactions in the past 12 hours."""
+  transactions12: NumberFilter
+  """The number of transactions in the past 24 hours."""
+  transactions24: NumberFilter
+  """The number of buys in the past hour."""
+  buys1: NumberFilter
+  """The number of buys in the past 4 hours."""
+  buys4: NumberFilter
+  """The number of buys in the past 12 hours."""
+  buys12: NumberFilter
+  """The number of buys in the past 24 hours."""
+  buys24: NumberFilter
+  """The number of sells in the past hour."""
+  sells1: NumberFilter
+  """The number of sells in the past 4 hours."""
+  sells4: NumberFilter
+  """The number of sells in the past 12 hours."""
+  sells12: NumberFilter
+  """The number of sells in the past 24 hours."""
+  sells24: NumberFilter
+  """The number of tokens with trading activity in the past hour."""
+  activeTokens1: NumberFilter
+  """The number of tokens with trading activity in the past 4 hours."""
+  activeTokens4: NumberFilter
+  """The number of tokens with trading activity in the past 12 hours."""
+  activeTokens12: NumberFilter
+  """The number of tokens with trading activity in the past 24 hours."""
+  activeTokens24: NumberFilter
+  """The total liquidity in USD."""
+  liquidity: NumberFilter
+  """The total market cap in USD."""
+  marketCap: NumberFilter
+  """The pool fees in USD in the past hour. Null when the launchpad has no fee data."""
+  poolFees1: NumberFilter
+  """The pool fees in USD in the past 4 hours. Null when the launchpad has no fee data."""
+  poolFees4: NumberFilter
+  """The pool fees in USD in the past 12 hours. Null when the launchpad has no fee data."""
+  poolFees12: NumberFilter
+  """The pool fees in USD in the past 24 hours. Null when the launchpad has no fee data."""
+  poolFees24: NumberFilter
+  """The total fees in USD in the past hour. Null when the launchpad has no fee data."""
+  totalFees1: NumberFilter
+  """The total fees in USD in the past 4 hours. Null when the launchpad has no fee data."""
+  totalFees4: NumberFilter
+  """The total fees in USD in the past 12 hours. Null when the launchpad has no fee data."""
+  totalFees12: NumberFilter
+  """The total fees in USD in the past 24 hours. Null when the launchpad has no fee data."""
+  totalFees24: NumberFilter
+  """The ratio of fees to volume in the past hour. Null when the window has no fee data or no volume."""
+  feeToVolumeRatio1: NumberFilter
+  """The ratio of fees to volume in the past 4 hours. Null when the window has no fee data or no volume."""
+  feeToVolumeRatio4: NumberFilter
+  """The ratio of fees to volume in the past 12 hours. Null when the window has no fee data or no volume."""
+  feeToVolumeRatio12: NumberFilter
+  """The ratio of fees to volume in the past 24 hours. Null when the window has no fee data or no volume."""
+  feeToVolumeRatio24: NumberFilter
+  """Phase-level stats filters for tokens still on the bonding curve."""
+  pre: LaunchpadStatsFilters
+  """Phase-level stats filters for tokens that have migrated."""
+  post: LaunchpadStatsFilters
 }
 
 """Input type of `PairFilterMatchTokens`."""
@@ -13752,9 +14394,9 @@ input OnLaunchpadTokenEventInput {
   protocol: LaunchpadTokenProtocol
   """A list of launchpad protocols."""
   protocols: [LaunchpadTokenProtocol!]
-  """The name of the launchpad. One of the following: Pump.fun, Pump Mayhem, Bonk, BONAD.fun, Nad.Fun, Baseapp, Baseapp Creator, Zora, Zora Creator, Four.meme, Four.meme Fair, Believe, Moonshot, Jupiter Studio, boop, Heaven, TokenMill V2, Virtuals, Clanker, Clanker V4, ArenaTrade, Moonit, LaunchLab, MeteoraDBC, Meteora Alpha Vault, Zora Solana, Cooking.City, time.fun, BAGS, Circus, Dealr, OhFuckFun, PrintFun, Trend, shout.fun, xApple, Sendshot, DubDub, cults, OpenGameProtocol, AMERICA.fun, Kumbaya, bow.fun, Sushi Launch, Printr, Bankr, Liquid, Noice, Flaunch, Coinbarrel, Blowfish, MeMoo, Metaplex, Scale, Eitherway, Livo, Trench, Flap, NOXA Fun, hood.fun, pons, LONG, EasyA Kickstart, Doppler, o1.exchange, UniswapCCA, tren.ch."""
+  """The name of the launchpad. One of the following: Pump.fun, Pump Mayhem, Bonk, BONAD.fun, Nad.Fun, Baseapp, Baseapp Creator, Zora, Zora Creator, Four.meme, Four.meme Fair, Believe, Moonshot, Jupiter Studio, boop, Heaven, TokenMill V2, Virtuals, Clanker, Clanker V4, ArenaTrade, Moonit, LaunchLab, MeteoraDBC, Meteora Alpha Vault, Zora Solana, Cooking.City, time.fun, BAGS, Circus, Dealr, OhFuckFun, PrintFun, Trend, shout.fun, xApple, Sendshot, DubDub, cults, OpenGameProtocol, AMERICA.fun, Kumbaya, bow.fun, Sushi Launch, Printr, Bankr, Liquid, Noice, Flaunch, Coinbarrel, Blowfish, MeMoo, Metaplex, Scale, Eitherway, Livo, Trench, Flap, NOXA Fun, hood.fun, pons, LONG, EasyA Kickstart, Doppler, o1.exchange, UniswapCCA, tren.ch, StonkFun."""
   launchpadName: String
-  """A list of launchpad names. Any of the following: Pump.fun, Pump Mayhem, Bonk, BONAD.fun, Nad.Fun, Baseapp, Baseapp Creator, Zora, Zora Creator, Four.meme, Four.meme Fair, Believe, Moonshot, Jupiter Studio, boop, Heaven, TokenMill V2, Virtuals, Clanker, Clanker V4, ArenaTrade, Moonit, LaunchLab, MeteoraDBC, Meteora Alpha Vault, Zora Solana, Cooking.City, time.fun, BAGS, Circus, Dealr, OhFuckFun, PrintFun, Trend, shout.fun, xApple, Sendshot, DubDub, cults, OpenGameProtocol, AMERICA.fun, Kumbaya, bow.fun, Sushi Launch, Printr, Bankr, Liquid, Noice, Flaunch, Coinbarrel, Blowfish, MeMoo, Metaplex, Scale, Eitherway, Livo, Trench, Flap, NOXA Fun, hood.fun, pons, LONG, EasyA Kickstart, Doppler, o1.exchange, UniswapCCA, tren.ch."""
+  """A list of launchpad names. Any of the following: Pump.fun, Pump Mayhem, Bonk, BONAD.fun, Nad.Fun, Baseapp, Baseapp Creator, Zora, Zora Creator, Four.meme, Four.meme Fair, Believe, Moonshot, Jupiter Studio, boop, Heaven, TokenMill V2, Virtuals, Clanker, Clanker V4, ArenaTrade, Moonit, LaunchLab, MeteoraDBC, Meteora Alpha Vault, Zora Solana, Cooking.City, time.fun, BAGS, Circus, Dealr, OhFuckFun, PrintFun, Trend, shout.fun, xApple, Sendshot, DubDub, cults, OpenGameProtocol, AMERICA.fun, Kumbaya, bow.fun, Sushi Launch, Printr, Bankr, Liquid, Noice, Flaunch, Coinbarrel, Blowfish, MeMoo, Metaplex, Scale, Eitherway, Livo, Trench, Flap, NOXA Fun, hood.fun, pons, LONG, EasyA Kickstart, Doppler, o1.exchange, UniswapCCA, tren.ch, StonkFun."""
   launchpadNames: [String!]
   """The type of event."""
   eventType: LaunchpadTokenEventType
@@ -13973,9 +14615,9 @@ input OnLaunchpadTokenEventBatchInput {
   protocols: [LaunchpadTokenProtocol!]
   """The network ID that the token is deployed on."""
   networkId: Int
-  """The name of the launchpad. One of the following: Pump.fun, Pump Mayhem, Bonk, BONAD.fun, Nad.Fun, Baseapp, Baseapp Creator, Zora, Zora Creator, Four.meme, Four.meme Fair, Believe, Moonshot, Jupiter Studio, boop, Heaven, TokenMill V2, Virtuals, Clanker, Clanker V4, ArenaTrade, Moonit, LaunchLab, MeteoraDBC, Meteora Alpha Vault, Zora Solana, Cooking.City, time.fun, BAGS, Circus, Dealr, OhFuckFun, PrintFun, Trend, shout.fun, xApple, Sendshot, DubDub, cults, OpenGameProtocol, AMERICA.fun, Kumbaya, bow.fun, Sushi Launch, Printr, Bankr, Liquid, Noice, Flaunch, Coinbarrel, Blowfish, MeMoo, Metaplex, Scale, Eitherway, Livo, Trench, Flap, NOXA Fun, hood.fun, pons, LONG, EasyA Kickstart, Doppler, o1.exchange, UniswapCCA, tren.ch."""
+  """The name of the launchpad. One of the following: Pump.fun, Pump Mayhem, Bonk, BONAD.fun, Nad.Fun, Baseapp, Baseapp Creator, Zora, Zora Creator, Four.meme, Four.meme Fair, Believe, Moonshot, Jupiter Studio, boop, Heaven, TokenMill V2, Virtuals, Clanker, Clanker V4, ArenaTrade, Moonit, LaunchLab, MeteoraDBC, Meteora Alpha Vault, Zora Solana, Cooking.City, time.fun, BAGS, Circus, Dealr, OhFuckFun, PrintFun, Trend, shout.fun, xApple, Sendshot, DubDub, cults, OpenGameProtocol, AMERICA.fun, Kumbaya, bow.fun, Sushi Launch, Printr, Bankr, Liquid, Noice, Flaunch, Coinbarrel, Blowfish, MeMoo, Metaplex, Scale, Eitherway, Livo, Trench, Flap, NOXA Fun, hood.fun, pons, LONG, EasyA Kickstart, Doppler, o1.exchange, UniswapCCA, tren.ch, StonkFun."""
   launchpadName: String
-  """A list of launchpad names. Any of the following: Pump.fun, Pump Mayhem, Bonk, BONAD.fun, Nad.Fun, Baseapp, Baseapp Creator, Zora, Zora Creator, Four.meme, Four.meme Fair, Believe, Moonshot, Jupiter Studio, boop, Heaven, TokenMill V2, Virtuals, Clanker, Clanker V4, ArenaTrade, Moonit, LaunchLab, MeteoraDBC, Meteora Alpha Vault, Zora Solana, Cooking.City, time.fun, BAGS, Circus, Dealr, OhFuckFun, PrintFun, Trend, shout.fun, xApple, Sendshot, DubDub, cults, OpenGameProtocol, AMERICA.fun, Kumbaya, bow.fun, Sushi Launch, Printr, Bankr, Liquid, Noice, Flaunch, Coinbarrel, Blowfish, MeMoo, Metaplex, Scale, Eitherway, Livo, Trench, Flap, NOXA Fun, hood.fun, pons, LONG, EasyA Kickstart, Doppler, o1.exchange, UniswapCCA, tren.ch."""
+  """A list of launchpad names. Any of the following: Pump.fun, Pump Mayhem, Bonk, BONAD.fun, Nad.Fun, Baseapp, Baseapp Creator, Zora, Zora Creator, Four.meme, Four.meme Fair, Believe, Moonshot, Jupiter Studio, boop, Heaven, TokenMill V2, Virtuals, Clanker, Clanker V4, ArenaTrade, Moonit, LaunchLab, MeteoraDBC, Meteora Alpha Vault, Zora Solana, Cooking.City, time.fun, BAGS, Circus, Dealr, OhFuckFun, PrintFun, Trend, shout.fun, xApple, Sendshot, DubDub, cults, OpenGameProtocol, AMERICA.fun, Kumbaya, bow.fun, Sushi Launch, Printr, Bankr, Liquid, Noice, Flaunch, Coinbarrel, Blowfish, MeMoo, Metaplex, Scale, Eitherway, Livo, Trench, Flap, NOXA Fun, hood.fun, pons, LONG, EasyA Kickstart, Doppler, o1.exchange, UniswapCCA, tren.ch, StonkFun."""
   launchpadNames: [String!]
   """The type of event."""
   eventType: LaunchpadTokenEventType
