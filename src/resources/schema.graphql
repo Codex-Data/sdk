@@ -14918,6 +14918,14 @@ type TokenTopTrader {
   firstTransactionAt: Int
   """The unix timestamp for the last transaction from this wallet."""
   lastTransactionAt: Int!
+  """The labels associated with the wallet"""
+  labels: [String!]!
+  """The scammer score for the wallet."""
+  scammerScore: Int
+  """The bot score for the wallet."""
+  botScore: Int
+  """The wallet identity and profile data"""
+  wallet: Wallet
 }
 
 """A time period used when calculating wallet trading data."""
