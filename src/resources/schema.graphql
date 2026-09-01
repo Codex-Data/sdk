@@ -865,7 +865,18 @@ type Query {
     networkId: Int!
     """A cursor for use in pagination."""
     cursor: String
-  ): LiquidityLockConnection
+  ): LiquidityLockConnection @deprecated(reason: "Event-derived and retiring with the legacy lock pipeline. Use liquidityLocksV2.")
+  """Returns locked liquidity for a pair or token, read from current on-chain state. Vesting is matured at read time, so an expired lock stops counting."""
+  liquidityLocksV2(
+    """The address of the pair."""
+    pairAddress: String
+    """The address of the token."""
+    tokenAddress: String
+    """The network id of the pair."""
+    networkId: Int!
+    """A cursor for use in pagination."""
+    cursor: String
+  ): LiquidityLockV2Connection
   """Returns liquidity metadata for a given pair. Includes liquidity lock data."""
   liquidityMetadata(
     """The address of the pair."""
@@ -14760,6 +14771,62 @@ type LiquidityLockConnection {
   cursor: String
   """Liquidity data for each unique pair in the locks."""
   pairLiquidityData: [PairLiquidityData!]!
+}
+
+"""Response returned by `liquidityLocksV2`."""
+type LiquidityLockV2Connection {
+  """Lock state per pair."""
+  items: [PairLockSummary!]!
+  """A cursor for use in pagination."""
+  cursor: String
+}
+
+"""Current lock state of one pair."""
+type PairLockSummary {
+  """The pair address."""
+  pairAddress: String!
+  """The network ID the pair is deployed on."""
+  networkId: Int!
+  """The protocol that created the pair."""
+  liquidityProtocol: String!
+  """Total pool liquidity, raw units — the denominator."""
+  liquidity: String!
+  """Liquidity currently locked, with vesting matured to now."""
+  locked: String!
+  """Locked share of the pool, 0-100. Null when the pool carries no usable signal."""
+  lockedPercent: Float
+  """Liquidity locked permanently (burned or locked forever)."""
+  permanentLocked: String!
+  """Liquidity locked behind a vesting schedule."""
+  vestedLocked: String!
+  """Liquidity not locked."""
+  unlocked: String!
+  """Who holds the locked liquidity."""
+  holders: [PairLockHolder!]!
+  """Next point at which vested liquidity matures, in the pool's own clock units."""
+  nextReleasePoint: String
+  """The unix timestamp of the state read this was served from."""
+  updatedAt: Int!
+  """False when vesting could not be matured to now and the figures are as of the last refresh."""
+  current: Boolean!
+}
+
+"""One holder's share of a pair's locked liquidity."""
+type PairLockHolder {
+  """Attribution registry entity id, e.g. `uncx` or `burn:0x...`. Null when the position holds itself."""
+  entityId: String
+  """Registry display name, when known."""
+  displayName: String
+  """The locking protocol, where the entity maps onto the enum. Null for lockers the enum cannot name."""
+  lockProtocol: LiquidityLockProtocol
+  """The amount of liquidity locked, raw units."""
+  amount: String!
+  """True when the lock can never be withdrawn."""
+  permanent: Boolean!
+  """The unix timestamp for when the lock expires, in seconds as a string — lock dates can exceed the 32-bit range. Null for permanent locks."""
+  unlockAt: String
+  """True when several holders name the same liquidity; count it once."""
+  shared: Boolean
 }
 
 """Liquidity data for a specific pair."""
