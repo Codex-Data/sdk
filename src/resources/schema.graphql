@@ -14882,6 +14882,7 @@ enum LiquidityLockProtocol {
   DOPPLER
   O1_EXCHANGE
   PONS_V2
+  METAPLEX_GENESIS
 }
 
 """Protocols that create trading pairs."""
