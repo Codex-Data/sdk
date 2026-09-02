@@ -10923,6 +10923,8 @@ enum EventDisplayType {
 
 """The attribute used to rank tokens."""
 enum PairRankingAttribute {
+  """The pool's static fee rate. Pools with no static rate have no value and sort last."""
+  poolFeeBps
   createdAt
   lastTransaction
   buyCount1
@@ -12551,6 +12553,10 @@ type PairFilterResult {
   swapPct7dOldWallet: String
   """The reasons the token has been flagged as a potential scam."""
   potentialScamReasons: [PotentialScamReason]
+  """The pool's static fee rate in basis points (1 bps = 0.01%), normalized across protocols. Null when the pool has no comparable static rate, including when a hook sets the fee per swap."""
+  poolFeeBps: Float
+  """Whether a hook or plugin sets the fee per swap rather than the pool charging a static rate. Null for protocols that do not report it."""
+  dynamicFee: Boolean
 }
 
 """The app a trade was placed through — a trading terminal, wallet, or interface — as distinct from the exchange it settled on."""
@@ -13480,6 +13486,10 @@ input PairFilters {
   isTestnet: Boolean
   """The address of the hook contract for applicable protocols."""
   hookAddress: [String]
+  """The pool's static fee rate in basis points (1 bps = 0.01%), normalized across protocols that each store it differently. Pools with no comparable static rate are not matched by any range here, including pools whose fee a hook sets per swap — filter those with `dynamicFee`."""
+  poolFeeBps: NumberFilter
+  """Whether a hook or plugin sets the fee per swap rather than the pool charging a static rate. Such pools have no `poolFeeBps`, so no range on it will return them. Only set for protocols that report it, so `false` does not describe every other pool."""
+  dynamicFee: Boolean
   """The average age of the wallets that traded in the last 24h"""
   walletAgeAvg: NumberFilter
   """The standard deviation of age of the wallets that traded in the last 24h"""
