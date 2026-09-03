@@ -14893,6 +14893,7 @@ enum LiquidityLockProtocol {
   O1_EXCHANGE
   PONS_V2
   METAPLEX_GENESIS
+  PINKSALE
 }
 
 """Protocols that create trading pairs."""
