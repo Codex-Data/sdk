@@ -425,9 +425,14 @@ artifact:
   that endpoint with an internal `CODEX_API_KEY`, keeps hidden networks with
   their `nativeCurrency` descriptor, validates them, and writes
   `src/resources/networkConfigs.internal.json` together with
-  `networkConfigs.internal.manifest.json` (SDK version, endpoint, SHA-256 of
-  the staged `schema.graphql`, network ids, generation time), so a staged
-  HTTP/WS/SDK bundle is verifiable as one version. The build never reads
+  `networkConfigs.internal.manifest.json` (SDK version, staged HTTP endpoint,
+  the staged WS endpoint from `CODEX_WS_URL` and schema URL from
+  `CODEX_SCHEMA_URL` when set, SHA-256 of the staged `schema.graphql`, network
+  ids, generation time). `verifyInternalGenerationManifest` in
+  `src/scripts/networkConfigGeneration.ts` compares a manifest against the
+  artifacts in hand, so a staged HTTP/WS/SDK bundle is verifiable as one
+  version rather than by a file's presence. `CODEX_API_URL` is required for
+  an internal generation. The build never reads
   those files; public generation (the default) writes `networkConfigs.json`
   and never contains a hidden network or a native-descriptor network.
 

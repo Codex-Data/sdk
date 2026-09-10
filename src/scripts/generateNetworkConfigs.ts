@@ -13,6 +13,7 @@ import {
   internalGenerationManifest,
   networkConfigsOutputFile,
   networkConfigsQueryName,
+  resolveInternalEndpoints,
   resolveNetworkConfigGenerationMode,
   selectNetworkConfigsForGeneration,
 } from "./networkConfigGeneration";
@@ -26,7 +27,10 @@ if (!apiKey) throw new Error("CODEX_API_KEY env variable not found");
 // internal key, keeps hidden rows and their native descriptor, and writes a
 // separate file the build never reads.
 const mode = resolveNetworkConfigGenerationMode();
-const apiUrl = process.env[API_URL_ENV];
+// An internal generation must name its staged endpoints; the public one
+// keeps the SDK default.
+const endpoints = mode === "internal" ? resolveInternalEndpoints() : null;
+const apiUrl = endpoints?.apiUrl ?? process.env[API_URL_ENV];
 const sdk = new Codex(apiKey, apiUrl ? { apiUrl } : undefined);
 const queryName = networkConfigsQueryName(mode);
 const internalEvmFields =
@@ -309,7 +313,9 @@ async function main() {
           ),
         ) as { version: string }
       ).version,
-      apiUrl: apiUrl ?? "",
+      apiUrl: endpoints.apiUrl,
+      wsUrl: endpoints.wsUrl,
+      schemaUrl: endpoints.schemaUrl,
       schemaText: fs.readFileSync(
         path.resolve(__dirname, "../resources/schema.graphql"),
         "utf8",

@@ -16,6 +16,8 @@ export type NetworkConfigGenerationMode = "public" | "internal";
 
 export const INTERNAL_NETWORK_CONFIGS_ENV = "CODEX_INTERNAL_NETWORK_CONFIGS";
 export const API_URL_ENV = "CODEX_API_URL";
+export const WS_URL_ENV = "CODEX_WS_URL";
+export const SCHEMA_URL_ENV = "CODEX_SCHEMA_URL";
 
 export type GeneratedNetworkConfigInput = {
   networkId: number;
@@ -73,8 +75,12 @@ export const INTERNAL_MANIFEST_FILE = "networkConfigs.internal.manifest.json";
 export type InternalGenerationManifest = {
   /** The SDK version the artifacts were generated for. */
   sdkVersion: string;
-  /** The staged endpoint the configs were read from. */
+  /** The staged HTTP endpoint the configs were read from. */
   apiUrl: string;
+  /** The staged WS endpoint the SDK's subscriptions target, when given. */
+  wsUrl: string | null;
+  /** The URL the staged `schema.graphql` was fetched from, when given. */
+  schemaUrl: string | null;
   /** SHA-256 of the staged `schema.graphql` the SDK was generated from. */
   schemaSha256: string;
   /** Network ids in the internal config file, ascending. */
@@ -82,6 +88,23 @@ export type InternalGenerationManifest = {
   /** ISO-8601 generation time. */
   generatedAt: string;
 };
+
+/** The staged endpoints an internal generation must name. */
+export function resolveInternalEndpoints(
+  env: Record<string, string | undefined> = process.env,
+): { apiUrl: string; wsUrl: string | null; schemaUrl: string | null } {
+  const apiUrl = env[API_URL_ENV];
+  if (!apiUrl) {
+    throw new Error(
+      `${API_URL_ENV} must name the staged endpoint for internal generation`,
+    );
+  }
+  return {
+    apiUrl,
+    wsUrl: env[WS_URL_ENV] || null,
+    schemaUrl: env[SCHEMA_URL_ENV] || null,
+  };
+}
 
 /**
  * Ties one internal generation's artifacts together: the staged schema the
@@ -93,6 +116,8 @@ export type InternalGenerationManifest = {
 export function internalGenerationManifest(input: {
   sdkVersion: string;
   apiUrl: string;
+  wsUrl?: string | null;
+  schemaUrl?: string | null;
   schemaText: string;
   networkIds: readonly number[];
   generatedAt: Date;
@@ -100,10 +125,46 @@ export function internalGenerationManifest(input: {
   return {
     sdkVersion: input.sdkVersion,
     apiUrl: input.apiUrl,
+    wsUrl: input.wsUrl ?? null,
+    schemaUrl: input.schemaUrl ?? null,
     schemaSha256: createHash("sha256").update(input.schemaText).digest("hex"),
     networkIds: [...new Set(input.networkIds)].sort((a, b) => a - b),
     generatedAt: input.generatedAt.toISOString(),
   };
+}
+
+/**
+ * The mismatches between a manifest and the artifacts in hand (empty when
+ * the bundle is one version): the schema text the SDK was built from, the
+ * SDK version, and the endpoints a consumer is about to use.
+ */
+export function verifyInternalGenerationManifest(
+  manifest: InternalGenerationManifest,
+  actual: {
+    sdkVersion?: string;
+    apiUrl?: string;
+    wsUrl?: string | null;
+    schemaText?: string;
+  },
+): string[] {
+  const mismatches: string[] = [];
+  if (
+    actual.sdkVersion !== undefined &&
+    actual.sdkVersion !== manifest.sdkVersion
+  )
+    mismatches.push(
+      `sdkVersion ${actual.sdkVersion} != ${manifest.sdkVersion}`,
+    );
+  if (actual.apiUrl !== undefined && actual.apiUrl !== manifest.apiUrl)
+    mismatches.push(`apiUrl ${actual.apiUrl} != ${manifest.apiUrl}`);
+  if (actual.wsUrl !== undefined && (actual.wsUrl ?? null) !== manifest.wsUrl)
+    mismatches.push(`wsUrl ${actual.wsUrl ?? null} != ${manifest.wsUrl}`);
+  if (actual.schemaText !== undefined) {
+    const sha = createHash("sha256").update(actual.schemaText).digest("hex");
+    if (sha !== manifest.schemaSha256)
+      mismatches.push(`schemaSha256 ${sha} != ${manifest.schemaSha256}`);
+  }
+  return mismatches;
 }
 
 /**

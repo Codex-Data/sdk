@@ -4,8 +4,10 @@ import {
   internalGenerationManifest,
   networkConfigsOutputFile,
   networkConfigsQueryName,
+  resolveInternalEndpoints,
   resolveNetworkConfigGenerationMode,
   selectNetworkConfigsForGeneration,
+  verifyInternalGenerationManifest,
 } from "./networkConfigGeneration";
 
 describe("network config generation modes", () => {
@@ -141,10 +143,30 @@ describe("network config generation modes", () => {
     expect(manifest).toEqual({
       sdkVersion: "1.2.3",
       apiUrl: "https://staged.example/graphql",
+      wsUrl: null,
+      schemaUrl: null,
       schemaSha256: createHash("sha256").update(schemaText).digest("hex"),
       networkIds: [1, 3],
       generatedAt: "2026-09-10T00:00:00.000Z",
     });
+    // A consumer verifies the bundle by comparing, never by file presence.
+    expect(
+      verifyInternalGenerationManifest(manifest, {
+        sdkVersion: "1.2.3",
+        apiUrl: "https://staged.example/graphql",
+        wsUrl: null,
+        schemaText,
+      }),
+    ).toEqual([]);
+    expect(
+      verifyInternalGenerationManifest(manifest, {
+        sdkVersion: "1.2.4",
+        apiUrl: "https://other.example/graphql",
+        wsUrl: "wss://staged.example/graphql",
+        schemaText: schemaText + " ",
+      }),
+    ).toHaveLength(4);
+    expect(verifyInternalGenerationManifest(manifest, {})).toEqual([]);
     // A different staged schema is a different bundle.
     expect(
       internalGenerationManifest({
@@ -155,5 +177,43 @@ describe("network config generation modes", () => {
         generatedAt: new Date(0),
       }).schemaSha256,
     ).not.toBe(manifest.schemaSha256);
+  });
+
+  it("requires the staged HTTP endpoint for an internal generation and records the WS/schema endpoints when given", () => {
+    expect(() => resolveInternalEndpoints({})).toThrow(/CODEX_API_URL/);
+    expect(
+      resolveInternalEndpoints({
+        CODEX_API_URL: "https://staged.example/graphql",
+      }),
+    ).toEqual({
+      apiUrl: "https://staged.example/graphql",
+      wsUrl: null,
+      schemaUrl: null,
+    });
+    expect(
+      resolveInternalEndpoints({
+        CODEX_API_URL: "https://staged.example/graphql",
+        CODEX_WS_URL: "wss://staged.example/graphql",
+        CODEX_SCHEMA_URL: "https://staged.example/schema/latest.graphql",
+      }),
+    ).toEqual({
+      apiUrl: "https://staged.example/graphql",
+      wsUrl: "wss://staged.example/graphql",
+      schemaUrl: "https://staged.example/schema/latest.graphql",
+    });
+    expect(
+      internalGenerationManifest({
+        sdkVersion: "1.0.0",
+        apiUrl: "https://staged.example/graphql",
+        wsUrl: "wss://staged.example/graphql",
+        schemaUrl: "https://staged.example/schema/latest.graphql",
+        schemaText: "x",
+        networkIds: [],
+        generatedAt: new Date(0),
+      }),
+    ).toMatchObject({
+      wsUrl: "wss://staged.example/graphql",
+      schemaUrl: "https://staged.example/schema/latest.graphql",
+    });
   });
 });
