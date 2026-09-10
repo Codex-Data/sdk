@@ -1,4 +1,7 @@
+import { createHash } from "crypto";
+
 import {
+  internalGenerationManifest,
   networkConfigsOutputFile,
   networkConfigsQueryName,
   resolveNetworkConfigGenerationMode,
@@ -124,5 +127,33 @@ describe("network config generation modes", () => {
         "internal",
       ),
     ).toThrow(/must differ/);
+  });
+
+  it("ties an internal generation's schema, endpoint, network set and version together", () => {
+    const schemaText = "type Query { ok: Boolean }";
+    const manifest = internalGenerationManifest({
+      sdkVersion: "1.2.3",
+      apiUrl: "https://staged.example/graphql",
+      schemaText,
+      networkIds: [3, 1, 3],
+      generatedAt: new Date("2026-09-10T00:00:00.000Z"),
+    });
+    expect(manifest).toEqual({
+      sdkVersion: "1.2.3",
+      apiUrl: "https://staged.example/graphql",
+      schemaSha256: createHash("sha256").update(schemaText).digest("hex"),
+      networkIds: [1, 3],
+      generatedAt: "2026-09-10T00:00:00.000Z",
+    });
+    // A different staged schema is a different bundle.
+    expect(
+      internalGenerationManifest({
+        sdkVersion: "1.2.3",
+        apiUrl: "https://staged.example/graphql",
+        schemaText: schemaText + " ",
+        networkIds: [1],
+        generatedAt: new Date(0),
+      }).schemaSha256,
+    ).not.toBe(manifest.schemaSha256);
   });
 });

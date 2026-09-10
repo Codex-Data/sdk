@@ -424,9 +424,12 @@ artifact:
   generate:configs` queries the internal `getNetworkConfigsInternal` field on
   that endpoint with an internal `CODEX_API_KEY`, keeps hidden networks with
   their `nativeCurrency` descriptor, validates them, and writes
-  `src/resources/networkConfigs.internal.json`. The build never reads that
-  file; public generation (the default) writes `networkConfigs.json` and never
-  contains a hidden network or a native-descriptor network.
+  `src/resources/networkConfigs.internal.json` together with
+  `networkConfigs.internal.manifest.json` (SDK version, endpoint, SHA-256 of
+  the staged `schema.graphql`, network ids, generation time), so a staged
+  HTTP/WS/SDK bundle is verifiable as one version. The build never reads
+  those files; public generation (the default) writes `networkConfigs.json`
+  and never contains a hidden network or a native-descriptor network.
 
 ## Common Network IDs
 

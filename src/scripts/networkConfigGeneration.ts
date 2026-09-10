@@ -10,6 +10,8 @@
  * public SDK by mistake.
  */
 
+import { createHash } from "crypto";
+
 export type NetworkConfigGenerationMode = "public" | "internal";
 
 export const INTERNAL_NETWORK_CONFIGS_ENV = "CODEX_INTERNAL_NETWORK_CONFIGS";
@@ -64,6 +66,45 @@ export function networkConfigsOutputFile(
 }
 
 const EVM_ADDRESS = /^0x[0-9a-fA-F]{40}$/;
+
+/** Manifest file written next to the internal network configs. */
+export const INTERNAL_MANIFEST_FILE = "networkConfigs.internal.manifest.json";
+
+export type InternalGenerationManifest = {
+  /** The SDK version the artifacts were generated for. */
+  sdkVersion: string;
+  /** The staged endpoint the configs were read from. */
+  apiUrl: string;
+  /** SHA-256 of the staged `schema.graphql` the SDK was generated from. */
+  schemaSha256: string;
+  /** Network ids in the internal config file, ascending. */
+  networkIds: number[];
+  /** ISO-8601 generation time. */
+  generatedAt: string;
+};
+
+/**
+ * Ties one internal generation's artifacts together: the staged schema the
+ * SDK/GraphQL documents were generated from, the endpoint and the hidden
+ * network set that produced the internal config file, and the SDK version.
+ * A consumer verifying a staged HTTP/WS/SDK bundle compares these values,
+ * never a file's presence.
+ */
+export function internalGenerationManifest(input: {
+  sdkVersion: string;
+  apiUrl: string;
+  schemaText: string;
+  networkIds: readonly number[];
+  generatedAt: Date;
+}): InternalGenerationManifest {
+  return {
+    sdkVersion: input.sdkVersion,
+    apiUrl: input.apiUrl,
+    schemaSha256: createHash("sha256").update(input.schemaText).digest("hex"),
+    networkIds: [...new Set(input.networkIds)].sort((a, b) => a - b),
+    generatedAt: input.generatedAt.toISOString(),
+  };
+}
 
 /**
  * The rows a generation may emit. Public: no hidden or descriptor-bearing row,

@@ -9,6 +9,8 @@ import * as path from "path";
 import { Codex } from "../sdk";
 import {
   API_URL_ENV,
+  INTERNAL_MANIFEST_FILE,
+  internalGenerationManifest,
   networkConfigsOutputFile,
   networkConfigsQueryName,
   resolveNetworkConfigGenerationMode,
@@ -293,6 +295,36 @@ async function main() {
 
   fs.writeFileSync(filePath, JSON.stringify(enrichedConfigs, null, 2));
   writeSpinner.succeed(`Wrote network configs to ${brand(outputFile)}`);
+
+  // An internal generation records which staged schema, endpoint and hidden
+  // network set its artifacts belong to, so the staged HTTP/WS/SDK bundle is
+  // verifiable as one version.
+  if (mode === "internal") {
+    const manifest = internalGenerationManifest({
+      sdkVersion: (
+        JSON.parse(
+          fs.readFileSync(
+            path.resolve(__dirname, "../../package.json"),
+            "utf8",
+          ),
+        ) as { version: string }
+      ).version,
+      apiUrl: apiUrl ?? "",
+      schemaText: fs.readFileSync(
+        path.resolve(__dirname, "../resources/schema.graphql"),
+        "utf8",
+      ),
+      networkIds: enrichedConfigs.map(
+        (c: { networkId: number }) => c.networkId,
+      ),
+      generatedAt: new Date(),
+    });
+    fs.writeFileSync(
+      path.resolve(dirPath, INTERNAL_MANIFEST_FILE),
+      JSON.stringify(manifest, null, 2),
+    );
+    writeSpinner.succeed(`Wrote ${brand(INTERNAL_MANIFEST_FILE)}`);
+  }
 
   console.log(brand.bold("\n✅ Network configs generation complete!\n"));
 
