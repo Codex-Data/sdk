@@ -411,6 +411,23 @@ const result = await sdk.query(trendingTokens, { limit: 10 });
 
 See the [codegen example](./examples/codegen) for a complete working project.
 
+## Staged Schema and Network Configs (maintainers)
+
+The published SDK is generated from the production schema and the public
+network list. Two environment overrides exist so a network that is staged but
+not yet public can be generated internally without ever reaching the public
+artifact:
+
+- `CODEX_SCHEMA_URL` — `pnpm fetch:schema` downloads this URL instead of the
+  production `latest.graphql` (for example a staged router's schema).
+- `CODEX_INTERNAL_NETWORK_CONFIGS=1` with `CODEX_API_URL` — `pnpm
+  generate:configs` queries the internal `getNetworkConfigsInternal` field on
+  that endpoint with an internal `CODEX_API_KEY`, keeps hidden networks with
+  their `nativeCurrency` descriptor, validates them, and writes
+  `src/resources/networkConfigs.internal.json`. The build never reads that
+  file; public generation (the default) writes `networkConfigs.json` and never
+  contains a hidden network or a native-descriptor network.
+
 ## Common Network IDs
 
 | Network   | ID           |

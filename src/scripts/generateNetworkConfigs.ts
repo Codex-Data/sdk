@@ -7,16 +7,41 @@ import ora from "ora";
 import * as path from "path";
 
 import { Codex } from "../sdk";
+import {
+  API_URL_ENV,
+  networkConfigsOutputFile,
+  networkConfigsQueryName,
+  resolveNetworkConfigGenerationMode,
+  selectNetworkConfigsForGeneration,
+} from "./networkConfigGeneration";
 
 const apiKey = process.env.CODEX_API_KEY;
 
 if (!apiKey) throw new Error("CODEX_API_KEY env variable not found");
 
-const sdk = new Codex(apiKey);
+// Public by default. Internal generation (CODEX_INTERNAL_NETWORK_CONFIGS=1)
+// reads the internal field from a staged endpoint (CODEX_API_URL) with an
+// internal key, keeps hidden rows and their native descriptor, and writes a
+// separate file the build never reads.
+const mode = resolveNetworkConfigGenerationMode();
+const apiUrl = process.env[API_URL_ENV];
+const sdk = new Codex(apiKey, apiUrl ? { apiUrl } : undefined);
+const queryName = networkConfigsQueryName(mode);
+const internalEvmFields =
+  mode === "internal"
+    ? `
+        hidden
+        nativeCurrency {
+          decimals
+          erc20AliasAddress
+          transferEventEmitter
+        }`
+    : "";
+const internalCommonFields = mode === "internal" ? "\n        hidden" : "";
 
 const getNetworkConfigsQuery = gql`
   query networkConfigs {
-    getNetworkConfigs {
+    ${queryName} {
       ... on EvmNetworkConfig {
         __typename
         id
@@ -25,7 +50,7 @@ const getNetworkConfigsQuery = gql`
         name
         enabled
         newTokensEnabled
-        mainnet
+        mainnet${internalEvmFields}
         wrappedBaseTokenSymbol
         baseTokenSymbol
         baseTokenAddress
@@ -52,7 +77,7 @@ const getNetworkConfigsQuery = gql`
         name
         enabled
         newTokensEnabled
-        mainnet
+        mainnet${internalCommonFields}
         wrappedBaseTokenSymbol
         baseTokenSymbol
         baseTokenAddress
@@ -79,7 +104,7 @@ const getNetworkConfigsQuery = gql`
         name
         enabled
         newTokensEnabled
-        mainnet
+        mainnet${internalCommonFields}
         wrappedBaseTokenSymbol
         baseTokenSymbol
         baseTokenAddress
@@ -106,7 +131,7 @@ const getNetworkConfigsQuery = gql`
         name
         enabled
         newTokensEnabled
-        mainnet
+        mainnet${internalCommonFields}
         wrappedBaseTokenSymbol
         baseTokenSymbol
         baseTokenAddress
@@ -133,7 +158,7 @@ const getNetworkConfigsQuery = gql`
         name
         enabled
         newTokensEnabled
-        mainnet
+        mainnet${internalCommonFields}
         wrappedBaseTokenSymbol
         baseTokenSymbol
         baseTokenAddress
@@ -173,7 +198,7 @@ const EXCLUDED_NETWORK_IDS = [150607357, 6343, 143];
 
 async function main() {
   const brand = chalk.hex("#EAFE77");
-  console.log(brand.bold("\n🌐 Generating Network Configs\n"));
+  console.log(brand.bold(`\n🌐 Generating Network Configs (${mode})\n`));
 
   if (!apiKey) {
     console.error(chalk.red("❌ CODEX_API_KEY env variable not found"));
@@ -182,12 +207,15 @@ async function main() {
 
   // eslint-disable-next-line @typescript-eslint/ban-types, @typescript-eslint/no-explicit-any
   const fetchSpinner = ora("Fetching network configs").start();
-  const data = await sdk.query<{ getNetworkConfigs: any }, object>(
+  const data = await sdk.query<Record<string, any>, object>(
     getNetworkConfigsQuery,
   );
-  const networkConfigs = data.getNetworkConfigs.filter(
-    (config: { networkId: number }) =>
-      !EXCLUDED_NETWORK_IDS.includes(config.networkId),
+  const networkConfigs = selectNetworkConfigsForGeneration(
+    (data[queryName] ?? []).filter(
+      (config: { networkId: number }) =>
+        !EXCLUDED_NETWORK_IDS.includes(config.networkId),
+    ),
+    mode,
   );
   fetchSpinner.succeed(
     `Fetched ${brand(networkConfigs.length)} network configs`,
@@ -254,7 +282,8 @@ async function main() {
   );
 
   const writeSpinner = ora("Writing to file").start();
-  const filePath = path.resolve(__dirname, "../resources/networkConfigs.json");
+  const outputFile = networkConfigsOutputFile(mode);
+  const filePath = path.resolve(__dirname, `../resources/${outputFile}`);
 
   // Ensure the directory exists
   const dirPath = path.dirname(filePath);
@@ -263,9 +292,7 @@ async function main() {
   }
 
   fs.writeFileSync(filePath, JSON.stringify(enrichedConfigs, null, 2));
-  writeSpinner.succeed(
-    `Wrote network configs to ${brand("networkConfigs.json")}`,
-  );
+  writeSpinner.succeed(`Wrote network configs to ${brand(outputFile)}`);
 
   console.log(brand.bold("\n✅ Network configs generation complete!\n"));
 
