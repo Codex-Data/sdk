@@ -11208,6 +11208,8 @@ input EventsQueryInput {
   priceUsdTotal: NumberFilter
   """Specify the type of symbol you want to fetch values for (TOKEN | POOL)"""
   symbolType: SymbolType
+  """When `true`, return the token's latest events across ALL of its pools instead of only its top pool. Requires `symbolType: TOKEN`, rejects `quoteToken`, and issues cursors that are not interchangeable with top-pool cursors. Slower. Available on the DEFINED plan only. Defaults to `false`."""
+  crossPools: Boolean
 }
 
 input MakerEventsQueryInput {
