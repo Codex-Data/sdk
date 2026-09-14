@@ -11146,6 +11146,8 @@ enum PotentialScamReason {
   DevConcentration
   """Wallets that bought within seconds of launch hold at least half of the supply."""
   SniperConcentration
+  """The token graduated its launchpad in its creation slot and the launch shape is corroborated by a creator distribution, holders that never traded, bot churn, one-way flow, a thin pool or a bot-only market."""
+  BundledLaunch
 }
 
 input OnPricesUpdatedInput {
