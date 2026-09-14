@@ -11142,6 +11142,10 @@ enum PotentialScamReason {
   SuspiciousWalletActivity
   """The token has an abnormal buyer ratio."""
   AbnormalBuyerRatio
+  """The creator wallet holds at least half of the supply."""
+  DevConcentration
+  """Wallets that bought within seconds of launch hold at least half of the supply."""
+  SniperConcentration
 }
 
 input OnPricesUpdatedInput {
