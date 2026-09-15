@@ -14905,6 +14905,12 @@ enum LiquidityLockProtocol {
   TEAM_FINANCE
   LAUNCH_FAIR
   BAGS
+  RAYDIUM_LOCK
+  LETSCASH
+  PAIR
+  LAUNCH_HOOK
+  LUNCH_FUN
+  LAUNCH_TAX_HOOK
 }
 
 """Protocols that create trading pairs."""
