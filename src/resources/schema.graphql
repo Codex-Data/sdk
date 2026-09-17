@@ -15000,6 +15000,7 @@ enum LiquidityLockProtocol {
   LIFT
   LONG_SUPPLY
   TOLLY
+  MINARA
 }
 
 """Protocols that create trading pairs."""
