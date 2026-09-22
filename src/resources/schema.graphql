@@ -500,12 +500,6 @@ type Query {
   getNetworkConfigs(
     networkIds: [Int!]
   ): [NetworkConfig!]!
-  """Returns the full vocabulary of wallet label types and their metadata."""
-  walletLabelTypes: [WalletLabelType!]!
-  """Returns community gathered notes."""
-  getCommunityNotes(
-    input: CommunityNotesInput
-  ): CommunityNotesResponse!
   """Discover, screen, and rank tokens across every supported network using 100+ on-chain signals: trading activity, liquidity, holder behavior, fee economics, and launchpad lifecycle."""
   filterTokens(
     """A set of filters to apply."""
@@ -846,6 +840,19 @@ type Query {
   holders(
     input: HoldersInput!
   ): HoldersResponse!
+  """Returns recorded token analyses, including pending and failed requests. Results are ordered by block number descending, then request timestamp descending. Use simulationId to retrieve a specific request."""
+  getSimulateTokenContractResults(
+    """The token contract address."""
+    contractAddress: String!
+    """The network ID of the token."""
+    networkId: Int!
+    """Optional request ID returned by simulateTokenContract; restricts results to that request."""
+    simulationId: String
+    """Opaque cursor from the preceding response."""
+    cursor: String
+    """Maximum number of records per page. Defaults to 10 when omitted."""
+    limit: Int
+  ): GetSimulateTokenContractResultsConnection!
   """Returns a list of latest tokens."""
   getLatestTokens(
     """The maximum number of tokens to return. Maximum number of tokens is 50."""
@@ -923,6 +930,12 @@ type Query {
   tokenWalletStats(
     input: TokenWalletStatsInput!
   ): TokenWalletStats!
+  """Returns the full vocabulary of wallet label types and their metadata."""
+  walletLabelTypes: [WalletLabelType!]!
+  """Returns community gathered notes."""
+  getCommunityNotes(
+    input: CommunityNotesInput
+  ): CommunityNotesResponse!
 }
 
 type Mutation {
@@ -944,6 +957,10 @@ type Mutation {
     """input: Input for deleting webhooks."""
     input: DeleteWebhooksInput!
   ): DeleteWebhooksOutput
+  """Queues asynchronous token analysis. Use simulateLiveContractInput; legacy deployment and creation-transaction modes are not supported by the current analyzer. A successful response acknowledges submission, not a trading verdict. Retrieve the outcome with getSimulateTokenContractResults. Non-admin requests have a five-minute cooldown per token and network; a cooldown violation raises TOO_MANY_REQUESTS."""
+  simulateTokenContract(
+    input: SimulateTokenContractInput!
+  ): SimulateTokenContractResponse
   """Force refreshes the balance for a token in a wallet, persisting the result so subsequent `balances` queries reflect it. Supports contract tokens (`&lt;tokenAddress&gt;:&lt;networkId&gt;`, EVM only) and native token balances (`native:&lt;networkId&gt;`, EVM, Solana, and Starknet). Entries that cannot be refreshed (e.g. an unreachable network) are omitted from the response rather than erroring."""
   refreshBalances(
     input: [RefreshBalancesInput!]!
@@ -1140,6 +1157,15 @@ type Subscription {
     """The ID of the pair (`address`:`networkId`)."""
     id: String
   ): EventLabel
+  """Live-streamed published analysis results for a token, across all simulation IDs. This is not a complete request-status stream: use getSimulateTokenContractResults to check pending, failed or indeterminate outcomes."""
+  onSimulateTokenContract(
+    """Required by the resolver, despite being nullable in the schema. The token contract address to monitor."""
+    contractAddress: String
+    """The network ID of the token."""
+    networkId: Int!
+    """Currently ignored. Filter received results by uuid on the client, or query getSimulateTokenContractResults with this ID."""
+    simulationId: String
+  ): SimulateTokenContractResult!
   """Live-streamed events for a given token across all it's pools"""
   onTokenEventsCreated(
     input: OnTokenEventsCreatedInput!
@@ -10153,33 +10179,129 @@ type WalletFilterResult {
   wallet: Wallet
 }
 
-scalar Void
-
-"""Type of the community gathered note."""
-enum CommunityNoteType {
-  """An contract attribute change."""
-  ATTRIBUTE
-  """A scam report."""
-  SCAM
-  """A logo change."""
-  LOGO
+enum SparklineAttribute {
+  PRICE
 }
 
-"""Type of the contract."""
-enum ContractType {
+enum SymbolType {
   TOKEN
-  WALLET
+  POOL
 }
 
-enum ContractProposalStatus {
-  ACCEPTED
-  PENDING
-  REJECTED
-  REVERTED
+enum QuoteCurrency {
+  USD
+  TOKEN
+}
+
+"""The attribute to sort balances by."""
+enum BalancesSortAttribute {
+  """Sort by raw token balance amount (default). Note this orders on `shiftedBalance`, not `uiBalance` — a list rendering `uiBalance` for B20 asset tokens can therefore look mis-ordered, since each token's multiplier differs. Sort by USD_VALUE if the displayed order must match the displayed column."""
+  BALANCE
+  """Sort by USD value (descending)."""
+  USD_VALUE
+}
+
+"""Controls whether uiBalance is expressed in multiplier-adjusted or raw units. The two supported standards store opposite things, so the mode applies in opposite directions."""
+enum UiAmountMode {
+  """Return raw token amounts: Token-2022 balances have their UI amount multiplier removed; B20 balances are already raw and pass through unchanged."""
+  RAW
+  """Return multiplier-adjusted amounts: Token-2022 balances are the stored RPC UI amount; B20 balances are multiplied by the token's active multiplier. This is the default."""
+  SCALED
+}
+
+enum HoldersSortAttribute {
+  BALANCE
+  DATE @deprecated(reason: "No longer supported. Use BALANCE instead.")
+}
+
+"""The event label type."""
+enum EventLabelType {
+  FrontRun
+  Sandwiched
+}
+
+"""The duration used to request detailed pair stats."""
+enum DetailedPairStatsDuration {
+  day30
+  week1
+  day1
+  hour12
+  hour4
+  hour1
+  min15
+  min5
+}
+
+"""The duration used to request detailed token stats."""
+enum DetailedTokenStatsDuration {
+  day30 @deprecated(reason: "Not supported for token-level stats; DetailedTokenStats has no stats_day30 field.")
+  week1 @deprecated(reason: "Not supported for token-level stats; DetailedTokenStats has no stats_week1 field.")
+  day1
+  hour12
+  hour4
+  hour1
+  min15 @deprecated(reason: "Not supported for token-level stats; DetailedTokenStats has no stats_min15 field.")
+  min5
+}
+
+"""The window size used to request detailed stats."""
+enum DetailedStatsWindowSize {
+  day1
+  hour12
+  hour4
+  hour1
+  min5
+}
+
+"""The token of interest within a pair. Can be `token0` or `token1`."""
+enum TokenOfInterest {
+  token0
+  token1
+}
+
+"""The event type for a token transaction."""
+enum EventType {
+  Burn
+  Mint
+  Swap
+  Sync
+  Collect
+  CollectProtocol
+  PoolBalanceChanged
+  LiquidityLock
+}
+
+"""The commitment level of a streamed event - only Solana and Base support values other than Confirmed. Processed returns Base Flashblocks. Preprocessed is Solana-only."""
+enum EventCommitmentLevel {
+  Preprocessed
+  Processed
+  Confirmed
+}
+
+"""The commitment level of a streamed bar update - only Solana and Base support values other than Confirmed. Processed returns Base Flashblocks. Preprocessed is Solana-only."""
+enum BarCommitmentLevel {
+  Preprocessed
+  Processed
+  Confirmed
+}
+
+"""A more specific breakdown of `EventType`. Splits `Swap` into `Buy` and `Sell`."""
+enum EventDisplayType {
+  Burn
+  Mint
+  Buy
+  Sell
+  Sync
+  Collect
+  CollectProtocol
 }
 
 """The attribute used to rank tokens."""
 enum TokenRankingAttribute {
+  """Weighted risk score."""
+  riskScore
+  """Unix seconds of the token's latest recorded risk change."""
+  riskFlaggedAt
   createdAt
   tokenCreatedAt
   lastTransaction
@@ -10320,625 +10442,14 @@ enum TokenRankingAttribute {
   coinCommunityLastPostAt
 }
 
-"""Input type of `TokenRanking`."""
-input TokenRanking {
-  """The attribute to rank tokens by."""
-  attribute: TokenRankingAttribute
-  """The direction to apply to the ranking attribute."""
-  direction: RankingDirection
-}
-
-"""Real-time or historical prices for a token."""
-type Price {
-  """The contract address of the token."""
-  address: String!
-  """The unix timestamp for the price."""
-  timestamp: Int
-  """The network ID the token is deployed on."""
-  networkId: Int!
-  """The token price in USD."""
-  priceUsd: Float!
-  """The pool that emitted the swap generating this price"""
-  blockNumber: Int
-  """The token's cumulative route-backed liquidity in USD, summed across the token's pairs with valid routing liquidity. Null when this stat has not been computed for the token yet. Not available via subscription."""
-  liquidityUsd: String
-  """The percent price change in the past 24 hours. Decimal format. Not available via subscription."""
-  priceChange24: Float
-  """The pool that emitted the swap generating this price"""
-  poolAddress: String @deprecated(reason: "Pricing no longer based on specific pools")
-  """Ratio of how confident we are in the price"""
-  confidence: Float @deprecated(reason: "Pricing no longer based on specific pools")
-}
-
-"""Metadata for a token."""
-type EnhancedToken {
-  """The ID of the token (`address:networkId`)."""
-  id: String!
-  """The contract address of the token."""
-  address: String!
-  """The token ID on CoinMarketCap."""
-  cmcId: Int
-  """The precision to which the token can be divided. For example, the smallest unit for USDC is 0.000001 (6 decimals)."""
-  decimals: Int!
-  """Whether the token has been flagged as a scam."""
-  isScam: Boolean
-  """The token name. For example, `ApeCoin`."""
-  name: String
-  """The network ID the token is deployed on."""
-  networkId: Int!
-  """The token symbol. For example, `APE`."""
-  symbol: String
-  """The total supply of the token."""
-  totalSupply: String @deprecated(reason: "Use the TokenInfo type")
-  """Community gathered links for the socials of this token."""
-  socialLinks: SocialLinks
-  """More metadata about the token."""
-  info: TokenInfo
-  """The Grid asset ID, if this token is linked to a Grid asset."""
-  gridAssetId: String
-  """The Grid bluechip rating for this token (e.g. `A+`, `B-`)."""
-  bluechipRating: String
-  """The Grid organization associated with this token."""
-  organization: Organization
-  """The Grid asset associated with this token."""
-  asset: Asset
-  """Information about the token from 3rd party sources."""
-  explorerData: ExplorerTokenData @deprecated(reason: "Use the TokenInfo type")
-  """A list of exchanges where the token has been traded."""
-  exchanges: [Exchange!]
-  """The thumbnail token logo URL."""
-  imageThumbUrl: String @deprecated(reason: "Use the TokenInfo type")
-  """The small token logo URL."""
-  imageSmallUrl: String @deprecated(reason: "Use the TokenInfo type")
-  """The large token logo URL."""
-  imageLargeUrl: String @deprecated(reason: "Use the TokenInfo type")
-  """The circulating supply of the token."""
-  circulatingSupply: String @deprecated(reason: "Use the TokenInfo type")
-  """The amount of this token in the pair."""
-  pooled: String @deprecated(reason: "Pooled can be found on the pair instead")
-  """The token creator's wallet address."""
-  creatorAddress: String
-  """The token creator's wallet identity and profile, resolved from creatorAddress. Null when the token has no known creator."""
-  creator: Wallet
-  """The block height the token was created at."""
-  createBlockNumber: Int
-  """The transaction hash of the token's creation."""
-  createTransactionHash: String
-  """The unix timestamp for the creation of the token."""
-  createdAt: Int
-  """Returns mint authority address if token is mintable. If null, verify against isMintableValid."""
-  mintable: String
-  """Returns freeze authority address if token is freezable. If null, verify against isFreezableValid."""
-  freezable: String
-  """Determines if freezable is a valid address or null value for the authority, or if the freezable state has not yet been determined."""
-  isFreezableValid: Boolean
-  """Determines if mintable is a valid address or null value for the authority, or if the mintable state has not yet been determined."""
-  isMintableValid: Boolean
-  """The launchpad data for the token, if applicable."""
-  launchpad: LaunchpadData
-  """The percentage of total supply held by the top 10 holders (excluding exchanges/pairs)."""
-  top10HoldersPercent: Float
-  """Whether the token name or symbol contains profanity."""
-  profanity: Boolean
-  """All-time high and low price/market cap data for the token."""
-  extrema: TokenExtrema
-  """The Coin Community data for the token"""
-  coinCommunity: CoinCommunity
-  """Token extension metadata, if available."""
-  extensions: TokenExtensions
-  """Token-standard-specific custom metadata — currently ERC-7572 `contractURI` fields, as used by Base B20 tokens. Null for tokens without a recognized token standard."""
-  tokenStandardCustomData: Erc7572CustomInfo
-  categories: [Category!]
-}
-
-"""A token matching a set of filter parameters."""
-type TokenFilterResult {
-  """Metadata for the token."""
-  token: EnhancedToken
-  """The unix timestamp for the creation of the token's first pair."""
-  createdAt: Int
-  """The unix timestamp for the token's last transaction."""
-  lastTransaction: Int
-  age: Int @deprecated(reason: "Age isn't supported - use createdAt instead")
-  """The number of buys in the past 5 minutes."""
-  buyCount5m: Int
-  """The number of buys in the past hour."""
-  buyCount1: Int
-  """The number of buys in the past 12 hours."""
-  buyCount12: Int
-  """The number of buys in the past 24 hours."""
-  buyCount24: Int
-  """The number of buys in the past 4 hours."""
-  buyCount4: Int
-  """The percent price change in the past 5 minutes. Decimal format."""
-  change5m: String
-  """The percent price change in the past hour. Decimal format."""
-  change1: String
-  """The percent price change in the past 12 hours. Decimal format."""
-  change12: String
-  """The percent price change in the past 24 hours. Decimal format."""
-  change24: String
-  """The percent price change in the past 4 hours. Decimal format."""
-  change4: String
-  """The percent volume change in the past 5 minutes. Decimal format."""
-  volumeChange5m: String
-  """The percent volume change in the past hour. Decimal format."""
-  volumeChange1: String
-  """The percent volume change in the past 4 hours. Decimal format."""
-  volumeChange4: String
-  """The percent volume change in the past 12 hours. Decimal format."""
-  volumeChange12: String
-  """The percent volume change in the past 24 hours. Decimal format."""
-  volumeChange24: String
-  """The exchanges the token is listed on."""
-  exchanges: [Exchange]
-  fdv: String @deprecated(reason: "FDV isn't supported - use marketCap instead")
-  """The highest price in USD in the past 5 minutes."""
-  high5m: String
-  """The highest price in USD in the past hour."""
-  high1: String
-  """The highest price in USD in the past 12 hours."""
-  high12: String
-  """The highest price in USD in the past 24 hours."""
-  high24: String
-  """The highest price in USD in the past 4 hours."""
-  high4: String
-  """Amount of liquidity in the token's top pair."""
-  liquidity: String
-  """The token's cumulative route-backed liquidity in USD, summed across the token's pairs with valid routing liquidity. Distinct from `liquidity`, which covers the top pair only. Null when this stat has not been computed for the token yet, or when `useAggregatedStats` is not set to `true`."""
-  totalLiquidityUsd: String
-  """The token of interest. Can be `token0` or `token1`."""
-  quoteToken: String
-  """The lowest price in USD in the past 5 minutes."""
-  low5m: String
-  """The lowest price in USD in the past hour."""
-  low1: String
-  """The lowest price in USD in the past 12 hours."""
-  low12: String
-  """The lowest price in USD in the past 24 hours."""
-  low24: String
-  """The lowest price in USD in the past 4 hours."""
-  low4: String
-  """The fully diluted market cap."""
-  marketCap: String
-  """The circulating market cap."""
-  circulatingMarketCap: String
-  """Metadata for the token's top pair."""
-  pair: Pair
-  """Metadata for the token's most liquid pair"""
-  liquidPair: Pair
-  """The liquidity of the token's most liquid pair"""
-  liquidPairLiquidity: String
-  """The liquid pairs price in USD."""
-  liquidPairPriceUSD: String
-  """The token price in USD."""
-  priceUSD: String
-  """A heuristic based on various factors used to rank tokens based on how trending they are."""
-  trendingScore: Float
-  """The number of sells in the past 5 minutes."""
-  sellCount5m: Int
-  """The number of sells in the past hour."""
-  sellCount1: Int
-  """The number of sells in the past 12 hours."""
-  sellCount12: Int
-  """The number of sells in the past 24 hours."""
-  sellCount24: Int
-  """The number of sells in the past 4 hours."""
-  sellCount4: Int
-  """The number of transactions in the past 5 minutes."""
-  txnCount5m: Int
-  """The number of transactions in the past hour."""
-  txnCount1: Int
-  """The number of transactions in the past 12 hours."""
-  txnCount12: Int
-  """The number of transactions in the past 24 hours."""
-  txnCount24: Int
-  """The number of transactions in the past 4 hours."""
-  txnCount4: Int
-  """The unique number of buys in the past 5 minutes."""
-  uniqueBuys5m: Int
-  """The unique number of buys in the past hour."""
-  uniqueBuys1: Int
-  """The unique number of buys in the past 12 hours."""
-  uniqueBuys12: Int
-  """The unique number of buys in the past 24 hours."""
-  uniqueBuys24: Int
-  """The unique number of buys in the past 4 hours."""
-  uniqueBuys4: Int
-  """The unique number of sells in the past 5 minutes."""
-  uniqueSells5m: Int
-  """The unique number of sells in the past hour."""
-  uniqueSells1: Int
-  """The unique number of sells in the past 12 hours."""
-  uniqueSells12: Int
-  """The unique number of sells in the past 24 hours."""
-  uniqueSells24: Int
-  """The unique number of sells in the past 4 hours."""
-  uniqueSells4: Int
-  """The unique number of transactions in the past 5 minutes."""
-  uniqueTransactions5m: Int
-  """The unique number of transactions in the past hour."""
-  uniqueTransactions1: Int
-  """The unique number of transactions in the past 12 hours."""
-  uniqueTransactions12: Int
-  """The unique number of transactions in the past 24 hours."""
-  uniqueTransactions24: Int
-  """The unique number of transactions in the past 4 hours."""
-  uniqueTransactions4: Int
-  """The trade volume in USD in the past hour."""
-  volume1: String
-  """The trade volume in USD in the past 5 minutes."""
-  volume5m: String
-  """The trade volume in USD in the past 12 hours."""
-  volume12: String
-  """The trade volume in USD in the past 24 hours."""
-  volume24: String
-  """The trade volume in USD in the past 4 hours."""
-  volume4: String
-  """The buy volume in USD in the past hour."""
-  buyVolume1: String
-  """The buy volume in USD in the past 12 hours."""
-  buyVolume12: String
-  """The buy volume in USD in the past 24 hours."""
-  buyVolume24: String
-  """The buy volume in USD in the past 4 hours."""
-  buyVolume4: String
-  """The buy volume in USD in the past 5 minutes."""
-  buyVolume5m: String
-  """The sell volume in USD in the past hour."""
-  sellVolume1: String
-  """The sell volume in USD in the past 12 hours."""
-  sellVolume12: String
-  """The sell volume in USD in the past 24 hours."""
-  sellVolume24: String
-  """The sell volume in USD in the past 4 hours."""
-  sellVolume4: String
-  """The sell volume in USD in the past 5 minutes."""
-  sellVolume5m: String
-  """The total pool fees in USD in the past 5 minutes."""
-  poolFees5m: String
-  """The total pool fees in USD in the past hour."""
-  poolFees1: String
-  """The total pool fees in USD in the past 4 hours."""
-  poolFees4: String
-  """The total pool fees in USD in the past 12 hours."""
-  poolFees12: String
-  """The total pool fees in USD in the past 24 hours."""
-  poolFees24: String
-  """The total base gas fees in USD in the past 5 minutes."""
-  baseFees5m: String
-  """The total base gas fees in USD in the past hour."""
-  baseFees1: String
-  """The total base gas fees in USD in the past 4 hours."""
-  baseFees4: String
-  """The total base gas fees in USD in the past 12 hours."""
-  baseFees12: String
-  """The total base gas fees in USD in the past 24 hours."""
-  baseFees24: String
-  """The total priority fees in USD in the past 5 minutes."""
-  priorityFees5m: String
-  """The total priority fees in USD in the past hour."""
-  priorityFees1: String
-  """The total priority fees in USD in the past 4 hours."""
-  priorityFees4: String
-  """The total priority fees in USD in the past 12 hours."""
-  priorityFees12: String
-  """The total priority fees in USD in the past 24 hours."""
-  priorityFees24: String
-  """The total builder tips (MEV) in USD in the past 5 minutes."""
-  builderTips5m: String
-  """The total builder tips (MEV) in USD in the past hour."""
-  builderTips1: String
-  """The total builder tips (MEV) in USD in the past 4 hours."""
-  builderTips4: String
-  """The total builder tips (MEV) in USD in the past 12 hours."""
-  builderTips12: String
-  """The total builder tips (MEV) in USD in the past 24 hours."""
-  builderTips24: String
-  """The total L1 data fees in USD in the past 5 minutes."""
-  l1DataFees5m: String
-  """The total L1 data fees in USD in the past hour."""
-  l1DataFees1: String
-  """The total L1 data fees in USD in the past 4 hours."""
-  l1DataFees4: String
-  """The total L1 data fees in USD in the past 12 hours."""
-  l1DataFees12: String
-  """The total L1 data fees in USD in the past 24 hours."""
-  l1DataFees24: String
-  """The total trading fees (pool + gas + tips) in USD in the past 5 minutes."""
-  totalFees5m: String
-  """The total trading fees (pool + gas + tips) in USD in the past hour."""
-  totalFees1: String
-  """The total trading fees (pool + gas + tips) in USD in the past 4 hours."""
-  totalFees4: String
-  """The total trading fees (pool + gas + tips) in USD in the past 12 hours."""
-  totalFees12: String
-  """The total trading fees (pool + gas + tips) in USD in the past 24 hours."""
-  totalFees24: String
-  """The ratio of total fees to volume in the past 5 minutes. Decimal format."""
-  feeToVolumeRatio5m: String
-  """The ratio of total fees to volume in the past hour. Decimal format."""
-  feeToVolumeRatio1: String
-  """The ratio of total fees to volume in the past 4 hours. Decimal format."""
-  feeToVolumeRatio4: String
-  """The ratio of total fees to volume in the past 12 hours. Decimal format."""
-  feeToVolumeRatio12: String
-  """The ratio of total fees to volume in the past 24 hours. Decimal format."""
-  feeToVolumeRatio24: String
-  """Whether the token has been flagged as a scam."""
-  isScam: Boolean
-  """The number of different wallets holding the token."""
-  holders: Int
-  """The average age of the wallets that traded in the last 24h"""
-  walletAgeAvg: String
-  """The standard deviation of age of the wallets that traded in the last 24h"""
-  walletAgeStd: String
-  """The percentage of wallets that are less than 1d old that have traded in the last 24h"""
-  swapPct1dOldWallet: String
-  """The percentage of wallets that are less than 7d old that have traded in the last 24h"""
-  swapPct7dOldWallet: String
-  """The number of wallets that have sniped the token"""
-  sniperCount: Int
-  """The percentage of tokens held by snipers"""
-  sniperHeldPercentage: Float
-  """The number of wallets that have bundled the token"""
-  bundlerCount: Int
-  """The percentage of tokens held by bundlers"""
-  bundlerHeldPercentage: Float
-  """The number of wallets that have been an insider of the token"""
-  insiderCount: Int
-  """The percentage of tokens held by insiders"""
-  insiderHeldPercentage: Float
-  """The number of suspicious wallets (deduplicated union of snipers, bundlers, and insiders)"""
-  suspiciousCount: Int
-  """The percentage of tokens held by suspicious wallets"""
-  suspiciousHeldPercentage: Float
-  """The percentage of tokens held by the dev"""
-  devHeldPercentage: Float
-  """The percentage of total supply held by the top 10 holders."""
-  top10HoldersPercent: Float
-  """The reasons the token has been flagged as a potential scam."""
-  potentialScamReasons: [PotentialScamReason]
-  """The all-time high price in USD."""
-  athPrice: String
-  """The unix timestamp when the all-time high price was reached."""
-  athPriceTimestamp: Int
-  """The all-time low price in USD."""
-  atlPrice: String
-  """The unix timestamp when the all-time low price was reached."""
-  atlPriceTimestamp: Int
-  """The all-time high fully diluted market cap."""
-  athFdv: String
-  """The unix timestamp when the all-time high FDV was reached."""
-  athFdvTimestamp: Int
-  """The all-time low fully diluted market cap."""
-  atlFdv: String
-  """The unix timestamp when the all-time low FDV was reached."""
-  atlFdvTimestamp: Int
-  """The all-time high circulating market cap."""
-  athCircMc: String
-  """The unix timestamp when the all-time high circulating market cap was reached."""
-  athCircMcTimestamp: Int
-  """The all-time low circulating market cap."""
-  atlCircMc: String
-  """The unix timestamp when the all-time low circulating market cap was reached."""
-  atlCircMcTimestamp: Int
-}
-
-"""Metadata for a contract."""
-union EnhancedContract = EnhancedToken | EnhancedNftContract
-
-"""Community gathered proposals for an asset."""
-type CommunityNote {
-  """The contract address of the contract."""
-  address: String!
-  contractType: ContractType!
-  currentContract: EnhancedContract
-  """The contract after the community note was applied."""
-  currentData: JSON
-  """The ID of the contract (`address:id`)."""
-  id: String!
-  """The unix timestamp of when the community note was moderated."""
-  moderatedAt: Int
-  """The network ID the contract is deployed on."""
-  networkId: Int!
-  """The contract before the community note was applied."""
-  previousData: JSON
-  """The data of the community note."""
-  proposalData: JSON!
-  """The ordinal number of the community note."""
-  proposalNum: Int!
-  """The type of the community note."""
-  proposalType: CommunityNoteType!
-  """The unix timestamp of when the community note was created."""
-  proposedAt: Int!
-  """The status of the community note."""
-  status: ContractProposalStatus!
-  sortKey: String!
-}
-
-"""Metadata for a decentralized exchange."""
-type Exchange {
-  """The ID of the exchange (`address:id`)."""
-  id: String!
-  """The contract address of the exchange."""
-  address: String!
-  """The hex string for the exchange color."""
-  color: String
-  """The name of the exchange."""
-  name: String
-  """The version of the exchange, if applicable."""
-  exchangeVersion: String
-  """The exchange logo URL."""
-  iconUrl: String
-  """The network ID the exchange is deployed on."""
-  networkId: Int!
-  """The URL for the exchange."""
-  tradeUrl: String
-}
-
-"""Filters for community notes."""
-input CommunityNotesFilter {
-  """The contract address of the contract."""
-  address: String
-  contractType: ContractType
-  """The network ID the contract is deployed on."""
-  networkId: [Int]
-  """The type of the proposal."""
-  proposalType: CommunityNoteType
-}
-
-"""Input type of `getCommunityNotes`."""
-input CommunityNotesInput {
-  """A set of filters to apply"""
-  filter: CommunityNotesFilter
-  """The maximum number of community notes to return."""
-  limit: Int
-  """The cursor to use for pagination."""
-  cursor: String
-}
-
-"""Community notes data."""
-type CommunityNotesResponse {
-  """The list of community notes matching the filter parameters."""
-  items: [CommunityNote!]!
-  """The number of community notes returned."""
-  count: Int!
-  """A cursor for use in pagination."""
-  cursor: String
-}
-
-"""Metadata for a wallet label from the WALLET_LABEL_TYPES vocabulary"""
-type WalletLabelType {
-  """Label name (e.g. WHALE, CEX, KOL)"""
-  name: String!
-  """Human-readable display name"""
-  displayName: String!
-  """Description of what this label means"""
-  description: String!
-}
-
-enum SparklineAttribute {
-  PRICE
-}
-
-enum SymbolType {
-  TOKEN
-  POOL
-}
-
-enum QuoteCurrency {
-  USD
-  TOKEN
-}
-
-"""The attribute to sort balances by."""
-enum BalancesSortAttribute {
-  """Sort by raw token balance amount (default). Note this orders on `shiftedBalance`, not `uiBalance` — a list rendering `uiBalance` for B20 asset tokens can therefore look mis-ordered, since each token's multiplier differs. Sort by USD_VALUE if the displayed order must match the displayed column."""
-  BALANCE
-  """Sort by USD value (descending)."""
-  USD_VALUE
-}
-
-"""Controls whether uiBalance is expressed in multiplier-adjusted or raw units. The two supported standards store opposite things, so the mode applies in opposite directions."""
-enum UiAmountMode {
-  """Return raw token amounts: Token-2022 balances have their UI amount multiplier removed; B20 balances are already raw and pass through unchanged."""
-  RAW
-  """Return multiplier-adjusted amounts: Token-2022 balances are the stored RPC UI amount; B20 balances are multiplied by the token's active multiplier. This is the default."""
-  SCALED
-}
-
-enum HoldersSortAttribute {
-  BALANCE
-  DATE @deprecated(reason: "No longer supported. Use BALANCE instead.")
-}
-
-"""The event label type."""
-enum EventLabelType {
-  FrontRun
-  Sandwiched
-}
-
-"""The duration used to request detailed pair stats."""
-enum DetailedPairStatsDuration {
-  day30
-  week1
-  day1
-  hour12
-  hour4
-  hour1
-  min15
-  min5
-}
-
-"""The duration used to request detailed token stats."""
-enum DetailedTokenStatsDuration {
-  day30 @deprecated(reason: "Not supported for token-level stats; DetailedTokenStats has no stats_day30 field.")
-  week1 @deprecated(reason: "Not supported for token-level stats; DetailedTokenStats has no stats_week1 field.")
-  day1
-  hour12
-  hour4
-  hour1
-  min15 @deprecated(reason: "Not supported for token-level stats; DetailedTokenStats has no stats_min15 field.")
-  min5
-}
-
-"""The window size used to request detailed stats."""
-enum DetailedStatsWindowSize {
-  day1
-  hour12
-  hour4
-  hour1
-  min5
-}
-
-"""The token of interest within a pair. Can be `token0` or `token1`."""
-enum TokenOfInterest {
-  token0
-  token1
-}
-
-"""The event type for a token transaction."""
-enum EventType {
-  Burn
-  Mint
-  Swap
-  Sync
-  Collect
-  CollectProtocol
-  PoolBalanceChanged
-  LiquidityLock
-}
-
-"""The commitment level of a streamed event - only Solana and Base support values other than Confirmed. Processed returns Base Flashblocks. Preprocessed is Solana-only."""
-enum EventCommitmentLevel {
-  Preprocessed
-  Processed
-  Confirmed
-}
-
-"""The commitment level of a streamed bar update - only Solana and Base support values other than Confirmed. Processed returns Base Flashblocks. Preprocessed is Solana-only."""
-enum BarCommitmentLevel {
-  Preprocessed
-  Processed
-  Confirmed
-}
-
-"""A more specific breakdown of `EventType`. Splits `Swap` into `Buy` and `Sell`."""
-enum EventDisplayType {
-  Burn
-  Mint
-  Buy
-  Sell
-  Sync
-  Collect
-  CollectProtocol
-}
-
 """The attribute used to rank tokens."""
 enum PairRankingAttribute {
   """The pool's static fee rate. Pools with no static rate have no value and sort last."""
   poolFeeBps
+  """Weighted risk score of the pair's token of interest."""
+  riskScore
+  """Unix seconds of the token's latest recorded risk change."""
+  riskFlaggedAt
   createdAt
   lastTransaction
   buyCount1
@@ -12009,6 +11520,28 @@ type PoolBalanceChangedEventData {
   type: EventType!
 }
 
+"""Real-time or historical prices for a token."""
+type Price {
+  """The contract address of the token."""
+  address: String!
+  """The network ID the token is deployed on."""
+  networkId: Int!
+  """The token price in USD."""
+  priceUsd: Float!
+  """The unix timestamp for the price."""
+  timestamp: Int
+  """The pool that emitted the swap generating this price"""
+  blockNumber: Int
+  """The token's cumulative route-backed liquidity in USD, summed across the token's pairs with valid routing liquidity. Null when this stat has not been computed for the token yet. Not available via subscription."""
+  liquidityUsd: String
+  """The percent price change in the past 24 hours. Decimal format. Not available via subscription."""
+  priceChange24: Float
+  """The pool that emitted the swap generating this price"""
+  poolAddress: String @deprecated(reason: "Pricing no longer based on specific pools")
+  """Ratio of how confident we are in the price"""
+  confidence: Float @deprecated(reason: "Pricing no longer based on specific pools")
+}
+
 """Response returned by `filterExchanges`."""
 type ExchangeFilterConnection {
   """The list of exchanges matching the filter parameters."""
@@ -12585,6 +12118,16 @@ type PairFilterResult {
   poolFeeBps: Float
   """Whether a hook or plugin sets the fee per swap rather than the pool charging a static rate. Null for protocols that do not report it."""
   dynamicFee: Boolean
+  """Codex's risk verdict for the token. Not a safety guarantee — read `riskCoverage` first. Null when unassessed."""
+  riskVerdict: RiskVerdict
+  """Weighted risk score from 0 to 100. Null for a terminal verdict reached without scoring, and when unassessed. Not a probability."""
+  riskScore: Float
+  """Unix seconds when the engine last recorded a change to this token's risk. Null when the token has never been assessed."""
+  riskFlaggedAt: Int
+  """How much contract analysis stood behind `riskVerdict`. Describes what was looked at, not what was concluded."""
+  riskCoverage: RiskAnalysisCoverage
+  """The reason codes behind `riskVerdict`, unordered. New codes are added over time, so do not assume this list is exhaustive."""
+  riskReasons: [RiskReasonCode!]
 }
 
 """The app a trade was placed through — a trading terminal, wallet, or interface — as distinct from the exchange it settled on."""
@@ -13035,6 +12578,16 @@ input TokenFilters {
   hasGridData: Boolean
   """Filter by Grid bluechip ratings. Returns tokens matching any of the provided ratings."""
   bluechipRatings: [String!]
+  """Filter by risk verdict. Returns tokens matching any of the provided verdicts."""
+  riskVerdicts: [RiskVerdict!]
+  """Filter by how much contract analysis stood behind the verdict."""
+  riskCoverages: [RiskAnalysisCoverage!]
+  """Filter by risk reason codes. Returns tokens where any of the provided reasons fired."""
+  riskReasons: [RiskReasonCode!]
+  """Filter by weighted risk score."""
+  riskScore: NumberFilter
+  """Filter by when the engine last recorded a change to the risk assessment, in Unix seconds."""
+  riskFlaggedAt: NumberFilter
   """Filter by all-time high price."""
   athPrice: NumberFilter
   """Filter by all-time low price."""
@@ -13053,6 +12606,14 @@ input TokenFilters {
 input ExchangeRanking {
   """The attribute to rank exchanges by."""
   attribute: ExchangeRankingAttribute
+  """The direction to apply to the ranking attribute."""
+  direction: RankingDirection
+}
+
+"""Input type of `TokenRanking`."""
+input TokenRanking {
+  """The attribute to rank tokens by."""
+  attribute: TokenRankingAttribute
   """The direction to apply to the ranking attribute."""
   direction: RankingDirection
 }
@@ -13120,6 +12681,26 @@ type FilterTokenUpdates {
   removedTokenIds: [String]
   """The list of updated token results matching the subscription parameters. When the subscription's result set is refreshed, also includes full results for tokens that newly match."""
   updates: [TokenFilterResult]
+}
+
+"""Metadata for a decentralized exchange."""
+type Exchange {
+  """The contract address of the exchange."""
+  address: String!
+  """The hex string for the exchange color."""
+  color: String
+  """The ID of the exchange (`address:id`)."""
+  id: String!
+  """The name of the exchange."""
+  name: String
+  """The version of the exchange, if applicable."""
+  exchangeVersion: String
+  """The exchange logo URL."""
+  iconUrl: String
+  """The network ID the exchange is deployed on."""
+  networkId: Int!
+  """The URL for the exchange."""
+  tradeUrl: String
 }
 
 """A token with metadata."""
@@ -13200,6 +12781,174 @@ type TokenWithMetadata {
   createdAt: Int
   """The unix timestamp for the token's last transaction."""
   lastTransaction: Int
+}
+
+"""Metadata for a token."""
+type EnhancedToken {
+  """The contract address of the token."""
+  address: String!
+  """The token ID on CoinMarketCap."""
+  cmcId: Int
+  """The precision to which the token can be divided. For example, the smallest unit for USDC is 0.000001 (6 decimals)."""
+  decimals: Int!
+  """The ID of the token (`address:networkId`)."""
+  id: String!
+  """Whether the token has been flagged as a scam."""
+  isScam: Boolean
+  """The token name. For example, `ApeCoin`."""
+  name: String
+  """The network ID the token is deployed on."""
+  networkId: Int!
+  """The token symbol. For example, `APE`."""
+  symbol: String
+  """The total supply of the token."""
+  totalSupply: String @deprecated(reason: "Use the TokenInfo type")
+  """Community gathered links for the socials of this token."""
+  socialLinks: SocialLinks
+  """More metadata about the token."""
+  info: TokenInfo
+  """The Grid asset ID, if this token is linked to a Grid asset."""
+  gridAssetId: String
+  """The Grid bluechip rating for this token (e.g. `A+`, `B-`)."""
+  bluechipRating: String
+  """The Grid organization associated with this token."""
+  organization: Organization
+  """The Grid asset associated with this token."""
+  asset: Asset
+  """Information about the token from 3rd party sources."""
+  explorerData: ExplorerTokenData @deprecated(reason: "Use the TokenInfo type")
+  """A list of exchanges where the token has been traded."""
+  exchanges: [Exchange!]
+  """The thumbnail token logo URL."""
+  imageThumbUrl: String @deprecated(reason: "Use the TokenInfo type")
+  """The small token logo URL."""
+  imageSmallUrl: String @deprecated(reason: "Use the TokenInfo type")
+  """The large token logo URL."""
+  imageLargeUrl: String @deprecated(reason: "Use the TokenInfo type")
+  """The circulating supply of the token."""
+  circulatingSupply: String @deprecated(reason: "Use the TokenInfo type")
+  """The amount of this token in the pair."""
+  pooled: String @deprecated(reason: "Pooled can be found on the pair instead")
+  """The token creator's wallet address."""
+  creatorAddress: String
+  """The token creator's wallet identity and profile, resolved from creatorAddress. Null when the token has no known creator."""
+  creator: Wallet
+  """The token creator's network-based token balance at time of contract creation."""
+  creatorBalanceNBT: String
+  """The block height the token was created at."""
+  createBlockNumber: Int
+  """The transaction hash of the token's creation."""
+  createTransactionHash: String
+  """The unix timestamp for the creation of the token."""
+  createdAt: Int
+  """Returns mint authority address if token is mintable. If null, verify against isMintableValid."""
+  mintable: String
+  """Returns freeze authority address if token is freezable. If null, verify against isFreezableValid."""
+  freezable: String
+  """Determines if freezable is a valid address or null value for the authority, or if the freezable state has not yet been determined."""
+  isFreezableValid: Boolean
+  """Determines if mintable is a valid address or null value for the authority, or if the mintable state has not yet been determined."""
+  isMintableValid: Boolean
+  """The launchpad data for the token, if applicable."""
+  launchpad: LaunchpadData
+  """The percentage of total supply held by the top 10 holders (excluding exchanges/pairs)."""
+  top10HoldersPercent: Float
+  """Whether the token name or symbol contains profanity."""
+  profanity: Boolean
+  """All-time high and low price/market cap data for the token."""
+  extrema: TokenExtrema
+  """The Coin Community data for the token"""
+  coinCommunity: CoinCommunity
+  """Token extension metadata, if available."""
+  extensions: TokenExtensions
+  """Token-standard-specific custom metadata — currently ERC-7572 `contractURI` fields, as used by Base B20 tokens. Null for tokens without a recognized token standard."""
+  tokenStandardCustomData: Erc7572CustomInfo
+  categories: [Category!]
+  """Codex's unified risk assessment for this token — one verdict, the score behind it, how much analysis stood behind that score, and the reasons that fired. Read `coverage` before trusting `verdict`."""
+  risk: TokenRisk
+}
+
+"""Codex's unified risk assessment for a token. `verdict` is not a safety guarantee. `VERIFIED` means a human marked the token not-a-scam — a moderator judgement, not an allowlist — and `NEUTRAL` means the weighted score is below the caution threshold. Reasons can still be present on a neutral assessment. Neither says a token is safe to trade, and a clean assessment cannot see an un-armed trap (owner-pausable, blacklist-after-N-txs, upgradeable proxy). Read `coverage` before trusting anything else: `NOT_ANALYZED` means no contract analysis stands behind this verdict. Null fields indicate unavailable or inapplicable results as described below; they never mean "safe"."""
+type TokenRisk {
+  """The verdict. Null when the token has not been assessed."""
+  verdict: RiskVerdict
+  """Weighted score from 0 to 100, computed from weighted signals with family caps and a corroboration bonus, then clamped. Null for a terminal verdict reached without scoring, and for an unassessed token. Not a probability."""
+  score: Float
+  """Unix seconds when the engine last recorded a change to this token's risk assessment, the first recorded observation included. A re-evaluation that reaches the same result records nothing, so this tracks change rather than evaluation. Null when the token has never been assessed."""
+  flaggedAt: Int
+  """How much contract analysis stood behind the verdict. Null when unassessed, or when a terminal verdict was reached without establishing analysis coverage."""
+  coverage: RiskAnalysisCoverage
+  """The reason codes behind the verdict, unordered. Empty when nothing fired; null when unassessed. New codes are added over time, so do not assume this list is exhaustive or that a familiar set is the whole picture."""
+  reasons: [RiskReasonCode!]
+}
+
+"""A token's risk verdict. These values are not an ordered safety scale: `SCAM` and `VERIFIED` are terminal states reached by mechanical proof or a human decision, while `HIGH_RISK`, `CAUTION` and `NEUTRAL` are graded outcomes of weighted signals."""
+enum RiskVerdict {
+  """Proven a scam by mechanical evidence, or labelled one by a human."""
+  SCAM
+  """The weighted score reached the high-risk threshold."""
+  HIGH_RISK
+  """The weighted score reached the caution threshold but remains below high risk."""
+  CAUTION
+  """The weighted score is below the caution threshold. Reasons may still be present. Not a statement that the token is safe."""
+  NEUTRAL
+  """A human marked this token not-a-scam. A moderator judgement, not an allowlist."""
+  VERIFIED
+  """Marked not-a-scam by a human, but mechanical signals disagree."""
+  VERIFIED_CONTESTED
+}
+
+"""How much contract analysis stood behind a verdict. This describes what was looked at, not what was concluded — `ANALYZED` does not mean a token is safe."""
+enum RiskAnalysisCoverage {
+  """No contract analysis stands behind this assessment."""
+  NOT_ANALYZED
+  """Analysis ran but reached no decisive verdict."""
+  INCONCLUSIVE
+  """Analysis ran and reached a decisive verdict."""
+  ANALYZED
+}
+
+"""The reasons a risk verdict can cite. This vocabulary grows over time. Treat the list on a token as the reasons Codex can name today, not as a complete account of everything wrong with it."""
+enum RiskReasonCode {
+  PROOF_HONEYPOT_SIM
+  PROOF_NON_TRANSFERABLE
+  PROOF_TRANSFER_FEE_100
+  PROOF_PAUSED
+  PROOF_DEFAULT_FROZEN
+  PROOF_RUG_OCCURRED
+  AUTH_MINT
+  AUTH_FREEZE
+  AUTH_PERMANENT_DELEGATE
+  AUTH_TRANSFER_HOOK
+  AUTH_PAUSABLE
+  AUTH_OWNER_NOT_RENOUNCED
+  AUTH_CAN_TRANSFER_OWNERSHIP
+  TAX_BUY_HIGH
+  TAX_SELL_HIGH
+  TAX_HONEYPOT_UNCONFIRMED
+  TAX_PAUSED
+  LIQ_MINIMAL
+  LIQ_UNKNOWN
+  LIQ_RUG_CLIFF
+  LIQ_UNLOCKED
+  LIQ_DRAINING
+  HOLD_TOP10_CONCENTRATED
+  HOLD_DEV_HEAVY
+  HOLD_SNIPER_HEAVY
+  HOLD_BUNDLER_HEAVY
+  HOLD_INSIDER_HEAVY
+  FLOW_ONE_WAY
+  FLOW_WALLET_FARM
+  FLOW_WASH_DOMINATED
+  FLOW_BUNDLED_LAUNCH
+  FLOW_MECHANICAL_TRADING
+  REP_SERIAL_RUGGER
+  REP_RISKY_CREATOR
+  REP_SCAMMER_FUNDED
+  REP_IMITATOR_SYMBOL
+  REP_IMITATOR_NAME
+  LABEL_MANUAL_SCAM
+  LABEL_VERIFIED
 }
 
 """Custom metadata sourced from a token standard's on-chain metadata mechanism — currently the ERC-7572 `contractURI()` fields used by Base B20 tokens."""
@@ -13297,6 +13046,300 @@ type TokenExtrema {
   atlCircMc: String!
   """The unix timestamp when the all-time low circulating market cap was reached."""
   atlCircMcTimestamp: Int!
+}
+
+"""A token matching a set of filter parameters."""
+type TokenFilterResult {
+  """The unix timestamp for the creation of the token's first pair."""
+  createdAt: Int
+  """The unix timestamp for the token's last transaction."""
+  lastTransaction: Int
+  age: Int @deprecated(reason: "Age isn't supported - use createdAt instead")
+  """The number of buys in the past 5 minutes."""
+  buyCount5m: Int
+  """The number of buys in the past hour."""
+  buyCount1: Int
+  """The number of buys in the past 12 hours."""
+  buyCount12: Int
+  """The number of buys in the past 24 hours."""
+  buyCount24: Int
+  """The number of buys in the past 4 hours."""
+  buyCount4: Int
+  """The percent price change in the past 5 minutes. Decimal format."""
+  change5m: String
+  """The percent price change in the past hour. Decimal format."""
+  change1: String
+  """The percent price change in the past 12 hours. Decimal format."""
+  change12: String
+  """The percent price change in the past 24 hours. Decimal format."""
+  change24: String
+  """The percent price change in the past 4 hours. Decimal format."""
+  change4: String
+  """The percent volume change in the past 5 minutes. Decimal format."""
+  volumeChange5m: String
+  """The percent volume change in the past hour. Decimal format."""
+  volumeChange1: String
+  """The percent volume change in the past 4 hours. Decimal format."""
+  volumeChange4: String
+  """The percent volume change in the past 12 hours. Decimal format."""
+  volumeChange12: String
+  """The percent volume change in the past 24 hours. Decimal format."""
+  volumeChange24: String
+  """The exchanges the token is listed on."""
+  exchanges: [Exchange]
+  fdv: String @deprecated(reason: "FDV isn't supported - use marketCap instead")
+  """The highest price in USD in the past 5 minutes."""
+  high5m: String
+  """The highest price in USD in the past hour."""
+  high1: String
+  """The highest price in USD in the past 12 hours."""
+  high12: String
+  """The highest price in USD in the past 24 hours."""
+  high24: String
+  """The highest price in USD in the past 4 hours."""
+  high4: String
+  """Amount of liquidity in the token's top pair."""
+  liquidity: String
+  """The token's cumulative route-backed liquidity in USD, summed across the token's pairs with valid routing liquidity. Distinct from `liquidity`, which covers the top pair only. Null when this stat has not been computed for the token yet, or when `useAggregatedStats` is not set to `true`."""
+  totalLiquidityUsd: String
+  """The token of interest. Can be `token0` or `token1`."""
+  quoteToken: String
+  """The lowest price in USD in the past 5 minutes."""
+  low5m: String
+  """The lowest price in USD in the past hour."""
+  low1: String
+  """The lowest price in USD in the past 12 hours."""
+  low12: String
+  """The lowest price in USD in the past 24 hours."""
+  low24: String
+  """The lowest price in USD in the past 4 hours."""
+  low4: String
+  """The fully diluted market cap."""
+  marketCap: String
+  """The circulating market cap."""
+  circulatingMarketCap: String
+  """Metadata for the token's top pair."""
+  pair: Pair
+  """Metadata for the token's most liquid pair"""
+  liquidPair: Pair
+  """The liquidity of the token's most liquid pair"""
+  liquidPairLiquidity: String
+  """The liquid pairs price in USD."""
+  liquidPairPriceUSD: String
+  """The token price in USD."""
+  priceUSD: String
+  """A heuristic based on various factors used to rank tokens based on how trending they are."""
+  trendingScore: Float
+  """The number of sells in the past 5 minutes."""
+  sellCount5m: Int
+  """The number of sells in the past hour."""
+  sellCount1: Int
+  """The number of sells in the past 12 hours."""
+  sellCount12: Int
+  """The number of sells in the past 24 hours."""
+  sellCount24: Int
+  """The number of sells in the past 4 hours."""
+  sellCount4: Int
+  """Metadata for the token."""
+  token: EnhancedToken
+  """The number of transactions in the past 5 minutes."""
+  txnCount5m: Int
+  """The number of transactions in the past hour."""
+  txnCount1: Int
+  """The number of transactions in the past 12 hours."""
+  txnCount12: Int
+  """The number of transactions in the past 24 hours."""
+  txnCount24: Int
+  """The number of transactions in the past 4 hours."""
+  txnCount4: Int
+  """The unique number of buys in the past 5 minutes."""
+  uniqueBuys5m: Int
+  """The unique number of buys in the past hour."""
+  uniqueBuys1: Int
+  """The unique number of buys in the past 12 hours."""
+  uniqueBuys12: Int
+  """The unique number of buys in the past 24 hours."""
+  uniqueBuys24: Int
+  """The unique number of buys in the past 4 hours."""
+  uniqueBuys4: Int
+  """The unique number of sells in the past 5 minutes."""
+  uniqueSells5m: Int
+  """The unique number of sells in the past hour."""
+  uniqueSells1: Int
+  """The unique number of sells in the past 12 hours."""
+  uniqueSells12: Int
+  """The unique number of sells in the past 24 hours."""
+  uniqueSells24: Int
+  """The unique number of sells in the past 4 hours."""
+  uniqueSells4: Int
+  """The unique number of transactions in the past 5 minutes."""
+  uniqueTransactions5m: Int
+  """The unique number of transactions in the past hour."""
+  uniqueTransactions1: Int
+  """The unique number of transactions in the past 12 hours."""
+  uniqueTransactions12: Int
+  """The unique number of transactions in the past 24 hours."""
+  uniqueTransactions24: Int
+  """The unique number of transactions in the past 4 hours."""
+  uniqueTransactions4: Int
+  """The trade volume in USD in the past hour."""
+  volume1: String
+  """The trade volume in USD in the past 5 minutes."""
+  volume5m: String
+  """The trade volume in USD in the past 12 hours."""
+  volume12: String
+  """The trade volume in USD in the past 24 hours."""
+  volume24: String
+  """The trade volume in USD in the past 4 hours."""
+  volume4: String
+  """The buy volume in USD in the past hour."""
+  buyVolume1: String
+  """The buy volume in USD in the past 12 hours."""
+  buyVolume12: String
+  """The buy volume in USD in the past 24 hours."""
+  buyVolume24: String
+  """The buy volume in USD in the past 4 hours."""
+  buyVolume4: String
+  """The buy volume in USD in the past 5 minutes."""
+  buyVolume5m: String
+  """The sell volume in USD in the past hour."""
+  sellVolume1: String
+  """The sell volume in USD in the past 12 hours."""
+  sellVolume12: String
+  """The sell volume in USD in the past 24 hours."""
+  sellVolume24: String
+  """The sell volume in USD in the past 4 hours."""
+  sellVolume4: String
+  """The sell volume in USD in the past 5 minutes."""
+  sellVolume5m: String
+  """The total pool fees in USD in the past 5 minutes."""
+  poolFees5m: String
+  """The total pool fees in USD in the past hour."""
+  poolFees1: String
+  """The total pool fees in USD in the past 4 hours."""
+  poolFees4: String
+  """The total pool fees in USD in the past 12 hours."""
+  poolFees12: String
+  """The total pool fees in USD in the past 24 hours."""
+  poolFees24: String
+  """The total base gas fees in USD in the past 5 minutes."""
+  baseFees5m: String
+  """The total base gas fees in USD in the past hour."""
+  baseFees1: String
+  """The total base gas fees in USD in the past 4 hours."""
+  baseFees4: String
+  """The total base gas fees in USD in the past 12 hours."""
+  baseFees12: String
+  """The total base gas fees in USD in the past 24 hours."""
+  baseFees24: String
+  """The total priority fees in USD in the past 5 minutes."""
+  priorityFees5m: String
+  """The total priority fees in USD in the past hour."""
+  priorityFees1: String
+  """The total priority fees in USD in the past 4 hours."""
+  priorityFees4: String
+  """The total priority fees in USD in the past 12 hours."""
+  priorityFees12: String
+  """The total priority fees in USD in the past 24 hours."""
+  priorityFees24: String
+  """The total builder tips (MEV) in USD in the past 5 minutes."""
+  builderTips5m: String
+  """The total builder tips (MEV) in USD in the past hour."""
+  builderTips1: String
+  """The total builder tips (MEV) in USD in the past 4 hours."""
+  builderTips4: String
+  """The total builder tips (MEV) in USD in the past 12 hours."""
+  builderTips12: String
+  """The total builder tips (MEV) in USD in the past 24 hours."""
+  builderTips24: String
+  """The total L1 data fees in USD in the past 5 minutes."""
+  l1DataFees5m: String
+  """The total L1 data fees in USD in the past hour."""
+  l1DataFees1: String
+  """The total L1 data fees in USD in the past 4 hours."""
+  l1DataFees4: String
+  """The total L1 data fees in USD in the past 12 hours."""
+  l1DataFees12: String
+  """The total L1 data fees in USD in the past 24 hours."""
+  l1DataFees24: String
+  """The total trading fees (pool + gas + tips) in USD in the past 5 minutes."""
+  totalFees5m: String
+  """The total trading fees (pool + gas + tips) in USD in the past hour."""
+  totalFees1: String
+  """The total trading fees (pool + gas + tips) in USD in the past 4 hours."""
+  totalFees4: String
+  """The total trading fees (pool + gas + tips) in USD in the past 12 hours."""
+  totalFees12: String
+  """The total trading fees (pool + gas + tips) in USD in the past 24 hours."""
+  totalFees24: String
+  """The ratio of total fees to volume in the past 5 minutes. Decimal format."""
+  feeToVolumeRatio5m: String
+  """The ratio of total fees to volume in the past hour. Decimal format."""
+  feeToVolumeRatio1: String
+  """The ratio of total fees to volume in the past 4 hours. Decimal format."""
+  feeToVolumeRatio4: String
+  """The ratio of total fees to volume in the past 12 hours. Decimal format."""
+  feeToVolumeRatio12: String
+  """The ratio of total fees to volume in the past 24 hours. Decimal format."""
+  feeToVolumeRatio24: String
+  """Whether the token has been flagged as a scam."""
+  isScam: Boolean
+  """The number of different wallets holding the token."""
+  holders: Int
+  """The average age of the wallets that traded in the last 24h"""
+  walletAgeAvg: String
+  """The standard deviation of age of the wallets that traded in the last 24h"""
+  walletAgeStd: String
+  """The percentage of wallets that are less than 1d old that have traded in the last 24h"""
+  swapPct1dOldWallet: String
+  """The percentage of wallets that are less than 7d old that have traded in the last 24h"""
+  swapPct7dOldWallet: String
+  """The number of wallets that have sniped the token"""
+  sniperCount: Int
+  """The percentage of tokens held by snipers"""
+  sniperHeldPercentage: Float
+  """The number of wallets that have bundled the token"""
+  bundlerCount: Int
+  """The percentage of tokens held by bundlers"""
+  bundlerHeldPercentage: Float
+  """The number of wallets that have been an insider of the token"""
+  insiderCount: Int
+  """The percentage of tokens held by insiders"""
+  insiderHeldPercentage: Float
+  """The number of suspicious wallets (deduplicated union of snipers, bundlers, and insiders)"""
+  suspiciousCount: Int
+  """The percentage of tokens held by suspicious wallets"""
+  suspiciousHeldPercentage: Float
+  """The percentage of tokens held by the dev"""
+  devHeldPercentage: Float
+  """The percentage of total supply held by the top 10 holders."""
+  top10HoldersPercent: Float
+  """The reasons the token has been flagged as a potential scam."""
+  potentialScamReasons: [PotentialScamReason]
+  """The all-time high price in USD."""
+  athPrice: String
+  """The unix timestamp when the all-time high price was reached."""
+  athPriceTimestamp: Int
+  """The all-time low price in USD."""
+  atlPrice: String
+  """The unix timestamp when the all-time low price was reached."""
+  atlPriceTimestamp: Int
+  """The all-time high fully diluted market cap."""
+  athFdv: String
+  """The unix timestamp when the all-time high FDV was reached."""
+  athFdvTimestamp: Int
+  """The all-time low fully diluted market cap."""
+  atlFdv: String
+  """The unix timestamp when the all-time low FDV was reached."""
+  atlFdvTimestamp: Int
+  """The all-time high circulating market cap."""
+  athCircMc: String
+  """The unix timestamp when the all-time high circulating market cap was reached."""
+  athCircMcTimestamp: Int
+  """The all-time low circulating market cap."""
+  atlCircMc: String
+  """The unix timestamp when the all-time low circulating market cap was reached."""
+  atlCircMcTimestamp: Int
 }
 
 """Input type of `getTokenPrices`."""
@@ -13518,6 +13561,16 @@ input PairFilters {
   poolFeeBps: NumberFilter
   """Whether a hook or plugin sets the fee per swap rather than the pool charging a static rate. Such pools have no `poolFeeBps`, so no range on it will return them. Only set for protocols that report it, so `false` does not describe every other pool."""
   dynamicFee: Boolean
+  """Filter by the risk verdict of the pair's token of interest. Returns pairs matching any of the provided verdicts."""
+  riskVerdicts: [RiskVerdict!]
+  """Filter by how much contract analysis stood behind the verdict."""
+  riskCoverages: [RiskAnalysisCoverage!]
+  """Filter by risk reason codes. Returns pairs where any of the provided reasons fired."""
+  riskReasons: [RiskReasonCode!]
+  """Filter by weighted risk score."""
+  riskScore: NumberFilter
+  """Filter by when the engine last recorded a change to the risk assessment, in Unix seconds."""
+  riskFlaggedAt: NumberFilter
   """The average age of the wallets that traded in the last 24h"""
   walletAgeAvg: NumberFilter
   """The standard deviation of age of the wallets that traded in the last 24h"""
@@ -14311,6 +14364,280 @@ input TokenSparklineInput {
   resolution: String
   """Whether to add empty bars to the response, populated with the previous bar's value. Default is `false`"""
   fillMissingBars: Boolean
+}
+
+"""A page of recorded analysis results returned by `getSimulateTokenContractResults`."""
+type GetSimulateTokenContractResultsConnection {
+  """The recorded analyses in this page."""
+  results: [SimulateTokenContractResult!]!
+  """Opaque pagination cursor. Pass as cursor on the next query; null when no further page is available."""
+  cursor: String
+}
+
+"""Error codes for a token contract buy/sell."""
+enum SimulateTokenContractBuySellErrorEnum {
+  INSUFFICIENT_OUTPUT_AMOUNT
+  INSUFFICIENT_LIQUIDITY
+  TRANSFER_FAILED
+  UNKNOWN_ERROR
+}
+
+"""Analysis pipeline status. SUCCESS means processing completed, including honeypot and indeterminate outcomes; inspect verdict for the finding. FAILURE means processing failed, and PENDING means the request is awaiting a recorded outcome."""
+enum SimulateTokenContractResultStatusEnum {
+  SUCCESS
+  FAILURE
+  PENDING
+}
+
+"""Verdict of a completed analysis, orthogonal to status (the pipeline lifecycle). TRADEABLE / HONEYPOT are decisive; INDETERMINATE means the analysis ran but couldn't reach a decisive verdict (no/low liquidity, unswappable/unsupported venue, no native route, timeout) — see verdictReason."""
+enum AnalysisVerdictEnum {
+  TRADEABLE
+  HONEYPOT
+  INDETERMINATE
+}
+
+"""Errors for a token contract buy/sell."""
+type SimulateTokenContractErrors {
+  simulatorError: String
+  tokenErrors: SimulateTokenErrorsType!
+  deployErrors: SimulateDeployErrorsType!
+  contractBalanceErrors: SimulateContractBalanceErrorsType!
+  liquidityErrors: SimulateLiquidityErrorsType!
+  transferErrors: SimulateTransferErrorsType!
+  swapErrors: SimulateSwapErrorsType!
+  ownerErrors: SimulateOwnerErrorsType!
+  creatorErrors: SimulateCreatorErrorsType!
+}
+
+"""A recorded token analysis. Inspect verdict rather than status or individual swap flags to interpret the outcome. Nullable measurements can be unavailable, unsupported or not attempted; null does not mean zero or safe. Legacy rows may omit verdict."""
+type SimulateTokenContractResult {
+  id: String!
+  sortKey: String!
+  contractHashKey: String!
+  uuidHashKey: String!
+  """Recorded analysis block number, encoded as a string. An empty string indicates an unavailable block number."""
+  blockNumber: String!
+  networkId: Int!
+  """Analysis input mode: 0 for deployment input, 1 for creation transaction, and 2 for a live contract."""
+  analysisType: Int!
+  """Unix timestamp in seconds recorded when the analysis request was created."""
+  timestamp: Int!
+  status: SimulateTokenContractResultStatusEnum!
+  """Analysis verdict (orthogonal to status). Null on legacy rows written before verdicts existed."""
+  verdict: AnalysisVerdictEnum
+  """Human-readable reason a verdict is INDETERMINATE (e.g. low/no liquidity). Null otherwise."""
+  verdictReason: String
+  errors: SimulateTokenContractErrors!
+  """The simulationId returned when the request was submitted."""
+  uuid: String!
+  token: SimulateTokenType!
+  deploy: SimulateDeployType!
+  contractBalance: SimulateContractBalanceType!
+  liquidity: SimulateLiquidityType!
+  transfer: SimulateTransferType!
+  swap: SimulateSwapType!
+  owner: SimulateOwnerType!
+  creator: SimulateCreatorType!
+}
+
+"""Result of a token contract deploy."""
+type SimulateDeployType {
+  deploySuccess: Boolean
+  """Legacy simulation: tokens minted to the deployer in decimal-adjusted token units. Check deployErrors because zero can also accompany a failed measurement."""
+  tokenMintedToDeployer: String
+}
+
+"""Errors for a token contract deploy."""
+type SimulateDeployErrorsType {
+  deployError: String
+  tokenMintedToDeployerError: String
+}
+
+"""Result of a token contract liquidity."""
+type SimulateLiquidityType {
+  """Trading pool identifier, when available. Usually an address; Uniswap V4 results can contain a 32-byte pool ID. Null when no single pool is reported."""
+  pairAddress: String
+  """Liquidity-token supply in raw liquidity-token units. Null when unavailable."""
+  lpTotalSupply: String
+  preLiquidityEnableTradingCall: String
+  preLiquidityEnableTradingSuccess: Boolean
+  preLiquidityEnableTradingSupportsTransfer: Boolean
+  liquiditySetByPreLiquidityOpenTradingCall: Boolean
+  postLiquidityEnableTradingCall: String
+  postLiquidityEnableTradingSuccess: Boolean
+  addLiquiditySuccess: Boolean
+}
+
+"""Errors for a token contract liquidity."""
+type SimulateLiquidityErrorsType {
+  lpTotalSupplyError: String
+  preLiquidityEnableTradingError: String
+  postLiquidityEnableTradingError: String
+  addLiquidityError: String
+}
+
+"""Result of a token contract transfer."""
+type SimulateTransferType {
+  tokenContractApprovalSuccess: Boolean
+  tokenTransferredToContractSuccess: Boolean
+  userApprovalSuccess: Boolean
+}
+
+"""Errors for a token contract transfer."""
+type SimulateTransferErrorsType {
+  tokenContractApprovalError: String
+  tokenTransferredToContractError: String
+  userApprovalError: String
+}
+
+"""Result of a token contract swap."""
+type SimulateSwapType {
+  """Buy outcome inferred from recorded errors. Do not use this flag alone: pending or incomplete records may have no errors. Inspect verdict and status."""
+  buySuccess: Boolean
+  """Current analyzer: buy tax as a decimal fraction encoded as a string (0.05 means 5%). Legacy simulation rows used percentage values and a different sign convention; values are returned without normalization. Null when unavailable."""
+  buyTax: String
+  """Gas units consumed by the simulated buy, encoded as an integer string. Null when not recorded."""
+  buyGasUsed: String
+  """Legacy detected buy limit in decimal-adjusted token units. Null when a limit was not recorded; this does not prove unrestricted buying."""
+  maxBuyAmount: String
+  """Sell outcome inferred from recorded errors. Do not use this flag alone: pending or incomplete records may have no errors. Inspect verdict and status."""
+  sellSuccess: Boolean
+  """Current analyzer: sell tax as a decimal fraction encoded as a string (0.05 means 5%). Legacy simulation rows used percentage values and a different sign convention; values are returned without normalization. Null when unavailable."""
+  sellTax: String
+  """Gas units consumed by the simulated sell, encoded as an integer string. Null when not recorded."""
+  sellGasUsed: String
+  """Current analyzer: detected sell limit in raw token units. Legacy simulations used decimal-adjusted token units. Null when a limit was not recorded; this does not prove unrestricted selling."""
+  maxSellAmount: String
+}
+
+"""Errors for a token contract swap."""
+type SimulateSwapErrorsType {
+  buyError: String
+  buyErrorEnum: SimulateTokenContractBuySellErrorEnum
+  sellError: String
+  sellErrorEnum: SimulateTokenContractBuySellErrorEnum
+}
+
+"""Result of a token contract."""
+type SimulateTokenType {
+  contractAddress: String!
+  tokenSymbol: String
+  decimals: Int
+  tokenName: String
+  """Token supply in raw token units, encoded as an integer string. Divide by 10^decimals for whole tokens. Null when unavailable."""
+  totalSupply: String
+  canTransferOwnership: Boolean
+  canRenounceOwnership: Boolean
+  isOwnerRenounced: Boolean
+}
+
+"""Errors for a token contract."""
+type SimulateTokenErrorsType {
+  tokenSymbolError: String
+  decimalsError: String
+  tokenNameError: String
+  totalSupplyError: String
+  canTransferOwnershipError: String
+  canRenounceOwnershipError: String
+}
+
+"""Result of a token contract owner."""
+type SimulateOwnerType {
+  ownerAddress: String
+  """Token balance in raw token units, encoded as an integer string. Null when not measured."""
+  ownerTokenBalance: String
+  """Native-currency balance in wei for EVM analysis, encoded as an integer string. Null when not measured."""
+  ownerEthBalance: String
+}
+
+"""Errors for a token contract owner."""
+type SimulateOwnerErrorsType {
+  ownerAddressError: String
+  ownerTokenBalanceError: String
+  ownerEthBalanceError: String
+}
+
+"""Result of a token contract balance."""
+type SimulateContractBalanceType {
+  """Token balance in raw token units, encoded as an integer string. Null when not measured."""
+  tokenContractTokenBalance: String
+  """Native-currency balance in wei for EVM analysis, encoded as an integer string. Null when not measured."""
+  tokenContractEthBalance: String
+}
+
+"""Errors for a token contract balance."""
+type SimulateContractBalanceErrorsType {
+  tokenContractTokenBalanceError: String
+  tokenContractEthBalanceError: String
+}
+
+"""Result of a token contract creator."""
+type SimulateCreatorType {
+  creatorAddress: String
+  """Token balance in raw token units, encoded as an integer string. Null when not measured."""
+  creatorTokenBalance: String
+  """Native-currency balance in wei for EVM analysis, encoded as an integer string. Null when not measured."""
+  creatorEthBalance: String
+}
+
+"""Errors for a token contract creator."""
+type SimulateCreatorErrorsType {
+  creatorTokenBalanceError: String
+  creatorEthBalanceError: String
+}
+
+"""Response returned by `simulateTokenContract`."""
+type SimulateTokenContractResponse {
+  """Whether the request was queued and its pending record saved. This does not indicate analysis completion or token safety."""
+  result: Boolean!
+  """The request identifier. Match it against a result uuid, or pass it to getSimulateTokenContractResults."""
+  simulationId: String
+  """Submission failure message when result is false. Cooldown errors are returned as GraphQL errors instead."""
+  error: String
+}
+
+"""Legacy deployment simulation input. The current analyzer records a failure for this mode."""
+input SimulateDeployInput {
+  """The network ID of the token. Analysis availability depends on the network and supported trading venues."""
+  networkId: Int!
+  """The block number to simulate the contract at."""
+  blockNumber: Int!
+  """The contract address of the token."""
+  contractAddress: String!
+  """The contract creation transaction input to simulate."""
+  contractInput: String!
+}
+
+"""Legacy creation-transaction simulation input. The current analyzer records a failure for this mode."""
+input SimulateCreateTransactionInput {
+  """The network ID of the token. Analysis availability depends on the network and supported trading venues."""
+  networkId: Int!
+  """The block number to simulate the contract at."""
+  blockNumber: Int!
+  """The contract creation transaction hash from the live network."""
+  createTransactionHash: String!
+  """The contract address of the token."""
+  contractAddress: String!
+}
+
+"""Input type of `simulateTokenContract`."""
+input SimulateLiveContractInput {
+  """The network ID of the token. Analysis availability depends on the network and supported trading venues."""
+  networkId: Int!
+  """Requested block number. When omitted, submission derives a recent block from indexed data and fails if none is available. The current live analyzer probes latest state rather than replaying this block."""
+  blockNumber: Int
+  """The contract address of the token."""
+  contractAddress: String!
+}
+
+"""Provide one input mode. Use simulateLiveContractInput for the current analyzer. Legacy modes remain for compatibility. If several are supplied, the resolver selects deployment, then live contract, then creation transaction; no mode returns result: false."""
+input SimulateTokenContractInput {
+  """Input for a token contract deploy simulation."""
+  simulateDeployInput: SimulateDeployInput
+  """Input for a token contract create transaction simulation."""
+  simulateCreateTransactionInput: SimulateCreateTransactionInput
+  """Input for a live token contract simulation."""
+  simulateLiveContractInput: SimulateLiveContractInput
 }
 
 """Response returned by `getLatestTokens`."""
@@ -16727,6 +17054,104 @@ type WalletFunding {
   networkId: Int!
   amount: String!
   transactionHash: String!
+}
+
+scalar Void
+
+"""Type of the community gathered note."""
+enum CommunityNoteType {
+  """An contract attribute change."""
+  ATTRIBUTE
+  """A scam report."""
+  SCAM
+  """A logo change."""
+  LOGO
+}
+
+"""Type of the contract."""
+enum ContractType {
+  TOKEN
+  WALLET
+}
+
+enum ContractProposalStatus {
+  ACCEPTED
+  PENDING
+  REJECTED
+  REVERTED
+}
+
+"""Metadata for a contract."""
+union EnhancedContract = EnhancedToken | EnhancedNftContract
+
+"""Community gathered proposals for an asset."""
+type CommunityNote {
+  """The contract address of the contract."""
+  address: String!
+  contractType: ContractType!
+  currentContract: EnhancedContract
+  """The contract after the community note was applied."""
+  currentData: JSON
+  """The ID of the contract (`address:id`)."""
+  id: String!
+  """The unix timestamp of when the community note was moderated."""
+  moderatedAt: Int
+  """The network ID the contract is deployed on."""
+  networkId: Int!
+  """The contract before the community note was applied."""
+  previousData: JSON
+  """The data of the community note."""
+  proposalData: JSON!
+  """The ordinal number of the community note."""
+  proposalNum: Int!
+  """The type of the community note."""
+  proposalType: CommunityNoteType!
+  """The unix timestamp of when the community note was created."""
+  proposedAt: Int!
+  """The status of the community note."""
+  status: ContractProposalStatus!
+  sortKey: String!
+}
+
+"""Filters for community notes."""
+input CommunityNotesFilter {
+  """The contract address of the contract."""
+  address: String
+  contractType: ContractType
+  """The network ID the contract is deployed on."""
+  networkId: [Int]
+  """The type of the proposal."""
+  proposalType: CommunityNoteType
+}
+
+"""Input type of `getCommunityNotes`."""
+input CommunityNotesInput {
+  """A set of filters to apply"""
+  filter: CommunityNotesFilter
+  """The maximum number of community notes to return."""
+  limit: Int
+  """The cursor to use for pagination."""
+  cursor: String
+}
+
+"""Community notes data."""
+type CommunityNotesResponse {
+  """The list of community notes matching the filter parameters."""
+  items: [CommunityNote!]!
+  """The number of community notes returned."""
+  count: Int!
+  """A cursor for use in pagination."""
+  cursor: String
+}
+
+"""Metadata for a wallet label from the WALLET_LABEL_TYPES vocabulary"""
+type WalletLabelType {
+  """Label name (e.g. WHALE, CEX, KOL)"""
+  name: String!
+  """Human-readable display name"""
+  displayName: String!
+  """Description of what this label means"""
+  description: String!
 }
 
 """An NFT collection transaction."""
