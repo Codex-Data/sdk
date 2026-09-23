@@ -13382,6 +13382,26 @@ type B20Extensions {
 type Token2022Extensions {
   """Scaled UI amount configuration for Token-2022 mints."""
   scaledUiAmountConfig: Token2022ScaledUiAmountConfig
+  """Transfer fee schedules and authority for Token-2022 mints."""
+  transferFeeConfig: Token2022TransferFeeConfig
+}
+
+type Token2022TransferFeeConfig {
+  """Authority allowed to update transfer fees; null when revoked."""
+  transferFeeConfigAuthority: String
+  """Schedule used before newerTransferFee.epoch."""
+  olderTransferFee: Token2022TransferFee!
+  """Schedule used from newerTransferFee.epoch onwards."""
+  newerTransferFee: Token2022TransferFee!
+}
+
+type Token2022TransferFee {
+  """First epoch this schedule applies, as a decimal string."""
+  epoch: String!
+  """Fee in basis points (100 basis points = 1%)."""
+  transferFeeBasisPoints: Int!
+  """Maximum fee in raw token units, before decimal adjustment."""
+  maximumFee: String!
 }
 
 type Token2022ScaledUiAmountConfig {
