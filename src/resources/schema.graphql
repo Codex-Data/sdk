@@ -13481,9 +13481,12 @@ input GetPriceInput {
   maxDeviations: Float @deprecated(reason: "This isn't taken into account anymore.")
 }
 
+"""The pooled amounts of a pair's two tokens."""
 type PooledTokenValues {
   token0: String
   token1: String
+  """True when this pool's reserves are not known, in which case `token0` and `token1` read `0` and are not real amounts. False for every pool whose reserves are known, including one that is genuinely empty."""
+  invalidReserves: Boolean!
 }
 
 """Input type of `getTokensInfo`."""
