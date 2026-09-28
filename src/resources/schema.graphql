@@ -13333,6 +13333,8 @@ enum RiskReasonCode {
   HOLD_SNIPER_HEAVY
   HOLD_BUNDLER_HEAVY
   HOLD_INSIDER_HEAVY
+  """The creator of a launchpad token sold or handed off a large share of supply in the token's first hour."""
+  HOLD_INSIDER_DUMPED
   FLOW_ONE_WAY
   FLOW_WALLET_FARM
   FLOW_WASH_DOMINATED
