@@ -10057,7 +10057,7 @@ type WalletFilterResult {
   lastTransactionAt: Int!
   """The labels associated with the wallet"""
   labels: [String!]!
-  """Manual or proposal-derived identity vocabulary (e.g. WHALE, KOL). Distinct from behavioral `labels`."""
+  """Labels on the wallet's profile: identity (e.g. WHALE, KOL) and the behaviour our labelling jobs write (BOT, SCAMMER, VOLUME_BOT). See [`WalletLabel`](/api-reference/enums/walletlabel)."""
   identityLabels: [String!]
   """Registry entity ids of the apps this wallet trades through — e.g. `defined` for defined.fi, or `axiom`. Means "trades through", never "is owned by": one routed trade is enough to appear here."""
   tradeSourceIds: [String!]
@@ -15292,20 +15292,54 @@ input OnUnconfirmedEventsCreatedByMakerInput {
 
 """Wallet labels. Used for filtering wallets with `includeLabels` and `excludeLabels`."""
 enum WalletLabel {
+  """On our internal blacklist."""
+  BLACKLISTED
+  """Automated trading bot: proven by arbitrage inside its own transactions, or inferred from its trading cadence. Its confidence is `botScore`."""
+  BOT
+  """Cross-chain bridge contract."""
+  BRIDGE
+  """Centralized exchange wallet."""
+  CEX
+  """Decentralized exchange wallet."""
+  DEX
+  """Project founder wallet."""
+  FOUNDER
+  """Exploited a contract."""
+  HACKER
+  """Pre-launch insider buyer."""
+  INSIDER
   """Wallet is interesting (based on a number of factors)."""
   INTERESTING
+  """Key opinion leader / influencer."""
+  KOL
   """Wallet holds $5M+ in assets."""
   MEDIUM_WEALTHY
   """Wallet holds $10M+ in assets."""
   MEGA_WEALTHY
+  """MEV extraction bot."""
+  MEV_BOT
+  """Privacy mixer."""
+  MIXER
+  """Known rug-puller."""
+  RUG_PULLER
+  """OFAC sanctioned."""
+  SANCTIONED
+  """Wallet behind token scams: a serial rug deployer, its launch crew, or a honeypot creator. Its confidence is `scammerScore`."""
+  SCAMMER
   """Wallet has made over $7.5K profit in the last 90 days trading tokens that are older than 2 days."""
   SMART_TRADER_TOKENS_OVER_TWO_DAYS_OLD
   """Wallet has made over $5K profit in the last 90 days trading tokens that are between 1 hour and 2 days old."""
   SMART_TRADER_TOKENS_UNDER_TWO_DAYS_OLD
   """Wallet has made over $3K profit in the last 90 days trading tokens that were launched within their first hour."""
   SNIPER
+  """Venture capital fund."""
+  VC
+  """Operator-run wallet that trades to manufacture a token's volume: one a volume-bot platform runs, or one of hundreds a single funder seeded to churn one pool."""
+  VOLUME_BOT
   """Wallet holds $1M+ in assets."""
   WEALTHY
+  """High-balance / high-volume wallet."""
+  WHALE
 }
 
 """Response returned by `onHoldersUpdated`."""
@@ -16396,7 +16430,7 @@ type NetworkWalletFilterResult {
   nativeTokenBalance: String!
   """The labels associated with the wallet"""
   labels: [String!]!
-  """Manual or proposal-derived identity vocabulary (e.g. WHALE, KOL). Distinct from behavioral `labels`."""
+  """Labels on the wallet's profile: identity (e.g. WHALE, KOL) and the behaviour our labelling jobs write (BOT, SCAMMER, VOLUME_BOT). See [`WalletLabel`](/api-reference/enums/walletlabel)."""
   identityLabels: [String!]
   """Registry entity ids of the apps this wallet trades through — e.g. `defined` for defined.fi, or `axiom`. Means "trades through", never "is owned by": one routed trade is enough to appear here."""
   tradeSourceIds: [String!]
@@ -17102,7 +17136,7 @@ type Wallet {
   category: WalletCategory
   firstSeenTimestamp: Int
   firstFunding: WalletFunding
-  """Identity labels describing what this wallet is (e.g. CEX, DEX, bridge, team)"""
+  """Labels on the wallet's profile: identity (e.g. CEX, DEX, KOL) and the behaviour our labelling jobs write (BOT, SCAMMER, VOLUME_BOT). See [`WalletLabel`](/api-reference/enums/walletlabel)."""
   identityLabels: [String!]
   """Resolved profile avatar URL (best available source)"""
   avatarUrl: String
