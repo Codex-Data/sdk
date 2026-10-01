@@ -12,6 +12,8 @@ import {
   DeleteWebhooksMutationVariables,
   RefreshBalancesDocument,
   RefreshBalancesMutationVariables,
+  SimulateTokenContractDocument,
+  SimulateTokenContractMutationVariables,
 } from "./generated/graphql";
 import { Codex } from "./index";
 
@@ -30,4 +32,7 @@ export class Mutation {
     this.sdk.mutation(DeleteWebhooksDocument, vars);
   refreshBalances = async (vars: RefreshBalancesMutationVariables) =>
     this.sdk.mutation(RefreshBalancesDocument, vars);
+  simulateTokenContract = async (
+    vars: SimulateTokenContractMutationVariables,
+  ) => this.sdk.mutation(SimulateTokenContractDocument, vars);
 }

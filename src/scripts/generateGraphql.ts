@@ -43,6 +43,7 @@ export const getLeafType = (
   result: Fields,
   currentName: string,
   level = 0,
+  hasAssetDeployments = false,
 ): Fields => {
   if (level > 8 || !type?.kind || type.isDeprecated) return result;
 
@@ -68,6 +69,7 @@ export const getLeafType = (
           [],
           `... on ${f.name}`,
           level + 1,
+          hasAssetDeployments,
         );
       })
       .flat();
@@ -86,9 +88,21 @@ export const getLeafType = (
     const subType = allTypes.find((t) => t.name === type.name);
     const subTypeLeaves = (subType?.fields ?? [])
       .filter((t) => !t.isDeprecated)
-      .map((f: SchemaType) =>
-        getLeafType(f.type, allTypes, [], f.name, level + 1),
-      )
+      .flatMap((f: SchemaType) => {
+        // Match the tokens subgraph policy per path, not per returned type:
+        // retain deployment token metadata while preventing another expansion.
+        const isAssetDeployments =
+          type.name === "Asset" && f.name === "assetDeployments";
+        if (isAssetDeployments && hasAssetDeployments) return [];
+        return getLeafType(
+          f.type,
+          allTypes,
+          [],
+          f.name,
+          level + 1,
+          hasAssetDeployments || isAssetDeployments,
+        );
+      })
       .flat();
     // An object whose subfields all got cut off (by the depth limit or because
     // the type is fully recursive) would emit `field {  }` — an empty selection
@@ -104,11 +118,25 @@ export const getLeafType = (
 
   // If it's a list, resolve the first object type
   if (type.kind === "LIST")
-    return getLeafType(type.ofType!, allTypes, [...result], currentName, level);
+    return getLeafType(
+      type.ofType!,
+      allTypes,
+      [...result],
+      currentName,
+      level,
+      hasAssetDeployments,
+    );
 
   // If it's required, resolve the first object type
   if (type.kind === "NON_NULL")
-    return getLeafType(type.ofType!, allTypes, [...result], currentName, level);
+    return getLeafType(
+      type.ofType!,
+      allTypes,
+      [...result],
+      currentName,
+      level,
+      hasAssetDeployments,
+    );
 
   throw new Error(`Unknown type ${type.name} ${type.kind}`);
 };
@@ -345,4 +373,4 @@ async function run() {
   );
 }
 
-run().then(() => process.exit());
+if (require.main === module) run().then(() => process.exit());
