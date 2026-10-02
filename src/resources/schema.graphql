@@ -12627,12 +12627,14 @@ type PairFilterResult {
   poolFeeBps: Float
   """Whether a hook or plugin sets the fee per swap rather than the pool charging a static rate. Null for protocols that do not report it."""
   dynamicFee: Boolean
-  """Codex's risk verdict for the token. Not a safety guarantee — read `riskCoverage` first. Null when unassessed."""
+  """Codex's risk verdict for the pair: the token's verdict, or `SCAM` when this pair's own pool is a proven trap (the pool's hook refuses or underpays sells the token itself allows). Not a safety guarantee — read `riskCoverage` first. Null when unassessed."""
   riskVerdict: RiskVerdict
   """Weighted risk score from 0 to 100. Null for a terminal verdict reached without scoring, and when unassessed. Not a probability."""
   riskScore: Float
   """Unix seconds when the engine last recorded a change to this token's risk. Null when the token has never been assessed."""
   riskFlaggedAt: Int
+  """Unix seconds of the contract analysis `riskVerdict` rests on: the decisive analysis, or the newest reading of a proven trapped pool. Null when neither stands behind it."""
+  riskAnalyzedAt: Int
   """How much contract analysis stood behind `riskVerdict`. Describes what was looked at, not what was concluded."""
   riskCoverage: RiskAnalysisCoverage
   """The reason codes behind `riskVerdict`, unordered. New codes are added over time, so do not assume this list is exhaustive."""
@@ -13272,6 +13274,8 @@ type TokenRisk {
   score: Float
   """Unix seconds when the engine last recorded a change to this token's risk assessment, the first recorded observation included. A re-evaluation that reaches the same result records nothing, so this tracks change rather than evaluation. Null when the token has never been assessed."""
   flaggedAt: Int
+  """Unix seconds of the contract analysis the verdict rests on: the decisive analysis, or the newest reading of a proven trapped pool. Moves only when the contract is probed again, unlike `flaggedAt`. Null when neither stands behind the verdict."""
+  analyzedAt: Int
   """How much contract analysis stood behind the verdict. Null when unassessed, or when a terminal verdict was reached without establishing analysis coverage."""
   coverage: RiskAnalysisCoverage
   """The reason codes behind the verdict, unordered. Empty when nothing fired; null when unassessed. New codes are added over time, so do not assume this list is exhaustive or that a familiar set is the whole picture."""
@@ -13294,14 +13298,16 @@ enum RiskVerdict {
   VERIFIED_CONTESTED
 }
 
-"""How much contract analysis stood behind a verdict. This describes what was looked at, not what was concluded — `ANALYZED` does not mean a token is safe."""
+"""How much contract analysis stood behind a verdict. This describes what was looked at, not what was concluded — `ANALYZED` does not mean a token is safe. New values may be added over time, so treat one you do not recognize as unknown."""
 enum RiskAnalysisCoverage {
   """No contract analysis stands behind this assessment."""
   NOT_ANALYZED
   """Analysis ran but reached no decisive verdict."""
   INCONCLUSIVE
-  """Analysis ran and reached a decisive verdict."""
+  """Analysis ran and reached a decisive verdict, or proved a pool of the token is a trap."""
   ANALYZED
+  """The verdict rests on a tradeable analysis more than seven days old. A contract can change after it was probed. A honeypot proof never becomes stale."""
+  STALE
 }
 
 """The reasons a risk verdict can cite. This vocabulary grows over time. Treat the list on a token as the reasons Codex can name today, not as a complete account of everything wrong with it."""
@@ -13312,6 +13318,7 @@ enum RiskReasonCode {
   PROOF_PAUSED
   PROOF_DEFAULT_FROZEN
   PROOF_RUG_OCCURRED
+  PROOF_POOL_TRAP_SIM
   AUTH_MINT
   AUTH_FREEZE
   AUTH_PERMANENT_DELEGATE
@@ -13323,6 +13330,8 @@ enum RiskReasonCode {
   TAX_SELL_HIGH
   TAX_HONEYPOT_UNCONFIRMED
   TAX_PAUSED
+  TAX_POOL_TRAP
+  TAX_POOL_TRAP_HOOK_SHARED
   LIQ_MINIMAL
   LIQ_UNKNOWN
   LIQ_RUG_CLIFF

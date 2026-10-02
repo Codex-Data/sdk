@@ -8,6 +8,12 @@ import {
   BalancesQueryVariables,
   BlocksDocument,
   BlocksQueryVariables,
+  CategoriesDocument,
+  CategoriesQueryVariables,
+  CategoryDocument,
+  CategoryQueryVariables,
+  CategoryTokensDocument,
+  CategoryTokensQueryVariables,
   ChartUrlsDocument,
   ChartUrlsQueryVariables,
   DetailedPredictionEventStatsDocument,
@@ -22,6 +28,10 @@ import {
   EventScopedFilterPredictionMarketsQueryVariables,
   FilterExchangesDocument,
   FilterExchangesQueryVariables,
+  FilterLaunchpadsDocument,
+  FilterLaunchpadsQueryVariables,
+  FilterNetworksDocument,
+  FilterNetworksQueryVariables,
   FilterPairsDocument,
   FilterPairsQueryVariables,
   FilterPredictionEventsDocument,
@@ -60,6 +70,8 @@ import {
   GetNetworkStatsQueryVariables,
   GetNetworkStatusDocument,
   GetNetworkStatusQueryVariables,
+  GetSimulateTokenContractResultsDocument,
+  GetSimulateTokenContractResultsQueryVariables,
   GetSymbolDocument,
   GetSymbolQueryVariables,
   GetTokenBarsDocument,
@@ -74,8 +86,8 @@ import {
   GetWebhooksQueryVariables,
   HoldersDocument,
   HoldersQueryVariables,
-  LiquidityLocksDocument,
-  LiquidityLocksQueryVariables,
+  LiquidityLocksV2Document,
+  LiquidityLocksV2QueryVariables,
   LiquidityMetadataByTokenDocument,
   LiquidityMetadataByTokenQueryVariables,
   LiquidityMetadataDocument,
@@ -120,6 +132,8 @@ import {
   TokensQueryVariables,
   TokenTopTradersDocument,
   TokenTopTradersQueryVariables,
+  TokenWalletStatsDocument,
+  TokenWalletStatsQueryVariables,
   Top10HoldersPercentDocument,
   Top10HoldersPercentQueryVariables,
   WalletAggregateBackfillStateDocument,
@@ -141,6 +155,12 @@ export class Query {
     this.sdk.query(BalancesDocument, vars);
   blocks = async (vars: BlocksQueryVariables) =>
     this.sdk.query(BlocksDocument, vars);
+  categories = async (vars: CategoriesQueryVariables) =>
+    this.sdk.query(CategoriesDocument, vars);
+  category = async (vars: CategoryQueryVariables) =>
+    this.sdk.query(CategoryDocument, vars);
+  categoryTokens = async (vars: CategoryTokensQueryVariables) =>
+    this.sdk.query(CategoryTokensDocument, vars);
   chartUrls = async (vars: ChartUrlsQueryVariables) =>
     this.sdk.query(ChartUrlsDocument, vars);
   detailedPredictionEventStats = async (
@@ -159,6 +179,10 @@ export class Query {
   ) => this.sdk.query(EventScopedFilterPredictionMarketsDocument, vars);
   filterExchanges = async (vars: FilterExchangesQueryVariables) =>
     this.sdk.query(FilterExchangesDocument, vars);
+  filterLaunchpads = async (vars: FilterLaunchpadsQueryVariables) =>
+    this.sdk.query(FilterLaunchpadsDocument, vars);
+  filterNetworks = async (vars: FilterNetworksQueryVariables) =>
+    this.sdk.query(FilterNetworksDocument, vars);
   filterPairs = async (vars: FilterPairsQueryVariables) =>
     this.sdk.query(FilterPairsDocument, vars);
   filterPredictionEvents = async (vars: FilterPredictionEventsQueryVariables) =>
@@ -200,6 +224,9 @@ export class Query {
     this.sdk.query(GetNetworkStatusDocument, vars);
   getNetworks = async (vars: GetNetworksQueryVariables) =>
     this.sdk.query(GetNetworksDocument, vars);
+  getSimulateTokenContractResults = async (
+    vars: GetSimulateTokenContractResultsQueryVariables,
+  ) => this.sdk.query(GetSimulateTokenContractResultsDocument, vars);
   getSymbol = async (vars: GetSymbolQueryVariables) =>
     this.sdk.query(GetSymbolDocument, vars);
   getTokenBars = async (vars: GetTokenBarsQueryVariables) =>
@@ -214,8 +241,8 @@ export class Query {
     this.sdk.query(GetWebhooksDocument, vars);
   holders = async (vars: HoldersQueryVariables) =>
     this.sdk.query(HoldersDocument, vars);
-  liquidityLocks = async (vars: LiquidityLocksQueryVariables) =>
-    this.sdk.query(LiquidityLocksDocument, vars);
+  liquidityLocksV2 = async (vars: LiquidityLocksV2QueryVariables) =>
+    this.sdk.query(LiquidityLocksV2Document, vars);
   liquidityMetadata = async (vars: LiquidityMetadataQueryVariables) =>
     this.sdk.query(LiquidityMetadataDocument, vars);
   liquidityMetadataByToken = async (
@@ -264,6 +291,8 @@ export class Query {
     this.sdk.query(TokenSparklinesDocument, vars);
   tokenTopTraders = async (vars: TokenTopTradersQueryVariables) =>
     this.sdk.query(TokenTopTradersDocument, vars);
+  tokenWalletStats = async (vars: TokenWalletStatsQueryVariables) =>
+    this.sdk.query(TokenWalletStatsDocument, vars);
   tokens = async (vars: TokensQueryVariables) =>
     this.sdk.query(TokensDocument, vars);
   top10HoldersPercent = async (vars: Top10HoldersPercentQueryVariables) =>

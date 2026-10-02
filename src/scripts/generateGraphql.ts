@@ -43,6 +43,7 @@ export const getLeafType = (
   result: Fields,
   currentName: string,
   level = 0,
+  isDeploymentToken = false,
 ): Fields => {
   if (level > 8 || !type?.kind || type.isDeprecated) return result;
 
@@ -86,8 +87,27 @@ export const getLeafType = (
     const subType = allTypes.find((t) => t.name === type.name);
     const subTypeLeaves = (subType?.fields ?? [])
       .filter((t) => !t.isDeprecated)
+      // The API returns null for asset and organization on a token reached
+      // through AssetDeployment.token, so selecting them only adds dead
+      // weight. Asset is reachable only through those two fields, so this also
+      // stops Asset.assetDeployments from repeating along any path.
+      .filter(
+        (f) =>
+          !(
+            isDeploymentToken &&
+            type.name === "EnhancedToken" &&
+            (f.name === "asset" || f.name === "organization")
+          ),
+      )
       .map((f: SchemaType) =>
-        getLeafType(f.type, allTypes, [], f.name, level + 1),
+        getLeafType(
+          f.type,
+          allTypes,
+          [],
+          f.name,
+          level + 1,
+          type.name === "AssetDeployment" && f.name === "token",
+        ),
       )
       .flat();
     // An object whose subfields all got cut off (by the depth limit or because
@@ -104,11 +124,25 @@ export const getLeafType = (
 
   // If it's a list, resolve the first object type
   if (type.kind === "LIST")
-    return getLeafType(type.ofType!, allTypes, [...result], currentName, level);
+    return getLeafType(
+      type.ofType!,
+      allTypes,
+      [...result],
+      currentName,
+      level,
+      isDeploymentToken,
+    );
 
   // If it's required, resolve the first object type
   if (type.kind === "NON_NULL")
-    return getLeafType(type.ofType!, allTypes, [...result], currentName, level);
+    return getLeafType(
+      type.ofType!,
+      allTypes,
+      [...result],
+      currentName,
+      level,
+      isDeploymentToken,
+    );
 
   throw new Error(`Unknown type ${type.name} ${type.kind}`);
 };
@@ -345,4 +379,4 @@ async function run() {
   );
 }
 
-run().then(() => process.exit());
+if (require.main === module) run().then(() => process.exit());
