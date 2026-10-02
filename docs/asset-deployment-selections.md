@@ -1,23 +1,23 @@
-# Asset deployment selection change
+# Asset deployment selections
 
-Generated SDK operations now select `Asset.assetDeployments` at most once along
-any root-to-leaf path. For example, `token.asset.assetDeployments` remains, while
-`token.asset.assetDeployments.token.asset.assetDeployments` is omitted. The same
-rule applies through `organization.assets`. Independent sibling selections and
-deployment token metadata remain available. The existing generator depth cap
-still applies.
+`AssetDeployment.token` returns the deployed token's own data (price, name,
+info, and so on), but the API always returns `null` for that token's `asset`
+and `organization`. Without that cut, `token.asset.assetDeployments.token.asset`
+would loop back on itself, and each level loads a token per deployment.
 
-This changes generated result types: consumers reading the omitted nested
-properties must update their code. It does not change the GraphQL schema or
-rewrite custom queries. Previously installed SDK versions keep sending their
-old documents until consumers upgrade.
+Generated SDK operations therefore no longer select `asset` or `organization`
+beneath `AssetDeployment.token`. For example, `token.asset.assetDeployments.token`
+still returns the deployment token's metadata, and
+`token.organization.assets.assetDeployments` still lists every deployment, but
+neither goes back into an asset or organization through a deployment token.
+Because `Asset` is reachable only through those two fields,
+`Asset.assetDeployments` now appears at most once along any path.
 
-Release this SDK before enabling the supergraph traversal guard. Keep the
-supergraph in observe mode while consumers migrate, check violations from both
-SDK and custom queries, and only enable enforcement after that compatibility
-gate. A new SDK release alone does not make older clients compatible.
+This removes the deployment token's `asset` and `organization` from generated
+result types. Since the API returns `null` for them, no data is lost. Older SDK
+versions and custom queries that still select them keep working and receive
+`null`.
 
-The generator regression tests validate token/pair selections against the
-committed schema and check all shipped documents against the deployment and
-depth limits. Generated sources must accompany the generator change. The
-repository release workflow regenerates sources again at publication time.
+The generator tests check the token and pair operations against the committed
+schema, and check every shipped document for these selections and for the depth
+limit.

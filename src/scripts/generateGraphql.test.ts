@@ -64,6 +64,35 @@ function deploymentPaths(document: ReturnType<typeof parse>) {
   return paths;
 }
 
+// Fields the API always resolves to null on a token reached through
+// AssetDeployment.token. Returns them as they appear in the document.
+function nullDeploymentTokenFields(document: ReturnType<typeof parse>) {
+  const typeInfo = new TypeInfo(schema);
+  const stack: string[] = [];
+  const found: string[] = [];
+  visit(
+    document,
+    visitWithTypeInfo(typeInfo, {
+      Field: {
+        enter(node) {
+          const coordinate = `${typeInfo.getParentType()?.name}.${node.name.value}`;
+          if (
+            stack.at(-1) === "AssetDeployment.token" &&
+            (coordinate === "EnhancedToken.asset" ||
+              coordinate === "EnhancedToken.organization")
+          )
+            found.push(coordinate);
+          stack.push(coordinate);
+        },
+        leave() {
+          stack.pop();
+        },
+      },
+    }),
+  );
+  return found;
+}
+
 describe("generated asset deployment selections", () => {
   it.each(["token", "listPairsForToken"])(
     "%s keeps independent deployments and emits valid bounded selections",
@@ -77,6 +106,7 @@ describe("generated asset deployment selections", () => {
           selectionPath.filter((field) => field === "Asset.assetDeployments"),
         ).toHaveLength(1);
       }
+      expect(nullDeploymentTokenFields(document)).toEqual([]);
       // Do not solve recursion by removing useful deployment token metadata.
       const text = JSON.stringify(document);
       expect(text).toContain('"value":"token"');
@@ -84,7 +114,7 @@ describe("generated asset deployment selections", () => {
     },
   );
 
-  it("retains metadata directly beneath a deployment and stops organization cycles", () => {
+  it("keeps deployment token metadata but not the relationships the API nulls", () => {
     const fields = getLeafType(
       { kind: "OBJECT", name: "Asset" },
       types,
@@ -99,7 +129,8 @@ describe("generated asset deployment selections", () => {
     expect(text.match(/"assetDeployments"/g)).toHaveLength(1);
     expect(text).toContain('"token":');
     expect(text).toContain('"symbol"');
-    expect(text).toContain('"organization":');
+    expect(text).not.toContain('"organization":');
+    expect(text).not.toContain('"asset":');
   });
 });
 
@@ -119,6 +150,10 @@ it("all shipped SDK operations respect the deployment and depth limits", () => {
         ).length,
       }).toEqual({ operation: name, repetitions: 1 });
     }
+    expect({
+      operation: name,
+      fields: nullDeploymentTokenFields(document),
+    }).toEqual({ operation: name, fields: [] });
     let depth = 0;
     let maxDepth = 0;
     visit(document, {

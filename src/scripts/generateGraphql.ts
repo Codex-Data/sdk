@@ -43,7 +43,7 @@ export const getLeafType = (
   result: Fields,
   currentName: string,
   level = 0,
-  hasAssetDeployments = false,
+  isDeploymentToken = false,
 ): Fields => {
   if (level > 8 || !type?.kind || type.isDeprecated) return result;
 
@@ -69,7 +69,6 @@ export const getLeafType = (
           [],
           `... on ${f.name}`,
           level + 1,
-          hasAssetDeployments,
         );
       })
       .flat();
@@ -88,21 +87,28 @@ export const getLeafType = (
     const subType = allTypes.find((t) => t.name === type.name);
     const subTypeLeaves = (subType?.fields ?? [])
       .filter((t) => !t.isDeprecated)
-      .flatMap((f: SchemaType) => {
-        // Match the tokens subgraph policy per path, not per returned type:
-        // retain deployment token metadata while preventing another expansion.
-        const isAssetDeployments =
-          type.name === "Asset" && f.name === "assetDeployments";
-        if (isAssetDeployments && hasAssetDeployments) return [];
-        return getLeafType(
+      // The API returns null for asset and organization on a token reached
+      // through AssetDeployment.token, so selecting them only adds dead
+      // weight. Asset is reachable only through those two fields, so this also
+      // stops Asset.assetDeployments from repeating along any path.
+      .filter(
+        (f) =>
+          !(
+            isDeploymentToken &&
+            type.name === "EnhancedToken" &&
+            (f.name === "asset" || f.name === "organization")
+          ),
+      )
+      .map((f: SchemaType) =>
+        getLeafType(
           f.type,
           allTypes,
           [],
           f.name,
           level + 1,
-          hasAssetDeployments || isAssetDeployments,
-        );
-      })
+          type.name === "AssetDeployment" && f.name === "token",
+        ),
+      )
       .flat();
     // An object whose subfields all got cut off (by the depth limit or because
     // the type is fully recursive) would emit `field {  }` — an empty selection
@@ -124,7 +130,7 @@ export const getLeafType = (
       [...result],
       currentName,
       level,
-      hasAssetDeployments,
+      isDeploymentToken,
     );
 
   // If it's required, resolve the first object type
@@ -135,7 +141,7 @@ export const getLeafType = (
       [...result],
       currentName,
       level,
-      hasAssetDeployments,
+      isDeploymentToken,
     );
 
   throw new Error(`Unknown type ${type.name} ${type.kind}`);
