@@ -9335,9 +9335,9 @@ type TokenFilterResult {
   high24: String
   """The highest price in USD in the past 4 hours."""
   high4: String
-  """Amount of liquidity in the token's top pair."""
+  """Amount of liquidity in the token's top pair. With `useAggregatedStats`, on networks where the real-money total is enabled, this is the same value as `totalLiquidityUsd` once the token has one; on other networks it is the token's aggregated liquidity. The value is recomputed when the token trades, so a token with no trade since this definition last changed keeps its previous value."""
   liquidity: String
-  """The token's total liquidity in USD: the combined liquidity of its 15 deepest pools, leaving out pools with no trade in the last 7 days. On networks where the real-money total is enabled, each pool counts only the real money behind it: what the token can reach in one or two trades into the network's pricing reference tokens (such as its main stablecoins), with each route counted once. Distinct from `liquidity`, which covers the top pair only. The value is recomputed when the token trades, so a token with no trade since this definition last changed keeps its previous value. Null when this stat has not been computed for the token yet."""
+  """The token's total liquidity in USD: the combined liquidity of its 15 deepest pools, leaving out pools with no trade in the last 7 days. On networks where the real-money total is enabled, each pool counts only the real money behind it: what the token can reach in one or two trades into the network's pricing reference tokens (such as its main stablecoins), with each route counted once. Distinct from `liquidity`, which covers the top pair only, except with `useAggregatedStats` on networks where the real-money total is enabled, where the two are the same value. The value is recomputed when the token trades, so a token with no trade since this definition last changed keeps its previous value. Null when this stat has not been computed for the token yet."""
   totalLiquidityUsd: String
   """The token of interest. Can be `token0` or `token1`."""
   quoteToken: String
@@ -12897,9 +12897,9 @@ input TokenFilters {
   high24: NumberFilter
   """The highest price in USD in the past 4 hours."""
   high4: NumberFilter
-  """The amount of liquidity in the token's top pair."""
+  """The amount of liquidity in the token's top pair. With `useAggregatedStats`, on networks where the real-money total is enabled, this filters on the same value as `totalLiquidityUsd` once the token has one; on other networks it filters on the token's aggregated liquidity."""
   liquidity: NumberFilter
-  """The token's total liquidity in USD: the combined liquidity of its 15 deepest pools, leaving out pools with no trade in the last 7 days. On networks where the real-money total is enabled, each pool counts only the real money behind it: what the token can reach in one or two trades into the network's pricing reference tokens (such as its main stablecoins), with each route counted once. Distinct from `liquidity`, which covers the top pair only."""
+  """The token's total liquidity in USD: the combined liquidity of its 15 deepest pools, leaving out pools with no trade in the last 7 days. On networks where the real-money total is enabled, each pool counts only the real money behind it: what the token can reach in one or two trades into the network's pricing reference tokens (such as its main stablecoins), with each route counted once. Distinct from `liquidity`, which covers the top pair only, except with `useAggregatedStats` on networks where the real-money total is enabled, where the two are the same value."""
   totalLiquidityUsd: NumberFilter
   """The lowest price in USD in the past hour."""
   low1: NumberFilter
