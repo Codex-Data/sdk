@@ -9226,9 +9226,9 @@ type EnhancedToken {
   gridAssetId: String
   """The Grid bluechip rating for this token (e.g. `A+`, `B-`)."""
   bluechipRating: String
-  """The Grid organization associated with this token."""
+  """The Grid organization associated with this token. Null when the token is reached through `AssetDeployment.token`."""
   organization: Organization
-  """The Grid asset associated with this token."""
+  """The Grid asset associated with this token. Null when the token is reached through `AssetDeployment.token`."""
   asset: Asset
   """Information about the token from 3rd party sources."""
   explorerData: ExplorerTokenData @deprecated(reason: "Use the TokenInfo type")
@@ -11622,7 +11622,7 @@ type AssetDeployment {
   assetId: String!
   """The Grid root ID for the parent organization."""
   rootId: String!
-  """The enhanced token this deployment represents."""
+  """The enhanced token this deployment represents. Its `asset` and `organization` are always null, so deployments cannot be traversed recursively."""
   token: EnhancedToken
 }
 
