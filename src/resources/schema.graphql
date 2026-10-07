@@ -1117,8 +1117,10 @@ type Subscription {
   ): DetailedStats
   """Live-streamed bucketed stats for a given token."""
   onDetailedTokenStatsUpdated(
-    """The ID of the token (`address`:`networkId`)."""
+    """The ID of the token (`address`:`networkId`). Required unless you are on an enterprise plan including TokenStatsFeed features."""
     tokenId: String
+    """The network ID to stream stats for every token on. Used only when `tokenId` is omitted."""
+    networkId: Int
   ): DetailedTokenStats
   """Live-streamed filter token updates for the current `filterTokens` result set."""
   onFilterTokensUpdated(
@@ -1174,7 +1176,10 @@ type Subscription {
   ): AddTokenEventsOutput!
   """Live-streamed list of wallets that hold a given token. Also has the unique count of holders for that token."""
   onHoldersUpdated(
-    tokenId: String!
+    """The ID of the token (`address`:`networkId`). Required unless you are on an enterprise plan including BalanceFeed features."""
+    tokenId: String
+    """The network ID to stream holder updates for every token on. Used only when `tokenId` is omitted."""
+    networkId: Int
   ): HoldersUpdate
   """Live-streamed balance updates for a given wallet."""
   onBalanceUpdated(
@@ -12840,11 +12845,70 @@ input TokenCategoryFilter {
   hasCategory: Boolean
 }
 
+"""A social link a token can have."""
+enum TokenSocialLink {
+  BITCOINTALK
+  BLOG
+  COINGECKO
+  COINMARKETCAP
+  DISCORD
+  EMAIL
+  FACEBOOK
+  GITHUB
+  INSTAGRAM
+  LINKEDIN
+  REDDIT
+  SLACK
+  TELEGRAM
+  TWITCH
+  TWITTER
+  WEBSITE
+  WECHAT
+  WHITEPAPER
+  YOUTUBE
+}
+
+"""Media a token can have."""
+enum TokenMediaType {
+  """A token logo (thumbnail, small or large image)."""
+  LOGO
+  """A banner image."""
+  BANNER
+  """A video."""
+  VIDEO
+}
+
+input TokenSocialFilter {
+  """Match tokens with any of these social links (OR)."""
+  anyOf: [TokenSocialLink!]
+  """Match tokens with all of these social links (AND)."""
+  allOf: [TokenSocialLink!]
+  """Exclude tokens with any of these social links."""
+  noneOf: [TokenSocialLink!]
+  """Match tokens that have at least one social link (true) or none (false)."""
+  hasAny: Boolean
+}
+
+input TokenMediaFilter {
+  """Match tokens with any of these media types (OR)."""
+  anyOf: [TokenMediaType!]
+  """Match tokens with all of these media types (AND)."""
+  allOf: [TokenMediaType!]
+  """Exclude tokens with any of these media types."""
+  noneOf: [TokenMediaType!]
+  """Match tokens that have at least one media type (true) or none (false)."""
+  hasAny: Boolean
+}
+
 """Input type of `TokenFilters`."""
 input TokenFilters {
   """Recursive boolean expression for combining token filters."""
   boolFilter: TokenBoolFilter
   categories: TokenCategoryFilter
+  """Filter by the token's social links (contributed or provider-sourced). Grid organization links are not counted."""
+  socials: TokenSocialFilter
+  """Filter by the token's logo, banner and video. Grid images are not counted."""
+  media: TokenMediaFilter
   """The unix timestamp for the creation of the token's first pair."""
   createdAt: NumberFilter
   """The unix timestamp for the creation of the token."""
