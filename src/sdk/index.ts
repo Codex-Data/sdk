@@ -1,16 +1,16 @@
 import { TypedDocumentNode } from "@graphql-typed-document-node/core";
 import { GraphQLClient, Variables } from "graphql-request";
-import {
-  Client as GraphQLWsClient,
-  createClient,
-  ExecutionResult,
-  Sink,
-} from "graphql-ws";
+import { ExecutionResult, Sink } from "graphql-ws";
 import WebSocket from "isomorphic-ws";
 
 import { invariant } from "./invariant";
 import { Mutation } from "./Mutation";
 import { Query } from "./Query";
+import {
+  createRealtimeClient,
+  RealtimeClient,
+  SubscriptionOptions,
+} from "./realtime.js";
 import { Subscribe } from "./Subscribe";
 
 export type CleanupFunction = () => void;
@@ -21,6 +21,9 @@ export type ApiConfig = {
 
   // wss://graph.codex.io/graphql
   apiRealtimeUrl: string;
+
+  // Optional deployment override for the edge transport.
+  apiEdgeRealtimeUrl?: string;
 
   // true if you want to connect a websocket, sometimes useful to turn this off in certain environments
   ws?: boolean;
@@ -46,7 +49,7 @@ const defaultConfig: ApiConfig = {
 
 export class Codex {
   private client: GraphQLClient;
-  private wsClient: GraphQLWsClient | undefined;
+  private wsClient: RealtimeClient | undefined;
   public queries: Query;
   public mutations: Mutation;
   public subscriptions: Subscribe;
@@ -92,10 +95,11 @@ export class Codex {
 
   private createWebsocketClient(config: ApiConfig) {
     return config.ws
-      ? createClient({
+      ? createRealtimeClient({
           webSocketImpl: WebSocket,
           keepAlive: 10_000, // ping server every 10 seconds
           url: config.apiRealtimeUrl,
+          edgeUrl: config.apiEdgeRealtimeUrl,
           connectionParams: {
             Authorization: this.apiKey,
             ...config.wsHeaders,
@@ -122,7 +126,8 @@ export class Codex {
    */
   public updateConfig(incomingConfig: Partial<ApiConfig>) {
     // If we have an existing websocket connection, dispose of it.
-    if (this.wsClient) this.dispose();
+    if (this.wsClient) void this.dispose();
+    this.apiConfig = { ...this.apiConfig, ...incomingConfig };
 
     // Merge the incoming config with the existing config.
     const config = this.parseConfig(
@@ -151,7 +156,7 @@ export class Codex {
    * It's useful for when you need to modify some of the configuration, or when you're done with the class.
    */
   public async dispose() {
-    this.wsClient?.dispose();
+    await this.wsClient?.dispose();
   }
 
   /**
@@ -222,6 +227,7 @@ export class Codex {
     doc: string,
     args: TVars,
     sink: Sink<ExecutionResult<TResults>>,
+    options?: SubscriptionOptions,
   ): CleanupFunction {
     if (!this.wsClient) {
       throw new Error("Websocket is not enabled in the config");
@@ -233,6 +239,7 @@ export class Codex {
         variables: args,
       },
       sink,
+      options,
     );
     return cleanup;
   }

@@ -5,6 +5,7 @@ module.exports = merge.recursive(
   {
     verbose: false,
     testEnvironment: "node",
+    moduleNameMapper: { "^(\\.{1,2}/.*)\\.js$": "$1" },
     modulePathIgnorePatterns: ["dist"],
     coverageProvider: "v8",
     collectCoverage: true,

@@ -1,6 +1,6 @@
 {
   "name": "@codex-data/sdk",
-  "version": "2.3.79",
+  "version": "2.4.0",
   "engines": {
     "node": ">=17.5.0"
   },
@@ -13,7 +13,12 @@
       "import": "./dist/index.mjs",
       "require": "./dist/index.js"
     },
-    "./schema.graphql": "./schema.graphql"
+    "./schema.graphql": "./schema.graphql",
+    "./realtime": {
+      "types": "./dist/realtime.d.ts",
+      "import": "./dist/realtime.mjs",
+      "require": "./dist/realtime.js"
+    }
   },
   "sideEffects": false,
   "scripts": {
@@ -23,7 +28,7 @@
     "build:types": "pnpm run build:cjs && pnpm run build:esm && pnpm run build:rename-esm",
     "build:cjs": "tsc",
     "build:esm": "tsc -p tsconfig.esm.json",
-    "build:rename-esm": "find dist-esm -name '*.js' -exec sh -c 'mv \"$1\" \"${1%.js}.mjs\"' _ {} \\; && cp -r dist-esm/* dist/ && rm -rf dist-esm",
+    "build:rename-esm": "find dist-esm -name '*.js' -exec sh -c 'mv \"$1\" \"${1%.js}.mjs\"' _ {} \\; && node scripts/finalize-esm.cjs && cp -r dist-esm/* dist/ && rm -rf dist-esm",
     "fetch:schema": "curl -s https://graph.codex.io/schema/latest.graphql --output src/resources/schema.graphql && cp src/resources/schema.graphql schema.graphql",
     "copy:schema": "cp src/resources/schema.graphql schema.graphql",
     "schema:diff": "tsx src/scripts/schemaDiff.ts",
@@ -44,7 +49,10 @@
     "dist/index.d.ts",
     "dist/sdk/",
     "schema.graphql",
-    "README.md"
+    "README.md",
+    "dist/realtime.js",
+    "dist/realtime.mjs",
+    "dist/realtime.d.ts"
   ],
   "keywords": [
     "crypto",

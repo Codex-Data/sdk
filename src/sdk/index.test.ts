@@ -448,6 +448,7 @@ describe("Codex", () => {
           variables,
         },
         sink,
+        undefined,
       );
     });
   });

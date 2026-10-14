@@ -43,7 +43,7 @@ class Subscription {
       this.subscriptionName
     }SubscriptionVariables, sink: Sink<ExecutionResult<${
       this.subscriptionName
-    }Subscription>>) => this.sdk.subscribe(\`${graphqlString}\`, vars, sink);`;
+    }Subscription>>, options?: SubscriptionOptions) => this.sdk.subscribe(\`${graphqlString}\`, vars, sink, options);`;
   }
 }
 
@@ -112,6 +112,7 @@ import {
 ${this.subscriptions.map((q) => "  " + q.pre()).join(",\n")}
 } from "./generated/graphql";
 import { Codex } from "./index";
+import type { SubscriptionOptions } from "./realtime.js";
 import { ExecutionResult, Sink } from "graphql-ws";
 
 export class Subscribe {

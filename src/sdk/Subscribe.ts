@@ -62,12 +62,14 @@ import {
   OnUnconfirmedEventsCreatedSubscriptionVariables,
 } from "./generated/graphql";
 import { Codex } from "./index";
+import type { SubscriptionOptions } from "./realtime.js";
 
 export class Subscribe {
   constructor(private sdk: Codex) {}
   onBalanceUpdated = (
     vars: OnBalanceUpdatedSubscriptionVariables,
     sink: Sink<ExecutionResult<OnBalanceUpdatedSubscription>>,
+    options?: SubscriptionOptions,
   ) =>
     this.sdk.subscribe(
       `subscription OnBalanceUpdated($walletAddress: String!) {
@@ -77,10 +79,12 @@ export class Subscribe {
 }`,
       vars,
       sink,
+      options,
     );
   onBarsUpdated = (
     vars: OnBarsUpdatedSubscriptionVariables,
     sink: Sink<ExecutionResult<OnBarsUpdatedSubscription>>,
+    options?: SubscriptionOptions,
   ) =>
     this.sdk.subscribe(
       `subscription OnBarsUpdated($commitmentLevel: [BarCommitmentLevel!], $pairId: String, $quoteToken: QuoteToken) {
@@ -90,12 +94,14 @@ export class Subscribe {
 }`,
       vars,
       sink,
+      options,
     );
   onDetailedPredictionEventStatsUpdated = (
     vars: OnDetailedPredictionEventStatsUpdatedSubscriptionVariables,
     sink: Sink<
       ExecutionResult<OnDetailedPredictionEventStatsUpdatedSubscription>
     >,
+    options?: SubscriptionOptions,
   ) =>
     this.sdk.subscribe(
       `subscription OnDetailedPredictionEventStatsUpdated($eventId: String!) {
@@ -105,12 +111,14 @@ export class Subscribe {
 }`,
       vars,
       sink,
+      options,
     );
   onDetailedPredictionMarketStatsUpdated = (
     vars: OnDetailedPredictionMarketStatsUpdatedSubscriptionVariables,
     sink: Sink<
       ExecutionResult<OnDetailedPredictionMarketStatsUpdatedSubscription>
     >,
+    options?: SubscriptionOptions,
   ) =>
     this.sdk.subscribe(
       `subscription OnDetailedPredictionMarketStatsUpdated($marketId: String!) {
@@ -120,10 +128,12 @@ export class Subscribe {
 }`,
       vars,
       sink,
+      options,
     );
   onDetailedStatsUpdated = (
     vars: OnDetailedStatsUpdatedSubscriptionVariables,
     sink: Sink<ExecutionResult<OnDetailedStatsUpdatedSubscription>>,
+    options?: SubscriptionOptions,
   ) =>
     this.sdk.subscribe(
       `subscription OnDetailedStatsUpdated($pairId: String, $tokenOfInterest: TokenOfInterest) {
@@ -133,10 +143,12 @@ export class Subscribe {
 }`,
       vars,
       sink,
+      options,
     );
   onDetailedTokenStatsUpdated = (
     vars: OnDetailedTokenStatsUpdatedSubscriptionVariables,
     sink: Sink<ExecutionResult<OnDetailedTokenStatsUpdatedSubscription>>,
+    options?: SubscriptionOptions,
   ) =>
     this.sdk.subscribe(
       `subscription OnDetailedTokenStatsUpdated($tokenId: String) {
@@ -146,10 +158,12 @@ export class Subscribe {
 }`,
       vars,
       sink,
+      options,
     );
   onEventLabelCreated = (
     vars: OnEventLabelCreatedSubscriptionVariables,
     sink: Sink<ExecutionResult<OnEventLabelCreatedSubscription>>,
+    options?: SubscriptionOptions,
   ) =>
     this.sdk.subscribe(
       `subscription OnEventLabelCreated($id: String) {
@@ -177,10 +191,12 @@ export class Subscribe {
 `,
       vars,
       sink,
+      options,
     );
   onEventsCreated = (
     vars: OnEventsCreatedSubscriptionVariables,
     sink: Sink<ExecutionResult<OnEventsCreatedSubscription>>,
+    options?: SubscriptionOptions,
   ) =>
     this.sdk.subscribe(
       `subscription OnEventsCreated($address: String, $commitmentLevel: [EventCommitmentLevel!], $id: String, $networkId: Int, $quoteToken: QuoteToken) {
@@ -190,10 +206,12 @@ export class Subscribe {
 }`,
       vars,
       sink,
+      options,
     );
   onEventsCreatedByMaker = (
     vars: OnEventsCreatedByMakerSubscriptionVariables,
     sink: Sink<ExecutionResult<OnEventsCreatedByMakerSubscription>>,
+    options?: SubscriptionOptions,
   ) =>
     this.sdk.subscribe(
       `subscription OnEventsCreatedByMaker($commitmentLevel: [EventCommitmentLevel!], $input: OnEventsCreatedByMakerInput!) {
@@ -203,10 +221,12 @@ export class Subscribe {
 }`,
       vars,
       sink,
+      options,
     );
   onFilterTokensUpdated = (
     vars: OnFilterTokensUpdatedSubscriptionVariables,
     sink: Sink<ExecutionResult<OnFilterTokensUpdatedSubscription>>,
+    options?: SubscriptionOptions,
   ) =>
     this.sdk.subscribe(
       `subscription OnFilterTokensUpdated($excludeTokens: [String], $filters: TokenFilters, $limit: Int, $offset: Int, $phrase: String, $rankings: [TokenRanking], $statsType: TokenPairStatisticsType, $tokens: [String], $updatePeriod: Int, $useAggregatedStats: Boolean) {
@@ -216,10 +236,12 @@ export class Subscribe {
 }`,
       vars,
       sink,
+      options,
     );
   onHoldersUpdated = (
     vars: OnHoldersUpdatedSubscriptionVariables,
     sink: Sink<ExecutionResult<OnHoldersUpdatedSubscription>>,
+    options?: SubscriptionOptions,
   ) =>
     this.sdk.subscribe(
       `subscription OnHoldersUpdated($tokenId: String!) {
@@ -229,10 +251,12 @@ export class Subscribe {
 }`,
       vars,
       sink,
+      options,
     );
   onLatestTokens = (
     vars: OnLatestTokensSubscriptionVariables,
     sink: Sink<ExecutionResult<OnLatestTokensSubscription>>,
+    options?: SubscriptionOptions,
   ) =>
     this.sdk.subscribe(
       `subscription OnLatestTokens($id: String, $networkId: Int, $tokenAddress: String) {
@@ -242,10 +266,12 @@ export class Subscribe {
 }`,
       vars,
       sink,
+      options,
     );
   onLaunchpadTokenEvent = (
     vars: OnLaunchpadTokenEventSubscriptionVariables,
     sink: Sink<ExecutionResult<OnLaunchpadTokenEventSubscription>>,
+    options?: SubscriptionOptions,
   ) =>
     this.sdk.subscribe(
       `subscription OnLaunchpadTokenEvent($input: OnLaunchpadTokenEventInput) {
@@ -255,10 +281,12 @@ export class Subscribe {
 }`,
       vars,
       sink,
+      options,
     );
   onLaunchpadTokenEventBatch = (
     vars: OnLaunchpadTokenEventBatchSubscriptionVariables,
     sink: Sink<ExecutionResult<OnLaunchpadTokenEventBatchSubscription>>,
+    options?: SubscriptionOptions,
   ) =>
     this.sdk.subscribe(
       `subscription OnLaunchpadTokenEventBatch($input: OnLaunchpadTokenEventBatchInput) {
@@ -268,10 +296,12 @@ export class Subscribe {
 }`,
       vars,
       sink,
+      options,
     );
   onNftAssetsCreated = (
     vars: OnNftAssetsCreatedSubscriptionVariables,
     sink: Sink<ExecutionResult<OnNftAssetsCreatedSubscription>>,
+    options?: SubscriptionOptions,
   ) =>
     this.sdk.subscribe(
       `subscription OnNftAssetsCreated($address: String, $networkId: Int, $tokenId: String) {
@@ -281,10 +311,12 @@ export class Subscribe {
 }`,
       vars,
       sink,
+      options,
     );
   onNftEventsCreated = (
     vars: OnNftEventsCreatedSubscriptionVariables,
     sink: Sink<ExecutionResult<OnNftEventsCreatedSubscription>>,
+    options?: SubscriptionOptions,
   ) =>
     this.sdk.subscribe(
       `subscription OnNftEventsCreated($address: String, $networkId: Int) {
@@ -294,10 +326,12 @@ export class Subscribe {
 }`,
       vars,
       sink,
+      options,
     );
   onNftPoolEventsCreated = (
     vars: OnNftPoolEventsCreatedSubscriptionVariables,
     sink: Sink<ExecutionResult<OnNftPoolEventsCreatedSubscription>>,
+    options?: SubscriptionOptions,
   ) =>
     this.sdk.subscribe(
       `subscription OnNftPoolEventsCreated($collectionAddress: String, $exchangeAddress: String, $networkId: Int, $poolAddress: String) {
@@ -307,10 +341,12 @@ export class Subscribe {
 }`,
       vars,
       sink,
+      options,
     );
   onPairMetadataUpdated = (
     vars: OnPairMetadataUpdatedSubscriptionVariables,
     sink: Sink<ExecutionResult<OnPairMetadataUpdatedSubscription>>,
+    options?: SubscriptionOptions,
   ) =>
     this.sdk.subscribe(
       `subscription OnPairMetadataUpdated($id: String, $quoteToken: QuoteToken, $useNonLiquidityTokenAsQuoteToken: Boolean) {
@@ -320,10 +356,12 @@ export class Subscribe {
 }`,
       vars,
       sink,
+      options,
     );
   onPredictionEventBarsUpdated = (
     vars: OnPredictionEventBarsUpdatedSubscriptionVariables,
     sink: Sink<ExecutionResult<OnPredictionEventBarsUpdatedSubscription>>,
+    options?: SubscriptionOptions,
   ) =>
     this.sdk.subscribe(
       `subscription OnPredictionEventBarsUpdated($eventId: String!) {
@@ -333,10 +371,12 @@ export class Subscribe {
 }`,
       vars,
       sink,
+      options,
     );
   onPredictionMarketBarsUpdated = (
     vars: OnPredictionMarketBarsUpdatedSubscriptionVariables,
     sink: Sink<ExecutionResult<OnPredictionMarketBarsUpdatedSubscription>>,
+    options?: SubscriptionOptions,
   ) =>
     this.sdk.subscribe(
       `subscription OnPredictionMarketBarsUpdated($marketId: String!) {
@@ -346,10 +386,12 @@ export class Subscribe {
 }`,
       vars,
       sink,
+      options,
     );
   onPredictionTradesCreated = (
     vars: OnPredictionTradesCreatedSubscriptionVariables,
     sink: Sink<ExecutionResult<OnPredictionTradesCreatedSubscription>>,
+    options?: SubscriptionOptions,
   ) =>
     this.sdk.subscribe(
       `subscription OnPredictionTradesCreated($input: OnPredictionTradesCreatedInput) {
@@ -359,10 +401,12 @@ export class Subscribe {
 }`,
       vars,
       sink,
+      options,
     );
   onPriceUpdated = (
     vars: OnPriceUpdatedSubscriptionVariables,
     sink: Sink<ExecutionResult<OnPriceUpdatedSubscription>>,
+    options?: SubscriptionOptions,
   ) =>
     this.sdk.subscribe(
       `subscription OnPriceUpdated($address: String, $networkId: Int, $sourcePairAddress: String, $useWeightedPrices: Boolean) {
@@ -372,10 +416,12 @@ export class Subscribe {
 }`,
       vars,
       sink,
+      options,
     );
   onPricesUpdated = (
     vars: OnPricesUpdatedSubscriptionVariables,
     sink: Sink<ExecutionResult<OnPricesUpdatedSubscription>>,
+    options?: SubscriptionOptions,
   ) =>
     this.sdk.subscribe(
       `subscription OnPricesUpdated($input: [OnPricesUpdatedInput!]!, $useWeightedPrices: Boolean) {
@@ -385,10 +431,12 @@ export class Subscribe {
 }`,
       vars,
       sink,
+      options,
     );
   onTokenBarsUpdated = (
     vars: OnTokenBarsUpdatedSubscriptionVariables,
     sink: Sink<ExecutionResult<OnTokenBarsUpdatedSubscription>>,
+    options?: SubscriptionOptions,
   ) =>
     this.sdk.subscribe(
       `subscription OnTokenBarsUpdated($commitmentLevel: [BarCommitmentLevel!], $networkId: Int, $tokenId: String) {
@@ -398,10 +446,12 @@ export class Subscribe {
 }`,
       vars,
       sink,
+      options,
     );
   onTokenEventsCreated = (
     vars: OnTokenEventsCreatedSubscriptionVariables,
     sink: Sink<ExecutionResult<OnTokenEventsCreatedSubscription>>,
+    options?: SubscriptionOptions,
   ) =>
     this.sdk.subscribe(
       `subscription OnTokenEventsCreated($commitmentLevel: [EventCommitmentLevel!], $input: OnTokenEventsCreatedInput!) {
@@ -411,10 +461,12 @@ export class Subscribe {
 }`,
       vars,
       sink,
+      options,
     );
   onTokenLifecycleEventsCreated = (
     vars: OnTokenLifecycleEventsCreatedSubscriptionVariables,
     sink: Sink<ExecutionResult<OnTokenLifecycleEventsCreatedSubscription>>,
+    options?: SubscriptionOptions,
   ) =>
     this.sdk.subscribe(
       `subscription OnTokenLifecycleEventsCreated($address: String, $networkId: Int) {
@@ -424,10 +476,12 @@ export class Subscribe {
 }`,
       vars,
       sink,
+      options,
     );
   onUnconfirmedBarsUpdated = (
     vars: OnUnconfirmedBarsUpdatedSubscriptionVariables,
     sink: Sink<ExecutionResult<OnUnconfirmedBarsUpdatedSubscription>>,
+    options?: SubscriptionOptions,
   ) =>
     this.sdk.subscribe(
       `subscription OnUnconfirmedBarsUpdated($pairId: String, $quoteToken: QuoteToken) {
@@ -437,10 +491,12 @@ export class Subscribe {
 }`,
       vars,
       sink,
+      options,
     );
   onUnconfirmedEventsCreated = (
     vars: OnUnconfirmedEventsCreatedSubscriptionVariables,
     sink: Sink<ExecutionResult<OnUnconfirmedEventsCreatedSubscription>>,
+    options?: SubscriptionOptions,
   ) =>
     this.sdk.subscribe(
       `subscription OnUnconfirmedEventsCreated($address: String, $id: String, $quoteToken: QuoteToken) {
@@ -450,10 +506,12 @@ export class Subscribe {
 }`,
       vars,
       sink,
+      options,
     );
   onUnconfirmedEventsCreatedByMaker = (
     vars: OnUnconfirmedEventsCreatedByMakerSubscriptionVariables,
     sink: Sink<ExecutionResult<OnUnconfirmedEventsCreatedByMakerSubscription>>,
+    options?: SubscriptionOptions,
   ) =>
     this.sdk.subscribe(
       `subscription OnUnconfirmedEventsCreatedByMaker($input: OnUnconfirmedEventsCreatedByMakerInput!) {
@@ -463,5 +521,6 @@ export class Subscribe {
 }`,
       vars,
       sink,
+      options,
     );
 }
