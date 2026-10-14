@@ -132,6 +132,11 @@ it.each([
   `subscription { onTokenBarsUpdated(tokenId: "token:1399811149", commitmentLevel: [Processed]) { timestamp } }`,
   `subscription { onTokenBarsUpdated(networkId: 1399811149, commitmentLevel: [Processed]) { timestamp } }`,
   `subscription($network: Int = 1399811149, $levels: [EventCommitmentLevel!] = [Processed]) { onEventsCreated(networkId: $network, commitmentLevel: $levels) { events { transactionHash } } }`,
+  `subscription { onEventsCreated(id: "pair:1399811149", commitmentLevel: [Confirmed, Processed]) { events { transactionHash } } }`,
+  `subscription { onTokenEventsCreated(input: {networkId: 1399811149}, commitmentLevel: [Preprocessed, Processed, Confirmed]) { events { transactionHash } } }`,
+  `subscription { onBarsUpdated(pairId: "pair:1399811149", quoteToken: token0, commitmentLevel: [Processed, Confirmed]) { timestamp } }`,
+  `subscription { onTokenBarsUpdated(tokenId: "token:1399811149", commitmentLevel: [Preprocessed, Processed]) { timestamp } }`,
+  `subscription($network: Int = 1399811149, $levels: [EventCommitmentLevel!] = [Confirmed, Processed]) { onEventsCreated(networkId: $network, commitmentLevel: $levels) { events { transactionHash } } }`,
 ])(
   "accepts eligible literal and default-variable subscriptions: %s",
   (query) => {
@@ -150,8 +155,10 @@ it.each([
   { levels: Object.assign(new Array(2), { 0: "Processed" }) },
   { levels: ["Confirmed"] },
   { levels: ["Preprocessed"] },
-  { levels: ["Processed", "Confirmed"] },
-  { levels: ["Processed", "Preprocessed"] },
+  { levels: ["Preprocessed", "Confirmed"] },
+  { levels: ["Processed", "Finalized"] },
+  { levels: ["Processed", null] },
+  { levels: ["Processed", 1] },
   { input: { networkId: 8453 } },
   { input: { networkId: "1399811149" } },
   { input: { tokenAddress: "token" } },
@@ -229,19 +236,32 @@ it("disposes both transports and prevents subscriptions from recreating them", a
   ).toThrow("disposed");
 });
 
-it("routes both raw and generated SDK subscriptions through useEdge", async () => {
+it("routes raw and generated mixed SDK subscriptions through useEdge without dropping commitments", async () => {
   const sdk = new Codex("customer");
-  sdk.subscribe(events, variables, sink, { useEdge: true });
+  const levels = [
+    EventCommitmentLevel.Preprocessed,
+    EventCommitmentLevel.Processed,
+    EventCommitmentLevel.Confirmed,
+  ];
+  const mixedVariables = { ...variables, levels };
+  sdk.subscribe(events, mixedVariables, sink, { useEdge: true });
   sdk.subscriptions.onTokenEventsCreated(
     {
       input: variables.input,
-      commitmentLevel: [EventCommitmentLevel.Processed],
+      commitmentLevel: levels,
     },
     sink,
     { useEdge: true },
   );
   expect(transports).toHaveLength(2);
   expect(transports[1].subscribe).toHaveBeenCalledTimes(2);
+  expect(transports[1].subscribe.mock.calls[0][0].variables).toEqual(
+    mixedVariables,
+  );
+  expect(transports[1].subscribe.mock.calls[1][0].variables).toEqual({
+    input: variables.input,
+    commitmentLevel: levels,
+  });
   sdk.updateConfig({ wsHeaders: { Authorization: "new-customer" } });
   sdk.subscribe(events, variables, sink, { useEdge: true });
   expect(transports[3].options.connectionParams).toEqual({

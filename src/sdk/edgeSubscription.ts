@@ -13,7 +13,7 @@ const SUPPORTED_OPERATIONS = new Set([
 export function assertEdgeSubscription(payload: SubscribePayload): void {
   function fail(): never {
     throw new Error(
-      "useEdge requires a supported Solana subscription with only Processed commitmentLevel",
+      "useEdge requires a supported Solana subscription with commitmentLevel including Processed",
     );
   }
   const document = parse(payload.query);
@@ -47,7 +47,15 @@ export function assertEdgeSubscription(payload: SubscribePayload): void {
   const levels = Array.isArray(args.commitmentLevel)
     ? args.commitmentLevel
     : [args.commitmentLevel];
-  if (!levels.length || [...levels].some((level) => level !== "Processed"))
+  if (
+    !levels.includes("Processed") ||
+    [...levels].some(
+      (level) =>
+        level !== "Processed" &&
+        level !== "Confirmed" &&
+        level !== "Preprocessed",
+    )
+  )
     fail();
 
   const networks: unknown[] = [];

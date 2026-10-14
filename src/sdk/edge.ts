@@ -16,7 +16,7 @@ export { createClient };
 export const DEFAULT_EDGE_URL = "wss://fra.edge.codex.io/graphql";
 
 export interface SubscriptionOptions {
-  /** Experimental: deliver supported Processed Solana streams directly from edge. */
+  /** Experimental: use edge for supported Solana streams whose commitments include Processed. */
   useEdge?: boolean;
 }
 

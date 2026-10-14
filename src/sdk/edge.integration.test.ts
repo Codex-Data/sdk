@@ -54,7 +54,7 @@ it("delivers edge and normal results over separate authenticated sockets", async
     webSocketImpl: WebSocket,
     connectionParams: { Authorization: "test-customer" },
   });
-  const query = `subscription { onEventsCreated(id: "pair:1399811149", commitmentLevel: [Processed]) { events { transactionHash } } }`;
+  const query = `subscription { onEventsCreated(id: "pair:1399811149", commitmentLevel: [Processed, Confirmed]) { events { transactionHash } } }`;
   try {
     expect(() =>
       client.subscribe(
@@ -144,7 +144,10 @@ it("keeps SDK subscriptions on main until a valid edge opt-in and disposes both 
     apiRealtimeUrl: main.url,
     apiEdgeUrl: edge.url,
   });
-  const variables = { input: { networkId: 1399811149 }, levels: ["Processed"] };
+  const variables = {
+    input: { networkId: 1399811149 },
+    levels: ["Processed", "Confirmed"],
+  };
   const expected = JSON.parse(JSON.stringify({ query: edgeQuery, variables }));
   const sink = { next: () => {}, error: () => {}, complete: () => {} };
   try {
@@ -199,7 +202,7 @@ it("preserves the validated payload through delayed authentication and retries",
   });
   const variables = {
     input: { networkId: 1399811149, tokenAddress: "original" },
-    levels: ["Processed"],
+    levels: ["Preprocessed", "Processed", "Confirmed"],
   };
   const payload = { query: edgeQuery, variables };
   const expected = JSON.parse(JSON.stringify(payload));
@@ -211,7 +214,7 @@ it("preserves the validated payload through delayed authentication and retries",
       { next: () => {}, error: () => {}, complete: () => {} },
       { useEdge: true },
     );
-    variables.levels[0] = "Confirmed";
+    variables.levels.splice(0, variables.levels.length, "Confirmed");
     variables.input.networkId = 1;
     variables.input.tokenAddress = "changed";
     payload.query = "subscription { onPriceUpdated { priceUsd } }";
