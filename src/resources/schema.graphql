@@ -13495,6 +13495,19 @@ type TokenExtensions {
   b20: B20Extensions
   """Robinhood Chain stock token (tokenized equity) metadata."""
   robinhoodStockToken: RobinhoodStockTokenExtensions
+  """xStocks (Backed Finance tokenized equity) metadata, on EVM networks. Solana xStocks use `token2022.scaledUiAmountConfig`."""
+  xStock: XStockTokenExtensions
+}
+
+type XStockTokenExtensions {
+  """Multiplier in effect now, as a decimal string (e.g. "1.0017"). It grows as dividends are reinvested and jumps on a split. xStocks rebase: balances and transfer amounts already include it, so divide by it to get the token's internal shares. Already reflects `newMultiplier` once `newMultiplierEffectiveAt` has passed."""
+  multiplier: String
+  """Unix-seconds timestamp when the multiplier was last read from chain by us."""
+  multiplierObservedAt: String
+  """Scheduled multiplier, as a decimal string. Stays set after it takes effect until our next read from chain."""
+  newMultiplier: String
+  """Unix-seconds timestamp when `newMultiplier` takes effect."""
+  newMultiplierEffectiveAt: String
 }
 
 type RobinhoodStockTokenExtensions {
