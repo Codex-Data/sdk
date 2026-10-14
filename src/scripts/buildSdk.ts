@@ -112,7 +112,7 @@ import {
 ${this.subscriptions.map((q) => "  " + q.pre()).join(",\n")}
 } from "./generated/graphql";
 import { Codex } from "./index";
-import type { SubscriptionOptions } from "./realtime.js";
+import type { SubscriptionOptions } from "./realtime";
 import { ExecutionResult, Sink } from "graphql-ws";
 
 export class Subscribe {

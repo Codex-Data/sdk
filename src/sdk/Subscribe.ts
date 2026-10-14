@@ -62,7 +62,7 @@ import {
   OnUnconfirmedEventsCreatedSubscriptionVariables,
 } from "./generated/graphql";
 import { Codex } from "./index";
-import type { SubscriptionOptions } from "./realtime.js";
+import type { SubscriptionOptions } from "./realtime";
 
 export class Subscribe {
   constructor(private sdk: Codex) {}

@@ -7,7 +7,7 @@ import {
   type SubscribePayload,
 } from "graphql-ws";
 
-import { assertEdgeSubscription } from "./edgeSubscription.js";
+import { assertEdgeSubscription } from "./edgeSubscription";
 
 export const DEFAULT_EDGE_REALTIME_URL = "wss://fra.edge.codex.io/graphql";
 

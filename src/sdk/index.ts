@@ -10,7 +10,7 @@ import {
   createRealtimeClient,
   RealtimeClient,
   SubscriptionOptions,
-} from "./realtime.js";
+} from "./realtime";
 import { Subscribe } from "./Subscribe";
 
 export type CleanupFunction = () => void;
