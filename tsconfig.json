@@ -28,7 +28,7 @@
   "include": [
     "src/sdk/**/*.ts",
     "src/index.ts",
-    "src/realtime.ts",
+    "src/edge.ts",
     "!src/sdk/**/*.test.ts"
   ]
 }

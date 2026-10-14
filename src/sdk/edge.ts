@@ -11,14 +11,14 @@ import {
 
 import { assertEdgeSubscription } from "./edgeSubscription";
 
-export const DEFAULT_EDGE_REALTIME_URL = "wss://fra.edge.codex.io/graphql";
+export const DEFAULT_EDGE_URL = "wss://fra.edge.codex.io/graphql";
 
 export interface SubscriptionOptions {
   /** Experimental: deliver supported Processed Solana streams directly from edge. */
   useEdge?: boolean;
 }
 
-export interface RealtimeClient extends Client {
+export interface EdgeClient extends Client {
   /** Observe both transports, or select one with useEdge. */
   on<E extends Event>(
     event: E,
@@ -32,16 +32,14 @@ export interface RealtimeClient extends Client {
   ): () => void;
 }
 
-export interface RealtimeClientOptions extends ClientOptions {
+export interface EdgeClientOptions extends ClientOptions {
   /** Optional infrastructure override; callers select the transport with useEdge. */
   edgeUrl?: string;
 }
 
 /** Lightweight transport shared by Codex and clients with their own GraphQL documents. */
-export function createRealtimeClient(
-  options: RealtimeClientOptions,
-): RealtimeClient {
-  const { edgeUrl = DEFAULT_EDGE_REALTIME_URL, ...wsOptions } = options;
+export function createEdgeClient(options: EdgeClientOptions): EdgeClient {
+  const { edgeUrl = DEFAULT_EDGE_URL, ...wsOptions } = options;
   type EventHandlers = NonNullable<ClientOptions["on"]>;
   const initialHandlers = wsOptions.on ? [wsOptions.on] : [];
   const mainHandlers = new Set<EventHandlers>(initialHandlers);
@@ -77,7 +75,7 @@ export function createRealtimeClient(
       };
     },
     subscribe: (payload, sink, subscriptionOptions = {}) => {
-      if (disposed) throw new Error("Realtime client has been disposed");
+      if (disposed) throw new Error("Edge client has been disposed");
       if (!subscriptionOptions.useEdge) return main.subscribe(payload, sink);
       // Reject before creating an edge client or opening any upstream operation.
       const snapshot: SubscribePayload = JSON.parse(

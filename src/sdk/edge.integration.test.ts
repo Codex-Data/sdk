@@ -4,7 +4,7 @@ import type { AddressInfo } from "node:net";
 import { parseMessage } from "graphql-ws";
 import WebSocket from "isomorphic-ws";
 
-import { createRealtimeClient } from "./realtime";
+import { createEdgeClient } from "./edge";
 
 it("delivers edge and normal results over separate authenticated sockets", async () => {
   const requests: Array<{ source: string; type: string; payload: unknown }> =
@@ -43,7 +43,7 @@ it("delivers edge and normal results over separate authenticated sockets", async
   const urls = servers.map(
     (server) => `ws://127.0.0.1:${(server.address() as AddressInfo).port}`,
   );
-  const client = createRealtimeClient({
+  const client = createEdgeClient({
     url: urls[0],
     edgeUrl: urls[1],
     webSocketImpl: WebSocket,
@@ -139,7 +139,7 @@ it("preserves the validated payload through delayed authentication and retries",
     authenticate = resolve;
   });
   let serializedLevels = 0;
-  const client = createRealtimeClient({
+  const client = createEdgeClient({
     url: "ws://main.example/graphql",
     edgeUrl: edge.url,
     webSocketImpl: WebSocket,
@@ -193,7 +193,7 @@ it("forwards edge events, supports custom pong handling, and terminates both soc
   const edge = await subscriptionServer();
   const configuredConnected = jest.fn();
   let activeSocket: WebSocket;
-  const client = createRealtimeClient({
+  const client = createEdgeClient({
     url: main.url,
     edgeUrl: edge.url,
     webSocketImpl: WebSocket,

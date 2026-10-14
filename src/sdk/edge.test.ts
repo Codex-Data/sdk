@@ -1,9 +1,9 @@
 import { type ClientOptions, createClient } from "graphql-ws";
 
+import { createEdgeClient, DEFAULT_EDGE_URL } from "./edge";
 import { assertEdgeSubscription } from "./edgeSubscription";
 import { EventCommitmentLevel } from "./generated/graphql";
 import { Codex } from "./index";
-import { createRealtimeClient, DEFAULT_EDGE_REALTIME_URL } from "./realtime";
 
 jest.mock("graphql-ws", () => ({ createClient: jest.fn() }));
 
@@ -38,7 +38,7 @@ beforeEach(() => {
 });
 
 it("reuses one edge transport while keeping ordinary subscriptions on the main transport", () => {
-  const client = createRealtimeClient({
+  const client = createEdgeClient({
     url: "wss://main.example/graphql",
     connectionParams: { Authorization: "customer" },
   });
@@ -51,7 +51,7 @@ it("reuses one edge transport while keeping ordinary subscriptions on the main t
   expect(transports).toHaveLength(2);
   expect(transports[0].subscribe).toHaveBeenCalledTimes(2);
   expect(transports[1].subscribe).toHaveBeenCalledTimes(2);
-  expect(transports[1].options.url).toBe(DEFAULT_EDGE_REALTIME_URL);
+  expect(transports[1].options.url).toBe(DEFAULT_EDGE_URL);
   expect(transports[1].options.connectionParams).toEqual({
     Authorization: "customer",
   });
@@ -65,7 +65,7 @@ it("reuses one edge transport while keeping ordinary subscriptions on the main t
 it("uses current connection credentials and infrastructure options on both transports", async () => {
   let token = "first";
   const connectionParams = async () => ({ Authorization: token });
-  const client = createRealtimeClient({
+  const client = createEdgeClient({
     url: "wss://main.example/graphql",
     edgeUrl: "wss://edge.staging.example/graphql",
     connectionParams,
@@ -96,7 +96,7 @@ it.each([
 ])(
   "accepts eligible literal and default-variable subscriptions: %s",
   (query) => {
-    const client = createRealtimeClient({ url: "wss://main.example/graphql" });
+    const client = createEdgeClient({ url: "wss://main.example/graphql" });
     client.subscribe({ query }, sink, { useEdge: true });
     expect(transports[1].subscribe).toHaveBeenCalledTimes(1);
   },
@@ -119,7 +119,7 @@ it.each([
 ])(
   "rejects ineligible variables without sending an operation: %j",
   (override) => {
-    const client = createRealtimeClient({ url: "wss://main.example/graphql" });
+    const client = createEdgeClient({ url: "wss://main.example/graphql" });
     // An empty override exercises missing variables rather than the valid base.
     const values = Object.keys(override).length
       ? { ...variables, ...override }
@@ -146,7 +146,7 @@ it.each([
   `subscription { onEventsCreated(networkId: 1399811149, commitmentLevel: [Processed]) @skip(if: true) { id } }`,
   `subscription { ...Root } fragment Root on Subscription { onEventsCreated(networkId: 1399811149, commitmentLevel: [Processed]) { id } }`,
 ])("rejects ineligible documents: %s", (query) => {
-  const client = createRealtimeClient({ url: "wss://main.example/graphql" });
+  const client = createEdgeClient({ url: "wss://main.example/graphql" });
   expect(() => client.subscribe({ query }, sink, { useEdge: true })).toThrow(
     "useEdge requires",
   );
@@ -154,7 +154,7 @@ it.each([
 });
 
 it("rejects implicit pair quote selection instead of letting edge relay it through Oregon", () => {
-  const client = createRealtimeClient({ url: "wss://main.example/graphql" });
+  const client = createEdgeClient({ url: "wss://main.example/graphql" });
   expect(() =>
     client.subscribe(
       {
@@ -168,7 +168,7 @@ it("rejects implicit pair quote selection instead of letting edge relay it throu
 });
 
 it("validates the selected operation in a multi-operation document", () => {
-  const client = createRealtimeClient({ url: "wss://main.example/graphql" });
+  const client = createEdgeClient({ url: "wss://main.example/graphql" });
   const query = `${events}\nsubscription Other { onPriceUpdated(networkId: 1) { priceUsd } }`;
   client.subscribe({ query, variables, operationName: "Events" }, sink, {
     useEdge: true,
@@ -179,7 +179,7 @@ it("validates the selected operation in a multi-operation document", () => {
 });
 
 it("disposes both transports and prevents subscriptions from recreating them", async () => {
-  const client = createRealtimeClient({ url: "wss://main.example/graphql" });
+  const client = createEdgeClient({ url: "wss://main.example/graphql" });
   client.subscribe({ query: events, variables }, sink, { useEdge: true });
   await client.dispose();
   expect(transports.map(({ dispose }) => dispose.mock.calls.length)).toEqual([
@@ -223,7 +223,7 @@ it("rejects sparse commitment arrays even before wire serialization", () => {
 });
 
 it("validates serialized variables rather than a misleading toJSON value", () => {
-  const client = createRealtimeClient({ url: "wss://main.example/graphql" });
+  const client = createEdgeClient({ url: "wss://main.example/graphql" });
   expect(() =>
     client.subscribe(
       {

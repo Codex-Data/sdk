@@ -3,14 +3,10 @@ import { GraphQLClient, Variables } from "graphql-request";
 import { ExecutionResult, Sink } from "graphql-ws";
 import WebSocket from "isomorphic-ws";
 
+import { createEdgeClient, EdgeClient, SubscriptionOptions } from "./edge";
 import { invariant } from "./invariant";
 import { Mutation } from "./Mutation";
 import { Query } from "./Query";
-import {
-  createRealtimeClient,
-  RealtimeClient,
-  SubscriptionOptions,
-} from "./realtime";
 import { Subscribe } from "./Subscribe";
 
 export type CleanupFunction = () => void;
@@ -23,7 +19,7 @@ export type ApiConfig = {
   apiRealtimeUrl: string;
 
   // Optional deployment override for the edge transport.
-  apiEdgeRealtimeUrl?: string;
+  apiEdgeUrl?: string;
 
   // true if you want to connect a websocket, sometimes useful to turn this off in certain environments
   ws?: boolean;
@@ -49,7 +45,7 @@ const defaultConfig: ApiConfig = {
 
 export class Codex {
   private client: GraphQLClient;
-  private wsClient: RealtimeClient | undefined;
+  private wsClient: EdgeClient | undefined;
   public queries: Query;
   public mutations: Mutation;
   public subscriptions: Subscribe;
@@ -95,11 +91,11 @@ export class Codex {
 
   private createWebsocketClient(config: ApiConfig) {
     return config.ws
-      ? createRealtimeClient({
+      ? createEdgeClient({
           webSocketImpl: WebSocket,
           keepAlive: 10_000, // ping server every 10 seconds
           url: config.apiRealtimeUrl,
-          edgeUrl: config.apiEdgeRealtimeUrl,
+          edgeUrl: config.apiEdgeUrl,
           connectionParams: {
             Authorization: this.apiKey,
             ...config.wsHeaders,

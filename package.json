@@ -14,10 +14,10 @@
       "require": "./dist/index.js"
     },
     "./schema.graphql": "./schema.graphql",
-    "./realtime": {
-      "types": "./dist/realtime.d.ts",
-      "import": "./dist/realtime.mjs",
-      "require": "./dist/realtime.js"
+    "./edge": {
+      "types": "./dist/edge.d.ts",
+      "import": "./dist/edge.mjs",
+      "require": "./dist/edge.js"
     }
   },
   "sideEffects": false,
@@ -50,9 +50,9 @@
     "dist/sdk/",
     "schema.graphql",
     "README.md",
-    "dist/realtime.js",
-    "dist/realtime.mjs",
-    "dist/realtime.d.ts"
+    "dist/edge.js",
+    "dist/edge.mjs",
+    "dist/edge.d.ts"
   ],
   "keywords": [
     "crypto",
