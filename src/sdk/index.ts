@@ -1,9 +1,18 @@
 import { TypedDocumentNode } from "@graphql-typed-document-node/core";
 import { GraphQLClient, Variables } from "graphql-request";
-import { ExecutionResult, Sink } from "graphql-ws";
+import {
+  Client as GraphQLWsClient,
+  createClient,
+  ExecutionResult,
+  Sink,
+} from "graphql-ws";
 import WebSocket from "isomorphic-ws";
 
-import { createEdgeClient, EdgeClient, SubscriptionOptions } from "./edge";
+import {
+  createEdgeClient,
+  prepareEdgeSubscription,
+  SubscriptionOptions,
+} from "./edge";
 import { invariant } from "./invariant";
 import { Mutation } from "./Mutation";
 import { Query } from "./Query";
@@ -45,7 +54,9 @@ const defaultConfig: ApiConfig = {
 
 export class Codex {
   private client: GraphQLClient;
-  private wsClient: EdgeClient | undefined;
+  private wsClient: GraphQLWsClient | undefined;
+  private edgeWsClient: GraphQLWsClient | undefined;
+  private disposed = false;
   public queries: Query;
   public mutations: Mutation;
   public subscriptions: Subscribe;
@@ -89,19 +100,20 @@ export class Codex {
     });
   }
 
+  private websocketOptions(config: ApiConfig) {
+    return {
+      webSocketImpl: WebSocket,
+      keepAlive: 10_000, // ping server every 10 seconds
+      url: config.apiRealtimeUrl,
+      connectionParams: {
+        Authorization: this.apiKey,
+        ...config.wsHeaders,
+      },
+    };
+  }
+
   private createWebsocketClient(config: ApiConfig) {
-    return config.ws
-      ? createEdgeClient({
-          webSocketImpl: WebSocket,
-          keepAlive: 10_000, // ping server every 10 seconds
-          url: config.apiRealtimeUrl,
-          edgeUrl: config.apiEdgeUrl,
-          connectionParams: {
-            Authorization: this.apiKey,
-            ...config.wsHeaders,
-          },
-        })
-      : undefined;
+    return config.ws ? createClient(this.websocketOptions(config)) : undefined;
   }
 
   private async getRequestHeaders() {
@@ -122,7 +134,9 @@ export class Codex {
    */
   public updateConfig(incomingConfig: Partial<ApiConfig>) {
     // If we have an existing websocket connection, dispose of it.
-    if (this.wsClient) void this.dispose();
+    if (this.wsClient || this.edgeWsClient) void this.dispose();
+    this.edgeWsClient = undefined;
+    this.disposed = false;
     this.apiConfig = { ...this.apiConfig, ...incomingConfig };
 
     // Merge the incoming config with the existing config.
@@ -152,7 +166,8 @@ export class Codex {
    * It's useful for when you need to modify some of the configuration, or when you're done with the class.
    */
   public async dispose() {
-    await this.wsClient?.dispose();
+    this.disposed = true;
+    await Promise.all([this.wsClient?.dispose(), this.edgeWsClient?.dispose()]);
   }
 
   /**
@@ -229,14 +244,23 @@ export class Codex {
       throw new Error("Websocket is not enabled in the config");
     }
 
-    const cleanup = this.wsClient.subscribe<TResults>(
-      {
-        query: doc,
-        variables: args,
-      },
-      sink,
-      options,
-    );
-    return cleanup;
+    if (this.disposed) throw new Error("SDK has been disposed");
+    const payload = { query: doc, variables: args };
+    if (!options?.useEdge)
+      return this.wsClient.subscribe<TResults>(payload, sink);
+
+    // Validate before creating the edge transport or starting an operation.
+    const snapshot = prepareEdgeSubscription(payload);
+    if (!this.edgeWsClient) {
+      const config = this.parseConfig(this.apiConfig ?? {});
+      this.edgeWsClient = createEdgeClient({
+        ...this.websocketOptions(config),
+        url: config.apiEdgeUrl,
+      });
+      this.edgeWsClient.on("error", (error) => {
+        console.error("Websocket error: ", error);
+      });
+    }
+    return this.edgeWsClient.subscribe<TResults>(snapshot, sink);
   }
 }

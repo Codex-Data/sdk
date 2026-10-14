@@ -1,6 +1,11 @@
-export { createEdgeClient, DEFAULT_EDGE_URL } from "./sdk/edge";
+export {
+  createClient,
+  createEdgeClient,
+  DEFAULT_EDGE_URL,
+  withEdge,
+} from "./sdk/edge";
 export type {
-  EdgeClient,
+  ClientWithEdge,
   EdgeClientOptions,
   SubscriptionOptions,
 } from "./sdk/edge";

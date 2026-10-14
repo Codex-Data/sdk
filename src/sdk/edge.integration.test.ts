@@ -1,10 +1,15 @@
 import { once } from "node:events";
 import type { AddressInfo } from "node:net";
 
-import { parseMessage } from "graphql-ws";
+import { type ClientOptions, createClient, parseMessage } from "graphql-ws";
 import WebSocket from "isomorphic-ws";
 
-import { createEdgeClient } from "./edge";
+import { withEdge } from "./edge";
+import { Codex } from "./index";
+
+function createClientWithEdge(options: ClientOptions & { edgeUrl?: string }) {
+  return withEdge(createClient(options), options);
+}
 
 it("delivers edge and normal results over separate authenticated sockets", async () => {
   const requests: Array<{ source: string; type: string; payload: unknown }> =
@@ -43,7 +48,7 @@ it("delivers edge and normal results over separate authenticated sockets", async
   const urls = servers.map(
     (server) => `ws://127.0.0.1:${(server.address() as AddressInfo).port}`,
   );
-  const client = createEdgeClient({
+  const client = createClientWithEdge({
     url: urls[0],
     edgeUrl: urls[1],
     webSocketImpl: WebSocket,
@@ -132,6 +137,42 @@ const edgeQuery = `subscription Events($input: OnTokenEventsCreatedInput!, $leve
   onTokenEventsCreated(input: $input, commitmentLevel: $levels) { events { transactionHash } }
 }`;
 
+it("keeps SDK subscriptions on main until a valid edge opt-in and disposes both sockets", async () => {
+  const main = await subscriptionServer();
+  const edge = await subscriptionServer();
+  const sdk = new Codex("customer", {
+    apiRealtimeUrl: main.url,
+    apiEdgeUrl: edge.url,
+  });
+  const variables = { input: { networkId: 1399811149 }, levels: ["Processed"] };
+  const expected = JSON.parse(JSON.stringify({ query: edgeQuery, variables }));
+  const sink = { next: () => {}, error: () => {}, complete: () => {} };
+  try {
+    const mainInit = once(main.server, "init");
+    const mainRequest = once(main.server, "subscription");
+    sdk.subscribe(edgeQuery, variables, sink);
+    expect((await mainInit)[0]).toEqual({ Authorization: "customer" });
+    expect((await mainRequest)[0]).toEqual(expected);
+    expect(edge.server.clients.size).toBe(0);
+    expect(() =>
+      sdk.subscribe(edgeQuery, { ...variables, levels: ["Confirmed"] }, sink, {
+        useEdge: true,
+      }),
+    ).toThrow("useEdge requires");
+    expect(edge.server.clients.size).toBe(0);
+    const edgeInit = once(edge.server, "init");
+    const edgeRequest = once(edge.server, "subscription");
+    sdk.subscribe(edgeQuery, variables, sink, { useEdge: true });
+    variables.input.networkId = 1;
+    variables.levels[0] = "Confirmed";
+    expect((await edgeInit)[0]).toEqual({ Authorization: "customer" });
+    expect((await edgeRequest)[0]).toEqual(expected);
+  } finally {
+    await sdk.dispose();
+    await Promise.all([main.close(), edge.close()]);
+  }
+});
+
 it("preserves the validated payload through delayed authentication and retries", async () => {
   const edge = await subscriptionServer();
   let authenticate!: () => void;
@@ -139,7 +180,7 @@ it("preserves the validated payload through delayed authentication and retries",
     authenticate = resolve;
   });
   let serializedLevels = 0;
-  const client = createEdgeClient({
+  const client = createClientWithEdge({
     url: "ws://main.example/graphql",
     edgeUrl: edge.url,
     webSocketImpl: WebSocket,
@@ -193,7 +234,7 @@ it("forwards edge events, supports custom pong handling, and terminates both soc
   const edge = await subscriptionServer();
   const configuredConnected = jest.fn();
   let activeSocket: WebSocket;
-  const client = createEdgeClient({
+  const client = createClientWithEdge({
     url: main.url,
     edgeUrl: edge.url,
     webSocketImpl: WebSocket,

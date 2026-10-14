@@ -11,6 +11,8 @@ import {
 
 import { assertEdgeSubscription } from "./edgeSubscription";
 
+export { createClient };
+
 export const DEFAULT_EDGE_URL = "wss://fra.edge.codex.io/graphql";
 
 export interface SubscriptionOptions {
@@ -18,7 +20,7 @@ export interface SubscriptionOptions {
   useEdge?: boolean;
 }
 
-export interface EdgeClient extends Client {
+export interface ClientWithEdge extends Client {
   /** Observe both transports, or select one with useEdge. */
   on<E extends Event>(
     event: E,
@@ -32,19 +34,40 @@ export interface EdgeClient extends Client {
   ): () => void;
 }
 
-export interface EdgeClientOptions extends ClientOptions {
-  /** Optional infrastructure override; callers select the transport with useEdge. */
-  edgeUrl?: string;
+export interface EdgeClientOptions extends Omit<ClientOptions, "url"> {
+  /** Defaults to the regional edge endpoint. */
+  url?: ClientOptions["url"];
 }
 
-/** Lightweight transport shared by Codex and clients with their own GraphQL documents. */
-export function createEdgeClient(options: EdgeClientOptions): EdgeClient {
+/** Create a transport that connects only to edge. */
+export function createEdgeClient(options: EdgeClientOptions): Client {
+  return createClient({ ...options, url: options.url ?? DEFAULT_EDGE_URL });
+}
+
+/** Snapshot and validate the arguments that will actually be sent to edge. */
+export function prepareEdgeSubscription(
+  payload: SubscribePayload,
+  replacer?: ClientOptions["jsonMessageReplacer"],
+): SubscribePayload {
+  const snapshot: SubscribePayload = JSON.parse(
+    JSON.stringify(payload, replacer),
+  );
+  assertEdgeSubscription(snapshot);
+  return snapshot;
+}
+
+/** Add per-subscription edge routing to an existing GraphQL client. */
+export function withEdge(
+  main: Client,
+  options: ClientOptions & { edgeUrl?: string },
+): ClientWithEdge {
   const { edgeUrl = DEFAULT_EDGE_URL, ...wsOptions } = options;
   type EventHandlers = NonNullable<ClientOptions["on"]>;
-  const initialHandlers = wsOptions.on ? [wsOptions.on] : [];
-  const mainHandlers = new Set<EventHandlers>(initialHandlers);
-  const edgeHandlers = new Set<EventHandlers>(initialHandlers);
-  const handlersFor = (useEdge: boolean): EventHandlers => {
+  const mainHandlers = new Set<EventHandlers>();
+  const edgeHandlers = new Set<EventHandlers>(
+    wsOptions.on ? [wsOptions.on] : [],
+  );
+  const handlersFor = (useEdge: boolean): Required<EventHandlers> => {
     const handlers = () => Array.from(useEdge ? edgeHandlers : mainHandlers);
     // Install before createClient so even non-lazy connection events are observed.
     return {
@@ -60,7 +83,15 @@ export function createEdgeClient(options: EdgeClientOptions): EdgeClient {
       error: (...args) => handlers().forEach((on) => on?.error?.(...args)),
     };
   };
-  const main = createClient({ ...wsOptions, on: handlersFor(false) });
+  const mainEvents = handlersFor(false);
+  main.on("connecting", mainEvents.connecting);
+  main.on("opened", mainEvents.opened);
+  main.on("connected", mainEvents.connected);
+  main.on("ping", mainEvents.ping);
+  main.on("pong", mainEvents.pong);
+  main.on("message", mainEvents.message);
+  main.on("closed", mainEvents.closed);
+  main.on("error", mainEvents.error);
   let edge: Client | undefined;
   let disposed = false;
   return {
@@ -78,15 +109,15 @@ export function createEdgeClient(options: EdgeClientOptions): EdgeClient {
       if (disposed) throw new Error("Edge client has been disposed");
       if (!subscriptionOptions.useEdge) return main.subscribe(payload, sink);
       // Reject before creating an edge client or opening any upstream operation.
-      const snapshot: SubscribePayload = JSON.parse(
-        JSON.stringify(payload, wsOptions.jsonMessageReplacer),
+      const snapshot = prepareEdgeSubscription(
+        payload,
+        wsOptions.jsonMessageReplacer,
       );
-      assertEdgeSubscription(snapshot);
       if (!edge) {
         // Edge payloads are serialized once, before validation. Preserve custom
         // serialization for handshakes without transforming subscriptions again.
         let subscriptionMessage = false;
-        edge = createClient({
+        edge = createEdgeClient({
           ...wsOptions,
           url: edgeUrl,
           on: handlersFor(true),
