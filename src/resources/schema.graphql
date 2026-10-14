@@ -13493,6 +13493,23 @@ type TokenExtensions {
   token2022: Token2022Extensions
   """Base B20 extension metadata."""
   b20: B20Extensions
+  """Robinhood Chain stock token (tokenized equity) metadata."""
+  robinhoodStockToken: RobinhoodStockTokenExtensions
+}
+
+type RobinhoodStockTokenExtensions {
+  """Robinhood's cross-chain asset id for the underlying equity."""
+  uid: String!
+  """Multiplier in effect now, as a decimal string (e.g. "4.0" after a 4:1 split). Already reflects `newMultiplier` once `newMultiplierEffectiveAt` has passed."""
+  multiplier: String
+  """Unix-seconds timestamp when the multiplier was last read from chain by us."""
+  multiplierObservedAt: String
+  """Multiplier scheduled by a corporate action, as a decimal string. Stays set after it takes effect until our next read from chain."""
+  newMultiplier: String
+  """Unix-seconds timestamp when `newMultiplier` takes effect."""
+  newMultiplierEffectiveAt: String
+  """Whether the token's price oracle is paused."""
+  oraclePaused: Boolean
 }
 
 type B20Extensions {
