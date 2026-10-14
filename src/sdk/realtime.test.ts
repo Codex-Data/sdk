@@ -1,5 +1,6 @@
 import { type ClientOptions, createClient } from "graphql-ws";
 
+import { assertEdgeSubscription } from "./edgeSubscription";
 import { EventCommitmentLevel } from "./generated/graphql";
 import { Codex } from "./index";
 import { createRealtimeClient, DEFAULT_EDGE_REALTIME_URL } from "./realtime";
@@ -106,6 +107,8 @@ it.each([
   { levels: undefined },
   { levels: null },
   { levels: [] },
+  { levels: new Array(1) },
+  { levels: Object.assign(new Array(2), { 0: "Processed" }) },
   { levels: ["Confirmed"] },
   { levels: ["Preprocessed"] },
   { levels: ["Processed", "Confirmed"] },
@@ -208,4 +211,31 @@ it("routes both raw and generated SDK subscriptions through useEdge", async () =
   expect(transports[1].dispose).toHaveBeenCalledTimes(1);
   await sdk.dispose();
   expect(transports[3].dispose).toHaveBeenCalledTimes(1);
+});
+
+it("rejects sparse commitment arrays even before wire serialization", () => {
+  expect(() =>
+    assertEdgeSubscription({
+      query: events,
+      variables: { ...variables, levels: new Array(1) },
+    }),
+  ).toThrow("useEdge requires");
+});
+
+it("validates serialized variables rather than a misleading toJSON value", () => {
+  const client = createRealtimeClient({ url: "wss://main.example/graphql" });
+  expect(() =>
+    client.subscribe(
+      {
+        query: events,
+        variables: {
+          ...variables,
+          toJSON: () => ({ ...variables, levels: ["Confirmed"] }),
+        },
+      },
+      sink,
+      { useEdge: true },
+    ),
+  ).toThrow("useEdge requires");
+  expect(transports).toHaveLength(1);
 });

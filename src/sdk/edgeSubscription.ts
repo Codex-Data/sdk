@@ -47,7 +47,8 @@ export function assertEdgeSubscription(payload: SubscribePayload): void {
   const levels = Array.isArray(args.commitmentLevel)
     ? args.commitmentLevel
     : [args.commitmentLevel];
-  if (!levels.length || levels.some((level) => level !== "Processed")) fail();
+  if (!levels.length || [...levels].some((level) => level !== "Processed"))
+    fail();
 
   const networks: unknown[] = [];
   const collect = (value: unknown): void => {
