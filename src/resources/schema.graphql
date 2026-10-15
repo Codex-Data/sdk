@@ -1029,7 +1029,7 @@ type Subscription {
   onBarsUpdated(
     """The ID of the pair (`address`:`networkId`)."""
     pairId: String
-    """The commitment levels to subscribe to."""
+    """The commitment levels to subscribe to. Preprocessed is deprecated because edge node performance improvements have made it unnecessary. Use Processed instead."""
     commitmentLevel: [BarCommitmentLevel!]
     """The token of interest within the pair. Can be `token0` or `token1`."""
     quoteToken: QuoteToken
@@ -1045,7 +1045,7 @@ type Subscription {
   onTokenBarsUpdated(
     """The ID of the token (`address`:`networkId`). Required unless you are on an enterprise plan including BarFeed features."""
     tokenId: String
-    """The commitment levels to subscribe to."""
+    """The commitment levels to subscribe to. Preprocessed is deprecated because edge node performance improvements have made it unnecessary. Use Processed instead."""
     commitmentLevel: [BarCommitmentLevel!]
     """The networkId to use when getting all bars per network."""
     networkId: Int
@@ -1056,7 +1056,7 @@ type Subscription {
     address: String
     """The ID of the pair (`address`:`networkId`). Required unless you are on an enterprise plan including EventFeed features."""
     id: String
-    """The commitment levels to subscribe to. When multiple commitment levels are subscribed to, events are emitted at most once per increasing commitment stage per subscriber. If a stronger commitment level is observed first, later weaker updates for the same event are suppressed for a short in-memory window. Preprocessed is supported only for Solana event subscriptions. Preprocessed evaluates pre-execution events and can differ significantly from processed or confirmed output. In particular, preprocessed swaps may use aggregator swaps before it is known how execution will route the underlying swaps, and many preprocessed events may error and never be processed."""
+    """The commitment levels to subscribe to. When multiple commitment levels are subscribed to, events are emitted at most once per increasing commitment stage per subscriber. If a stronger commitment level is observed first, later weaker updates for the same event are suppressed for a short in-memory window. Preprocessed is deprecated because edge node performance improvements have made it unnecessary. Use Processed instead. Preprocessed is supported only for Solana event subscriptions. Preprocessed evaluates pre-execution events and can differ significantly from processed or confirmed output. In particular, preprocessed swaps may use aggregator swaps before it is known how execution will route the underlying swaps, and many preprocessed events may error and never be processed."""
     commitmentLevel: [EventCommitmentLevel!]
     """The token of interest within the pair. Can be `token0` or `token1`."""
     quoteToken: QuoteToken
@@ -1066,7 +1066,7 @@ type Subscription {
   """Live-streamed transactions for a maker."""
   onEventsCreatedByMaker(
     input: OnEventsCreatedByMakerInput!
-    """The commitment levels to subscribe to. When multiple commitment levels are subscribed to, events are emitted at most once per increasing commitment stage per subscriber. If a stronger commitment level is observed first, later weaker updates for the same event are suppressed for a short in-memory window. Preprocessed is supported only for Solana event subscriptions. Preprocessed evaluates pre-execution events and can differ significantly from processed or confirmed output. In particular, preprocessed swaps may use aggregator swaps before it is known how execution will route the underlying swaps, and many preprocessed events may error and never be processed."""
+    """The commitment levels to subscribe to. When multiple commitment levels are subscribed to, events are emitted at most once per increasing commitment stage per subscriber. If a stronger commitment level is observed first, later weaker updates for the same event are suppressed for a short in-memory window. Preprocessed is deprecated because edge node performance improvements have made it unnecessary. Use Processed instead. Preprocessed is supported only for Solana event subscriptions. Preprocessed evaluates pre-execution events and can differ significantly from processed or confirmed output. In particular, preprocessed swaps may use aggregator swaps before it is known how execution will route the underlying swaps, and many preprocessed events may error and never be processed."""
     commitmentLevel: [EventCommitmentLevel!]
   ): AddEventsByMakerOutput
   """Deprecated unconfirmed live-streamed transactions for a token. Use `onEventsCreated` instead. (Solana only)"""
@@ -1171,7 +1171,7 @@ type Subscription {
   """Live-streamed events for a given token across all it's pools"""
   onTokenEventsCreated(
     input: OnTokenEventsCreatedInput!
-    """The commitment levels to subscribe to. When multiple commitment levels are subscribed to, events are emitted at most once per increasing commitment stage per subscriber. If a stronger commitment level is observed first, later weaker updates for the same event are suppressed for a short in-memory window. Preprocessed is supported only for Solana event subscriptions. Preprocessed evaluates pre-execution events and can differ significantly from processed or confirmed output. In particular, preprocessed swaps may use aggregator swaps before it is known how execution will route the underlying swaps, and many preprocessed events may error and never be processed."""
+    """The commitment levels to subscribe to. When multiple commitment levels are subscribed to, events are emitted at most once per increasing commitment stage per subscriber. If a stronger commitment level is observed first, later weaker updates for the same event are suppressed for a short in-memory window. Preprocessed is deprecated because edge node performance improvements have made it unnecessary. Use Processed instead. Preprocessed is supported only for Solana event subscriptions. Preprocessed evaluates pre-execution events and can differ significantly from processed or confirmed output. In particular, preprocessed swaps may use aggregator swaps before it is known how execution will route the underlying swaps, and many preprocessed events may error and never be processed."""
     commitmentLevel: [EventCommitmentLevel!]
   ): AddTokenEventsOutput!
   """Live-streamed list of wallets that hold a given token. Also has the unique count of holders for that token."""
@@ -10949,16 +10949,16 @@ enum EventType {
   LiquidityLock
 }
 
-"""The commitment level of a streamed event - only Solana and Base support values other than Confirmed. Processed returns Base Flashblocks. Preprocessed is Solana-only."""
+"""The commitment level of a streamed event - only Solana and Base support values other than Confirmed. Processed returns Base Flashblocks. Preprocessed is Solana-only and deprecated because edge node performance improvements have made it unnecessary. Use Processed instead."""
 enum EventCommitmentLevel {
-  Preprocessed
+  Preprocessed @deprecated(reason: "Edge node performance improvements have made Preprocessed unnecessary. Use Processed instead.")
   Processed
   Confirmed
 }
 
-"""The commitment level of a streamed bar update - only Solana and Base support values other than Confirmed. Processed returns Base Flashblocks. Preprocessed is Solana-only."""
+"""The commitment level of a streamed bar update - only Solana and Base support values other than Confirmed. Processed returns Base Flashblocks. Preprocessed is Solana-only and deprecated because edge node performance improvements have made it unnecessary. Use Processed instead."""
 enum BarCommitmentLevel {
-  Preprocessed
+  Preprocessed @deprecated(reason: "Edge node performance improvements have made Preprocessed unnecessary. Use Processed instead.")
   Processed
   Confirmed
 }
