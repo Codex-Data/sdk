@@ -1,6 +1,6 @@
 {
   "name": "@codex-data/sdk",
-  "version": "2.4.2",
+  "version": "2.4.3",
   "engines": {
     "node": ">=17.5.0"
   },
@@ -25,10 +25,11 @@
     "prebuild": "pnpm run clean && pnpm run generate:configs",
     "clean": "rm -rf dist dist-esm",
     "build": "pnpm run copy:schema && pnpm run generate:graphql && pnpm run build:sdk && pnpm run codegen && pnpm run lint ./src/sdk --fix && pnpm run build:types",
-    "build:types": "pnpm run build:cjs && pnpm run build:esm && pnpm run build:rename-esm",
+    "build:types": "pnpm run build:cjs && pnpm run build:esm && pnpm run build:rename-esm && pnpm run build:edge",
     "build:cjs": "tsc",
     "build:esm": "tsc -p tsconfig.esm.json",
     "build:rename-esm": "find dist-esm -name '*.js' -exec sh -c 'mv \"$1\" \"${1%.js}.mjs\"' _ {} \\; && cp -r dist-esm/* dist/ && rm -rf dist-esm",
+    "build:edge": "esbuild src/edge.ts --bundle --format=esm --platform=neutral --packages=external --target=es2020 --outfile=dist/edge.mjs",
     "fetch:schema": "curl -s https://graph.codex.io/schema/latest.graphql --output src/resources/schema.graphql && cp src/resources/schema.graphql schema.graphql",
     "copy:schema": "cp src/resources/schema.graphql schema.graphql",
     "schema:diff": "tsx src/scripts/schemaDiff.ts",
@@ -37,7 +38,7 @@
     "build:sdk": "tsx src/scripts/buildSdk.ts",
     "codegen": "graphql-codegen --config codegen.ts",
     "lint": "eslint --ext .ts src",
-    "test": "jest",
+    "test": "pnpm run build:types && jest",
     "format": "prettier --write .",
     "prepublishOnly": "pnpm run build",
     "publish:beta": "pnpm publish --tag beta --access public",
@@ -92,6 +93,7 @@
     "chalk": "^4.1.2",
     "cli-spinners": "^2.9.2",
     "dotenv": "^16.4.5",
+    "esbuild": "^0.25.12",
     "eslint": "^8.50.0",
     "eslint-config-prettier": "^9.0.0",
     "eslint-plugin-import": "^2.28.1",
