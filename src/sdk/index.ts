@@ -8,6 +8,11 @@ import {
 } from "graphql-ws";
 import WebSocket from "isomorphic-ws";
 
+import {
+  createEdgeClient,
+  prepareEdgeSubscription,
+  SubscriptionOptions,
+} from "./edge";
 import { invariant } from "./invariant";
 import { Mutation } from "./Mutation";
 import { Query } from "./Query";
@@ -21,6 +26,9 @@ export type ApiConfig = {
 
   // wss://graph.codex.io/graphql
   apiRealtimeUrl: string;
+
+  // Optional deployment override for the edge transport.
+  apiEdgeUrl?: string;
 
   // true if you want to connect a websocket, sometimes useful to turn this off in certain environments
   ws?: boolean;
@@ -47,6 +55,8 @@ const defaultConfig: ApiConfig = {
 export class Codex {
   private client: GraphQLClient;
   private wsClient: GraphQLWsClient | undefined;
+  private edgeWsClient: GraphQLWsClient | undefined;
+  private disposed = false;
   public queries: Query;
   public mutations: Mutation;
   public subscriptions: Subscribe;
@@ -90,18 +100,20 @@ export class Codex {
     });
   }
 
+  private websocketOptions(config: ApiConfig) {
+    return {
+      webSocketImpl: WebSocket,
+      keepAlive: 10_000, // ping server every 10 seconds
+      url: config.apiRealtimeUrl,
+      connectionParams: {
+        Authorization: this.apiKey,
+        ...config.wsHeaders,
+      },
+    };
+  }
+
   private createWebsocketClient(config: ApiConfig) {
-    return config.ws
-      ? createClient({
-          webSocketImpl: WebSocket,
-          keepAlive: 10_000, // ping server every 10 seconds
-          url: config.apiRealtimeUrl,
-          connectionParams: {
-            Authorization: this.apiKey,
-            ...config.wsHeaders,
-          },
-        })
-      : undefined;
+    return config.ws ? createClient(this.websocketOptions(config)) : undefined;
   }
 
   private async getRequestHeaders() {
@@ -122,7 +134,10 @@ export class Codex {
    */
   public updateConfig(incomingConfig: Partial<ApiConfig>) {
     // If we have an existing websocket connection, dispose of it.
-    if (this.wsClient) this.dispose();
+    if (this.wsClient || this.edgeWsClient) void this.dispose();
+    this.edgeWsClient = undefined;
+    this.disposed = false;
+    this.apiConfig = { ...this.apiConfig, ...incomingConfig };
 
     // Merge the incoming config with the existing config.
     const config = this.parseConfig(
@@ -151,7 +166,8 @@ export class Codex {
    * It's useful for when you need to modify some of the configuration, or when you're done with the class.
    */
   public async dispose() {
-    this.wsClient?.dispose();
+    this.disposed = true;
+    await Promise.all([this.wsClient?.dispose(), this.edgeWsClient?.dispose()]);
   }
 
   /**
@@ -222,18 +238,29 @@ export class Codex {
     doc: string,
     args: TVars,
     sink: Sink<ExecutionResult<TResults>>,
+    options?: SubscriptionOptions,
   ): CleanupFunction {
     if (!this.wsClient) {
       throw new Error("Websocket is not enabled in the config");
     }
 
-    const cleanup = this.wsClient.subscribe<TResults>(
-      {
-        query: doc,
-        variables: args,
-      },
-      sink,
-    );
-    return cleanup;
+    if (this.disposed) throw new Error("SDK has been disposed");
+    const payload = { query: doc, variables: args };
+    if (!options?.useEdge)
+      return this.wsClient.subscribe<TResults>(payload, sink);
+
+    // Validate before creating the edge transport or starting an operation.
+    const snapshot = prepareEdgeSubscription(payload);
+    if (!this.edgeWsClient) {
+      const config = this.parseConfig(this.apiConfig ?? {});
+      this.edgeWsClient = createEdgeClient({
+        ...this.websocketOptions(config),
+        url: config.apiEdgeUrl,
+      });
+      this.edgeWsClient.on("error", (error) => {
+        console.error("Websocket error: ", error);
+      });
+    }
+    return this.edgeWsClient.subscribe<TResults>(snapshot, sink);
   }
 }

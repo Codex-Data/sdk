@@ -1,6 +1,6 @@
 {
   "name": "@codex-data/sdk",
-  "version": "2.3.81",
+  "version": "2.4.0",
   "engines": {
     "node": ">=17.5.0"
   },
@@ -13,7 +13,12 @@
       "import": "./dist/index.mjs",
       "require": "./dist/index.js"
     },
-    "./schema.graphql": "./schema.graphql"
+    "./schema.graphql": "./schema.graphql",
+    "./edge": {
+      "types": "./dist/edge.d.ts",
+      "import": "./dist/edge.mjs",
+      "require": "./dist/edge.js"
+    }
   },
   "sideEffects": false,
   "scripts": {
@@ -44,7 +49,10 @@
     "dist/index.d.ts",
     "dist/sdk/",
     "schema.graphql",
-    "README.md"
+    "README.md",
+    "dist/edge.js",
+    "dist/edge.mjs",
+    "dist/edge.d.ts"
   ],
   "keywords": [
     "crypto",
