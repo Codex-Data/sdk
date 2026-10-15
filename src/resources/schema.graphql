@@ -9193,7 +9193,7 @@ type Price {
   priceUsd: Float!
   """The pool that emitted the swap generating this price"""
   blockNumber: Int
-  """The token's liquidity in USD. On networks where the real-money total is enabled, this is `totalLiquidityUsd` from `filterTokens`: the combined liquidity of its 15 deepest pools, leaving out pools with no trade in the last 7 days, where each pool counts only the real money the token can reach in one or two trades into the network's pricing reference tokens (such as its main stablecoins), with each route counted once. Elsewhere, or until that total is computed for the token, it is the token's route-backed liquidity, summed across its pairs with valid routing liquidity. Null when this stat has not been computed for the token yet. Not available via subscription."""
+  """The token's liquidity in USD. On networks where the real-money total is enabled, this is `totalLiquidityUsd` from `filterTokens`: the combined liquidity of its 15 deepest pools, leaving out pools with no trade in the last 7 days, where each pool counts only the real money the token can reach in one or two trades into the network's pricing reference tokens (such as its main stablecoins), with each route counted once. Elsewhere, or until that total is computed for the token, it is the token's route-backed liquidity, summed across its pairs with valid routing liquidity. Null when this stat has not been computed for the token yet. On subscriptions it is the `totalLiquidityUsd` value only, refreshed at most every 30 seconds, and null on networks where the real-money total is not enabled."""
   liquidityUsd: String
   """The percent price change in the past 24 hours. Decimal format. Not available via subscription."""
   priceChange24: Float
@@ -9340,9 +9340,9 @@ type TokenFilterResult {
   high24: String
   """The highest price in USD in the past 4 hours."""
   high4: String
-  """Amount of liquidity in the token's top pair. With `useAggregatedStats`, on networks where the real-money total is enabled, this is the same value as `totalLiquidityUsd` once the token has one; on other networks it is the token's aggregated liquidity. The value is recomputed when the token trades, so a token with no trade since this definition last changed keeps its previous value."""
+  """The token's liquidity in USD. On networks where the real-money total is enabled, this is the same value as `totalLiquidityUsd` (the combined liquidity of its 15 deepest pools) once the token has one. On other networks it is the liquidity of the token's top pair, or with `useAggregatedStats` the token's aggregated liquidity. The value is recomputed when the token trades, so a token with no trade since this definition last changed keeps its previous value."""
   liquidity: String
-  """The token's total liquidity in USD: the combined liquidity of its 15 deepest pools, leaving out pools with no trade in the last 7 days. On networks where the real-money total is enabled, each pool counts only the real money behind it: what the token can reach in one or two trades into the network's pricing reference tokens (such as its main stablecoins), with each route counted once. Distinct from `liquidity`, which covers the top pair only, except with `useAggregatedStats` on networks where the real-money total is enabled, where the two are the same value. The value is recomputed when the token trades, so a token with no trade since this definition last changed keeps its previous value. Null when this stat has not been computed for the token yet."""
+  """The token's total liquidity in USD: the combined liquidity of its 15 deepest pools, leaving out pools with no trade in the last 7 days. On networks where the real-money total is enabled, each pool counts only the real money behind it: what the token can reach in one or two trades into the network's pricing reference tokens (such as its main stablecoins), with each route counted once. On networks where the real-money total is enabled, `liquidity` is the same value; elsewhere `liquidity` covers the top pair only (or the aggregated liquidity with `useAggregatedStats`). The value is recomputed when the token trades, so a token with no trade since this definition last changed keeps its previous value. Null when this stat has not been computed for the token yet."""
   totalLiquidityUsd: String
   """The token of interest. Can be `token0` or `token1`."""
   quoteToken: String
@@ -9364,7 +9364,7 @@ type TokenFilterResult {
   pair: Pair
   """Metadata for the token's most liquid pair"""
   liquidPair: Pair
-  """The liquidity of the token's most liquid pair"""
+  """The liquidity of the token's most liquid pair. On networks where the real-money total is enabled, this is the same value as `totalLiquidityUsd` (the combined liquidity of the token's 15 deepest pools) once the token has one. The value is recomputed when the token trades."""
   liquidPairLiquidity: String
   """The liquid pairs price in USD."""
   liquidPairPriceUSD: String
@@ -13016,9 +13016,9 @@ input TokenFilters {
   high24: NumberFilter
   """The highest price in USD in the past 4 hours."""
   high4: NumberFilter
-  """The amount of liquidity in the token's top pair. With `useAggregatedStats`, on networks where the real-money total is enabled, this filters on the same value as `totalLiquidityUsd` once the token has one; on other networks it filters on the token's aggregated liquidity."""
+  """The token's liquidity in USD. On networks where the real-money total is enabled, this filters on the same value as `totalLiquidityUsd` (the combined liquidity of its 15 deepest pools) once the token has one. On other networks it filters on the liquidity of the token's top pair, or with `useAggregatedStats` the token's aggregated liquidity."""
   liquidity: NumberFilter
-  """The token's total liquidity in USD: the combined liquidity of its 15 deepest pools, leaving out pools with no trade in the last 7 days. On networks where the real-money total is enabled, each pool counts only the real money behind it: what the token can reach in one or two trades into the network's pricing reference tokens (such as its main stablecoins), with each route counted once. Distinct from `liquidity`, which covers the top pair only, except with `useAggregatedStats` on networks where the real-money total is enabled, where the two are the same value."""
+  """The token's total liquidity in USD: the combined liquidity of its 15 deepest pools, leaving out pools with no trade in the last 7 days. On networks where the real-money total is enabled, each pool counts only the real money behind it: what the token can reach in one or two trades into the network's pricing reference tokens (such as its main stablecoins), with each route counted once. On networks where the real-money total is enabled, `liquidity` is the same value; elsewhere `liquidity` covers the top pair only (or the aggregated liquidity with `useAggregatedStats`)."""
   totalLiquidityUsd: NumberFilter
   """The lowest price in USD in the past hour."""
   low1: NumberFilter
@@ -13315,7 +13315,7 @@ type TokenWithMetadata {
   exchanges: [Exchange!]!
   """The ID of the token (`address:networkId`). For example, `0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2:1`."""
   id: String!
-  """The total liquidity of the token's top pair in USD."""
+  """The token's liquidity in USD. On networks where the real-money total is enabled, this is the same value as `totalLiquidityUsd` from `filterTokens` (the combined liquidity of the token's 15 deepest pools) once the token has one; elsewhere it is the total liquidity of the token's top pair. The value is recomputed when the token trades."""
   liquidity: String!
   """The name of the token."""
   name: String!
@@ -15722,7 +15722,7 @@ type LiquidityMetadataByToken {
   tokenAddress: String!
   """The network ID the token is deployed on."""
   networkId: Int!
-  """The total liquidity in USD."""
+  """The token's total liquidity in USD. On networks where the real-money total is enabled, this is `totalLiquidityUsd` from `filterTokens` (the combined liquidity of its 15 deepest pools) once the token has one; elsewhere, or until then, it is the value of the token's own side across the pairs below at its current price. `lockedLiquidityPercentage` is always measured across the pairs below, not against this figure."""
   totalLiquidityUsd: String!
   """The locked liquidity in USD."""
   lockedLiquidityUsd: String!
