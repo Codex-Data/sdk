@@ -11366,6 +11366,18 @@ input BalancesInput {
   sortDirection: RankingDirection
   """Controls how uiBalance is expressed. SCALED returns the Token-2022 stored RPC UI amount, and multiplies B20 balances by their active multiplier. RAW removes the active Token-2022 UI amount multiplier and returns B20 balances unchanged. Defaults to SCALED."""
   uiAmountMode: UiAmountMode
+  """Keeps only holdings that match every filter set. A filtered page reads at most 600 of the wallet's holdings, so it can return fewer than `limit` results, or none, while `cursor` is still set; keep paging until `cursor` is null. Reuse a cursor only with the same `filters`. With `tokens`, name at most 200 token IDs across `networks`."""
+  filters: BalanceFilters
+}
+
+"""Filters for `balances`. Bounds can't be negative, and a range can't be empty."""
+input BalanceFilters {
+  """Keeps holdings whose `balanceUsd` is in range. Requires `sortBy: USD_VALUE` unless `tokens` is passed. A holding with no `balanceUsd` never matches."""
+  balanceUsd: NumberFilter
+  """Keeps holdings whose `liquidityUsd` is in range. A holding with no `liquidityUsd` never matches, except native balances, which always match."""
+  liquidityUsd: NumberFilter
+  """Keeps holdings that have a `tokenPriceUsd` when true, or that have none when false."""
+  hasPrice: Boolean
 }
 
 """Wallet balance of a token."""
