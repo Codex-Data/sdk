@@ -8,17 +8,19 @@ on:
 jobs:
   publish:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
     env:
       CODEX_API_KEY: ${{ secrets.CODEX_API_KEY }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 24
           registry-url: "https://registry.npmjs.org"
       - uses: pnpm/action-setup@v4
       - run: pnpm install --frozen-lockfile
       - run: pnpm run build
-      - run: pnpm publish --access public --no-git-checks
-        env:
-          NODE_AUTH_TOKEN: ${{secrets.CODEX_SDK_NPM_TOKEN}}
+      # Trusted Publishing (OIDC) needs npm >= 11.5.1; Node 24 ships with it.
+      - run: npm publish --access public
