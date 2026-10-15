@@ -4,6 +4,7 @@ on:
   push:
     tags:
       - "v*"
+  workflow_dispatch:
 
 jobs:
   publish:
@@ -23,4 +24,5 @@ jobs:
       - run: pnpm install --frozen-lockfile
       - run: pnpm run build
       # Trusted Publishing (OIDC) needs npm >= 11.5.1; Node 24 ships with it.
-      - run: npm publish --access public
+      - run: npm -v
+      - run: npm publish --access public --loglevel silly
