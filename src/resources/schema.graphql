@@ -12711,6 +12711,10 @@ type PairFilterResult {
   riskCoverage: RiskAnalysisCoverage
   """The reason codes behind `riskVerdict`, unordered. New codes are added over time, so do not assume this list is exhaustive."""
   riskReasons: [RiskReasonCode!]
+  """Buy tax of the pair's token of interest, measured by the latest decisive contract analysis, as a fraction (0.05 means 5%). Null when no decisive analysis measured it."""
+  riskBuyTax: Float
+  """Sell tax of the pair's token of interest, measured by the latest decisive contract analysis, as a fraction (0.05 means 5%). Null when no decisive analysis measured it, including when that analysis found a honeypot: its test sale failed, so no sell tax was measured."""
+  riskSellTax: Float
 }
 
 """The app a trade was placed through — a trading terminal, wallet, or interface — as distinct from the exchange it settled on."""
@@ -13411,6 +13415,10 @@ type TokenRisk {
   coverage: RiskAnalysisCoverage
   """The reason codes behind the verdict, unordered. Empty when nothing fired; null when unassessed. New codes are added over time, so do not assume this list is exhaustive or that a familiar set is the whole picture."""
   reasons: [RiskReasonCode!]
+  """Buy tax measured by the latest decisive contract analysis, as a fraction (0.05 means 5%). Can be newer than `verdict`, which updates on the next assessment. Null when no decisive analysis measured it."""
+  buyTax: Float
+  """Sell tax measured by the latest decisive contract analysis, as a fraction (0.05 means 5%). Can be newer than `verdict`, which updates on the next assessment. Null when no decisive analysis measured it, including when that analysis found a honeypot: its test sale failed, so no sell tax was measured."""
+  sellTax: Float
 }
 
 """A token's risk verdict. These values are not an ordered safety scale: `SCAM` and `VERIFIED` are terminal states reached by mechanical proof or a human decision, while `HIGH_RISK`, `CAUTION` and `NEUTRAL` are graded outcomes of weighted signals."""
