@@ -9286,6 +9286,8 @@ type EnhancedToken {
   categories: [Category!]
   """Codex's unified risk assessment for this token — one verdict, the score behind it, how much analysis stood behind that score, and the reasons that fired. Read `coverage` before trusting `verdict`."""
   risk: TokenRisk
+  """The issuer of a real-world-asset token, such as a tokenized stock. Null when the token has no known issuer."""
+  issuer: TokenIssuer
 }
 
 """A token matching a set of filter parameters."""
@@ -13399,6 +13401,14 @@ type TokenWithMetadata {
   createdAt: Int
   """The unix timestamp for the token's last transaction."""
   lastTransaction: Int
+}
+
+"""The issuer of a real-world-asset token."""
+type TokenIssuer {
+  """Stable identifier for the issuer, e.g. `ondo-global-markets`. Safe to key on."""
+  id: String!
+  """Human-readable name for the issuer, e.g. `Ondo Global Markets`. Null if the identifier has no registry entry yet."""
+  displayName: String
 }
 
 """Codex's unified risk assessment for a token. `verdict` is not a safety guarantee. `VERIFIED` means a human marked the token not-a-scam — a moderator judgement, not an allowlist — and `NEUTRAL` means the weighted score is below the caution threshold. Reasons can still be present on a neutral assessment. Neither says a token is safe to trade, and a clean assessment cannot see an un-armed trap (owner-pausable, blacklist-after-N-txs, upgradeable proxy). Read `coverage` before trusting anything else: `NOT_ANALYZED` means no contract analysis stands behind this verdict. Null fields indicate unavailable or inapplicable results as described below; they never mean "safe"."""
