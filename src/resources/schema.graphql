@@ -1181,9 +1181,13 @@ type Subscription {
     """The network ID to stream holder updates for every token on. Used only when `tokenId` is omitted."""
     networkId: Int
   ): HoldersUpdate
-  """Live-streamed balance updates for a given wallet."""
+  """Live-streamed balance updates for a given wallet. Updates left out by `networks` or `excludeTokens` are not charged."""
   onBalanceUpdated(
     walletAddress: String!
+    """Only send updates on these network IDs. Defaults to every network."""
+    networks: [Int!]
+    """Token addresses or IDs (`address:networkId`) to leave out. Use `native` for native balances, or `native:&lt;networkId&gt;` for one network's. Max 200."""
+    excludeTokens: [String!]
   ): Balance!
   """Live-streamed token lifecycle events (mints and burns)."""
   onTokenLifecycleEventsCreated(
