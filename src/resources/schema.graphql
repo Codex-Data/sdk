@@ -807,6 +807,11 @@ type Query {
     """A list of token ID input."""
     ids: [TokenInput!]
   ): [EnhancedToken]!
+  """Returns pairs by their IDs (`address:networkId`, or `poolId:networkId` for singleton pools such as Uniswap V4), in request order, with `null` for an ID that is not a known pair. Unlike `filterPairs(pairs:)`, a token address is never expanded into its top pairs. At most 200 IDs."""
+  pairs(
+    """A list of pair IDs (`address:networkId`)."""
+    ids: [String!]!
+  ): [Pair]!
   """Returns metadata for a pair of tokens."""
   pairMetadata(
     """The ID of the pair (`address:networkId`)."""
@@ -3936,9 +3941,9 @@ input NftContractInput {
 
 """Input type of `EventQueryTimestamp`."""
 input EventQueryTimestampInput {
-  """The unix timestamp for the start of the requested range."""
+  """The unix timestamp for the start of the requested range (inclusive)."""
   from: Int!
-  """The unix timestamp for the end of the requested range."""
+  """The unix timestamp for the end of the requested range (inclusive). For `getTokenEvents`, `to` may equal `from` to select one second."""
   to: Int!
 }
 
@@ -11294,6 +11299,8 @@ input EventsQueryInput {
   symbolType: SymbolType
   """When `true`, return the token's latest events across ALL of its pools instead of only its top pool. Requires `symbolType: TOKEN`, rejects `quoteToken`, and issues cursors that are not interchangeable with top-pool cursors. Slower. Available on the DEFINED plan only. Defaults to `false`."""
   crossPools: Boolean
+  """Only return events from this transaction (exact match; EVM hashes are matched case-insensitively). Applied inside the pair and time range scan, so pass the block timestamp as `timestamp { from, to }` (an equal `from` and `to` is inclusive) to keep the scan small."""
+  transactionHash: String
 }
 
 input MakerEventsQueryInput {
@@ -15540,6 +15547,8 @@ enum WalletLabel {
   CEX
   """Decentralized exchange wallet."""
   DEX
+  """Skilled trader with $25k+ net profit over a year, a record chance rarely produces, and a 60%+ win rate. Recomputed weekly on Solana, Robinhood, Ethereum, BSC and Base."""
+  ELITE_TRADER
   """Project founder wallet."""
   FOUNDER
   """Exploited a contract."""
@@ -15564,10 +15573,12 @@ enum WalletLabel {
   SANCTIONED
   """Wallet behind token scams: a serial rug deployer, its launch crew, or a honeypot creator. Its confidence is `scammerScore`."""
   SCAMMER
+  """Skilled trader with $5k+ net profit over a year and a record chance rarely produces. Recomputed weekly on Solana, Robinhood, Ethereum, BSC and Base."""
+  SMART_TRADER
   """Wallet has made over $7.5K profit in the last 90 days trading tokens that are older than 2 days."""
-  SMART_TRADER_TOKENS_OVER_TWO_DAYS_OLD
+  SMART_TRADER_TOKENS_OVER_TWO_DAYS_OLD @deprecated(reason: "Use ELITE_TRADER or SMART_TRADER, which test that the profit isn't luck. Still written while both run side by side; it will be removed.")
   """Wallet has made over $5K profit in the last 90 days trading tokens that are between 1 hour and 2 days old."""
-  SMART_TRADER_TOKENS_UNDER_TWO_DAYS_OLD
+  SMART_TRADER_TOKENS_UNDER_TWO_DAYS_OLD @deprecated(reason: "Use ELITE_TRADER or SMART_TRADER, which test that the profit isn't luck. Still written while both run side by side; it will be removed.")
   """Wallet has made over $3K profit in the last 90 days trading tokens that were launched within their first hour."""
   SNIPER
   """Venture capital fund."""
