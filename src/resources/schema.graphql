@@ -9545,23 +9545,23 @@ type TokenFilterResult {
   swapPct1dOldWallet: String
   """The percentage of wallets that are less than 7d old that have traded in the last 24h"""
   swapPct7dOldWallet: String
-  """The number of wallets that have sniped the token"""
+  """The number of wallets that have sniped the token. Null for a token without a launchpad; `tokenWalletStats` serves EVM ones."""
   sniperCount: Int
-  """The percentage of tokens held by snipers"""
+  """The percentage of tokens held by snipers. Null for a token without a launchpad; `tokenWalletStats` serves EVM ones."""
   sniperHeldPercentage: Float
-  """The number of wallets that have bundled the token"""
+  """The number of wallets that have bundled the token. Null for a token without a launchpad; `tokenWalletStats` serves EVM ones."""
   bundlerCount: Int
-  """The percentage of tokens held by bundlers"""
+  """The percentage of tokens held by bundlers. Null for a token without a launchpad; `tokenWalletStats` serves EVM ones."""
   bundlerHeldPercentage: Float
-  """The number of wallets that have been an insider of the token"""
+  """The number of wallets that have been an insider of the token. Null for a token without a launchpad; `tokenWalletStats` serves EVM ones."""
   insiderCount: Int
-  """The percentage of tokens held by insiders"""
+  """The percentage of tokens held by insiders. Null for a token without a launchpad; `tokenWalletStats` serves EVM ones."""
   insiderHeldPercentage: Float
-  """The number of suspicious wallets (deduplicated union of snipers, bundlers, and insiders)"""
+  """The number of suspicious wallets (deduplicated union of snipers, bundlers, and insiders). Null for a token without a launchpad; `tokenWalletStats` serves EVM ones."""
   suspiciousCount: Int
-  """The percentage of tokens held by suspicious wallets"""
+  """The percentage of tokens held by suspicious wallets. Null for a token without a launchpad; `tokenWalletStats` serves EVM ones."""
   suspiciousHeldPercentage: Float
-  """The percentage of tokens held by the dev"""
+  """The percentage of tokens held by the dev. Null for a token without a launchpad; `tokenWalletStats` serves EVM ones."""
   devHeldPercentage: Float
   """The percentage of total supply held by the top 10 holders."""
   top10HoldersPercent: Float
@@ -13205,23 +13205,23 @@ input TokenFilters {
   poolFees24: NumberFilter
   """Filter by fee to volume ratio in the past 24 hours."""
   feeToVolumeRatio24: NumberFilter
-  """Filter by number of wallets that have sniped the token"""
+  """Filter by number of wallets that have sniped the token. Covers launchpad tokens only; any other token never matches."""
   sniperCount: NumberFilter
-  """Filter by percentage of tokens held by snipers"""
+  """Filter by percentage of tokens held by snipers. Covers launchpad tokens only; any other token never matches."""
   sniperHeldPercentage: NumberFilter
-  """Filter by number of wallets that have bundled the token"""
+  """Filter by number of wallets that have bundled the token. Covers launchpad tokens only; any other token never matches."""
   bundlerCount: NumberFilter
-  """Filter by percentage of tokens held by bundlers"""
+  """Filter by percentage of tokens held by bundlers. Covers launchpad tokens only; any other token never matches."""
   bundlerHeldPercentage: NumberFilter
-  """Filter by number of wallets that have been an insider of the token"""
+  """Filter by number of wallets that have been an insider of the token. Covers launchpad tokens only; any other token never matches."""
   insiderCount: NumberFilter
-  """Filter by percentage of tokens held by insiders"""
+  """Filter by percentage of tokens held by insiders. Covers launchpad tokens only; any other token never matches."""
   insiderHeldPercentage: NumberFilter
-  """Filter by number of suspicious wallets (deduplicated union of snipers, bundlers, and insiders)"""
+  """Filter by number of suspicious wallets (deduplicated union of snipers, bundlers, and insiders). Covers launchpad tokens only; any other token never matches."""
   suspiciousCount: NumberFilter
-  """Filter by percentage of tokens held by suspicious wallets"""
+  """Filter by percentage of tokens held by suspicious wallets. Covers launchpad tokens only; any other token never matches."""
   suspiciousHeldPercentage: NumberFilter
-  """Filter by percentage of tokens held by the dev"""
+  """Filter by percentage of tokens held by the dev. Covers launchpad tokens only; any other token never matches."""
   devHeldPercentage: NumberFilter
   """Filter by top 10 holders percentage."""
   top10HoldersPercent: NumberFilter
@@ -17332,7 +17332,7 @@ input TokenWalletStatsInput {
   networkId: Int!
 }
 
-"""The sniper, bundler and insider wallets that still hold a token. Counts, amounts and addresses cover current holders only: a labelled wallet that has sold its whole balance is left out, so every figure falls as those wallets sell. Available for launchpad tokens on every network, and for EVM tokens without a launchpad that have a known creator and were created since 2025-10-08. Other tokens return zeros."""
+"""The sniper, bundler and insider wallets that still hold a token. Counts, amounts and addresses cover current holders only: a labelled wallet that has sold its whole balance is left out, so every figure falls as those wallets sell. Each label reads at most 1,000 holders; past that, its count reads 1,000 and its amount and percentage cover those holders only. Available for launchpad tokens on every network, and for EVM tokens without a launchpad that have a known creator and were created since 2025-10-08. Read `covered` first: for any other token it is false, and every figure is 0 because nothing was measured."""
 type TokenWalletStats {
   """The ID of the token (`address:networkId`)."""
   tokenId: String!
@@ -17342,7 +17342,9 @@ type TokenWalletStats {
   networkId: Int!
   """The total supply of the token, unshifted. Every held percentage is measured against it."""
   tokenTotalSupply: String!
-  """The number of sniper wallets that hold this token. A sniper bought within the first 5 seconds of trading."""
+  """Whether Codex tracks snipers, bundlers and insiders for this token. When false, every count and percentage is 0 because nothing was measured, not because none were found."""
+  covered: Boolean!
+  """The number of sniper wallets that hold this token. A sniper bought within the first 5 seconds of trading. The creator's own buy at launch counts."""
   sniperCount: Int!
   """The percentage of token supply held by sniper wallets."""
   sniperHeldPercentage: Float!
@@ -17350,7 +17352,7 @@ type TokenWalletStats {
   sniperAddresses: [String!]!
   """The amount of the token held by sniper wallets, unshifted."""
   sniperHeldAmount: String!
-  """The number of bundler wallets that hold this token. A bundler is one of 4 or more wallets that bought the token in the same block at launch."""
+  """The number of bundler wallets that hold this token. A bundler is one of 4 or more wallets that bought the token in the same block while it was on its launchpad, or in its first hour when it has none. A wallet one sender bought a large share for, alongside other wallets in the same block, is a bundler too."""
   bundlerCount: Int!
   """The percentage of token supply held by bundler wallets."""
   bundlerHeldPercentage: Float!
@@ -17358,7 +17360,7 @@ type TokenWalletStats {
   bundlerAddresses: [String!]!
   """The amount of the token held by bundler wallets, unshifted."""
   bundlerHeldAmount: String!
-  """The number of insider wallets that hold this token. An insider received the token through a link to its creator rather than by buying it on the open market."""
+  """The number of insider wallets that hold this token. An insider got the token through a link to its creator rather than by buying it on the open market: it bought in the creation transaction, received the token from the creator, or was first funded by the creator. On Solana, a wallet seeded with the token in its first minutes without buying it is an insider too."""
   insiderCount: Int!
   """The percentage of token supply held by insider wallets."""
   insiderHeldPercentage: Float!
