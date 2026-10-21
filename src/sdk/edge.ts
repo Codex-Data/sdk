@@ -11,6 +11,7 @@ import {
 
 import {
   assertEdgeSubscription,
+  BASE_NETWORK_ID,
   ROBINHOOD_NETWORK_ID,
 } from "./edgeSubscription";
 
@@ -18,15 +19,16 @@ export { createClient };
 
 export const DEFAULT_EDGE_URL = "wss://fra.edge.codex.io/graphql";
 export const ROBINHOOD_EDGE_URL = "wss://iad.edge.codex.io/graphql";
+export const BASE_EDGE_URL = ROBINHOOD_EDGE_URL;
 
 export function edgeUrlForNetwork(networkId: number): string {
-  return networkId === ROBINHOOD_NETWORK_ID
+  return networkId === ROBINHOOD_NETWORK_ID || networkId === BASE_NETWORK_ID
     ? ROBINHOOD_EDGE_URL
     : DEFAULT_EDGE_URL;
 }
 
 export interface SubscriptionOptions {
-  /** Experimental: use edge for supported Solana or Robinhood streams whose commitments include Processed. */
+  /** Experimental: use edge for supported Solana, Robinhood or Base streams whose commitments include Processed. */
   useEdge?: boolean;
 }
 
@@ -45,7 +47,7 @@ export interface ClientWithEdge extends Client {
 }
 
 export interface EdgeClientOptions extends Omit<ClientOptions, "url"> {
-  /** Defaults to the Solana edge endpoint. Use ROBINHOOD_EDGE_URL for Robinhood. */
+  /** Defaults to the Solana edge endpoint. Use ROBINHOOD_EDGE_URL or BASE_EDGE_URL for Virginia. */
   url?: ClientOptions["url"];
 }
 
