@@ -6506,6 +6506,20 @@ type SearchPredictionEvent {
   resolvedAt: Int
 }
 
+"""The number of a prediction event's markets in each market status."""
+type PredictionEventMarketCounts {
+  """Markets accepting trades."""
+  open: Int!
+  """Markets with trading temporarily halted. Not derived today, so always 0."""
+  suspended: Int!
+  """Markets whose outcome is determined or that are closed."""
+  resolved: Int!
+  """Markets that were invalidated. Not derived today, so always 0."""
+  cancelled: Int!
+  """Markets that have not opened yet."""
+  pending: Int!
+}
+
 """A prediction event matching a set of filter parameters."""
 type PredictionEventFilterResult {
   """The unique identifier."""
@@ -6542,6 +6556,8 @@ type PredictionEventFilterResult {
   markets: [PredictionEventFilterResultMarket!]!
   """Data for marketCount."""
   marketCount: Int!
+  """The number of the event's markets in each status; the counts add up to marketCount. Null for events not reindexed since this field was added."""
+  marketCounts: PredictionEventMarketCounts
   """Categories associated with this entity."""
   categories: [String!]!
   """The resolution source."""
