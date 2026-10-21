@@ -1,6 +1,6 @@
 {
   "name": "@codex-data/sdk",
-  "version": "2.4.12",
+  "version": "2.4.13",
   "engines": {
     "node": ">=17.5.0"
   },
