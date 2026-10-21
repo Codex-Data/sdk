@@ -9,19 +9,29 @@ import {
   type SubscribePayload,
 } from "graphql-ws";
 
-import { assertEdgeSubscription } from "./edgeSubscription";
+import {
+  assertEdgeSubscription,
+  ROBINHOOD_NETWORK_ID,
+} from "./edgeSubscription";
 
 export { createClient };
 
 export const DEFAULT_EDGE_URL = "wss://fra.edge.codex.io/graphql";
+export const ROBINHOOD_EDGE_URL = "wss://iad.edge.codex.io/graphql";
+
+export function edgeUrlForNetwork(networkId: number): string {
+  return networkId === ROBINHOOD_NETWORK_ID
+    ? ROBINHOOD_EDGE_URL
+    : DEFAULT_EDGE_URL;
+}
 
 export interface SubscriptionOptions {
-  /** Experimental: use edge for supported Solana streams whose commitments include Processed. */
+  /** Experimental: use edge for supported Solana or Robinhood streams whose commitments include Processed. */
   useEdge?: boolean;
 }
 
 export interface ClientWithEdge extends Client {
-  /** Observe both transports, or select one with useEdge. */
+  /** Observe all transports, or select main/edge transports with useEdge. */
   on<E extends Event>(
     event: E,
     listener: EventListener<E>,
@@ -35,7 +45,7 @@ export interface ClientWithEdge extends Client {
 }
 
 export interface EdgeClientOptions extends Omit<ClientOptions, "url"> {
-  /** Defaults to the regional edge endpoint. */
+  /** Defaults to the Solana edge endpoint. Use ROBINHOOD_EDGE_URL for Robinhood. */
   url?: ClientOptions["url"];
 }
 
@@ -48,12 +58,11 @@ export function createEdgeClient(options: EdgeClientOptions): Client {
 export function prepareEdgeSubscription(
   payload: SubscribePayload,
   replacer?: ClientOptions["jsonMessageReplacer"],
-): SubscribePayload {
+): { payload: SubscribePayload; networkId: number } {
   const snapshot: SubscribePayload = JSON.parse(
     JSON.stringify(payload, replacer),
   );
-  assertEdgeSubscription(snapshot);
-  return snapshot;
+  return { payload: snapshot, networkId: assertEdgeSubscription(snapshot) };
 }
 
 /** Add per-subscription edge routing to an existing GraphQL client. */
@@ -61,7 +70,7 @@ export function withEdge(
   main: Client,
   options: ClientOptions & { edgeUrl?: string },
 ): ClientWithEdge {
-  const { edgeUrl = DEFAULT_EDGE_URL, ...wsOptions } = options;
+  const { edgeUrl, ...wsOptions } = options;
   type EventHandlers = NonNullable<ClientOptions["on"]>;
   const mainHandlers = new Set<EventHandlers>();
   const edgeHandlers = new Set<EventHandlers>(
@@ -92,7 +101,7 @@ export function withEdge(
   main.on("message", mainEvents.message);
   main.on("closed", mainEvents.closed);
   main.on("error", mainEvents.error);
-  let edge: Client | undefined;
+  const edges = new Map<string, Client>();
   let disposed = false;
   return {
     ...main,
@@ -109,17 +118,19 @@ export function withEdge(
       if (disposed) throw new Error("Edge client has been disposed");
       if (!subscriptionOptions.useEdge) return main.subscribe(payload, sink);
       // Reject before creating an edge client or opening any upstream operation.
-      const snapshot = prepareEdgeSubscription(
+      const { payload: snapshot, networkId } = prepareEdgeSubscription(
         payload,
         wsOptions.jsonMessageReplacer,
       );
+      const url = edgeUrl ?? edgeUrlForNetwork(networkId);
+      let edge = edges.get(url);
       if (!edge) {
         // Edge payloads are serialized once, before validation. Preserve custom
         // serialization for handshakes without transforming subscriptions again.
         let subscriptionMessage = false;
         edge = createEdgeClient({
           ...wsOptions,
-          url: edgeUrl,
+          url,
           on: handlersFor(true),
           jsonMessageReplacer: function (key, value) {
             if (key === "") subscriptionMessage = value?.type === "subscribe";
@@ -130,16 +141,20 @@ export function withEdge(
                 : value;
           },
         });
+        edges.set(url, edge);
       }
       return edge.subscribe(snapshot, sink);
     },
     terminate: () => {
       main.terminate();
-      edge?.terminate();
+      edges.forEach((edge) => edge.terminate());
     },
     dispose: async () => {
       disposed = true;
-      await Promise.all([main.dispose(), edge?.dispose()]);
+      await Promise.all([
+        main.dispose(),
+        ...Array.from(edges.values(), (edge) => edge.dispose()),
+      ]);
     },
   };
 }

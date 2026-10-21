@@ -305,6 +305,33 @@ const unsubscribe = sdk.subscriptions.onEventsCreated(
 );
 ```
 
+## Edge Subscriptions
+
+Pass `{ useEdge: true }` as the third argument to a generated subscription method (or the fourth argument to `sdk.subscribe`) to use a regional edge node. Solana (`1399811149`) routes to `wss://fra.edge.codex.io/graphql`; Robinhood Chain (`4663`) routes to `wss://iad.edge.codex.io/graphql`. Connections are created on demand and reused per endpoint.
+
+```typescript
+import { Codex, EventCommitmentLevel } from "@codex-data/sdk";
+
+const sdk = new Codex(process.env.CODEX_API_KEY!);
+
+const unsubscribe = sdk.subscriptions.onTokenEventsCreated(
+  {
+    input: { tokenAddress: "0x...", networkId: 4663 },
+    commitmentLevel: [EventCommitmentLevel.Processed],
+  },
+  {
+    next: (result) => console.log(result.data),
+    error: (err) => console.error(err),
+    complete: () => console.log("Stream ended"),
+  },
+  { useEdge: true },
+);
+```
+
+Edge supports `onEventsCreated`, `onTokenEventsCreated`, `onBarsUpdated`, and `onTokenBarsUpdated`. The commitment levels must include `Processed`, and `onBarsUpdated` requires an explicit `quoteToken`. Each subscription must target one supported chain. Subscriptions without `useEdge` use the main endpoint.
+
+The lightweight `withEdge` helper from `@codex-data/sdk/edge` uses the same routing. For a standalone Robinhood connection, pass `url: ROBINHOOD_EDGE_URL` to `createEdgeClient`, importing both from `@codex-data/sdk/edge`. The SDK's `apiEdgeUrl` and the helper's `edgeUrl` override routing for all chains.
+
 ## Custom Queries: Request Only the Fields You Need
 
 The built-in `sdk.queries.*` methods select every available field, so the recipes above are the most expensive way to call each endpoint. Writing your own query means you get smaller, faster responses.

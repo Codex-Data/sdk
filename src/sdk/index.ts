@@ -10,6 +10,7 @@ import WebSocket from "isomorphic-ws";
 
 import {
   createEdgeClient,
+  edgeUrlForNetwork,
   prepareEdgeSubscription,
   SubscriptionOptions,
 } from "./edge";
@@ -27,7 +28,7 @@ export type ApiConfig = {
   // wss://graph.codex.io/graphql
   apiRealtimeUrl: string;
 
-  // Optional deployment override for the edge transport.
+  // Optional deployment override for all edge transports.
   apiEdgeUrl?: string;
 
   // true if you want to connect a websocket, sometimes useful to turn this off in certain environments
@@ -55,7 +56,7 @@ const defaultConfig: ApiConfig = {
 export class Codex {
   private client: GraphQLClient;
   private wsClient: GraphQLWsClient | undefined;
-  private edgeWsClient: GraphQLWsClient | undefined;
+  private edgeWsClients = new Map<string, GraphQLWsClient>();
   private disposed = false;
   public queries: Query;
   public mutations: Mutation;
@@ -134,8 +135,8 @@ export class Codex {
    */
   public updateConfig(incomingConfig: Partial<ApiConfig>) {
     // If we have an existing websocket connection, dispose of it.
-    if (this.wsClient || this.edgeWsClient) void this.dispose();
-    this.edgeWsClient = undefined;
+    if (this.wsClient || this.edgeWsClients.size) void this.dispose();
+    this.edgeWsClients.clear();
     this.disposed = false;
     this.apiConfig = { ...this.apiConfig, ...incomingConfig };
 
@@ -167,7 +168,10 @@ export class Codex {
    */
   public async dispose() {
     this.disposed = true;
-    await Promise.all([this.wsClient?.dispose(), this.edgeWsClient?.dispose()]);
+    await Promise.all([
+      this.wsClient?.dispose(),
+      ...Array.from(this.edgeWsClients.values(), (edge) => edge.dispose()),
+    ]);
   }
 
   /**
@@ -250,17 +254,20 @@ export class Codex {
       return this.wsClient.subscribe<TResults>(payload, sink);
 
     // Validate before creating the edge transport or starting an operation.
-    const snapshot = prepareEdgeSubscription(payload);
-    if (!this.edgeWsClient) {
-      const config = this.parseConfig(this.apiConfig ?? {});
-      this.edgeWsClient = createEdgeClient({
+    const { payload: snapshot, networkId } = prepareEdgeSubscription(payload);
+    const config = this.parseConfig(this.apiConfig ?? {});
+    const url = config.apiEdgeUrl ?? edgeUrlForNetwork(networkId);
+    let edge = this.edgeWsClients.get(url);
+    if (!edge) {
+      edge = createEdgeClient({
         ...this.websocketOptions(config),
-        url: config.apiEdgeUrl,
+        url,
       });
-      this.edgeWsClient.on("error", (error) => {
+      edge.on("error", (error) => {
         console.error("Websocket error: ", error);
       });
+      this.edgeWsClients.set(url, edge);
     }
-    return this.edgeWsClient.subscribe<TResults>(snapshot, sink);
+    return edge.subscribe<TResults>(snapshot, sink);
   }
 }
