@@ -36,7 +36,7 @@ beforeAll(async () => {
   }
   const result = await build({
     stdin: {
-      contents: `export { createClient, createEdgeClient, DEFAULT_EDGE_URL, withEdge } from "@codex-data/sdk/edge";`,
+      contents: `export { createClient, createEdgeClient, DEFAULT_EDGE_URL, ROBINHOOD_EDGE_URL, withEdge } from "@codex-data/sdk/edge";`,
       resolveDir: fixture,
       sourcefile: "consumer.js",
     },
@@ -95,7 +95,8 @@ it.each(["import", "require"])(
          assert.equal(sdk.createClient, createClient);
          assert.equal(typeof sdk.createEdgeClient, "function");
          assert.equal(typeof sdk.withEdge, "function");
-         assert.equal(sdk.DEFAULT_EDGE_URL, "wss://fra.edge.codex.io/graphql");`,
+         assert.equal(sdk.DEFAULT_EDGE_URL, "wss://fra.edge.codex.io/graphql");
+         assert.equal(sdk.ROBINHOOD_EDGE_URL, "wss://iad.edge.codex.io/graphql");`,
       ],
       { cwd: fixture, stdio: "pipe" },
     );

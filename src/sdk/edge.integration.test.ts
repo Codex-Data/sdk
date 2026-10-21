@@ -4,17 +4,17 @@ import type { AddressInfo } from "node:net";
 import { type ClientOptions, createClient, parseMessage } from "graphql-ws";
 import WebSocket from "isomorphic-ws";
 
-import { withEdge } from "./edge";
+import { DEFAULT_EDGE_URL, ROBINHOOD_EDGE_URL, withEdge } from "./edge";
 import { Codex } from "./index";
 
 function createClientWithEdge(options: ClientOptions & { edgeUrl?: string }) {
   return withEdge(createClient(options), options);
 }
 
-it("delivers edge and normal results over separate authenticated sockets", async () => {
+it("delivers main, Solana edge, and Robinhood edge results over separate authenticated sockets", async () => {
   const requests: Array<{ source: string; type: string; payload: unknown }> =
     [];
-  const servers = ["main", "edge"].map((source) => {
+  const servers = ["main", "solana", "robinhood"].map((source) => {
     const server = new WebSocket.Server({ host: "127.0.0.1", port: 0 });
     server.on("connection", (socket) => {
       socket.on("message", (data) => {
@@ -48,13 +48,33 @@ it("delivers edge and normal results over separate authenticated sockets", async
   const urls = servers.map(
     (server) => `ws://127.0.0.1:${(server.address() as AddressInfo).port}`,
   );
+  const configuredConnected = jest.fn();
   const client = createClientWithEdge({
     url: urls[0],
-    edgeUrl: urls[1],
-    webSocketImpl: WebSocket,
+    webSocketImpl: class extends WebSocket {
+      constructor(url: string, protocols: string | string[]) {
+        // Exercise default routing using local servers for each regional URL.
+        super(
+          url === DEFAULT_EDGE_URL
+            ? urls[1]
+            : url === ROBINHOOD_EDGE_URL
+              ? urls[2]
+              : url,
+          protocols,
+        );
+      }
+    },
     connectionParams: { Authorization: "test-customer" },
+    on: { connected: configuredConnected },
   });
+  const connected = jest.fn();
+  const mainConnected = jest.fn();
+  const edgeConnected = jest.fn();
+  client.on("connected", connected);
+  client.on("connected", mainConnected, { useEdge: false });
+  client.on("connected", edgeConnected, { useEdge: true });
   const query = `subscription { onEventsCreated(id: "pair:1399811149", commitmentLevel: [Processed, Confirmed]) { events { transactionHash } } }`;
+  const robinhoodQuery = query.replace("1399811149", "4663");
   try {
     expect(() =>
       client.subscribe(
@@ -66,7 +86,7 @@ it("delivers edge and normal results over separate authenticated sockets", async
       ),
     ).toThrow();
     expect(requests).toEqual([]);
-    const receive = (useEdge: boolean) =>
+    const receive = (useEdge: boolean, query: string) =>
       new Promise<string>((resolve, reject) => {
         client.subscribe<{ source: string }>(
           { query },
@@ -78,9 +98,17 @@ it("delivers edge and normal results over separate authenticated sockets", async
           { useEdge },
         );
       });
-    await expect(Promise.all([receive(false), receive(true)])).resolves.toEqual(
-      ["main", "edge"],
-    );
+    await expect(
+      Promise.all([
+        receive(false, query),
+        receive(true, query),
+        receive(true, robinhoodQuery),
+      ]),
+    ).resolves.toEqual(["main", "solana", "robinhood"]);
+    expect(configuredConnected).toHaveBeenCalledTimes(3);
+    expect(connected).toHaveBeenCalledTimes(3);
+    expect(mainConnected).toHaveBeenCalledTimes(1);
+    expect(edgeConnected).toHaveBeenCalledTimes(2);
     expect(
       requests
         .filter(({ type }) => type === "connection_init")
@@ -88,12 +116,14 @@ it("delivers edge and normal results over separate authenticated sockets", async
     ).toEqual([
       { Authorization: "test-customer" },
       { Authorization: "test-customer" },
+      { Authorization: "test-customer" },
     ]);
     expect(
       requests
         .filter(({ type }) => type === "subscribe")
+        .sort((a, b) => a.source.localeCompare(b.source))
         .map(({ payload }) => payload),
-    ).toEqual([{ query }, { query }]);
+    ).toEqual([{ query }, { query: robinhoodQuery }, { query }]);
   } finally {
     await client.dispose();
     await Promise.all(

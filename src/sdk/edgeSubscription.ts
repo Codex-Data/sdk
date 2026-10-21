@@ -2,6 +2,7 @@ import { getOperationAST, Kind, parse, valueFromASTUntyped } from "graphql";
 import type { SubscribePayload } from "graphql-ws";
 
 const SOLANA_NETWORK_ID = 1399811149;
+export const ROBINHOOD_NETWORK_ID = 4663;
 const SUPPORTED_OPERATIONS = new Set([
   "onEventsCreated",
   "onTokenEventsCreated",
@@ -9,11 +10,11 @@ const SUPPORTED_OPERATIONS = new Set([
   "onTokenBarsUpdated",
 ]);
 
-/** Validate the actual GraphQL arguments, including literals and variable defaults. */
-export function assertEdgeSubscription(payload: SubscribePayload): void {
+/** Validate GraphQL arguments, including literals and defaults, and return the target network. */
+export function assertEdgeSubscription(payload: SubscribePayload): number {
   function fail(): never {
     throw new Error(
-      "useEdge requires a supported Solana subscription with commitmentLevel including Processed",
+      "useEdge requires a supported Solana or Robinhood subscription with commitmentLevel including Processed",
     );
   }
   const document = parse(payload.query);
@@ -71,13 +72,15 @@ export function assertEdgeSubscription(payload: SubscribePayload): void {
     }
   };
   collect(args);
+  const networkId = networks[0];
   if (
-    !networks.length ||
-    networks.some((network) => network !== SOLANA_NETWORK_ID)
+    (networkId !== SOLANA_NETWORK_ID && networkId !== ROBINHOOD_NETWORK_ID) ||
+    networks.some((network) => network !== networkId)
   )
     fail();
   // Without an explicit quote, edge proxies this request back to Oregon.
   if (field.name.value === "onBarsUpdated" && args.quoteToken == null) {
     throw new Error("useEdge onBarsUpdated requires an explicit quoteToken");
   }
+  return networkId;
 }
