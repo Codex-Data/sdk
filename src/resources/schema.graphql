@@ -937,6 +937,8 @@ type Query {
   walletChart(
     input: WalletChartInput!
   ): WalletChartResponse
+  """Returns the compute units charged for the request that carries this field, so you can see what a query costs before you run it at volume. Add it to any query; the field itself is free. `total` is the whole request; `items` lists each priced component. When the whole request was free (every root field errored), all values are zero."""
+  usageData: UsageData!
   """Returns the sniper, bundler and insider wallets that still hold a token, and how much of the supply they hold."""
   tokenWalletStats(
     input: TokenWalletStatsInput!
@@ -17322,6 +17324,36 @@ type WalletAggregateBackfillStateResponse {
 """Input arguments for the `walletAggregateBackfillState` mutation."""
 input WalletAggregateBackfillStateInput {
   walletAddress: String!
+}
+
+"""Response returned by `usageData`: the compute units charged for the request that carried the field."""
+type UsageData {
+  """Each priced component of the request: one entry per operation, per-object type, or priced field."""
+  items: [UsageDataItem!]!
+  """Totals across all items."""
+  total: UsageDataMetrics!
+}
+
+"""Usage metrics for one priced component, or for the whole request. Values are integers returned as strings."""
+type UsageDataMetrics {
+  """Billable units, not requests: 1 per call of a priced field, or the number of objects returned for a per-object cost."""
+  count: String!
+  """Response bytes measured for this component. Reported for reference; standard pricing does not bill it."""
+  bytes: String!
+  """Processing time in milliseconds measured for this component. Reported for reference; standard pricing does not bill it."""
+  durationMs: String!
+  """Compute units charged, with six decimals of precision: 1,000,000 = 1 CU."""
+  computeUnits: String!
+}
+
+"""One priced component of a request."""
+type UsageDataItem {
+  """The operation or field that was priced, for example `filterTokens` or `filterTokens.results.token`."""
+  resource: String!
+  """For a per-object cost, the type of the objects counted (for example `EnhancedToken`). Null for operation and field costs."""
+  entityType: String
+  """The metrics charged for this component."""
+  metrics: UsageDataMetrics!
 }
 
 """Input for `tokenWalletStats`."""
