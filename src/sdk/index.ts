@@ -85,7 +85,12 @@ export class Codex {
 
   private parseConfig(config: Partial<ApiConfig>) {
     invariant(this.apiKey, "apiKey must be defined");
-    return Object.assign({}, defaultConfig, config);
+    // An option passed as undefined (e.g. `apiUrl: process.env.CODEX_API_URL`
+    // with the variable unset) keeps its default instead of replacing it.
+    const defined = Object.fromEntries(
+      Object.entries(config).filter(([, value]) => value !== undefined),
+    );
+    return Object.assign({}, defaultConfig, defined) as ApiConfig;
   }
 
   private createGraphQLClient(config: ApiConfig) {
