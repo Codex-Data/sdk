@@ -2,6 +2,7 @@ export {
   createClient,
   createEdgeClient,
   DEFAULT_EDGE_URL,
+  BASE_EDGE_URL,
   ROBINHOOD_EDGE_URL,
   withEdge,
 } from "./sdk/edge";
