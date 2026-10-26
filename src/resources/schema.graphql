@@ -13499,9 +13499,9 @@ enum RiskReasonCode {
   PROOF_HONEYPOT_SIM
   PROOF_NON_TRANSFERABLE
   PROOF_TRANSFER_FEE_100
-  PROOF_PAUSED
+  PROOF_PAUSED @deprecated(reason: "Never emitted. An engaged pause is reported as TAX_PAUSED, a scored reason rather than proof, because a pause can be lifted. Use TAX_PAUSED instead.")
   PROOF_DEFAULT_FROZEN
-  PROOF_RUG_OCCURRED
+  PROOF_RUG_OCCURRED @deprecated(reason: "Never emitted. A rug never forces SCAM. It will be reported as LIQ_RUG_OCCURRED, an informational liquidity reason that adds no points.")
   PROOF_POOL_TRAP_SIM
   AUTH_MINT
   AUTH_FREEZE
