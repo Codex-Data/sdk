@@ -288,12 +288,6 @@ type Query {
   walletNftCollectionAssets(
     input: WalletNftCollectionAssetsInput!
   ): WalletNftCollectionAssetsResponse! @deprecated(reason: "NFT data coverage will be removed on March 31, 2026")
-  """Get all active short-lived api tokens for this api key"""
-  apiTokens: [ApiToken!]!
-  """Get the active short-lived api token for this api key by the short-lived token"""
-  apiToken(
-    token: String!
-  ): ApiToken!
   """Returns the full vocabulary of wallet label types and their metadata."""
   walletLabelTypes: [WalletLabelType!]!
   """Returns community gathered notes."""
@@ -943,17 +937,17 @@ type Query {
   getNetworkConfigs(
     networkIds: [Int!]
   ): [NetworkConfig!]!
+  """Get all active short-lived api tokens for this api key"""
+  apiTokens: [ApiToken!]!
+  """Get the active short-lived api token for this api key by the short-lived token"""
+  apiToken(
+    token: String!
+  ): ApiToken!
+  """Usage for the caller's account in the current billing period, compared with the plan quota. Free to call, and callable when the account is over its limit. Numbers are aggregated by the usage pipeline, not updated per request; see `updatedAt`."""
+  apiUsage: ApiUsage!
 }
 
 type Mutation {
-  """Create a new set of short-lived api access tokens"""
-  createApiTokens(
-    input: CreateApiTokensInput!
-  ): [ApiToken!]!
-  """Delete a single short-lived api access token by id"""
-  deleteApiToken(
-    id: String!
-  ): String!
   """Queues asynchronous token analysis. Use simulateLiveContractInput; legacy deployment and creation-transaction modes are not supported by the current analyzer. A successful response acknowledges submission, not a trading verdict. Retrieve the outcome with getSimulateTokenContractResults. Non-admin requests have a five-minute cooldown per token and network; a cooldown violation raises TOO_MANY_REQUESTS."""
   simulateTokenContract(
     input: SimulateTokenContractInput!
@@ -976,6 +970,14 @@ type Mutation {
     """input: Input for deleting webhooks."""
     input: DeleteWebhooksInput!
   ): DeleteWebhooksOutput
+  """Create a new set of short-lived api access tokens"""
+  createApiTokens(
+    input: CreateApiTokensInput!
+  ): [ApiToken!]!
+  """Delete a single short-lived api access token by id"""
+  deleteApiToken(
+    id: String!
+  ): String!
 }
 
 """Live-streamed prediction data subscriptions for trades, stats, and bar updates."""
@@ -4731,28 +4733,6 @@ type AddNftPoolEventsOutput {
 }
 
 scalar JSON
-
-type ApiToken {
-  """Unique identifier for the token"""
-  id: String!
-  """JWT to be passed into the Authorization header for API requests"""
-  token: String!
-  """ISO time string for the expiry of the token"""
-  expiresTimeString: String!
-  """Number of root fields this api token is allowed to resolve before it's rate limited"""
-  requestLimit: String!
-  """Approximate number of remaining resolutions before this token is rate limited"""
-  remaining: String
-}
-
-input CreateApiTokensInput {
-  """Number of tokens to create, default is 1"""
-  count: Int
-  """Number of requests allowed per token, represented as a string, default is 5000"""
-  requestLimit: String
-  """Number of milliseconds until the token expires, defaults to 1 hour (3600000)"""
-  expiresIn: Int
-}
 
 scalar Void
 
@@ -17552,6 +17532,70 @@ type Block {
   blockNumber: Int!
   timestamp: Int!
   hash: String!
+}
+
+type ApiToken {
+  """Unique identifier for the token"""
+  id: String!
+  """JWT to be passed into the Authorization header for API requests"""
+  token: String!
+  """ISO time string for the expiry of the token"""
+  expiresTimeString: String!
+  """Number of root fields this api token is allowed to resolve before it's rate limited"""
+  requestLimit: String!
+  """Approximate number of remaining resolutions before this token is rate limited"""
+  remaining: String
+}
+
+input CreateApiTokensInput {
+  """Number of tokens to create, default is 1"""
+  count: Int
+  """Number of requests allowed per token, represented as a string, default is 5000"""
+  requestLimit: String
+  """Number of milliseconds until the token expires, defaults to 1 hour (3600000)"""
+  expiresIn: Int
+}
+
+"""What the numbers in `ApiUsage` are measured in."""
+enum ApiUsageUnit {
+  """Compute units"""
+  COMPUTE_UNITS
+  """Billed requests"""
+  REQUESTS
+}
+
+"""Usage for an account in its current billing period. Usage values are base-10 integer strings."""
+type ApiUsage {
+  """What `used`, `limit`, `remaining` and `breakdown` are measured in"""
+  unit: ApiUsageUnit!
+  """Start of the current billing period (unix seconds)"""
+  periodStart: Int!
+  """End of the current billing period, exclusive (unix seconds)"""
+  periodEnd: Int!
+  """Usage this period, in `unit`"""
+  used: String!
+  """Plan quota for this period, in `unit`. Null if the plan has no quota. On some plans this is a soft limit: reaching it does not block requests."""
+  limit: String
+  """`limit` minus `used`, floored at 0. Null if there is no quota."""
+  remaining: String
+  """Percent of the quota used. Can exceed 100. Null if there is no quota."""
+  percentUsed: Float
+  """Usage split by operation type, in `unit`"""
+  breakdown: ApiUsageBreakdown!
+  """When these numbers were last refreshed (unix seconds). Null if no usage has been recorded this period."""
+  updatedAt: Int
+}
+
+"""Usage split by operation type. Values are base-10 integer strings."""
+type ApiUsageBreakdown {
+  """Queries"""
+  query: String!
+  """Mutations"""
+  mutation: String!
+  """Subscriptions"""
+  subscription: String!
+  """Webhook deliveries"""
+  webhook: String!
 }
 
 """An NFT collection transaction."""
