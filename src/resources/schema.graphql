@@ -472,6 +472,14 @@ type Query {
     """Where in the list the server should start when returning items."""
     offset: Int
   ): PredictionTraderFilterConnection
+  """Get all active short-lived api tokens for this api key"""
+  apiTokens: [ApiToken!]!
+  """Get the active short-lived api token for this api key by the short-lived token"""
+  apiToken(
+    token: String!
+  ): ApiToken!
+  """Usage for the caller's account in the current billing period, compared with the plan quota. Free to call, and callable when the account is over its limit. Numbers are aggregated by the usage pipeline, not updated per request; see `updatedAt`."""
+  apiUsage: ApiUsage!
   """Returns block data for the input blockNumbers or timestamps, maximum 25 inputs."""
   blocks(
     input: BlocksInput!
@@ -500,14 +508,6 @@ type Query {
   getNetworkConfigs(
     networkIds: [Int!]
   ): [NetworkConfig!]!
-  """Get all active short-lived api tokens for this api key"""
-  apiTokens: [ApiToken!]!
-  """Get the active short-lived api token for this api key by the short-lived token"""
-  apiToken(
-    token: String!
-  ): ApiToken!
-  """Usage for the caller's account in the current billing period, compared with the plan quota. Free to call, and callable when the account is over its limit. Numbers are aggregated by the usage pipeline, not updated per request; see `updatedAt`."""
-  apiUsage: ApiUsage!
   """Discover, screen, and rank tokens across every supported network using 100+ on-chain signals: trading activity, liquidity, holder behavior, fee economics, and launchpad lifecycle."""
   filterTokens(
     """A set of filters to apply."""
@@ -948,6 +948,14 @@ type Query {
 }
 
 type Mutation {
+  """Create a new set of short-lived api access tokens"""
+  createApiTokens(
+    input: CreateApiTokensInput!
+  ): [ApiToken!]!
+  """Delete a single short-lived api access token by id"""
+  deleteApiToken(
+    id: String!
+  ): String!
   """Create event webhooks for price, token/pair, transfer, market cap, and prediction market trades."""
   createWebhooks(
     """input: Input for creating webhooks."""
@@ -958,14 +966,6 @@ type Mutation {
     """input: Input for deleting webhooks."""
     input: DeleteWebhooksInput!
   ): DeleteWebhooksOutput
-  """Create a new set of short-lived api access tokens"""
-  createApiTokens(
-    input: CreateApiTokensInput!
-  ): [ApiToken!]!
-  """Delete a single short-lived api access token by id"""
-  deleteApiToken(
-    id: String!
-  ): String!
   """Queues asynchronous token analysis. Use simulateLiveContractInput; legacy deployment and creation-transaction modes are not supported by the current analyzer. A successful response acknowledges submission, not a trading verdict. Retrieve the outcome with getSimulateTokenContractResults. Non-admin requests have a five-minute cooldown per token and network; a cooldown violation raises TOO_MANY_REQUESTS."""
   simulateTokenContract(
     input: SimulateTokenContractInput!
@@ -9690,6 +9690,70 @@ enum PredictionEventMarketSort {
   NONE @deprecated(reason: "No longer affects market ordering.")
 }
 
+type ApiToken {
+  """Unique identifier for the token"""
+  id: String!
+  """JWT to be passed into the Authorization header for API requests"""
+  token: String!
+  """ISO time string for the expiry of the token"""
+  expiresTimeString: String!
+  """Number of root fields this api token is allowed to resolve before it's rate limited"""
+  requestLimit: String!
+  """Approximate number of remaining resolutions before this token is rate limited"""
+  remaining: String
+}
+
+input CreateApiTokensInput {
+  """Number of tokens to create, default is 1"""
+  count: Int
+  """Number of requests allowed per token, represented as a string, default is 5000"""
+  requestLimit: String
+  """Number of milliseconds until the token expires, defaults to 1 hour (3600000)"""
+  expiresIn: Int
+}
+
+"""What the numbers in `ApiUsage` are measured in."""
+enum ApiUsageUnit {
+  """Compute units"""
+  COMPUTE_UNITS
+  """Billed requests"""
+  REQUESTS
+}
+
+"""Usage for an account in its current billing period. Usage values are base-10 integer strings."""
+type ApiUsage {
+  """What `used`, `limit`, `remaining` and `breakdown` are measured in"""
+  unit: ApiUsageUnit!
+  """Start of the current billing period (unix seconds)"""
+  periodStart: Int!
+  """End of the current billing period, exclusive (unix seconds)"""
+  periodEnd: Int!
+  """Usage this period, in `unit`"""
+  used: String!
+  """Plan quota for this period, in `unit`. Null if the plan has no quota. On some plans this is a soft limit: reaching it does not block requests."""
+  limit: String
+  """`limit` minus `used`, floored at 0. Null if there is no quota."""
+  remaining: String
+  """Percent of the quota used. Can exceed 100. Null if there is no quota."""
+  percentUsed: Float
+  """Usage split by operation type, in `unit`"""
+  breakdown: ApiUsageBreakdown!
+  """When these numbers were last refreshed (unix seconds). Null if no usage has been recorded this period."""
+  updatedAt: Int
+}
+
+"""Usage split by operation type. Values are base-10 integer strings."""
+type ApiUsageBreakdown {
+  """Queries"""
+  query: String!
+  """Mutations"""
+  mutation: String!
+  """Subscriptions"""
+  subscription: String!
+  """Webhook deliveries"""
+  webhook: String!
+}
+
 """The quote token within the pair."""
 enum QuoteToken {
   token0
@@ -10724,6 +10788,8 @@ type MetadataResponse {
   networkId: Int!
   """The name of the network."""
   networkName: String!
+  """Transactions per second, averaged over the network's latest indexed blocks (up to 500 blocks from the past 5 minutes). Refreshed every 5 minutes. Null when fewer than two blocks were indexed in that window. On Solana-based networks it counts every executed transaction, including failed and vote transactions."""
+  transactionsPerSecond: Float
 }
 
 input BlocksInput {
@@ -10870,70 +10936,6 @@ type WalletFilterResult {
   backfillState: WalletAggregateBackfillState
   """The wallet identity and profile data"""
   wallet: Wallet
-}
-
-type ApiToken {
-  """Unique identifier for the token"""
-  id: String!
-  """JWT to be passed into the Authorization header for API requests"""
-  token: String!
-  """ISO time string for the expiry of the token"""
-  expiresTimeString: String!
-  """Number of root fields this api token is allowed to resolve before it's rate limited"""
-  requestLimit: String!
-  """Approximate number of remaining resolutions before this token is rate limited"""
-  remaining: String
-}
-
-input CreateApiTokensInput {
-  """Number of tokens to create, default is 1"""
-  count: Int
-  """Number of requests allowed per token, represented as a string, default is 5000"""
-  requestLimit: String
-  """Number of milliseconds until the token expires, defaults to 1 hour (3600000)"""
-  expiresIn: Int
-}
-
-"""What the numbers in `ApiUsage` are measured in."""
-enum ApiUsageUnit {
-  """Compute units"""
-  COMPUTE_UNITS
-  """Billed requests"""
-  REQUESTS
-}
-
-"""Usage for an account in its current billing period. Usage values are base-10 integer strings."""
-type ApiUsage {
-  """What `used`, `limit`, `remaining` and `breakdown` are measured in"""
-  unit: ApiUsageUnit!
-  """Start of the current billing period (unix seconds)"""
-  periodStart: Int!
-  """End of the current billing period, exclusive (unix seconds)"""
-  periodEnd: Int!
-  """Usage this period, in `unit`"""
-  used: String!
-  """Plan quota for this period, in `unit`. Null if the plan has no quota. On some plans this is a soft limit: reaching it does not block requests."""
-  limit: String
-  """`limit` minus `used`, floored at 0. Null if there is no quota."""
-  remaining: String
-  """Percent of the quota used. Can exceed 100. Null if there is no quota."""
-  percentUsed: Float
-  """Usage split by operation type, in `unit`"""
-  breakdown: ApiUsageBreakdown!
-  """When these numbers were last refreshed (unix seconds). Null if no usage has been recorded this period."""
-  updatedAt: Int
-}
-
-"""Usage split by operation type. Values are base-10 integer strings."""
-type ApiUsageBreakdown {
-  """Queries"""
-  query: String!
-  """Mutations"""
-  mutation: String!
-  """Subscriptions"""
-  subscription: String!
-  """Webhook deliveries"""
-  webhook: String!
 }
 
 enum SparklineAttribute {
@@ -15631,10 +15633,12 @@ input OnUnconfirmedEventsCreatedByMakerInput {
 enum WalletLabel {
   """On our internal blacklist."""
   BLACKLISTED
-  """Automated trading bot: proven by arbitrage inside its own transactions, or inferred from its trading cadence. Its confidence is `botScore`."""
+  """Automated trading bot: proven by arbitrage inside its own transactions, or inferred from its trading cadence. Its confidence is `botScore`. In `includeLabels` and `excludeLabels`, `BOT` also matches `MEV_BOT`, `SNIPER_BOT`, `VOLUME_BOT` and `BUNDLER`, and `botScore` is the highest of their scores."""
   BOT
   """Cross-chain bridge contract."""
   BRIDGE
+  """Wallet a bundling tool runs for a token's own team: it buys or holds the team's supply while posing as an independent holder. Part of the `BOT` family."""
+  BUNDLER
   """Centralized exchange wallet."""
   CEX
   """Decentralized exchange wallet."""
@@ -15673,6 +15677,8 @@ enum WalletLabel {
   SMART_TRADER_TOKENS_UNDER_TWO_DAYS_OLD @deprecated(reason: "Use ELITE_TRADER or SMART_TRADER, which test that the profit isn't luck. Still written while both run side by side; it will be removed.")
   """Wallet has made over $3K profit in the last 90 days trading tokens that were launched within their first hour."""
   SNIPER
+  """Automated launch sniper: buys a hundred newly created pools a day within a minute of each pool's first swap. Part of the `BOT` family."""
+  SNIPER_BOT
   """Venture capital fund."""
   VC
   """Operator-run wallet that trades to manufacture a token's volume: one a volume-bot platform runs, or one of hundreds a single funder seeded to churn one pool."""
@@ -17273,7 +17279,7 @@ type DetailedWalletStats {
   networkSpecificStats: [NetworkWalletStats!] @deprecated(reason: "Use networkBreakdown instead")
   """The network breakdown"""
   networkBreakdown: [NetworkBreakdown!]
-  """The labels associated with the wallet"""
+  """The labels associated with the wallet. `BOT` and `SCAMMER` are left out when a score backs them: read `botScore` and `scammerScore` instead."""
   labels: [String!]!
   """The likelihood of the wallet being a scammer"""
   scammerScore: Int
