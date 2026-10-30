@@ -11146,11 +11146,16 @@ enum NetworkRankingAttribute {
   volumeChange4
   volumeChange12
   volumeChange24
-  transactions5m
-  transactions1
-  transactions4
-  transactions12
-  transactions24
+  transactions5m @deprecated(reason: "Use swaps5m instead")
+  transactions1 @deprecated(reason: "Use swaps1 instead")
+  transactions4 @deprecated(reason: "Use swaps4 instead")
+  transactions12 @deprecated(reason: "Use swaps12 instead")
+  transactions24 @deprecated(reason: "Use swaps24 instead")
+  swaps5m
+  swaps1
+  swaps4
+  swaps12
+  swaps24
 }
 
 """The attribute used to rank launchpads. Rankings apply to the combined stats by default; set `phase` on the ranking to rank by `pre` or `post` phase stats instead (stats attributes only)."""
@@ -12040,16 +12045,26 @@ type GetNetworkStatsResponse {
   volumeChange5m: Float!
   """The network liquidity in USD."""
   liquidity: Float!
-  """The unique number of transactions in the past 24 hours."""
-  transactions24: Int!
-  """The unique number of transactions in the past 12 hours."""
-  transactions12: Int!
-  """The unique number of transactions in the past 4 hours."""
-  transactions4: Int!
-  """The unique number of transactions in the past hour."""
-  transactions1: Int!
-  """The unique number of transactions in the past 5 minutes."""
-  transactions5m: Int!
+  """The number of DEX swaps in the past 24 hours, not unique transactions."""
+  transactions24: Int! @deprecated(reason: "Use swaps24 instead")
+  """The number of DEX swaps in the past 12 hours, not unique transactions."""
+  transactions12: Int! @deprecated(reason: "Use swaps12 instead")
+  """The number of DEX swaps in the past 4 hours, not unique transactions."""
+  transactions4: Int! @deprecated(reason: "Use swaps4 instead")
+  """The number of DEX swaps in the past hour, not unique transactions."""
+  transactions1: Int! @deprecated(reason: "Use swaps1 instead")
+  """The number of DEX swaps in the past 5 minutes, not unique transactions."""
+  transactions5m: Int! @deprecated(reason: "Use swaps5m instead")
+  """The number of DEX swaps in the past 24 hours. A trade routed through two pools counts as two swaps."""
+  swaps24: Int!
+  """The number of DEX swaps in the past 12 hours. A trade routed through two pools counts as two swaps."""
+  swaps12: Int!
+  """The number of DEX swaps in the past 4 hours. A trade routed through two pools counts as two swaps."""
+  swaps4: Int!
+  """The number of DEX swaps in the past hour. A trade routed through two pools counts as two swaps."""
+  swaps1: Int!
+  """The number of DEX swaps in the past 5 minutes. A trade routed through two pools counts as two swaps."""
+  swaps5m: Int!
 }
 
 """Event data for a token burn event."""
@@ -12258,16 +12273,26 @@ type NetworkFilterResult {
   volumeChange12: Float
   """The percent volume change in the past 24 hours. Decimal format."""
   volumeChange24: Float
-  """The number of transactions in the past 5 minutes."""
-  transactions5m: Int
-  """The number of transactions in the past hour."""
-  transactions1: Int
-  """The number of transactions in the past 4 hours."""
-  transactions4: Int
-  """The number of transactions in the past 12 hours."""
-  transactions12: Int
-  """The number of transactions in the past 24 hours."""
-  transactions24: Int
+  """The number of DEX swaps in the past 5 minutes, not chain transactions."""
+  transactions5m: Int @deprecated(reason: "Use swaps5m instead")
+  """The number of DEX swaps in the past hour, not chain transactions."""
+  transactions1: Int @deprecated(reason: "Use swaps1 instead")
+  """The number of DEX swaps in the past 4 hours, not chain transactions."""
+  transactions4: Int @deprecated(reason: "Use swaps4 instead")
+  """The number of DEX swaps in the past 12 hours, not chain transactions."""
+  transactions12: Int @deprecated(reason: "Use swaps12 instead")
+  """The number of DEX swaps in the past 24 hours, not chain transactions."""
+  transactions24: Int @deprecated(reason: "Use swaps24 instead")
+  """The number of DEX swaps in the past 5 minutes. A trade routed through two pools counts as two swaps."""
+  swaps5m: Int
+  """The number of DEX swaps in the past hour. A trade routed through two pools counts as two swaps."""
+  swaps1: Int
+  """The number of DEX swaps in the past 4 hours. A trade routed through two pools counts as two swaps."""
+  swaps4: Int
+  """The number of DEX swaps in the past 12 hours. A trade routed through two pools counts as two swaps."""
+  swaps12: Int
+  """The number of DEX swaps in the past 24 hours. A trade routed through two pools counts as two swaps."""
+  swaps24: Int
 }
 
 """Response returned by `filterNetworks`."""
@@ -14028,16 +14053,26 @@ input NetworkFilters {
   volumeChange12: NumberFilter
   """The percent volume change in the past 24 hours. Decimal format."""
   volumeChange24: NumberFilter
-  """The number of transactions in the past 5 minutes."""
-  transactions5m: NumberFilter
-  """The number of transactions in the past hour."""
-  transactions1: NumberFilter
-  """The number of transactions in the past 4 hours."""
-  transactions4: NumberFilter
-  """The number of transactions in the past 12 hours."""
-  transactions12: NumberFilter
-  """The number of transactions in the past 24 hours."""
-  transactions24: NumberFilter
+  """The number of DEX swaps in the past 5 minutes, not chain transactions."""
+  transactions5m: NumberFilter @deprecated(reason: "Use swaps5m instead")
+  """The number of DEX swaps in the past hour, not chain transactions."""
+  transactions1: NumberFilter @deprecated(reason: "Use swaps1 instead")
+  """The number of DEX swaps in the past 4 hours, not chain transactions."""
+  transactions4: NumberFilter @deprecated(reason: "Use swaps4 instead")
+  """The number of DEX swaps in the past 12 hours, not chain transactions."""
+  transactions12: NumberFilter @deprecated(reason: "Use swaps12 instead")
+  """The number of DEX swaps in the past 24 hours, not chain transactions."""
+  transactions24: NumberFilter @deprecated(reason: "Use swaps24 instead")
+  """The number of DEX swaps in the past 5 minutes. A trade routed through two pools counts as two swaps."""
+  swaps5m: NumberFilter
+  """The number of DEX swaps in the past hour. A trade routed through two pools counts as two swaps."""
+  swaps1: NumberFilter
+  """The number of DEX swaps in the past 4 hours. A trade routed through two pools counts as two swaps."""
+  swaps4: NumberFilter
+  """The number of DEX swaps in the past 12 hours. A trade routed through two pools counts as two swaps."""
+  swaps12: NumberFilter
+  """The number of DEX swaps in the past 24 hours. A trade routed through two pools counts as two swaps."""
+  swaps24: NumberFilter
 }
 
 """Phase-level stats filters for `filterLaunchpads`. Each field is a numeric range filter applied to one phase's stats."""
