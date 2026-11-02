@@ -15704,6 +15704,8 @@ enum WalletLabel {
   SANCTIONED
   """Wallet behind token scams: a serial rug deployer, its launch crew, or a honeypot creator. Its confidence is `scammerScore`."""
   SCAMMER
+  """Wallet has launched 20 or more tokens on launchpads. It says nothing about whether they were scams: a wallet behind scam launches is `SCAMMER`."""
+  SERIAL_DEPLOYER
   """Skilled trader with $5k+ net profit over a year and a record chance rarely produces. Recomputed weekly on Solana, Robinhood, Ethereum, BSC and Base."""
   SMART_TRADER
   """Wallet has made over $7.5K profit in the last 90 days trading tokens that are older than 2 days."""
