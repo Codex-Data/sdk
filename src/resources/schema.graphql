@@ -11156,6 +11156,11 @@ enum NetworkRankingAttribute {
   swaps4
   swaps12
   swaps24
+  chainTransactions5m
+  chainTransactions1
+  chainTransactions4
+  chainTransactions12
+  chainTransactions24
 }
 
 """The attribute used to rank launchpads. Rankings apply to the combined stats by default; set `phase` on the ranking to rank by `pre` or `post` phase stats instead (stats attributes only)."""
@@ -12293,6 +12298,16 @@ type NetworkFilterResult {
   swaps12: Int
   """The number of DEX swaps in the past 24 hours. A trade routed through two pools counts as two swaps."""
   swaps24: Int
+  """The number of transactions on the chain in the past 5 minutes, failed ones included. Null until the network has been counted for the whole window."""
+  chainTransactions5m: Int
+  """The number of transactions on the chain in the past hour, failed ones included. Null until the network has been counted for the whole window."""
+  chainTransactions1: Int
+  """The number of transactions on the chain in the past 4 hours, failed ones included. Null until the network has been counted for the whole window."""
+  chainTransactions4: Int
+  """The number of transactions on the chain in the past 12 hours, failed ones included. Null until the network has been counted for the whole window."""
+  chainTransactions12: Int
+  """The number of transactions on the chain in the past 24 hours, failed ones included. Null until the network has been counted for the whole window."""
+  chainTransactions24: Int
 }
 
 """Response returned by `filterNetworks`."""
@@ -14073,6 +14088,16 @@ input NetworkFilters {
   swaps12: NumberFilter
   """The number of DEX swaps in the past 24 hours. A trade routed through two pools counts as two swaps."""
   swaps24: NumberFilter
+  """The number of transactions on the chain in the past 5 minutes, failed ones included."""
+  chainTransactions5m: NumberFilter
+  """The number of transactions on the chain in the past hour, failed ones included."""
+  chainTransactions1: NumberFilter
+  """The number of transactions on the chain in the past 4 hours, failed ones included."""
+  chainTransactions4: NumberFilter
+  """The number of transactions on the chain in the past 12 hours, failed ones included."""
+  chainTransactions12: NumberFilter
+  """The number of transactions on the chain in the past 24 hours, failed ones included."""
+  chainTransactions24: NumberFilter
 }
 
 """Phase-level stats filters for `filterLaunchpads`. Each field is a numeric range filter applied to one phase's stats."""
