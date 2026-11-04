@@ -3998,6 +3998,7 @@ type SocialLinks {
   wechat: String
   whitepaper: String
   youtube: String
+  tiktok: String
 }
 
 """Game data for a Parallel asset."""
@@ -13089,6 +13090,7 @@ enum TokenSocialLink {
   REDDIT
   SLACK
   TELEGRAM
+  TIKTOK
   TWITCH
   TWITTER
   WEBSITE
