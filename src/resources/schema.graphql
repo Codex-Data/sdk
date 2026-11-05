@@ -11167,6 +11167,12 @@ enum NetworkRankingAttribute {
   trades4
   trades12
   trades24
+  tokensCreated5m
+  tokensCreated1
+  tokensCreated4
+  tokensCreated12
+  tokensCreated24
+  stablecoinSupplyUsd
 }
 
 """The attribute used to rank launchpads. Rankings apply to the combined stats by default; set `phase` on the ranking to rank by `pre` or `post` phase stats instead (stats attributes only)."""
@@ -12324,6 +12330,18 @@ type NetworkFilterResult {
   trades12: Int
   """The number of DEX trades on the network in the past 24 hours. A trade routed through several pools counts once, and no trade is filtered out, unlike swaps. Null if the trades couldn't be counted."""
   trades24: Int
+  """The number of new tokens on the network in the past 5 minutes, counted by creation time: every token Codex indexes, whether a launchpad made it or not. Null if the tokens couldn't be counted."""
+  tokensCreated5m: Int
+  """The number of new tokens on the network in the past hour, counted by creation time: every token Codex indexes, whether a launchpad made it or not. Null if the tokens couldn't be counted."""
+  tokensCreated1: Int
+  """The number of new tokens on the network in the past 4 hours, counted by creation time: every token Codex indexes, whether a launchpad made it or not. Null if the tokens couldn't be counted."""
+  tokensCreated4: Int
+  """The number of new tokens on the network in the past 12 hours, counted by creation time: every token Codex indexes, whether a launchpad made it or not. Null if the tokens couldn't be counted."""
+  tokensCreated12: Int
+  """The number of new tokens on the network in the past 24 hours, counted by creation time: every token Codex indexes, whether a launchpad made it or not. Null if the tokens couldn't be counted."""
+  tokensCreated24: Int
+  """The total supply of USD stablecoins on the network, at $1 a token. Includes tokens locked in bridges and tokens an issuer holds but hasn't issued. Null on testnets, on networks where Codex doesn't track token supply yet (Sui, Aptos, Starknet), or if the supply couldn't be read."""
+  stablecoinSupplyUsd: String
 }
 
 """Response returned by `filterNetworks`."""
@@ -14125,6 +14143,18 @@ input NetworkFilters {
   trades12: NumberFilter
   """The number of DEX trades on the network in the past 24 hours. A trade routed through several pools counts once, and no trade is filtered out, unlike swaps."""
   trades24: NumberFilter
+  """The number of new tokens on the network in the past 5 minutes, counted by creation time: every token Codex indexes, whether a launchpad made it or not."""
+  tokensCreated5m: NumberFilter
+  """The number of new tokens on the network in the past hour, counted by creation time: every token Codex indexes, whether a launchpad made it or not."""
+  tokensCreated1: NumberFilter
+  """The number of new tokens on the network in the past 4 hours, counted by creation time: every token Codex indexes, whether a launchpad made it or not."""
+  tokensCreated4: NumberFilter
+  """The number of new tokens on the network in the past 12 hours, counted by creation time: every token Codex indexes, whether a launchpad made it or not."""
+  tokensCreated12: NumberFilter
+  """The number of new tokens on the network in the past 24 hours, counted by creation time: every token Codex indexes, whether a launchpad made it or not."""
+  tokensCreated24: NumberFilter
+  """The total supply of USD stablecoins on the network, at $1 a token."""
+  stablecoinSupplyUsd: NumberFilter
 }
 
 """Phase-level stats filters for `filterLaunchpads`. Each field is a numeric range filter applied to one phase's stats."""
