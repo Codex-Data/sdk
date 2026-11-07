@@ -3,6 +3,7 @@ import type { SubscribePayload } from "graphql-ws";
 
 const SOLANA_NETWORK_ID = 1399811149;
 export const ROBINHOOD_NETWORK_ID = 4663;
+export const BASE_NETWORK_ID = 8453;
 const SUPPORTED_OPERATIONS = new Set([
   "onEventsCreated",
   "onTokenEventsCreated",
@@ -14,7 +15,7 @@ const SUPPORTED_OPERATIONS = new Set([
 export function assertEdgeSubscription(payload: SubscribePayload): number {
   function fail(): never {
     throw new Error(
-      "useEdge requires a supported Solana or Robinhood subscription with commitmentLevel including Processed",
+      "useEdge requires a supported Solana, Robinhood or Base subscription with commitmentLevel including Processed",
     );
   }
   const document = parse(payload.query);
@@ -74,7 +75,9 @@ export function assertEdgeSubscription(payload: SubscribePayload): number {
   collect(args);
   const networkId = networks[0];
   if (
-    (networkId !== SOLANA_NETWORK_ID && networkId !== ROBINHOOD_NETWORK_ID) ||
+    (networkId !== SOLANA_NETWORK_ID &&
+      networkId !== ROBINHOOD_NETWORK_ID &&
+      networkId !== BASE_NETWORK_ID) ||
     networks.some((network) => network !== networkId)
   )
     fail();

@@ -1,6 +1,7 @@
 import { type ClientOptions, createClient } from "graphql-ws";
 
 import {
+  BASE_EDGE_URL,
   createEdgeClient,
   DEFAULT_EDGE_URL,
   ROBINHOOD_EDGE_URL,
@@ -276,6 +277,7 @@ it.each([
     for (const [networkId, url] of [
       [1399811149, DEFAULT_EDGE_URL],
       [4663, ROBINHOOD_EDGE_URL],
+      [8453, BASE_EDGE_URL],
     ]) {
       const client = createClientWithEdge({
         url: "wss://main.example/graphql",
@@ -305,7 +307,7 @@ it.each([
   { levels: ["Processed", "Finalized"] },
   { levels: ["Processed", null] },
   { levels: ["Processed", 1] },
-  { input: { networkId: 8453 } },
+  { input: { networkId: 1 } },
   { input: { networkId: "1399811149" } },
   { input: { tokenAddress: "token" } },
 ])(
@@ -330,7 +332,7 @@ it.each([
   `query { onEventsCreated(networkId: 1399811149, commitmentLevel: [Processed]) { events { transactionHash } } }`,
   `subscription { onPriceUpdated(networkId: 1399811149, commitmentLevel: [Processed]) { priceUsd } }`,
   `subscription { onEventsCreatedByMaker(input: {networkId: 1399811149}, commitmentLevel: [Processed]) { events { transactionHash } } }`,
-  `subscription { onEventsCreated(id: "pair:8453", commitmentLevel: [Processed]) { events { transactionHash } } }`,
+  `subscription { onEventsCreated(id: "pair:1", commitmentLevel: [Processed]) { events { transactionHash } } }`,
   `subscription { onEventsCreated(id: "pair:1399811149", networkId: 1, commitmentLevel: [Processed]) { events { transactionHash } } }`,
   `subscription { onEventsCreated(id: "pair:4663", networkId: 1399811149, commitmentLevel: [Processed]) { events { transactionHash } } }`,
   `subscription { onEventsCreated(id: "pair:1399811149", networkId: 4663, commitmentLevel: [Processed]) { events { transactionHash } } }`,
@@ -350,7 +352,7 @@ it.each([
   expect(transports).toHaveLength(1);
 });
 
-it.each([1399811149, 4663])(
+it.each([1399811149, 4663, 8453])(
   "rejects implicit pair quote selection for network %s instead of letting edge relay it through Oregon",
   (networkId) => {
     const client = createClientWithEdge({ url: "wss://main.example/graphql" });
@@ -451,4 +453,22 @@ it("validates serialized variables rather than a misleading toJSON value", () =>
     ),
   ).toThrow("useEdge requires");
   expect(transports).toHaveLength(1);
+});
+
+it("reuses the Virginia transport for separate Base and Robinhood operations", async () => {
+  const client = createClientWithEdge({ url: "wss://main.example/graphql" });
+  for (const networkId of [4663, 8453]) {
+    client.subscribe(
+      {
+        query: events,
+        variables: { ...variables, input: { ...variables.input, networkId } },
+      },
+      sink,
+      { useEdge: true },
+    );
+  }
+  expect(transports).toHaveLength(2);
+  expect(transports[1].options.url).toBe(BASE_EDGE_URL);
+  expect(transports[1].subscribe).toHaveBeenCalledTimes(2);
+  await client.dispose();
 });
