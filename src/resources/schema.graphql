@@ -605,7 +605,7 @@ type Query {
   filterLaunchpads(
     """A set of filters to apply."""
     filters: LaunchpadFilters
-    """A list of launchpad names. Any of the following: Pump.fun, Pump Mayhem, Bonk, BONAD.fun, Nad.Fun, Baseapp, Baseapp Creator, Zora, Zora Creator, Four.meme, Four.meme Fair, Believe, Moonshot, Jupiter Studio, boop, Heaven, TokenMill V2, Virtuals, Clanker, Clanker V4, ArenaTrade, Moonit, LaunchLab, MeteoraDBC, MeteoraDLMMPro, Meteora Alpha Vault, Zora Solana, Cooking.City, time.fun, BAGS, Circus, Dealr, OhFuckFun, PrintFun, Trend, shout.fun, xApple, Sendshot, DubDub, cults, OpenGameProtocol, AMERICA.fun, Kumbaya, bow.fun, Sushi Launch, Printr, Bankr, Liquid, Noice, Flaunch, Coinbarrel, Blowfish, MeMoo, Metaplex, Scale, Eitherway, Livo, Trench, Flap, NOXA Fun, hood.fun, moto.fun, pons, Genius, Peach, LONG, Feel.cash, EasyA Kickstart, Doppler, o1.exchange, minara.fun, UniswapCCA, tren.ch, StonkFun, Tolly, Launchfair, send.fun, hostile.xyz, Argus, Faze, Lift, meme.fun, Flywheel, Realm, c8ntinuum Pledge, c8ntinuum Launchpad."""
+    """A list of launchpad names. Any of the following: Pump.fun, Pump Mayhem, Bonk, BONAD.fun, Nad.Fun, Baseapp, Baseapp Creator, Zora, Zora Creator, Four.meme, Four.meme Fair, Believe, Moonshot, Jupiter Studio, boop, Heaven, TokenMill V2, Virtuals, Clanker, Clanker V4, ArenaTrade, Moonit, LaunchLab, MeteoraDBC, MeteoraDLMMPro, Meteora Alpha Vault, Zora Solana, Cooking.City, time.fun, BAGS, Circus, Dealr, OhFuckFun, PrintFun, Trend, shout.fun, xApple, Sendshot, DubDub, cults, OpenGameProtocol, AMERICA.fun, Kumbaya, bow.fun, Sushi Launch, Printr, Bankr, Liquid, Noice, Flaunch, Coinbarrel, Blowfish, MeMoo, Metaplex, Scale, Eitherway, Livo, Trench, Flap, NOXA Fun, hood.fun, moto.fun, pons, Genius, Peach, LONG, Feel.cash, EasyA Kickstart, Doppler, o1.exchange, minara.fun, UniswapCCA, tren.ch, StonkFun, Tolly, Launchfair, send.fun, hostile.xyz, Argus, Faze, Lift, meme.fun, Flywheel, Realm, Ascend, Montra, c8ntinuum Pledge, c8ntinuum Launchpad."""
     launchpads: [String!]
     """A list of network IDs to include. If not provided, all networks are considered."""
     networks: [Int!]
@@ -11210,6 +11210,16 @@ enum NetworkRankingAttribute {
   tokensCreated4
   tokensCreated12
   tokensCreated24
+  traders5m
+  traders1
+  traders4
+  traders12
+  traders24
+  tokensTraded5m
+  tokensTraded1
+  tokensTraded4
+  tokensTraded12
+  tokensTraded24
   stablecoinSupplyUsd
 }
 
@@ -12378,7 +12388,27 @@ type NetworkFilterResult {
   tokensCreated12: Int
   """The number of new tokens on the network in the past 24 hours, counted by creation time: every token Codex indexes, whether a launchpad made it or not. Null if the tokens couldn't be counted."""
   tokensCreated24: Int
-  """The total supply of USD stablecoins on the network, at $1 a token. Includes tokens locked in bridges and tokens an issuer holds but hasn't issued. Null on testnets, on networks where Codex doesn't track token supply yet (Sui, Aptos, Starknet), or if the supply couldn't be read."""
+  """The number of distinct wallets that made DEX trades on the network in the past 5 minutes. Null if the trades couldn't be counted."""
+  traders5m: Int
+  """The number of distinct wallets that made DEX trades on the network in the past hour. Null if the trades couldn't be counted."""
+  traders1: Int
+  """The number of distinct wallets that made DEX trades on the network in the past 4 hours. Null if the trades couldn't be counted."""
+  traders4: Int
+  """The number of distinct wallets that made DEX trades on the network in the past 12 hours. Null if the trades couldn't be counted."""
+  traders12: Int
+  """The number of distinct wallets that made DEX trades on the network in the past 24 hours. Null if the trades couldn't be counted."""
+  traders24: Int
+  """The number of tokens traded on the network in the past 5 minutes: tokens Codex indexes whose last trade falls in the window. Null if the tokens couldn't be counted."""
+  tokensTraded5m: Int
+  """The number of tokens traded on the network in the past hour: tokens Codex indexes whose last trade falls in the window. Null if the tokens couldn't be counted."""
+  tokensTraded1: Int
+  """The number of tokens traded on the network in the past 4 hours: tokens Codex indexes whose last trade falls in the window. Null if the tokens couldn't be counted."""
+  tokensTraded4: Int
+  """The number of tokens traded on the network in the past 12 hours: tokens Codex indexes whose last trade falls in the window. Null if the tokens couldn't be counted."""
+  tokensTraded12: Int
+  """The number of tokens traded on the network in the past 24 hours: tokens Codex indexes whose last trade falls in the window. Null if the tokens couldn't be counted."""
+  tokensTraded24: Int
+  """The total supply of USD stablecoins on the network, at $1 a token. Includes tokens locked in bridges and tokens an issuer holds but hasn't issued. Null on testnets or if the supply couldn't be read."""
   stablecoinSupplyUsd: String
 }
 
@@ -13368,7 +13398,7 @@ input TokenFilters {
   creatorAddresses: [String!]
   """A list of launchpad protocols."""
   launchpadProtocol: [String!]
-  """A list of launchpad names. Any of the following: Pump.fun, Pump Mayhem, Bonk, BONAD.fun, Nad.Fun, Baseapp, Baseapp Creator, Zora, Zora Creator, Four.meme, Four.meme Fair, Believe, Moonshot, Jupiter Studio, boop, Heaven, TokenMill V2, Virtuals, Clanker, Clanker V4, ArenaTrade, Moonit, LaunchLab, MeteoraDBC, MeteoraDLMMPro, Meteora Alpha Vault, Zora Solana, Cooking.City, time.fun, BAGS, Circus, Dealr, OhFuckFun, PrintFun, Trend, shout.fun, xApple, Sendshot, DubDub, cults, OpenGameProtocol, AMERICA.fun, Kumbaya, bow.fun, Sushi Launch, Printr, Bankr, Liquid, Noice, Flaunch, Coinbarrel, Blowfish, MeMoo, Metaplex, Scale, Eitherway, Livo, Trench, Flap, NOXA Fun, hood.fun, moto.fun, pons, Genius, Peach, LONG, Feel.cash, EasyA Kickstart, Doppler, o1.exchange, minara.fun, UniswapCCA, tren.ch, StonkFun, Tolly, Launchfair, send.fun, hostile.xyz, Argus, Faze, Lift, meme.fun, Flywheel, Realm, c8ntinuum Pledge, c8ntinuum Launchpad."""
+  """A list of launchpad names. Any of the following: Pump.fun, Pump Mayhem, Bonk, BONAD.fun, Nad.Fun, Baseapp, Baseapp Creator, Zora, Zora Creator, Four.meme, Four.meme Fair, Believe, Moonshot, Jupiter Studio, boop, Heaven, TokenMill V2, Virtuals, Clanker, Clanker V4, ArenaTrade, Moonit, LaunchLab, MeteoraDBC, MeteoraDLMMPro, Meteora Alpha Vault, Zora Solana, Cooking.City, time.fun, BAGS, Circus, Dealr, OhFuckFun, PrintFun, Trend, shout.fun, xApple, Sendshot, DubDub, cults, OpenGameProtocol, AMERICA.fun, Kumbaya, bow.fun, Sushi Launch, Printr, Bankr, Liquid, Noice, Flaunch, Coinbarrel, Blowfish, MeMoo, Metaplex, Scale, Eitherway, Livo, Trench, Flap, NOXA Fun, hood.fun, moto.fun, pons, Genius, Peach, LONG, Feel.cash, EasyA Kickstart, Doppler, o1.exchange, minara.fun, UniswapCCA, tren.ch, StonkFun, Tolly, Launchfair, send.fun, hostile.xyz, Argus, Faze, Lift, meme.fun, Flywheel, Realm, Ascend, Montra, c8ntinuum Pledge, c8ntinuum Launchpad."""
   launchpadName: [String!]
   """A list of launchpad fee modes. Matches tokens whose fee modes include any of them (Pump and PumpAmm only)."""
   feeModes: [FeeMode!]
@@ -14209,6 +14239,26 @@ input NetworkFilters {
   tokensCreated12: NumberFilter
   """The number of new tokens on the network in the past 24 hours, counted by creation time: every token Codex indexes, whether a launchpad made it or not."""
   tokensCreated24: NumberFilter
+  """The number of distinct wallets that made DEX trades on the network in the past 5 minutes."""
+  traders5m: NumberFilter
+  """The number of distinct wallets that made DEX trades on the network in the past hour."""
+  traders1: NumberFilter
+  """The number of distinct wallets that made DEX trades on the network in the past 4 hours."""
+  traders4: NumberFilter
+  """The number of distinct wallets that made DEX trades on the network in the past 12 hours."""
+  traders12: NumberFilter
+  """The number of distinct wallets that made DEX trades on the network in the past 24 hours."""
+  traders24: NumberFilter
+  """The number of tokens traded on the network in the past 5 minutes: tokens Codex indexes whose last trade falls in the window."""
+  tokensTraded5m: NumberFilter
+  """The number of tokens traded on the network in the past hour: tokens Codex indexes whose last trade falls in the window."""
+  tokensTraded1: NumberFilter
+  """The number of tokens traded on the network in the past 4 hours: tokens Codex indexes whose last trade falls in the window."""
+  tokensTraded4: NumberFilter
+  """The number of tokens traded on the network in the past 12 hours: tokens Codex indexes whose last trade falls in the window."""
+  tokensTraded12: NumberFilter
+  """The number of tokens traded on the network in the past 24 hours: tokens Codex indexes whose last trade falls in the window."""
+  tokensTraded24: NumberFilter
   """The total supply of USD stablecoins on the network, at $1 a token."""
   stablecoinSupplyUsd: NumberFilter
 }
@@ -15561,9 +15611,9 @@ input OnLaunchpadTokenEventInput {
   protocol: LaunchpadTokenProtocol
   """A list of launchpad protocols."""
   protocols: [LaunchpadTokenProtocol!]
-  """The name of the launchpad. One of the following: Pump.fun, Pump Mayhem, Bonk, BONAD.fun, Nad.Fun, Baseapp, Baseapp Creator, Zora, Zora Creator, Four.meme, Four.meme Fair, Believe, Moonshot, Jupiter Studio, boop, Heaven, TokenMill V2, Virtuals, Clanker, Clanker V4, ArenaTrade, Moonit, LaunchLab, MeteoraDBC, MeteoraDLMMPro, Meteora Alpha Vault, Zora Solana, Cooking.City, time.fun, BAGS, Circus, Dealr, OhFuckFun, PrintFun, Trend, shout.fun, xApple, Sendshot, DubDub, cults, OpenGameProtocol, AMERICA.fun, Kumbaya, bow.fun, Sushi Launch, Printr, Bankr, Liquid, Noice, Flaunch, Coinbarrel, Blowfish, MeMoo, Metaplex, Scale, Eitherway, Livo, Trench, Flap, NOXA Fun, hood.fun, moto.fun, pons, Genius, Peach, LONG, Feel.cash, EasyA Kickstart, Doppler, o1.exchange, minara.fun, UniswapCCA, tren.ch, StonkFun, Tolly, Launchfair, send.fun, hostile.xyz, Argus, Faze, Lift, meme.fun, Flywheel, Realm, c8ntinuum Pledge, c8ntinuum Launchpad."""
+  """The name of the launchpad. One of the following: Pump.fun, Pump Mayhem, Bonk, BONAD.fun, Nad.Fun, Baseapp, Baseapp Creator, Zora, Zora Creator, Four.meme, Four.meme Fair, Believe, Moonshot, Jupiter Studio, boop, Heaven, TokenMill V2, Virtuals, Clanker, Clanker V4, ArenaTrade, Moonit, LaunchLab, MeteoraDBC, MeteoraDLMMPro, Meteora Alpha Vault, Zora Solana, Cooking.City, time.fun, BAGS, Circus, Dealr, OhFuckFun, PrintFun, Trend, shout.fun, xApple, Sendshot, DubDub, cults, OpenGameProtocol, AMERICA.fun, Kumbaya, bow.fun, Sushi Launch, Printr, Bankr, Liquid, Noice, Flaunch, Coinbarrel, Blowfish, MeMoo, Metaplex, Scale, Eitherway, Livo, Trench, Flap, NOXA Fun, hood.fun, moto.fun, pons, Genius, Peach, LONG, Feel.cash, EasyA Kickstart, Doppler, o1.exchange, minara.fun, UniswapCCA, tren.ch, StonkFun, Tolly, Launchfair, send.fun, hostile.xyz, Argus, Faze, Lift, meme.fun, Flywheel, Realm, Ascend, Montra, c8ntinuum Pledge, c8ntinuum Launchpad."""
   launchpadName: String
-  """A list of launchpad names. Any of the following: Pump.fun, Pump Mayhem, Bonk, BONAD.fun, Nad.Fun, Baseapp, Baseapp Creator, Zora, Zora Creator, Four.meme, Four.meme Fair, Believe, Moonshot, Jupiter Studio, boop, Heaven, TokenMill V2, Virtuals, Clanker, Clanker V4, ArenaTrade, Moonit, LaunchLab, MeteoraDBC, MeteoraDLMMPro, Meteora Alpha Vault, Zora Solana, Cooking.City, time.fun, BAGS, Circus, Dealr, OhFuckFun, PrintFun, Trend, shout.fun, xApple, Sendshot, DubDub, cults, OpenGameProtocol, AMERICA.fun, Kumbaya, bow.fun, Sushi Launch, Printr, Bankr, Liquid, Noice, Flaunch, Coinbarrel, Blowfish, MeMoo, Metaplex, Scale, Eitherway, Livo, Trench, Flap, NOXA Fun, hood.fun, moto.fun, pons, Genius, Peach, LONG, Feel.cash, EasyA Kickstart, Doppler, o1.exchange, minara.fun, UniswapCCA, tren.ch, StonkFun, Tolly, Launchfair, send.fun, hostile.xyz, Argus, Faze, Lift, meme.fun, Flywheel, Realm, c8ntinuum Pledge, c8ntinuum Launchpad."""
+  """A list of launchpad names. Any of the following: Pump.fun, Pump Mayhem, Bonk, BONAD.fun, Nad.Fun, Baseapp, Baseapp Creator, Zora, Zora Creator, Four.meme, Four.meme Fair, Believe, Moonshot, Jupiter Studio, boop, Heaven, TokenMill V2, Virtuals, Clanker, Clanker V4, ArenaTrade, Moonit, LaunchLab, MeteoraDBC, MeteoraDLMMPro, Meteora Alpha Vault, Zora Solana, Cooking.City, time.fun, BAGS, Circus, Dealr, OhFuckFun, PrintFun, Trend, shout.fun, xApple, Sendshot, DubDub, cults, OpenGameProtocol, AMERICA.fun, Kumbaya, bow.fun, Sushi Launch, Printr, Bankr, Liquid, Noice, Flaunch, Coinbarrel, Blowfish, MeMoo, Metaplex, Scale, Eitherway, Livo, Trench, Flap, NOXA Fun, hood.fun, moto.fun, pons, Genius, Peach, LONG, Feel.cash, EasyA Kickstart, Doppler, o1.exchange, minara.fun, UniswapCCA, tren.ch, StonkFun, Tolly, Launchfair, send.fun, hostile.xyz, Argus, Faze, Lift, meme.fun, Flywheel, Realm, Ascend, Montra, c8ntinuum Pledge, c8ntinuum Launchpad."""
   launchpadNames: [String!]
   """The type of event."""
   eventType: LaunchpadTokenEventType
@@ -15782,9 +15832,9 @@ input OnLaunchpadTokenEventBatchInput {
   protocols: [LaunchpadTokenProtocol!]
   """The network ID that the token is deployed on."""
   networkId: Int
-  """The name of the launchpad. One of the following: Pump.fun, Pump Mayhem, Bonk, BONAD.fun, Nad.Fun, Baseapp, Baseapp Creator, Zora, Zora Creator, Four.meme, Four.meme Fair, Believe, Moonshot, Jupiter Studio, boop, Heaven, TokenMill V2, Virtuals, Clanker, Clanker V4, ArenaTrade, Moonit, LaunchLab, MeteoraDBC, MeteoraDLMMPro, Meteora Alpha Vault, Zora Solana, Cooking.City, time.fun, BAGS, Circus, Dealr, OhFuckFun, PrintFun, Trend, shout.fun, xApple, Sendshot, DubDub, cults, OpenGameProtocol, AMERICA.fun, Kumbaya, bow.fun, Sushi Launch, Printr, Bankr, Liquid, Noice, Flaunch, Coinbarrel, Blowfish, MeMoo, Metaplex, Scale, Eitherway, Livo, Trench, Flap, NOXA Fun, hood.fun, moto.fun, pons, Genius, Peach, LONG, Feel.cash, EasyA Kickstart, Doppler, o1.exchange, minara.fun, UniswapCCA, tren.ch, StonkFun, Tolly, Launchfair, send.fun, hostile.xyz, Argus, Faze, Lift, meme.fun, Flywheel, Realm, c8ntinuum Pledge, c8ntinuum Launchpad."""
+  """The name of the launchpad. One of the following: Pump.fun, Pump Mayhem, Bonk, BONAD.fun, Nad.Fun, Baseapp, Baseapp Creator, Zora, Zora Creator, Four.meme, Four.meme Fair, Believe, Moonshot, Jupiter Studio, boop, Heaven, TokenMill V2, Virtuals, Clanker, Clanker V4, ArenaTrade, Moonit, LaunchLab, MeteoraDBC, MeteoraDLMMPro, Meteora Alpha Vault, Zora Solana, Cooking.City, time.fun, BAGS, Circus, Dealr, OhFuckFun, PrintFun, Trend, shout.fun, xApple, Sendshot, DubDub, cults, OpenGameProtocol, AMERICA.fun, Kumbaya, bow.fun, Sushi Launch, Printr, Bankr, Liquid, Noice, Flaunch, Coinbarrel, Blowfish, MeMoo, Metaplex, Scale, Eitherway, Livo, Trench, Flap, NOXA Fun, hood.fun, moto.fun, pons, Genius, Peach, LONG, Feel.cash, EasyA Kickstart, Doppler, o1.exchange, minara.fun, UniswapCCA, tren.ch, StonkFun, Tolly, Launchfair, send.fun, hostile.xyz, Argus, Faze, Lift, meme.fun, Flywheel, Realm, Ascend, Montra, c8ntinuum Pledge, c8ntinuum Launchpad."""
   launchpadName: String
-  """A list of launchpad names. Any of the following: Pump.fun, Pump Mayhem, Bonk, BONAD.fun, Nad.Fun, Baseapp, Baseapp Creator, Zora, Zora Creator, Four.meme, Four.meme Fair, Believe, Moonshot, Jupiter Studio, boop, Heaven, TokenMill V2, Virtuals, Clanker, Clanker V4, ArenaTrade, Moonit, LaunchLab, MeteoraDBC, MeteoraDLMMPro, Meteora Alpha Vault, Zora Solana, Cooking.City, time.fun, BAGS, Circus, Dealr, OhFuckFun, PrintFun, Trend, shout.fun, xApple, Sendshot, DubDub, cults, OpenGameProtocol, AMERICA.fun, Kumbaya, bow.fun, Sushi Launch, Printr, Bankr, Liquid, Noice, Flaunch, Coinbarrel, Blowfish, MeMoo, Metaplex, Scale, Eitherway, Livo, Trench, Flap, NOXA Fun, hood.fun, moto.fun, pons, Genius, Peach, LONG, Feel.cash, EasyA Kickstart, Doppler, o1.exchange, minara.fun, UniswapCCA, tren.ch, StonkFun, Tolly, Launchfair, send.fun, hostile.xyz, Argus, Faze, Lift, meme.fun, Flywheel, Realm, c8ntinuum Pledge, c8ntinuum Launchpad."""
+  """A list of launchpad names. Any of the following: Pump.fun, Pump Mayhem, Bonk, BONAD.fun, Nad.Fun, Baseapp, Baseapp Creator, Zora, Zora Creator, Four.meme, Four.meme Fair, Believe, Moonshot, Jupiter Studio, boop, Heaven, TokenMill V2, Virtuals, Clanker, Clanker V4, ArenaTrade, Moonit, LaunchLab, MeteoraDBC, MeteoraDLMMPro, Meteora Alpha Vault, Zora Solana, Cooking.City, time.fun, BAGS, Circus, Dealr, OhFuckFun, PrintFun, Trend, shout.fun, xApple, Sendshot, DubDub, cults, OpenGameProtocol, AMERICA.fun, Kumbaya, bow.fun, Sushi Launch, Printr, Bankr, Liquid, Noice, Flaunch, Coinbarrel, Blowfish, MeMoo, Metaplex, Scale, Eitherway, Livo, Trench, Flap, NOXA Fun, hood.fun, moto.fun, pons, Genius, Peach, LONG, Feel.cash, EasyA Kickstart, Doppler, o1.exchange, minara.fun, UniswapCCA, tren.ch, StonkFun, Tolly, Launchfair, send.fun, hostile.xyz, Argus, Faze, Lift, meme.fun, Flywheel, Realm, Ascend, Montra, c8ntinuum Pledge, c8ntinuum Launchpad."""
   launchpadNames: [String!]
   """The type of event."""
   eventType: LaunchpadTokenEventType
@@ -16016,6 +16066,8 @@ enum LiquidityLockProtocol {
   TOLLY
   FLYWHEEL
   REALM
+  ASCEND
+  MONTRA
 }
 
 """Protocols that create trading pairs."""
