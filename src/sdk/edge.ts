@@ -11,6 +11,7 @@ import {
 
 import {
   assertEdgeSubscription,
+  BSC_NETWORK_ID,
   ROBINHOOD_NETWORK_ID,
 } from "./edgeSubscription";
 
@@ -18,15 +19,17 @@ export { createClient };
 
 export const DEFAULT_EDGE_URL = "wss://fra.edge.codex.io/graphql";
 export const ROBINHOOD_EDGE_URL = "wss://iad.edge.codex.io/graphql";
+export const BSC_EDGE_URL = "wss://iad.edge.codex.io/graphql";
 
 export function edgeUrlForNetwork(networkId: number): string {
+  if (networkId === BSC_NETWORK_ID) return BSC_EDGE_URL;
   return networkId === ROBINHOOD_NETWORK_ID
     ? ROBINHOOD_EDGE_URL
     : DEFAULT_EDGE_URL;
 }
 
 export interface SubscriptionOptions {
-  /** Experimental: use edge for supported Solana or Robinhood streams whose commitments include Processed. */
+  /** Experimental: use edge for supported Solana, Robinhood, or BSC streams whose commitments include Processed. */
   useEdge?: boolean;
 }
 
@@ -45,7 +48,7 @@ export interface ClientWithEdge extends Client {
 }
 
 export interface EdgeClientOptions extends Omit<ClientOptions, "url"> {
-  /** Defaults to the Solana edge endpoint. Use ROBINHOOD_EDGE_URL for Robinhood. */
+  /** Defaults to the Solana edge endpoint. Use ROBINHOOD_EDGE_URL or BSC_EDGE_URL for those networks. */
   url?: ClientOptions["url"];
 }
 

@@ -1,4 +1,5 @@
 export {
+  BSC_EDGE_URL,
   createClient,
   createEdgeClient,
   DEFAULT_EDGE_URL,
