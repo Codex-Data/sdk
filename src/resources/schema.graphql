@@ -692,6 +692,11 @@ type Query {
     """The exchange address to filter by (optional)."""
     exchangeAddress: String
   ): GetNetworkStatsResponse
+  """Returns a network's stats for each hour or UTC day in a time range, for charts."""
+  getNetworkBars(
+    """Input parameters used to select a network, resolution and range."""
+    input: NetworkBarsInput!
+  ): NetworkBarsResponse!
   """Returns transactions for a pair."""
   getTokenEvents(
     """The maximum number of transactions to return."""
@@ -12130,6 +12135,64 @@ type GetNetworkStatsResponse {
   swaps1: Int!
   """The number of DEX swaps in the past 5 minutes. A trade routed through two pools counts as two swaps."""
   swaps5m: Int!
+}
+
+"""Input for `getNetworkBars`."""
+input NetworkBarsInput {
+  """The ID of the network."""
+  networkId: Int!
+  """The time frame of each bar."""
+  resolution: NetworkBarsResolution!
+  """The unix timestamp for the start of the requested range. The bar that holds it is the first returned."""
+  from: Int!
+  """The unix timestamp for the end of the requested range. The bar that holds it is the last returned. The range can hold at most 200 bars."""
+  to: Int!
+}
+
+"""The time frame of a bar returned by `getNetworkBars`."""
+enum NetworkBarsResolution {
+  """One hour."""
+  hour1
+  """One UTC day. A day has a bar once all 24 of its hours have one."""
+  day1
+}
+
+"""Response returned by `getNetworkBars`."""
+type NetworkBarsResponse {
+  """The ID of the network."""
+  networkId: Int!
+  """The time frame of each bar."""
+  resolution: NetworkBarsResolution!
+  """The bars, oldest first. An hour or day Codex didn't record has no bar. History starts on 2026-11-06."""
+  bars: [NetworkBar!]!
+}
+
+"""A network's stats over one hour or one UTC day."""
+type NetworkBar {
+  """The unix timestamp for the start of the bar."""
+  timestamp: Int!
+  """The network trade volume in USD over the bar."""
+  volumeUsd: String!
+  """The number of DEX swaps over the bar. A trade routed through two pools counts as two swaps."""
+  swaps: Int!
+  """The number of transactions on the chain over the bar, failed ones included. Null if the network wasn't counted for the whole bar."""
+  chainTransactions: Int
+  """The number of DEX trades over the bar. A trade routed through several pools counts once, and no trade is filtered out, unlike swaps. Null if the trades couldn't be counted."""
+  trades: Int
+  """The number of new tokens over the bar, counted by creation time: every token Codex indexes, whether a launchpad made it or not. Null if the tokens couldn't be counted."""
+  tokensCreated: Int
+  """The number of distinct wallets that made DEX trades over the bar. Null if they couldn't be counted, on hourly bars before 2026-11-07 21:00 UTC and on daily bars before 2026-11-07."""
+  traders: Int
+  """The number of distinct wallets that made DEX trades in the 24 hours to the end of the bar. Null like `traders`."""
+  traders24h: Int
+  """The number of tokens Codex indexes that swapped over the bar. Null like `traders`. Hourly bars before 2026-11-09 15:00 UTC and daily bars before 2026-11-09 also count tokens whose pools only had liquidity added or removed."""
+  tokensTraded: Int
+  """The number of tokens Codex indexes that swapped in the 24 hours to the end of the bar, counted like `tokensTraded`. Null like `traders`."""
+  tokensTraded24h: Int
+  """The total network liquidity in USD at the end of the bar."""
+  liquidityUsd: String!
+  """The total supply of USD stablecoins on the network at the end of the bar, at $1 a token. Includes tokens locked in bridges and tokens an issuer holds but hasn't issued. Null on networks without a listed stablecoin, if the supply couldn't be read, and for Sui, Aptos and Starknet before 2026-11-07."""
+  stablecoinSupplyUsd: String
 }
 
 """Event data for a token burn event."""
