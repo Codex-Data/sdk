@@ -1,6 +1,6 @@
 # Codex SDK
 
-The TypeScript SDK for the [Codex API](https://www.codex.io) — real-time blockchain data, token prices, OHLCV charts, wallet balances, and holder analytics for 60M+ tokens across 80+ networks including Ethereum, Solana, Base, Arbitrum, BSC, and Polygon.
+The TypeScript SDK for the [Codex API](https://www.codex.io) — real-time blockchain data, token prices, OHLCV charts, wallet balances, and holder analytics for 60M+ tokens across 80+ networks including Ethereum, Solana, Base, Arbitrum, BNB, and Polygon.
 
 Codex is a GraphQL API used by teams like Coinbase, TradingView, Uniswap, Rainbow, FOMO, Farcaster, and hundreds of others.
 
@@ -307,7 +307,7 @@ const unsubscribe = sdk.subscriptions.onEventsCreated(
 
 ## Edge Subscriptions
 
-Pass `{ useEdge: true }` as the third argument to a generated subscription method (or the fourth argument to `sdk.subscribe`) to use a regional edge node. Solana (`1399811149`) routes to `wss://fra.edge.codex.io/graphql`; Robinhood Chain (`4663`) and BSC (`56`) route to `wss://iad.edge.codex.io/graphql` in `us-east-1`. Connections are created on demand and reused per endpoint.
+Pass `{ useEdge: true }` as the third argument to a generated subscription method (or the fourth argument to `sdk.subscribe`) to use a regional edge node. Solana (`1399811149`) routes to `wss://fra.edge.codex.io/graphql`; Robinhood Chain (`4663`) and BNB (`56`) route to `wss://iad.edge.codex.io/graphql` in `us-east-1`. Connections are created on demand and reused per endpoint.
 
 ```typescript
 import { Codex, EventCommitmentLevel } from "@codex-data/sdk";
@@ -330,7 +330,7 @@ const unsubscribe = sdk.subscriptions.onTokenEventsCreated(
 
 Edge supports `onEventsCreated`, `onTokenEventsCreated`, `onBarsUpdated`, and `onTokenBarsUpdated`. The commitment levels must include `Processed`, and `onBarsUpdated` requires an explicit `quoteToken`. Each subscription must target one supported chain. Subscriptions without `useEdge` use the main endpoint.
 
-The lightweight `withEdge` helper from `@codex-data/sdk/edge` uses the same routing. For a standalone Robinhood or BSC connection, pass `url: ROBINHOOD_EDGE_URL` or `url: BSC_EDGE_URL` to `createEdgeClient`, importing them from `@codex-data/sdk/edge`. The SDK's `apiEdgeUrl` and the helper's `edgeUrl` override routing for all chains.
+The lightweight `withEdge` helper from `@codex-data/sdk/edge` uses the same routing. For a standalone Robinhood or BNB connection, pass `url: ROBINHOOD_EDGE_URL` or `url: BNB_EDGE_URL` to `createEdgeClient`, importing them from `@codex-data/sdk/edge`. The SDK's `apiEdgeUrl` and the helper's `edgeUrl` override routing for all chains.
 
 ## Custom Queries: Request Only the Fields You Need
 
@@ -443,7 +443,7 @@ See the [codegen example](./examples/codegen) for a complete working project.
 | Network   | ID           |
 | --------- | ------------ |
 | Ethereum  | `1`          |
-| BSC       | `56`         |
+| BNB       | `56`         |
 | Polygon   | `137`        |
 | Arbitrum  | `42161`      |
 | Base      | `8453`       |

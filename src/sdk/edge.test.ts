@@ -1,7 +1,7 @@
 import { type ClientOptions, createClient } from "graphql-ws";
 
 import {
-  BSC_EDGE_URL,
+  BNB_EDGE_URL,
   createEdgeClient,
   DEFAULT_EDGE_URL,
   ROBINHOOD_EDGE_URL,
@@ -36,7 +36,7 @@ const robinhoodVariables = {
   ...variables,
   input: { ...variables.input, networkId: 4663 },
 };
-const bscVariables = {
+const bnbVariables = {
   ...variables,
   input: { ...variables.input, networkId: 56 },
 };
@@ -84,11 +84,11 @@ it.each(["sdk", "withEdge"])(
             useEdge,
           });
     subscribe(robinhoodVariables, false);
-    subscribe(bscVariables, false);
+    subscribe(bnbVariables, false);
     subscribe(variables);
     subscribe(robinhoodVariables);
-    subscribe(bscVariables);
-    subscribe(bscVariables);
+    subscribe(bnbVariables);
+    subscribe(bnbVariables);
     subscribe(variables);
     subscribe(robinhoodVariables);
     expect(transports.map(({ options }) => options.url)).toEqual([
@@ -103,9 +103,9 @@ it.each(["sdk", "withEdge"])(
       { query: events, variables: robinhoodVariables },
       sink,
     );
-    expect(transports[2].options.url).toBe(BSC_EDGE_URL);
+    expect(transports[2].options.url).toBe(BNB_EDGE_URL);
     expect(transports[2].subscribe).toHaveBeenCalledWith(
-      { query: events, variables: bscVariables },
+      { query: events, variables: bnbVariables },
       sink,
     );
     for (const { options } of transports) {
@@ -134,7 +134,7 @@ it.each(["sdk", "withEdge"])(
     const client =
       sdk ??
       createClientWithEdge({ url: "wss://main.example/graphql", edgeUrl: url });
-    for (const values of [variables, robinhoodVariables, bscVariables]) {
+    for (const values of [variables, robinhoodVariables, bnbVariables]) {
       if (client instanceof Codex)
         client.subscribe(events, values, sink, { useEdge: true });
       else
@@ -149,10 +149,10 @@ it.each(["sdk", "withEdge"])(
   },
 );
 
-it("routes generated Robinhood and BSC subscriptions and recreates both edge clients after config updates", async () => {
+it("routes generated Robinhood and BNB subscriptions and recreates both edge clients after config updates", async () => {
   const sdk = new Codex("customer");
   const subscribe = () => {
-    for (const { input } of [variables, robinhoodVariables, bscVariables]) {
+    for (const { input } of [variables, robinhoodVariables, bnbVariables]) {
       sdk.subscriptions.onTokenEventsCreated(
         { input, commitmentLevel: [EventCommitmentLevel.Processed] },
         sink,
@@ -166,7 +166,7 @@ it("routes generated Robinhood and BSC subscriptions and recreates both edge cli
     robinhoodVariables.input,
   );
   expect(transports[2].subscribe.mock.calls[1][0].variables.input).toEqual(
-    bscVariables.input,
+    bnbVariables.input,
   );
   sdk.updateConfig({ wsHeaders: { Authorization: "refreshed" } });
   expect(
@@ -292,7 +292,7 @@ it.each([
     for (const [networkId, url] of [
       [1399811149, DEFAULT_EDGE_URL],
       [4663, ROBINHOOD_EDGE_URL],
-      [56, BSC_EDGE_URL],
+      [56, BNB_EDGE_URL],
     ]) {
       const client = createClientWithEdge({
         url: "wss://main.example/graphql",
