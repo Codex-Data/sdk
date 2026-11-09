@@ -2,6 +2,7 @@ import chalk from "chalk";
 import fs from "fs";
 import * as gql from "gql-query-builder";
 import VariableOptions from "gql-query-builder/build/VariableOptions";
+import { buildSchema, introspectionFromSchema } from "graphql";
 import { mkdirp } from "mkdirp";
 import ora from "ora";
 import path from "path";
@@ -159,20 +160,17 @@ export function parseVariables(args: SchemaType[]) {
 }
 
 /**
- * Runs a query against the currently published graphql schema,
- * and generates a query ts file for query.
+ * Generates operations from the fetched schema used by codegen.
  */
 async function run() {
   const brand = chalk.hex("#EAFE77");
   console.log(brand.bold("\n📝 Generating GraphQL Operations\n"));
 
-  // Fetch schema from remote
-  const fetchSpinner = ora("Fetching schema from remote").start();
-  const res = await fetch(`https://graph.codex.io/schema/latest.json`, {
-    method: "GET",
-  });
-  const schemaJson = await res.json();
-  fetchSpinner.succeed(`Fetched schema from ${brand("graph.codex.io")}`);
+  const schemaSpinner = ora("Loading fetched schema").start();
+  const schemaPath = path.join(__dirname, "..", "resources", "schema.graphql");
+  const schema = buildSchema(fs.readFileSync(schemaPath, "utf8"));
+  const schemaJson = introspectionFromSchema(schema);
+  schemaSpinner.succeed("Loaded fetched schema");
 
   // Clear previously generated operations so that anything removed from the
   // schema doesn't linger as an orphaned .graphql file and break codegen.
