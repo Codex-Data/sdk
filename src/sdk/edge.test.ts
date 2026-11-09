@@ -1,6 +1,7 @@
 import { type ClientOptions, createClient } from "graphql-ws";
 
 import {
+  BNB_EDGE_URL,
   createEdgeClient,
   DEFAULT_EDGE_URL,
   ROBINHOOD_EDGE_URL,
@@ -35,6 +36,10 @@ const robinhoodVariables = {
   ...variables,
   input: { ...variables.input, networkId: 4663 },
 };
+const bnbVariables = {
+  ...variables,
+  input: { ...variables.input, networkId: 56 },
+};
 
 beforeEach(() => {
   transports.length = 0;
@@ -63,7 +68,7 @@ it("creates a standalone edge transport without creating a main transport", () =
 });
 
 it.each(["sdk", "withEdge"])(
-  "%s routes each chain to its own reusable edge transport and disposes all transports",
+  "%s routes each chain to its regional endpoint, reuses transports, and disposes all transports",
   async (api) => {
     const sdk = api === "sdk" ? new Codex("customer") : undefined;
     const client =
@@ -79,8 +84,11 @@ it.each(["sdk", "withEdge"])(
             useEdge,
           });
     subscribe(robinhoodVariables, false);
+    subscribe(bnbVariables, false);
     subscribe(variables);
     subscribe(robinhoodVariables);
+    subscribe(bnbVariables);
+    subscribe(bnbVariables);
     subscribe(variables);
     subscribe(robinhoodVariables);
     expect(transports.map(({ options }) => options.url)).toEqual([
@@ -90,9 +98,14 @@ it.each(["sdk", "withEdge"])(
     ]);
     expect(
       transports.map(({ subscribe }) => subscribe.mock.calls.length),
-    ).toEqual([1, 2, 2]);
+    ).toEqual([2, 2, 4]);
     expect(transports[2].subscribe).toHaveBeenCalledWith(
       { query: events, variables: robinhoodVariables },
+      sink,
+    );
+    expect(transports[2].options.url).toBe(BNB_EDGE_URL);
+    expect(transports[2].subscribe).toHaveBeenCalledWith(
+      { query: events, variables: bnbVariables },
       sink,
     );
     for (const { options } of transports) {
@@ -113,7 +126,7 @@ it.each(["sdk", "withEdge"])(
 );
 
 it.each(["sdk", "withEdge"])(
-  "%s honors endpoint overrides for both chains",
+  "%s honors endpoint overrides for all supported chains",
   async (api) => {
     const url = "wss://edge.staging.example/graphql";
     const sdk =
@@ -121,7 +134,7 @@ it.each(["sdk", "withEdge"])(
     const client =
       sdk ??
       createClientWithEdge({ url: "wss://main.example/graphql", edgeUrl: url });
-    for (const values of [variables, robinhoodVariables]) {
+    for (const values of [variables, robinhoodVariables, bnbVariables]) {
       if (client instanceof Codex)
         client.subscribe(events, values, sink, { useEdge: true });
       else
@@ -131,15 +144,15 @@ it.each(["sdk", "withEdge"])(
     }
     expect(transports).toHaveLength(2);
     expect(transports[1].options.url).toBe(url);
-    expect(transports[1].subscribe).toHaveBeenCalledTimes(2);
+    expect(transports[1].subscribe).toHaveBeenCalledTimes(3);
     await client.dispose();
   },
 );
 
-it("routes generated Robinhood subscriptions and recreates both edge clients after config updates", async () => {
+it("routes generated Robinhood and BNB subscriptions and recreates both edge clients after config updates", async () => {
   const sdk = new Codex("customer");
   const subscribe = () => {
-    for (const { input } of [variables, robinhoodVariables]) {
+    for (const { input } of [variables, robinhoodVariables, bnbVariables]) {
       sdk.subscriptions.onTokenEventsCreated(
         { input, commitmentLevel: [EventCommitmentLevel.Processed] },
         sink,
@@ -151,6 +164,9 @@ it("routes generated Robinhood subscriptions and recreates both edge clients aft
   expect(transports[2].options.url).toBe(ROBINHOOD_EDGE_URL);
   expect(transports[2].subscribe.mock.calls[0][0].variables.input).toEqual(
     robinhoodVariables.input,
+  );
+  expect(transports[2].subscribe.mock.calls[1][0].variables.input).toEqual(
+    bnbVariables.input,
   );
   sdk.updateConfig({ wsHeaders: { Authorization: "refreshed" } });
   expect(
@@ -276,6 +292,7 @@ it.each([
     for (const [networkId, url] of [
       [1399811149, DEFAULT_EDGE_URL],
       [4663, ROBINHOOD_EDGE_URL],
+      [56, BNB_EDGE_URL],
     ]) {
       const client = createClientWithEdge({
         url: "wss://main.example/graphql",
@@ -337,6 +354,9 @@ it.each([
   `subscription { onEventsCreated(id: "pair:46630", commitmentLevel: [Processed]) { events { transactionHash } } }`,
   `subscription { onEventsCreated(id: "pair:4663", commitmentLevel: [Confirmed]) { events { transactionHash } } }`,
   `subscription { onEventsCreated(id: "pair:4663", commitmentLevel: [Processed, Finalized]) { events { transactionHash } } }`,
+  `subscription { onEventsCreated(id: "pair:56", networkId: 4663, commitmentLevel: [Processed]) { events { transactionHash } } }`,
+  `subscription { onEventsCreated(id: "pair:56", commitmentLevel: [Confirmed]) { events { transactionHash } } }`,
+  `subscription { onEventsCreated(id: "pair:560", commitmentLevel: [Processed]) { events { transactionHash } } }`,
   `subscription { onEventsCreated(commitmentLevel: [Processed]) { events { transactionHash } } }`,
   `subscription { onTokenBarsUpdated(tokenId: "token", commitmentLevel: [Processed]) { timestamp } }`,
   `subscription { a: onEventsCreated(networkId: 1399811149, commitmentLevel: [Processed]) { id } b: onEventsCreated(networkId: 1399811149, commitmentLevel: [Processed]) { id } }`,
@@ -350,7 +370,7 @@ it.each([
   expect(transports).toHaveLength(1);
 });
 
-it.each([1399811149, 4663])(
+it.each([1399811149, 4663, 56])(
   "rejects implicit pair quote selection for network %s instead of letting edge relay it through Oregon",
   (networkId) => {
     const client = createClientWithEdge({ url: "wss://main.example/graphql" });
