@@ -11235,6 +11235,13 @@ enum NetworkRankingAttribute {
   tokensTraded4
   tokensTraded12
   tokensTraded24
+  tokensGraduated5m
+  tokensGraduated1
+  tokensGraduated4
+  tokensGraduated12
+  tokensGraduated24
+  tokensCreatedPrev24
+  tokensSurvived24
   stablecoinSupplyUsd
 }
 
@@ -12199,6 +12206,10 @@ type NetworkBar {
   tokensTraded: Int
   """The number of tokens Codex indexes that swapped in the 24 hours to the end of the bar, counted like `tokensTraded`. Null like `traders`."""
   tokensTraded24h: Int
+  """The number of launchpad tokens whose bonding curve completed over the bar. Null if they couldn't be counted, on hourly bars before 2026-11-09 20:00 UTC and on daily bars before 2026-11-10."""
+  tokensGraduated: Int
+  """The share of tokens created 24 to 48 hours before the end of the bar that swapped in the 24 hours to its end, from 0 to 1. On a daily bar, that's the share of the previous day's new tokens that traded on the bar's day. Null if the tokens couldn't be counted or none were created, on hourly bars before 2026-11-09 20:00 UTC and on daily bars before 2026-11-09."""
+  tokenSurvivalRate24h: Float
   """The total network liquidity in USD at the end of the bar."""
   liquidityUsd: String!
   """The total supply of USD stablecoins on the network at the end of the bar, at $1 a token. Includes tokens locked in bridges and tokens an issuer holds but hasn't issued. Null on networks without a listed stablecoin, if the supply couldn't be read, and for Sui, Aptos and Starknet before 2026-11-07."""
@@ -12481,6 +12492,22 @@ type NetworkFilterResult {
   tokensTraded12: Int
   """The number of tokens traded on the network in the past 24 hours: tokens Codex indexes whose last trade falls in the window. Null if the tokens couldn't be counted."""
   tokensTraded24: Int
+  """The number of launchpad tokens on the network whose bonding curve completed in the past 5 minutes, counted by completion time. Null if the tokens couldn't be counted."""
+  tokensGraduated5m: Int
+  """The number of launchpad tokens on the network whose bonding curve completed in the past hour, counted by completion time. Null if the tokens couldn't be counted."""
+  tokensGraduated1: Int
+  """The number of launchpad tokens on the network whose bonding curve completed in the past 4 hours, counted by completion time. Null if the tokens couldn't be counted."""
+  tokensGraduated4: Int
+  """The number of launchpad tokens on the network whose bonding curve completed in the past 12 hours, counted by completion time. Null if the tokens couldn't be counted."""
+  tokensGraduated12: Int
+  """The number of launchpad tokens on the network whose bonding curve completed in the past 24 hours, counted by completion time. Null if the tokens couldn't be counted."""
+  tokensGraduated24: Int
+  """The number of new tokens on the network created 24 to 48 hours ago, counted like `tokensCreated24`. Null if the tokens couldn't be counted."""
+  tokensCreatedPrev24: Int
+  """Of the tokens created 24 to 48 hours ago, the number that swapped in the past 24 hours. Null if the tokens couldn't be counted."""
+  tokensSurvived24: Int
+  """The share of tokens created 24 to 48 hours ago that swapped in the past 24 hours, from 0 to 1: `tokensSurvived24` divided by `tokensCreatedPrev24`. Null if either couldn't be counted, or if no tokens were created."""
+  tokenSurvivalRate24: Float
   """The total supply of USD stablecoins on the network, at $1 a token. Includes tokens locked in bridges and tokens an issuer holds but hasn't issued. Null on testnets or if the supply couldn't be read."""
   stablecoinSupplyUsd: String
 }
@@ -14332,6 +14359,20 @@ input NetworkFilters {
   tokensTraded12: NumberFilter
   """The number of tokens traded on the network in the past 24 hours: tokens Codex indexes whose last trade falls in the window."""
   tokensTraded24: NumberFilter
+  """The number of launchpad tokens on the network whose bonding curve completed in the past 5 minutes, counted by completion time."""
+  tokensGraduated5m: NumberFilter
+  """The number of launchpad tokens on the network whose bonding curve completed in the past hour, counted by completion time."""
+  tokensGraduated1: NumberFilter
+  """The number of launchpad tokens on the network whose bonding curve completed in the past 4 hours, counted by completion time."""
+  tokensGraduated4: NumberFilter
+  """The number of launchpad tokens on the network whose bonding curve completed in the past 12 hours, counted by completion time."""
+  tokensGraduated12: NumberFilter
+  """The number of launchpad tokens on the network whose bonding curve completed in the past 24 hours, counted by completion time."""
+  tokensGraduated24: NumberFilter
+  """The number of new tokens on the network created 24 to 48 hours ago."""
+  tokensCreatedPrev24: NumberFilter
+  """Of the tokens created 24 to 48 hours ago, the number that swapped in the past 24 hours."""
+  tokensSurvived24: NumberFilter
   """The total supply of USD stablecoins on the network, at $1 a token."""
   stablecoinSupplyUsd: NumberFilter
 }
@@ -17939,6 +17980,8 @@ type Wallet {
   ethosVerified: Boolean
   """Registry entity ids of the apps this wallet trades through — e.g. `defined` for defined.fi, or `axiom`. Means "trades through", never "is owned by": one routed trade is enough to appear here."""
   tradeSourceIds: [String!]
+  """ENS and SNS names that point at this wallet: ENS then SNS, each with its primary first, then A to Z. Refreshed weekly. Null when the wallet has none."""
+  domains: [WalletDomain!]
   """Source of identity data (e.g. ethos, manual, polymarket-backfill)"""
   identitySource: String
   """When identity data was last updated (unix timestamp)"""
@@ -17969,6 +18012,23 @@ type WalletPolymarketProfile {
   displayUsernamePublic: Boolean
   """Unix timestamp of when this Polymarket profile was last fetched."""
   fetchedAt: Int!
+}
+
+"""The name service a wallet name belongs to."""
+enum DomainType {
+  """Ethereum Name Service (.eth and other ENS names)"""
+  ENS
+  """Solana Name Service (.sns names)"""
+  SNS
+}
+
+"""A name that points at a wallet."""
+type WalletDomain {
+  type: DomainType!
+  """The full name, lowercased (e.g. caladan.eth)."""
+  domain: String!
+  """Whether this is the wallet's primary name: the one its reverse record names."""
+  primary: Boolean!
 }
 
 type WalletFunding {
