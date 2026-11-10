@@ -5,6 +5,11 @@ on:
     tags:
       - "v*"
   workflow_dispatch:
+    inputs:
+      dry_run:
+        description: Build and dry-run publication without uploading a package
+        type: boolean
+        default: false
 
 jobs:
   publish:
@@ -24,4 +29,11 @@ jobs:
       - run: pnpm install --frozen-lockfile
       - run: pnpm run build
       # Trusted Publishing (OIDC) needs npm >= 11.5.1; Node 24 ships with it.
-      - run: npm publish --access public
+      - name: Dry-run publication
+        if: inputs.dry_run
+        run: |
+          npm version prerelease --no-git-tag-version --preid="dry-run.${GITHUB_RUN_ID}"
+          npm publish --dry-run --access public --tag dry-run
+      - name: Publish package
+        if: ${{ !inputs.dry_run }}
+        run: npm publish --access public
