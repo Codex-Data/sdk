@@ -1,6 +1,6 @@
 {
   "name": "@codex-data/sdk",
-  "version": "2.6.1",
+  "version": "2.6.3",
   "engines": {
     "node": ">=17.5.0"
   },
@@ -40,8 +40,8 @@
     "test": "pnpm run build:types && jest",
     "format": "prettier --write .",
     "prepublishOnly": "pnpm run build",
-    "publish:beta": "pnpm publish --tag beta --access public",
-    "publish:latest": "pnpm publish --access public"
+    "publish:beta": "pnpm publish --tag beta --access public --no-git-checks",
+    "publish:latest": "pnpm publish --access public --no-git-checks"
   },
   "files": [
     "dist/index.js",
