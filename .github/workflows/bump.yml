@@ -1,8 +1,8 @@
 name: Bump version
 
-# Fetches the latest supergraph schema, diffs it against the committed copy,
-# commits the schema update, bumps the version (minor if the schema diff has
-# breaking changes, patch otherwise), and pushes a v* tag. Pushing the tag
+# Fetches the latest supergraph schema, diffs it against the latest npm release,
+# bumps the version (minor for breaking changes, patch otherwise), and pushes
+# a v* tag. Pushing the tag
 # triggers release.yml, which builds and publishes to npm. The GitHub Release
 # notes lead with the schema diff, followed by auto-generated PR notes.
 #
@@ -31,10 +31,11 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-      - name: Fetch latest schema and diff against committed copy
+      - name: Fetch latest schema and diff against published package
         id: diff
         run: |
-          cp src/resources/schema.graphql /tmp/old-schema.graphql
+          PREVIOUS_PACKAGE=$(npm pack @codex-data/sdk@latest --pack-destination "$RUNNER_TEMP" --silent)
+          tar -xOf "$RUNNER_TEMP/$PREVIOUS_PACKAGE" package/schema.graphql > /tmp/old-schema.graphql
           pnpm run fetch:schema
           pnpm --silent run schema:diff /tmp/old-schema.graphql src/resources/schema.graphql > /tmp/schema-changes.md
           cat /tmp/schema-changes.md >> "$GITHUB_STEP_SUMMARY"
@@ -48,11 +49,6 @@ jobs:
             echo "release=false" >> "$GITHUB_OUTPUT"
             echo "Schema unchanged and no commits since $LAST_TAG — skipping release." >> "$GITHUB_STEP_SUMMARY"
           fi
-      - name: Commit schema update
-        if: steps.gate.outputs.release == 'true' && steps.diff.outputs.changed == 'true'
-        run: |
-          git add src/resources/schema.graphql
-          git commit -m "chore: update supergraph schema"
       - name: Bump version and tag
         if: steps.gate.outputs.release == 'true'
         id: bump
