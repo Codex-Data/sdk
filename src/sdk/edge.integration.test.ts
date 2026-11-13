@@ -1,10 +1,24 @@
 import { once } from "node:events";
 import type { AddressInfo } from "node:net";
 
-import { type ClientOptions, createClient, parseMessage } from "graphql-ws";
+import {
+  buildSchema,
+  execute,
+  getOperationAST,
+  Kind,
+  parse,
+  valueFromASTUntyped,
+} from "graphql";
+import {
+  type ClientOptions,
+  createClient,
+  parseMessage,
+  type SubscribePayload,
+} from "graphql-ws";
 import WebSocket from "isomorphic-ws";
 
 import { DEFAULT_EDGE_URL, ROBINHOOD_EDGE_URL, withEdge } from "./edge";
+import { planEdgeSubscription } from "./edgeSubscription";
 import { Codex } from "./index";
 
 function createClientWithEdge(options: ClientOptions & { edgeUrl?: string }) {
@@ -73,7 +87,7 @@ it("delivers main, Solana edge, and Robinhood edge results over separate authent
   client.on("connected", connected);
   client.on("connected", mainConnected, { useEdge: false });
   client.on("connected", edgeConnected, { useEdge: true });
-  const query = `subscription { onEventsCreated(id: "pair:1399811149", commitmentLevel: [Processed, Confirmed]) { events { transactionHash } } }`;
+  const query = `subscription { onEventsCreated(id: "pair:1399811149", commitmentLevel: [Processed]) { events { transactionHash } } }`;
   const robinhoodQuery = query.replace("1399811149", "4663");
   try {
     expect(() =>
@@ -146,7 +160,7 @@ async function subscriptionServer() {
         server.emit("init", message.payload);
         socket.send(JSON.stringify({ type: "connection_ack" }));
       } else if (message.type === "subscribe") {
-        server.emit("subscription", message.payload, socket);
+        server.emit("subscription", message.payload, socket, message.id);
       } else if (message.type === "pong") {
         server.emit("pong", message.payload);
       }
@@ -195,28 +209,35 @@ it("keeps SDK subscriptions on main until a valid edge opt-in and disposes both 
     expect(edge.server.clients.size).toBe(0);
     const edgeInit = once(edge.server, "init");
     const edgeRequest = once(edge.server, "subscription");
+    const confirmedRequest = once(main.server, "subscription");
+    const plan = planEdgeSubscription(expected);
     sdk.subscribe(edgeQuery, variables, sink, { useEdge: true });
     variables.input.networkId = 1;
     variables.levels[0] = "Confirmed";
     expect((await edgeInit)[0]).toEqual({ Authorization: "customer" });
-    expect((await edgeRequest)[0]).toEqual(expected);
+    expect((await edgeRequest)[0]).toEqual(plan.payload);
+    expect((await confirmedRequest)[0]).toEqual(plan.mainPayload);
   } finally {
     await sdk.dispose();
     await Promise.all([main.close(), edge.close()]);
   }
 });
 
-it("preserves the validated payload through delayed authentication and retries", async () => {
+it("preserves both split payloads through delayed authentication and retries", async () => {
+  const main = await subscriptionServer();
   const edge = await subscriptionServer();
   let authenticate!: () => void;
   const authentication = new Promise<void>((resolve) => {
     authenticate = resolve;
   });
   let serializedLevels = 0;
+  let serializedTokenAddresses = 0;
+  const configuredConnected = jest.fn();
   const client = createClientWithEdge({
-    url: "ws://main.example/graphql",
+    url: main.url,
     edgeUrl: edge.url,
     webSocketImpl: WebSocket,
+    on: { connected: configuredConnected },
     connectionParams: async () => {
       await authentication;
       return { Authorization: "customer", omit: "remove" };
@@ -226,19 +247,32 @@ it("preserves the validated payload through delayed authentication and retries",
         serializedLevels++;
         return serializedLevels === 1 ? value : ["Confirmed"];
       }
+      if (key === "tokenAddress") {
+        serializedTokenAddresses++;
+        return `encoded:${value}`;
+      }
       return key === "omit" ? undefined : value;
     },
     retryWait: async () => {},
   });
+  const mainConnected = jest.fn();
+  client.on("connected", mainConnected, { useEdge: false });
   const variables = {
     input: { networkId: 1399811149, tokenAddress: "original" },
-    levels: ["Preprocessed", "Processed", "Confirmed"],
+    levels: ["Processed", "Confirmed"],
   };
   const payload = { query: edgeQuery, variables };
-  const expected = JSON.parse(JSON.stringify(payload));
+  const expected = planEdgeSubscription({
+    query: payload.query,
+    variables: {
+      ...variables,
+      input: { ...variables.input, tokenAddress: "encoded:original" },
+    },
+  });
   try {
     const init = once(edge.server, "init");
     const first = once(edge.server, "subscription");
+    const confirmed = once(main.server, "subscription");
     client.subscribe(
       payload,
       { next: () => {}, error: () => {}, complete: () => {} },
@@ -250,15 +284,21 @@ it("preserves the validated payload through delayed authentication and retries",
     payload.query = "subscription { onPriceUpdated { priceUsd } }";
     authenticate();
     expect((await init)[0]).toEqual({ Authorization: "customer" });
-    expect((await first)[0]).toEqual(expected);
+    expect((await first)[0]).toEqual(expected.payload);
+    expect((await confirmed)[0]).toEqual(expected.mainPayload);
     const retry = once(edge.server, "subscription");
+    const confirmedRetry = once(main.server, "subscription");
     client.terminate();
-    expect((await retry)[0]).toEqual(expected);
+    expect((await retry)[0]).toEqual(expected.payload);
+    expect((await confirmedRetry)[0]).toEqual(expected.mainPayload);
     expect(serializedLevels).toBe(1);
+    expect(serializedTokenAddresses).toBe(1);
+    expect(configuredConnected).toHaveBeenCalledTimes(4);
+    expect(mainConnected).toHaveBeenCalledTimes(2);
   } finally {
     authenticate();
     await client.dispose();
-    await edge.close();
+    await Promise.all([main.close(), edge.close()]);
   }
 });
 
@@ -323,3 +363,136 @@ it("forwards edge events, supports custom pong handling, and terminates both soc
     await Promise.all([main.close(), edge.close()]);
   }
 });
+
+it.each(["sdk", "withEdge"])(
+  "%s merges split event results over real sockets and unsubscribes both legs",
+  async (api) => {
+    const main = await subscriptionServer();
+    const edge = await subscriptionServer();
+    const schema = buildSchema(`
+    enum EventCommitmentLevel { Processed Confirmed }
+    input OnTokenEventsCreatedInput { networkId: Int! }
+    type Event { networkId: Int!, transactionHash: String!, logIndex: Int!, supplementalIndex: Int, commitmentLevel: EventCommitmentLevel! }
+    type Output { events: [Event!]! }
+    type Query { noop: Boolean }
+    type Subscription { onTokenEventsCreated(input: OnTokenEventsCreatedInput!, commitmentLevel: [EventCommitmentLevel!]): Output! }
+  `);
+    const client =
+      api === "sdk"
+        ? new Codex("customer", {
+            apiRealtimeUrl: main.url,
+            apiEdgeUrl: edge.url,
+          })
+        : createClientWithEdge({
+            url: main.url,
+            edgeUrl: edge.url,
+            webSocketImpl: WebSocket,
+            connectionParams: { Authorization: "customer" },
+          });
+    const query = `subscription Events($input: OnTokenEventsCreatedInput!, $levels: [EventCommitmentLevel!]) {
+    trades: onTokenEventsCreated(input: $input, commitmentLevel: $levels) { items: events { transactionHash } }
+  }`;
+    const payload = {
+      query,
+      variables: {
+        input: { networkId: 56 },
+        levels: ["Processed", "Confirmed"],
+      },
+    };
+    const received: unknown[] = [];
+    const sink = {
+      next: (result: unknown) => received.push(result),
+      error: jest.fn(),
+      complete: jest.fn(),
+    };
+    try {
+      const mainRequest = once(main.server, "subscription");
+      const edgeRequest = once(edge.server, "subscription");
+      const unsubscribe =
+        client instanceof Codex
+          ? client.subscribe(query, payload.variables, sink, { useEdge: true })
+          : client.subscribe(payload, sink, { useEdge: true });
+      const mainOperation = await mainRequest;
+      const edgeOperation = await edgeRequest;
+      for (const [index, operation] of [
+        mainOperation,
+        edgeOperation,
+      ].entries()) {
+        const request: SubscribePayload = operation[0];
+        const document = parse(request.query);
+        const field = getOperationAST(document)!.selectionSet.selections[0];
+        if (field.kind !== Kind.FIELD) throw new Error("Expected root field");
+        const level = valueFromASTUntyped(
+          field.arguments!.find(
+            (argument) => argument.name.value === "commitmentLevel",
+          )!.value,
+        );
+        expect(level).toEqual(index === 0 ? ["Confirmed"] : ["Processed"]);
+      }
+      const send = async (
+        operation: unknown[],
+        commitmentLevel: string,
+        transactionHash = "tx",
+      ) => {
+        const [request, socket, id] = operation as [
+          SubscribePayload,
+          WebSocket,
+          string,
+        ];
+        const result = await execute({
+          schema,
+          document: parse(request.query),
+          variableValues: request.variables,
+          rootValue: {
+            onTokenEventsCreated: {
+              events: [
+                {
+                  networkId: 56,
+                  transactionHash,
+                  logIndex: 0,
+                  supplementalIndex: null,
+                  commitmentLevel,
+                },
+              ],
+            },
+          },
+        });
+        expect(result.errors).toBeUndefined();
+        socket.send(JSON.stringify({ id, type: "next", payload: result }));
+        // A pong on the same socket establishes that the preceding result was handled.
+        const pong = once(
+          (socket === mainOperation[1] ? main : edge).server,
+          "pong",
+        );
+        socket.send(JSON.stringify({ type: "ping" }));
+        await pong;
+      };
+      await send(edgeOperation, "Processed");
+      await send(mainOperation, "Confirmed");
+      await send(edgeOperation, "Processed");
+      await send(mainOperation, "Confirmed");
+      await send(mainOperation, "Confirmed", "other");
+      expect(received).toEqual(
+        ["tx", "tx", "other"].map((transactionHash) => ({
+          data: { trades: { items: [{ transactionHash }] } },
+        })),
+      );
+      expect(sink.error).not.toHaveBeenCalled();
+      const completions = [mainOperation, edgeOperation].map(
+        ([, socket, id]) =>
+          new Promise<void>((resolve) => {
+            (socket as WebSocket).on("message", (data) => {
+              const message = parseMessage(data.toString());
+              if (message.type === "complete" && message.id === id) resolve();
+            });
+          }),
+      );
+      unsubscribe();
+      await Promise.all(completions);
+      expect(sink.complete).not.toHaveBeenCalled();
+    } finally {
+      await client.dispose();
+      await Promise.all([main.close(), edge.close()]);
+    }
+  },
+);

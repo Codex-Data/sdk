@@ -9,9 +9,11 @@ import {
   type SubscribePayload,
 } from "graphql-ws";
 
+import { subscribeWithCommitments } from "./commitmentSubscription";
 import {
-  assertEdgeSubscription,
   BNB_NETWORK_ID,
+  type EdgeSubscriptionPlan,
+  planEdgeSubscription,
   ROBINHOOD_NETWORK_ID,
 } from "./edgeSubscription";
 
@@ -29,7 +31,7 @@ export function edgeUrlForNetwork(networkId: number): string {
 }
 
 export interface SubscriptionOptions {
-  /** Experimental: use edge for supported Solana, Robinhood, or BNB streams whose commitments include Processed. */
+  /** Experimental: route Processed to edge and Confirmed to main for supported streams including Processed. */
   useEdge?: boolean;
 }
 
@@ -61,11 +63,27 @@ export function createEdgeClient(options: EdgeClientOptions): Client {
 export function prepareEdgeSubscription(
   payload: SubscribePayload,
   replacer?: ClientOptions["jsonMessageReplacer"],
-): { payload: SubscribePayload; networkId: number } {
+): EdgeSubscriptionPlan {
   const snapshot: SubscribePayload = JSON.parse(
     JSON.stringify(payload, replacer),
   );
-  return { payload: snapshot, networkId: assertEdgeSubscription(snapshot) };
+  return planEdgeSubscription(snapshot);
+}
+
+/** Prepared subscription payloads have already passed through the caller's replacer. */
+function preparedClientOptions(options: ClientOptions): ClientOptions {
+  let subscriptionMessage = false;
+  return {
+    ...options,
+    jsonMessageReplacer: function (key, value) {
+      if (key === "") subscriptionMessage = value?.type === "subscribe";
+      return subscriptionMessage
+        ? value
+        : options.jsonMessageReplacer
+          ? options.jsonMessageReplacer.call(this, key, value)
+          : value;
+    },
+  };
 }
 
 /** Add per-subscription edge routing to an existing GraphQL client. */
@@ -79,8 +97,14 @@ export function withEdge(
   const edgeHandlers = new Set<EventHandlers>(
     wsOptions.on ? [wsOptions.on] : [],
   );
-  const handlersFor = (useEdge: boolean): Required<EventHandlers> => {
-    const handlers = () => Array.from(useEdge ? edgeHandlers : mainHandlers);
+  const handlersFor = (
+    useEdge: boolean,
+    configured?: EventHandlers,
+  ): Required<EventHandlers> => {
+    const handlers = () => [
+      ...(configured ? [configured] : []),
+      ...Array.from(useEdge ? edgeHandlers : mainHandlers),
+    ];
     // Install before createClient so even non-lazy connection events are observed.
     return {
       connecting: (...args) =>
@@ -105,6 +129,7 @@ export function withEdge(
   main.on("closed", mainEvents.closed);
   main.on("error", mainEvents.error);
   const edges = new Map<string, Client>();
+  let preparedMain: Client | undefined;
   let disposed = false;
   return {
     ...main,
@@ -121,41 +146,46 @@ export function withEdge(
       if (disposed) throw new Error("Edge client has been disposed");
       if (!subscriptionOptions.useEdge) return main.subscribe(payload, sink);
       // Reject before creating an edge client or opening any upstream operation.
-      const { payload: snapshot, networkId } = prepareEdgeSubscription(
+      const plan = prepareEdgeSubscription(
         payload,
         wsOptions.jsonMessageReplacer,
       );
-      const url = edgeUrl ?? edgeUrlForNetwork(networkId);
+      const url = edgeUrl ?? edgeUrlForNetwork(plan.networkId);
       let edge = edges.get(url);
       if (!edge) {
-        // Edge payloads are serialized once, before validation. Preserve custom
-        // serialization for handshakes without transforming subscriptions again.
-        let subscriptionMessage = false;
-        edge = createEdgeClient({
-          ...wsOptions,
-          url,
-          on: handlersFor(true),
-          jsonMessageReplacer: function (key, value) {
-            if (key === "") subscriptionMessage = value?.type === "subscribe";
-            return subscriptionMessage
-              ? value
-              : wsOptions.jsonMessageReplacer
-                ? wsOptions.jsonMessageReplacer.call(this, key, value)
-                : value;
-          },
-        });
+        edge = createEdgeClient(
+          preparedClientOptions({
+            ...wsOptions,
+            url,
+            on: handlersFor(true),
+          }),
+        );
         edges.set(url, edge);
       }
-      return edge.subscribe(snapshot, sink);
+      // The existing main client owns its replacer and cannot bypass it per
+      // operation. Reuse a controlled main transport for prepared split payloads
+      // when a custom replacer would otherwise transform them a second time.
+      if (plan.mainPayload && wsOptions.jsonMessageReplacer) {
+        preparedMain ??= createClient(
+          preparedClientOptions({
+            ...wsOptions,
+            on: handlersFor(false, wsOptions.on),
+          }),
+        );
+        return subscribeWithCommitments(preparedMain, edge, plan, sink);
+      }
+      return subscribeWithCommitments(main, edge, plan, sink);
     },
     terminate: () => {
       main.terminate();
+      preparedMain?.terminate();
       edges.forEach((edge) => edge.terminate());
     },
     dispose: async () => {
       disposed = true;
       await Promise.all([
         main.dispose(),
+        preparedMain?.dispose(),
         ...Array.from(edges.values(), (edge) => edge.dispose()),
       ]);
     },

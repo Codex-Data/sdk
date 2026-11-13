@@ -1,6 +1,6 @@
 {
   "name": "@codex-data/sdk",
-  "version": "2.6.4",
+  "version": "2.7.0",
   "engines": {
     "node": ">=17.5.0"
   },
@@ -30,7 +30,7 @@
     "build:esm": "tsc -p tsconfig.esm.json",
     "build:rename-esm": "find dist-esm -name '*.js' -exec sh -c 'mv \"$1\" \"${1%.js}.mjs\"' _ {} \\; && cp -r dist-esm/* dist/ && rm -rf dist-esm",
     "build:edge": "esbuild src/edge.ts --bundle --format=esm --platform=neutral --packages=external --target=es2020 --outfile=dist/edge.mjs",
-    "fetch:schema": "mkdir -p src/resources && curl --fail --silent --show-error https://graph.codex.io/schema/latest.graphql --output src/resources/schema.graphql && cp src/resources/schema.graphql schema.graphql",
+    "fetch:schema": "tsx src/scripts/fetchSchema.ts",
     "schema:diff": "tsx src/scripts/schemaDiff.ts",
     "generate:configs": "tsx src/scripts/generateNetworkConfigs.ts",
     "generate:graphql": "tsx src/scripts/generateGraphql.ts",

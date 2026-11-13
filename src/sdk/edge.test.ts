@@ -282,9 +282,8 @@ it.each([
   `subscription { onTokenBarsUpdated(networkId: 1399811149, commitmentLevel: [Processed]) { timestamp } }`,
   `subscription($network: Int = 1399811149, $levels: [EventCommitmentLevel!] = [Processed]) { onEventsCreated(networkId: $network, commitmentLevel: $levels) { events { transactionHash } } }`,
   `subscription { onEventsCreated(id: "pair:1399811149", commitmentLevel: [Confirmed, Processed]) { events { transactionHash } } }`,
-  `subscription { onTokenEventsCreated(input: {networkId: 1399811149}, commitmentLevel: [Preprocessed, Processed, Confirmed]) { events { transactionHash } } }`,
+  `subscription { onTokenEventsCreated(input: {networkId: 1399811149}, commitmentLevel: [Processed, Confirmed]) { events { transactionHash } } }`,
   `subscription { onBarsUpdated(pairId: "pair:1399811149", quoteToken: token0, commitmentLevel: [Processed, Confirmed]) { timestamp } }`,
-  `subscription { onTokenBarsUpdated(tokenId: "token:1399811149", commitmentLevel: [Preprocessed, Processed]) { timestamp } }`,
   `subscription($network: Int = 1399811149, $levels: [EventCommitmentLevel!] = [Confirmed, Processed]) { onEventsCreated(networkId: $network, commitmentLevel: $levels) { events { transactionHash } } }`,
 ])(
   "accepts eligible literal and default-variable subscriptions: %s",
@@ -317,8 +316,6 @@ it.each([
   { levels: new Array(1) },
   { levels: Object.assign(new Array(2), { 0: "Processed" }) },
   { levels: ["Confirmed"] },
-  { levels: ["Preprocessed"] },
-  { levels: ["Preprocessed", "Confirmed"] },
   { levels: ["Processed", "Finalized"] },
   { levels: ["Processed", null] },
   { levels: ["Processed", 1] },
@@ -410,10 +407,9 @@ it("disposes both transports and prevents subscriptions from recreating them", a
   ).toThrow("disposed");
 });
 
-it("routes raw and generated mixed SDK subscriptions through useEdge without dropping commitments", async () => {
+it("splits raw and generated mixed SDK subscriptions between main and edge", async () => {
   const sdk = new Codex("customer");
   const levels = [
-    EventCommitmentLevel.Preprocessed,
     EventCommitmentLevel.Processed,
     EventCommitmentLevel.Confirmed,
   ];
@@ -429,13 +425,18 @@ it("routes raw and generated mixed SDK subscriptions through useEdge without dro
   );
   expect(transports).toHaveLength(2);
   expect(transports[1].subscribe).toHaveBeenCalledTimes(2);
-  expect(transports[1].subscribe.mock.calls[0][0].variables).toEqual(
-    mixedVariables,
-  );
-  expect(transports[1].subscribe.mock.calls[1][0].variables).toEqual({
-    input: variables.input,
-    commitmentLevel: levels,
-  });
+  expect(transports[0].subscribe).toHaveBeenCalledTimes(2);
+  for (const [index, transport] of transports.entries()) {
+    for (const [payload] of transport.subscribe.mock.calls) {
+      expect(payload.variables).toEqual({ input: variables.input });
+      expect(payload.query).toContain(
+        index === 0
+          ? "commitmentLevel: [Confirmed]"
+          : "commitmentLevel: [Processed]",
+      );
+    }
+  }
+  expect(mixedVariables.levels).toEqual(levels);
   sdk.updateConfig({ wsHeaders: { Authorization: "new-customer" } });
   sdk.subscribe(events, variables, sink, { useEdge: true });
   expect(transports[3].options.connectionParams).toEqual({
@@ -471,4 +472,42 @@ it("validates serialized variables rather than a misleading toJSON value", () =>
     ),
   ).toThrow("useEdge requires");
   expect(transports).toHaveLength(1);
+});
+
+it("reuses and disposes a prepared main transport only for custom-serialized mixed subscriptions", async () => {
+  const options: ClientOptions = {
+    url: "wss://main.example/graphql",
+    connectionParams: async () => ({ Authorization: "customer" }),
+    jsonMessageReplacer: (key, value) =>
+      key === "tokenAddress" ? `encoded:${value}` : value,
+  };
+  const client = createClientWithEdge(options);
+  client.subscribe({ query: events, variables }, sink);
+  client.subscribe({ query: events, variables }, sink, { useEdge: true });
+  expect(transports).toHaveLength(2);
+  const mixed = { ...variables, levels: ["Processed", "Confirmed"] };
+  const first = client.subscribe({ query: events, variables: mixed }, sink, {
+    useEdge: true,
+  });
+  const second = client.subscribe({ query: events, variables: mixed }, sink, {
+    useEdge: true,
+  });
+  expect(transports).toHaveLength(3);
+  expect(transports[0].subscribe).toHaveBeenCalledTimes(1);
+  expect(transports[2].options.url).toBe(options.url);
+  expect(transports[2].options.connectionParams).toBe(options.connectionParams);
+  expect(transports[2].subscribe).toHaveBeenCalledTimes(2);
+  for (const [payload] of transports[2].subscribe.mock.calls) {
+    expect(payload.variables.input.tokenAddress).toBe("encoded:token");
+  }
+  first();
+  second();
+  client.terminate();
+  await client.dispose();
+  expect(
+    transports.every(
+      ({ terminate, dispose }) =>
+        terminate.mock.calls.length === 1 && dispose.mock.calls.length === 1,
+    ),
+  ).toBe(true);
 });
