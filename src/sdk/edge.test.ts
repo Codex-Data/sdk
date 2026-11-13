@@ -282,9 +282,8 @@ it.each([
   `subscription { onTokenBarsUpdated(networkId: 1399811149, commitmentLevel: [Processed]) { timestamp } }`,
   `subscription($network: Int = 1399811149, $levels: [EventCommitmentLevel!] = [Processed]) { onEventsCreated(networkId: $network, commitmentLevel: $levels) { events { transactionHash } } }`,
   `subscription { onEventsCreated(id: "pair:1399811149", commitmentLevel: [Confirmed, Processed]) { events { transactionHash } } }`,
-  `subscription { onTokenEventsCreated(input: {networkId: 1399811149}, commitmentLevel: [Preprocessed, Processed, Confirmed]) { events { transactionHash } } }`,
+  `subscription { onTokenEventsCreated(input: {networkId: 1399811149}, commitmentLevel: [Processed, Confirmed]) { events { transactionHash } } }`,
   `subscription { onBarsUpdated(pairId: "pair:1399811149", quoteToken: token0, commitmentLevel: [Processed, Confirmed]) { timestamp } }`,
-  `subscription { onTokenBarsUpdated(tokenId: "token:1399811149", commitmentLevel: [Preprocessed, Processed]) { timestamp } }`,
   `subscription($network: Int = 1399811149, $levels: [EventCommitmentLevel!] = [Confirmed, Processed]) { onEventsCreated(networkId: $network, commitmentLevel: $levels) { events { transactionHash } } }`,
 ])(
   "accepts eligible literal and default-variable subscriptions: %s",
@@ -317,8 +316,6 @@ it.each([
   { levels: new Array(1) },
   { levels: Object.assign(new Array(2), { 0: "Processed" }) },
   { levels: ["Confirmed"] },
-  { levels: ["Preprocessed"] },
-  { levels: ["Preprocessed", "Confirmed"] },
   { levels: ["Processed", "Finalized"] },
   { levels: ["Processed", null] },
   { levels: ["Processed", 1] },
@@ -413,7 +410,6 @@ it("disposes both transports and prevents subscriptions from recreating them", a
 it("splits raw and generated mixed SDK subscriptions between main and edge", async () => {
   const sdk = new Codex("customer");
   const levels = [
-    EventCommitmentLevel.Preprocessed,
     EventCommitmentLevel.Processed,
     EventCommitmentLevel.Confirmed,
   ];
@@ -436,7 +432,7 @@ it("splits raw and generated mixed SDK subscriptions between main and edge", asy
       expect(payload.query).toContain(
         index === 0
           ? "commitmentLevel: [Confirmed]"
-          : "commitmentLevel: [Preprocessed, Processed]",
+          : "commitmentLevel: [Processed]",
       );
     }
   }

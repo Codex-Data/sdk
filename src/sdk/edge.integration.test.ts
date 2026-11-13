@@ -250,7 +250,7 @@ it("preserves both split payloads through delayed authentication and retries", a
   });
   const variables = {
     input: { networkId: 1399811149, tokenAddress: "original" },
-    levels: ["Preprocessed", "Processed", "Confirmed"],
+    levels: ["Processed", "Confirmed"],
   };
   const payload = { query: edgeQuery, variables };
   const expected = planEdgeSubscription(JSON.parse(JSON.stringify(payload)));
@@ -352,7 +352,7 @@ it.each(["sdk", "withEdge"])(
     const main = await subscriptionServer();
     const edge = await subscriptionServer();
     const schema = buildSchema(`
-    enum EventCommitmentLevel { Preprocessed Processed Confirmed }
+    enum EventCommitmentLevel { Processed Confirmed }
     input OnTokenEventsCreatedInput { networkId: Int! }
     type Event { networkId: Int!, transactionHash: String!, logIndex: Int!, supplementalIndex: Int, commitmentLevel: EventCommitmentLevel! }
     type Output { events: [Event!]! }

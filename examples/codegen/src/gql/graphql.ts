@@ -291,7 +291,6 @@ export enum BalancesSortAttribute {
 /** The commitment level of a streamed bar update for Solana subscriptions. */
 export enum BarCommitmentLevel {
   Confirmed = 'Confirmed',
-  Preprocessed = 'Preprocessed',
   Processed = 'Processed'
 }
 
@@ -1808,7 +1807,6 @@ export type Event = {
 /** The commitment level of a streamed event for Solana subscriptions. */
 export enum EventCommitmentLevel {
   Confirmed = 'Confirmed',
-  Preprocessed = 'Preprocessed',
   Processed = 'Processed'
 }
 

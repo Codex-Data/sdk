@@ -59,12 +59,7 @@ function inspectEdgeSubscription(payload: SubscribePayload) {
     : [args.commitmentLevel];
   if (
     !levels.includes("Processed") ||
-    [...levels].some(
-      (level) =>
-        level !== "Processed" &&
-        level !== "Confirmed" &&
-        level !== "Preprocessed",
-    )
+    [...levels].some((level) => level !== "Processed" && level !== "Confirmed")
   )
     fail();
 

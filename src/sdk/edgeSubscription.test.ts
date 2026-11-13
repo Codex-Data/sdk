@@ -10,8 +10,8 @@ import {
 import { planEdgeSubscription } from "./edgeSubscription";
 
 const schema = buildSchema(`
-  enum EventCommitmentLevel { Preprocessed Processed Confirmed }
-  enum BarCommitmentLevel { Preprocessed Processed Confirmed }
+  enum EventCommitmentLevel { Processed Confirmed }
+  enum BarCommitmentLevel { Processed Confirmed }
   enum QuoteToken { token0 token1 }
   input OnTokenEventsCreatedInput { networkId: Int!, tokenAddress: String }
   type Event { networkId: Int!, transactionHash: String!, logIndex: Int!, supplementalIndex: Int, commitmentLevel: EventCommitmentLevel!, maker: String }
@@ -38,7 +38,7 @@ it.each([
   (query) => {
     const variables = {
       input: { networkId: 1399811149 },
-      levels: ["Preprocessed", "Processed", "Confirmed", "Processed"],
+      levels: ["Processed", "Confirmed", "Processed"],
     };
     const original = JSON.stringify({ query, variables });
     const plan = planEdgeSubscription({ query, variables });
@@ -56,13 +56,7 @@ it.each([
         field.arguments!.find((arg) => arg.name.value === "commitmentLevel")!
           .value,
       );
-      expect(levels).toEqual(
-        index === 0
-          ? ["Confirmed"]
-          : query.includes("$levels")
-            ? ["Preprocessed", "Processed"]
-            : ["Processed"],
-      );
+      expect(levels).toEqual(index === 0 ? ["Confirmed"] : ["Processed"]);
       expect(payload.variables).not.toHaveProperty("levels");
     }
   },

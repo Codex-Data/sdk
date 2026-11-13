@@ -3,9 +3,8 @@ import type { Client, ExecutionResult, Sink } from "graphql-ws";
 import type { EdgeSubscriptionPlan } from "./edgeSubscription";
 
 const ranks = new Map([
-  ["Preprocessed", 1],
-  ["Processed", 2],
-  ["Confirmed", 3],
+  ["Processed", 1],
+  ["Confirmed", 2],
 ]);
 const asRecord = (value: unknown): Record<string, unknown> | undefined =>
   value !== null && typeof value === "object" && !Array.isArray(value)

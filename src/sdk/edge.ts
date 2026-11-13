@@ -31,7 +31,7 @@ export function edgeUrlForNetwork(networkId: number): string {
 }
 
 export interface SubscriptionOptions {
-  /** Experimental: route Processed/Preprocessed to edge and Confirmed to main for supported streams including Processed. */
+  /** Experimental: route Processed to edge and Confirmed to main for supported streams including Processed. */
   useEdge?: boolean;
 }
 

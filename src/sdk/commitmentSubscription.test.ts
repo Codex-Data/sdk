@@ -29,7 +29,7 @@ it("allows only increasing commitments for each event identity", () => {
   expect([
     ...gate.acceptedIndices([
       event(),
-      event("Preprocessed"),
+      event("Processed"),
       event("Confirmed"),
       event("Confirmed"),
     ]),
@@ -51,7 +51,7 @@ it("keeps supplemental siblings distinct while strengthening the coarse identity
   expect([
     ...gate.acceptedIndices([
       event("Processed", { supplementalIndex: 0 }),
-      event("Preprocessed"),
+      event("Processed"),
       event("Processed", { supplementalIndex: 1 }),
     ]),
   ]).toEqual([0, 2]);
@@ -67,7 +67,7 @@ it("keeps supplemental siblings distinct while strengthening the coarse identity
 it("expires identities after 10 seconds, refreshes expiry on upgrades, and clears state", () => {
   let now = 0;
   const gate = new EventCommitmentGate(() => now);
-  gate.acceptedIndices([event("Preprocessed")]);
+  gate.acceptedIndices([event("Processed")]);
   now = 9000;
   gate.acceptedIndices([event("Confirmed")]);
   now = 10000;
@@ -75,7 +75,7 @@ it("expires identities after 10 seconds, refreshes expiry on upgrades, and clear
   now = 19000;
   expect([...gate.acceptedIndices([event()])]).toEqual([0]);
   gate.clear();
-  expect([...gate.acceptedIndices([event("Preprocessed")])]).toEqual([0]);
+  expect([...gate.acceptedIndices([event("Processed")])]).toEqual([0]);
 });
 
 it("bounds retained identities and passes incomplete identities and unknown levels through", () => {
