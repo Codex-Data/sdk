@@ -335,10 +335,6 @@ Edge supports `onEventsCreated`, `onTokenEventsCreated`, `onBarsUpdated`, and `o
 
 With `useEdge: true`, a subscription requesting both `Processed` and `Confirmed` opens two operations: `Confirmed` on the main API, and `Processed` on edge. Results share one sink and one unsubscribe function. Completion waits for both operations; a terminal error cancels both.
 
-For `onEventsCreated` and `onTokenEventsCreated`, the merged stream uses the publishers' commitment ordering: `Processed` → `Confirmed`. A Confirmed upgrade is delivered even after Processed; repeated or weaker events are suppressed for 10 seconds. The SDK tracks up to 10,000 event identities per subscription, including supplemental indices. It requests identity fields internally, so custom selections and aliases work without exposing extra fields in results. Bar subscriptions use the same routing and forward updates from both sources. Error paths follow the delivered event indices. Errors for suppressed events point to the public events array; errors from internal identity fields point to the subscription root.
-
-The lightweight `withEdge` helper from `@codex-data/sdk/edge` uses the same routing. For a standalone Robinhood or BNB connection, pass `url: ROBINHOOD_EDGE_URL` or `url: BNB_EDGE_URL` to `createEdgeClient`, importing them from `@codex-data/sdk/edge`. The SDK's `apiEdgeUrl` and the helper's `edgeUrl` override routing for all chains. When a custom `jsonMessageReplacer` is supplied, mixed subscriptions through `withEdge` use an additional, reused main connection to keep serialized arguments identical on main and edge.
-
 ## Custom Queries: Request Only the Fields You Need
 
 The built-in `sdk.queries.*` methods select every available field, so the recipes above are the most expensive way to call each endpoint. Writing your own query means you get smaller, faster responses.
