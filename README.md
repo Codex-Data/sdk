@@ -317,7 +317,10 @@ const sdk = new Codex(process.env.CODEX_API_KEY!);
 const unsubscribe = sdk.subscriptions.onTokenEventsCreated(
   {
     input: { tokenAddress: "0x...", networkId: 56 },
-    commitmentLevel: [EventCommitmentLevel.Processed],
+    commitmentLevel: [
+      EventCommitmentLevel.Processed,
+      EventCommitmentLevel.Confirmed,
+    ],
   },
   {
     next: (result) => console.log(result.data),
@@ -329,6 +332,10 @@ const unsubscribe = sdk.subscriptions.onTokenEventsCreated(
 ```
 
 Edge supports `onEventsCreated`, `onTokenEventsCreated`, `onBarsUpdated`, and `onTokenBarsUpdated`. The commitment levels must include `Processed`, and `onBarsUpdated` requires an explicit `quoteToken`. Each subscription must target one supported chain. Subscriptions without `useEdge` use the main endpoint.
+
+With `useEdge: true`, a subscription requesting both `Processed` and `Confirmed` opens two operations: `Confirmed` on the main API, and `Processed` (plus `Preprocessed`, if requested) on edge. Results share one sink and one unsubscribe function. Completion waits for both operations; a terminal error cancels both.
+
+For `onEventsCreated` and `onTokenEventsCreated`, the merged stream uses the publishers' commitment ordering: `Preprocessed` → `Processed` → `Confirmed`. A Confirmed upgrade is delivered even after Processed; repeated or weaker events are suppressed for 10 seconds. The SDK tracks up to 10,000 event identities per subscription, including supplemental indices. It requests identity fields internally, so custom selections and aliases work without exposing extra fields in results. Bar subscriptions use the same routing and forward updates from both sources.
 
 The lightweight `withEdge` helper from `@codex-data/sdk/edge` uses the same routing. For a standalone Robinhood or BNB connection, pass `url: ROBINHOOD_EDGE_URL` or `url: BNB_EDGE_URL` to `createEdgeClient`, importing them from `@codex-data/sdk/edge`. The SDK's `apiEdgeUrl` and the helper's `edgeUrl` override routing for all chains.
 

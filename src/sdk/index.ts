@@ -8,6 +8,7 @@ import {
 } from "graphql-ws";
 import WebSocket from "isomorphic-ws";
 
+import { subscribeWithCommitments } from "./commitmentSubscription";
 import {
   createEdgeClient,
   edgeUrlForNetwork,
@@ -254,9 +255,9 @@ export class Codex {
       return this.wsClient.subscribe<TResults>(payload, sink);
 
     // Validate before creating the edge transport or starting an operation.
-    const { payload: snapshot, networkId } = prepareEdgeSubscription(payload);
+    const plan = prepareEdgeSubscription(payload);
     const config = this.parseConfig(this.apiConfig ?? {});
-    const url = config.apiEdgeUrl ?? edgeUrlForNetwork(networkId);
+    const url = config.apiEdgeUrl ?? edgeUrlForNetwork(plan.networkId);
     let edge = this.edgeWsClients.get(url);
     if (!edge) {
       edge = createEdgeClient({
@@ -268,6 +269,6 @@ export class Codex {
       });
       this.edgeWsClients.set(url, edge);
     }
-    return edge.subscribe<TResults>(snapshot, sink);
+    return subscribeWithCommitments<TResults>(this.wsClient, edge, plan, sink);
   }
 }

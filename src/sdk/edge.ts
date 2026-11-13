@@ -9,9 +9,11 @@ import {
   type SubscribePayload,
 } from "graphql-ws";
 
+import { subscribeWithCommitments } from "./commitmentSubscription";
 import {
-  assertEdgeSubscription,
   BNB_NETWORK_ID,
+  type EdgeSubscriptionPlan,
+  planEdgeSubscription,
   ROBINHOOD_NETWORK_ID,
 } from "./edgeSubscription";
 
@@ -29,7 +31,7 @@ export function edgeUrlForNetwork(networkId: number): string {
 }
 
 export interface SubscriptionOptions {
-  /** Experimental: use edge for supported Solana, Robinhood, or BNB streams whose commitments include Processed. */
+  /** Experimental: route Processed/Preprocessed to edge and Confirmed to main for supported streams including Processed. */
   useEdge?: boolean;
 }
 
@@ -61,11 +63,11 @@ export function createEdgeClient(options: EdgeClientOptions): Client {
 export function prepareEdgeSubscription(
   payload: SubscribePayload,
   replacer?: ClientOptions["jsonMessageReplacer"],
-): { payload: SubscribePayload; networkId: number } {
+): EdgeSubscriptionPlan {
   const snapshot: SubscribePayload = JSON.parse(
     JSON.stringify(payload, replacer),
   );
-  return { payload: snapshot, networkId: assertEdgeSubscription(snapshot) };
+  return planEdgeSubscription(snapshot);
 }
 
 /** Add per-subscription edge routing to an existing GraphQL client. */
@@ -121,11 +123,11 @@ export function withEdge(
       if (disposed) throw new Error("Edge client has been disposed");
       if (!subscriptionOptions.useEdge) return main.subscribe(payload, sink);
       // Reject before creating an edge client or opening any upstream operation.
-      const { payload: snapshot, networkId } = prepareEdgeSubscription(
+      const plan = prepareEdgeSubscription(
         payload,
         wsOptions.jsonMessageReplacer,
       );
-      const url = edgeUrl ?? edgeUrlForNetwork(networkId);
+      const url = edgeUrl ?? edgeUrlForNetwork(plan.networkId);
       let edge = edges.get(url);
       if (!edge) {
         // Edge payloads are serialized once, before validation. Preserve custom
@@ -146,7 +148,7 @@ export function withEdge(
         });
         edges.set(url, edge);
       }
-      return edge.subscribe(snapshot, sink);
+      return subscribeWithCommitments(main, edge, plan, sink);
     },
     terminate: () => {
       main.terminate();

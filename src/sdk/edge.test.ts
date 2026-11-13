@@ -410,7 +410,7 @@ it("disposes both transports and prevents subscriptions from recreating them", a
   ).toThrow("disposed");
 });
 
-it("routes raw and generated mixed SDK subscriptions through useEdge without dropping commitments", async () => {
+it("splits raw and generated mixed SDK subscriptions between main and edge", async () => {
   const sdk = new Codex("customer");
   const levels = [
     EventCommitmentLevel.Preprocessed,
@@ -429,13 +429,18 @@ it("routes raw and generated mixed SDK subscriptions through useEdge without dro
   );
   expect(transports).toHaveLength(2);
   expect(transports[1].subscribe).toHaveBeenCalledTimes(2);
-  expect(transports[1].subscribe.mock.calls[0][0].variables).toEqual(
-    mixedVariables,
-  );
-  expect(transports[1].subscribe.mock.calls[1][0].variables).toEqual({
-    input: variables.input,
-    commitmentLevel: levels,
-  });
+  expect(transports[0].subscribe).toHaveBeenCalledTimes(2);
+  for (const [index, transport] of transports.entries()) {
+    for (const [payload] of transport.subscribe.mock.calls) {
+      expect(payload.variables).toEqual({ input: variables.input });
+      expect(payload.query).toContain(
+        index === 0
+          ? "commitmentLevel: [Confirmed]"
+          : "commitmentLevel: [Preprocessed, Processed]",
+      );
+    }
+  }
+  expect(mixedVariables.levels).toEqual(levels);
   sdk.updateConfig({ wsHeaders: { Authorization: "new-customer" } });
   sdk.subscribe(events, variables, sink, { useEdge: true });
   expect(transports[3].options.connectionParams).toEqual({
