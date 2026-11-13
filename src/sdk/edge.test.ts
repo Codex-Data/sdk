@@ -473,3 +473,41 @@ it("validates serialized variables rather than a misleading toJSON value", () =>
   ).toThrow("useEdge requires");
   expect(transports).toHaveLength(1);
 });
+
+it("reuses and disposes a prepared main transport only for custom-serialized mixed subscriptions", async () => {
+  const options: ClientOptions = {
+    url: "wss://main.example/graphql",
+    connectionParams: async () => ({ Authorization: "customer" }),
+    jsonMessageReplacer: (key, value) =>
+      key === "tokenAddress" ? `encoded:${value}` : value,
+  };
+  const client = createClientWithEdge(options);
+  client.subscribe({ query: events, variables }, sink);
+  client.subscribe({ query: events, variables }, sink, { useEdge: true });
+  expect(transports).toHaveLength(2);
+  const mixed = { ...variables, levels: ["Processed", "Confirmed"] };
+  const first = client.subscribe({ query: events, variables: mixed }, sink, {
+    useEdge: true,
+  });
+  const second = client.subscribe({ query: events, variables: mixed }, sink, {
+    useEdge: true,
+  });
+  expect(transports).toHaveLength(3);
+  expect(transports[0].subscribe).toHaveBeenCalledTimes(1);
+  expect(transports[2].options.url).toBe(options.url);
+  expect(transports[2].options.connectionParams).toBe(options.connectionParams);
+  expect(transports[2].subscribe).toHaveBeenCalledTimes(2);
+  for (const [payload] of transports[2].subscribe.mock.calls) {
+    expect(payload.variables.input.tokenAddress).toBe("encoded:token");
+  }
+  first();
+  second();
+  client.terminate();
+  await client.dispose();
+  expect(
+    transports.every(
+      ({ terminate, dispose }) =>
+        terminate.mock.calls.length === 1 && dispose.mock.calls.length === 1,
+    ),
+  ).toBe(true);
+});

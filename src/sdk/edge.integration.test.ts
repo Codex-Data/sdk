@@ -231,10 +231,13 @@ it("preserves both split payloads through delayed authentication and retries", a
     authenticate = resolve;
   });
   let serializedLevels = 0;
+  let serializedTokenAddresses = 0;
+  const configuredConnected = jest.fn();
   const client = createClientWithEdge({
     url: main.url,
     edgeUrl: edge.url,
     webSocketImpl: WebSocket,
+    on: { connected: configuredConnected },
     connectionParams: async () => {
       await authentication;
       return { Authorization: "customer", omit: "remove" };
@@ -244,16 +247,28 @@ it("preserves both split payloads through delayed authentication and retries", a
         serializedLevels++;
         return serializedLevels === 1 ? value : ["Confirmed"];
       }
+      if (key === "tokenAddress") {
+        serializedTokenAddresses++;
+        return `encoded:${value}`;
+      }
       return key === "omit" ? undefined : value;
     },
     retryWait: async () => {},
   });
+  const mainConnected = jest.fn();
+  client.on("connected", mainConnected, { useEdge: false });
   const variables = {
     input: { networkId: 1399811149, tokenAddress: "original" },
     levels: ["Processed", "Confirmed"],
   };
   const payload = { query: edgeQuery, variables };
-  const expected = planEdgeSubscription(JSON.parse(JSON.stringify(payload)));
+  const expected = planEdgeSubscription({
+    query: payload.query,
+    variables: {
+      ...variables,
+      input: { ...variables.input, tokenAddress: "encoded:original" },
+    },
+  });
   try {
     const init = once(edge.server, "init");
     const first = once(edge.server, "subscription");
@@ -277,6 +292,9 @@ it("preserves both split payloads through delayed authentication and retries", a
     expect((await retry)[0]).toEqual(expected.payload);
     expect((await confirmedRetry)[0]).toEqual(expected.mainPayload);
     expect(serializedLevels).toBe(1);
+    expect(serializedTokenAddresses).toBe(1);
+    expect(configuredConnected).toHaveBeenCalledTimes(4);
+    expect(mainConnected).toHaveBeenCalledTimes(2);
   } finally {
     authenticate();
     await client.dispose();

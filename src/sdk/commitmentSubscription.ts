@@ -11,6 +11,46 @@ const asRecord = (value: unknown): Record<string, unknown> | undefined =>
     ? (value as Record<string, unknown>)
     : undefined;
 
+/** Project upstream error paths into the same response shape as the event data. */
+function projectEventErrors(
+  errors: ExecutionResult["errors"],
+  selection: NonNullable<EdgeSubscriptionPlan["events"]>,
+  indices: ReadonlyMap<number, number>,
+  filteredKeys: ReadonlySet<string>,
+): ExecutionResult["errors"] {
+  return errors?.map((error) => {
+    const path = error.path;
+    if (!path || path[0] !== selection.rootKey) return error;
+    let projectedPath: readonly (string | number)[];
+    if (path[1] === selection.metadataKey) {
+      projectedPath = [selection.rootKey];
+    } else if (
+      typeof path[1] === "string" &&
+      filteredKeys.has(path[1]) &&
+      typeof path[2] === "number"
+    ) {
+      const index = indices.get(path[2]);
+      // Preserve errors on removed events at the surviving public list, rather
+      // than attributing them to whichever event now occupies the old index.
+      projectedPath =
+        index === undefined
+          ? path.slice(0, 2)
+          : [path[0], path[1], index, ...path.slice(3)];
+    } else return error;
+    // Preserve both serialized errors and GraphQLError instances, including
+    // their methods, non-enumerable properties and upstream extensions.
+    return Object.create(Object.getPrototypeOf(error), {
+      ...Object.getOwnPropertyDescriptors(error),
+      path: {
+        value: projectedPath,
+        enumerable: true,
+        writable: true,
+        configurable: true,
+      },
+    });
+  });
+}
+
 /** Same identity, ordering and 10-second TTL as graph-commitment-policy. */
 export class EventCommitmentGate {
   private entries = new Map<string, { rank: number; expires: number }>();
@@ -117,18 +157,21 @@ export function subscribeWithCommitments<
     next: (result) => {
       if (stopped) return;
       const { events } = plan;
-      const data = asRecord(result.data);
-      const root = events && data && asRecord(data[events.rootKey]);
-      if (!events || !root) {
+      if (!events) {
         sink.next(result);
         return;
       }
-      const metadata = root[events.metadataKey];
-      const projected = { ...root };
-      delete projected[events.metadataKey];
+      const data = asRecord(result.data);
+      const root = data && asRecord(data[events.rootKey]);
+      const projected = root && { ...root };
+      if (projected) delete projected[events.metadataKey];
+      const indices = new Map<number, number>();
+      const filteredKeys = new Set<string>();
       let suppressed = false;
-      if (Array.isArray(metadata)) {
+      const metadata = root?.[events.metadataKey];
+      if (projected && Array.isArray(metadata)) {
         const accepted = gate.acceptedIndices(metadata);
+        for (const index of accepted) indices.set(index, indices.size);
         suppressed =
           metadata.some((event) => event != null) &&
           !metadata.some(
@@ -136,15 +179,26 @@ export function subscribeWithCommitments<
           );
         for (const key of events.responseKeys) {
           const selected = projected[key];
-          if (Array.isArray(selected))
+          if (Array.isArray(selected)) {
             projected[key] = selected.filter((_, index) => accepted.has(index));
+            filteredKeys.add(key);
+          }
         }
       }
+      const errors = projectEventErrors(
+        result.errors,
+        events,
+        indices,
+        filteredKeys,
+      );
       // GraphQL errors still need to reach the caller even for a duplicate batch.
-      if (!suppressed || result.errors?.length)
+      if (!suppressed || errors?.length)
         sink.next({
           ...result,
-          data: { ...data, [events.rootKey]: projected } as Data,
+          ...(errors && { errors }),
+          ...(projected && {
+            data: { ...data, [events.rootKey]: projected } as Data,
+          }),
         });
     },
     error: (error) => {

@@ -1,3 +1,4 @@
+import { GraphQLError } from "graphql";
 import {
   type Client,
   createClient,
@@ -135,7 +136,14 @@ function resultFor(
   operation: Operation,
   events: unknown[],
   extra: Partial<ExecutionResult> = {},
-): ExecutionResult {
+): ExecutionResult<{
+  stream: {
+    id: string;
+    trades: Array<{ maker: string }>;
+    other?: Array<{ maker: string }>;
+    [key: string]: unknown;
+  };
+}> {
   const metadataKey = operation.payload.query.includes(
     "_codexCommitmentEvents_",
   )
@@ -290,4 +298,101 @@ it("cleans up when a transport synchronously terminates during subscribe", () =>
   expect(cleanup).toHaveBeenCalledTimes(1);
   expect(edge.subscribe).not.toHaveBeenCalled();
   expect(sink.error).toHaveBeenCalledTimes(1);
+});
+
+it("remaps error indices for every selected events alias and preserves nested paths", () => {
+  const { main, edge, sink } = splitSubscription();
+  const plan = planEdgeSubscription({
+    query: `subscription { stream: onEventsCreated(id: "pair:56", commitmentLevel: [Processed, Confirmed]) { trades: events { maker } other: events { maker } } }`,
+  });
+  subscribeWithCommitments(main, edge, plan, sink);
+  const operation = transports[0].operations[0];
+  operation.sink.next(resultFor(operation, [event("Confirmed")]));
+  const errors = [
+    new GraphQLError("new event failed", {
+      path: ["stream", "trades", 1, "data", "swaps", 3],
+      extensions: { code: "UPSTREAM" },
+    }),
+    new GraphQLError("other alias failed", {
+      path: ["stream", "other", 1, "maker"],
+    }),
+    new GraphQLError("duplicate failed", {
+      path: ["stream", "trades", 0, "maker"],
+    }),
+    new GraphQLError("list failed", { path: ["stream", "trades"] }),
+    new GraphQLError("unrelated failed", { path: ["otherRoot", "trades", 1] }),
+    new GraphQLError("no path"),
+  ];
+  const result = resultFor(
+    operation,
+    [event("Confirmed"), event("Confirmed", { logIndex: 1 })],
+    { errors, extensions: { trace: "kept" } },
+  );
+  result.data!.stream.other = [{ maker: "other-0" }, { maker: "other-1" }];
+  operation.sink.next(result);
+  const delivered = sink.next.mock.calls[1][0];
+  expect(delivered.data.stream).toEqual({
+    id: "pair:56",
+    trades: [{ maker: "maker-1" }],
+    other: [{ maker: "other-1" }],
+  });
+  expect(delivered.errors.map((error: GraphQLError) => error.path)).toEqual([
+    ["stream", "trades", 0, "data", "swaps", 3],
+    ["stream", "other", 0, "maker"],
+    ["stream", "trades"],
+    ["stream", "trades"],
+    ["otherRoot", "trades", 1],
+    undefined,
+  ]);
+  expect(delivered.extensions).toEqual({ trace: "kept" });
+  expect(delivered.errors[0].extensions).toEqual({ code: "UPSTREAM" });
+  expect(delivered.errors[0].message).toBe("new event failed");
+  expect(delivered.errors[0].toJSON().path).toEqual([
+    "stream",
+    "trades",
+    0,
+    "data",
+    "swaps",
+    3,
+  ]);
+  expect(errors[0].path).toEqual(["stream", "trades", 1, "data", "swaps", 3]);
+  expect(result.data!.stream.trades).toHaveLength(2);
+});
+
+it.each([true, false])(
+  "hides metadata error paths even when public data is missing: %s",
+  (withData) => {
+    const { main, edge, sink, plan } = splitSubscription();
+    subscribeWithCommitments(main, edge, plan, sink);
+    const operation = transports[0].operations[0];
+    const errors = [
+      new GraphQLError("identity failed", {
+        path: ["stream", plan.events!.metadataKey, 0, "networkId"],
+      }),
+    ];
+    operation.sink.next(
+      withData
+        ? resultFor(operation, [null], { errors })
+        : { data: { stream: null }, errors },
+    );
+    expect(sink.next.mock.calls[0][0].errors[0].path).toEqual(["stream"]);
+  },
+);
+
+it("retains errors for suppressed batches at the public array path", () => {
+  const { main, edge, sink, plan } = splitSubscription();
+  subscribeWithCommitments(main, edge, plan, sink);
+  const operation = transports[0].operations[0];
+  operation.sink.next(resultFor(operation, [event("Confirmed")]));
+  const error = new GraphQLError("duplicate failed", {
+    path: ["stream", "trades", 0, "maker"],
+  });
+  operation.sink.next(
+    resultFor(operation, [event("Confirmed")], { errors: [error] }),
+  );
+  expect(sink.next).toHaveBeenCalledTimes(2);
+  const delivered = sink.next.mock.calls[1][0];
+  expect(delivered.data.stream.trades).toEqual([]);
+  expect(delivered.errors[0].path).toEqual(["stream", "trades"]);
+  expect(delivered.errors[0].message).toBe("duplicate failed");
 });
