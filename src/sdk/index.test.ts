@@ -100,6 +100,38 @@ describe("Codex", () => {
       createGraphQLClientSpy.mockRestore();
       createWebsocketClientSpy.mockRestore();
     });
+    it("should keep the defaults for options passed as undefined", async () => {
+      const urls: string[] = [];
+      const fetchStub = jest.fn(async (input: RequestInfo | URL) => {
+        urls.push(String(input));
+        return new Response(JSON.stringify({ data: { getNetworks: [] } }), {
+          headers: { "content-type": "application/json" },
+        });
+      });
+      const createWebsocketClientSpy = jest.spyOn(
+        Codex.prototype as any,
+        "createWebsocketClient",
+      );
+
+      const sdkInstance = new Codex("test-key", {
+        apiUrl: undefined,
+        apiRealtimeUrl: undefined,
+        ws: undefined,
+        fetch: fetchStub,
+      });
+      await sdkInstance.send(getNetworksString);
+
+      expect(urls).toEqual(["https://graph.codex.io/graphql"]);
+      expect(createWebsocketClientSpy).toHaveBeenCalledWith(
+        expect.objectContaining({
+          apiRealtimeUrl: "wss://graph.codex.io/graphql",
+          ws: true,
+        }),
+      );
+
+      createWebsocketClientSpy.mockRestore();
+      await sdkInstance.dispose();
+    });
   });
 
   describe("updateConfig", () => {
