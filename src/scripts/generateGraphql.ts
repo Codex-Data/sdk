@@ -87,6 +87,10 @@ export const getLeafType = (
     const subType = allTypes.find((t) => t.name === type.name);
     const subTypeLeaves = (subType?.fields ?? [])
       .filter((t) => !t.isDeprecated)
+      // Cached briefs add payload and CU costs, so callers must select them explicitly.
+      .filter(
+        (field) => type.name !== "EnhancedToken" || field.name !== "brief",
+      )
       .map((f: SchemaType) =>
         getLeafType(f.type, allTypes, [], f.name, level + 1),
       )
