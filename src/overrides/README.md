@@ -76,6 +76,10 @@ query GetWebhooks($bucketId: String, $bucketSortkey: String) {
 - Generated files in `src/resources/generated/` are **not source-controlled** - they're regenerated on build
 - When the schema changes, you may need to update your overrides manually
 
+## Fields that require explicit selection
+
+The shared generator omits `EnhancedToken.brief` from default queries and subscriptions, including nested tokens and union members. This avoids adding cache reads, compute units and brief text to existing SDK calls. Use a custom GraphQL selection such as `token { id brief { tagline } }` to opt in. The dedicated `getTokenBrief` query still selects its brief content.
+
 ## Current Overrides
 
 - **Queries**: FilterTokenWallets, GetEventLabels, GetNetworkConfigs, GetWebhooks
